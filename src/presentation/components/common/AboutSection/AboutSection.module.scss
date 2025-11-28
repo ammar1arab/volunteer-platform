@@ -1,0 +1,73 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.section {
+  padding: 80px 0 0;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: $sp-xl;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.textBox {
+  padding: $sp-lg;
+  background: #fafafa;
+  border-radius: $radius-lg;
+  border-right: 5px solid $green;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+}
+
+.heading {
+  font-size: $font-xl;
+  font-weight: 700;
+  margin-bottom: $sp-md;
+}
+
+.text {
+  color: $text-muted;
+  line-height: 1.8;
+  margin-bottom: $sp-md;
+  font-size: $font-base;
+}
+
+.readMore {
+  @include btn-secondary;
+  font-weight: 700;
+}
+ 
+.features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $sp-lg;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.feature {
+  padding: $sp-lg;
+  background: white;
+  border-radius: $radius-lg;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+  border-top: 4px solid $red;
+  transition: 0.25s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    border-top-color: $green;
+  }
+}
+
+.icon {
+  font-size: 28px;
+  margin-bottom: $sp-sm;
+  color: $green;
+}

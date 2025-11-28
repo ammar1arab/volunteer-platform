@@ -1,0 +1,169 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+$mobile-break: 900px;
+
+/* CORE */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-fixed;
+  background: $bg;
+  border-bottom: 1px solid $border;
+  padding: $sp-md 0;
+}
+
+.nav {
+  @include flex-between;
+  height: 30px;
+  width: 100%;
+}
+
+/* DESKTOP */
+.logoDesktop {
+  display: block;
+  @media (max-width: $mobile-break) { display: none; }
+}
+
+.navLinks {
+  @include flex(row, center, center, $sp-xl);
+  list-style: none;
+  @media (max-width: $mobile-break) { display: none; }
+}
+
+.navItem {
+  color: $text-muted;
+  padding: $sp-sm $sp-md;
+  font-weight: 600;
+  border-radius: $radius;
+  transition: $transition;
+  position: relative;
+}
+.navItem:hover { color: $text; }
+.navItem:hover::after { width: 80%; }
+
+.navItem::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: $green;
+  transition: $transition;
+}
+
+.desktopSocial {
+  @include flex(row, center, center, $sp-md);
+  @media (max-width: $mobile-break) { display: none; }
+}
+
+/* ICONS */
+.icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  @include flex-center;
+  transition: $transition;
+}
+.instabg { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
+.fbBg { background: #1877F2; }
+.loginBg { background: #16a34a }
+
+/* ===================== MOBILE ===================== */
+.mobileBar {
+  display: none;
+  position: relative;
+
+  @media (max-width: $mobile-break) {
+    @include flex(row, center, space-between);
+    width: 100%;
+  }
+}
+
+.leftIcons {
+  display: none;
+  @media (max-width: $mobile-break) {
+    @include flex(row, center, center, $sp-sm);
+  }
+}
+
+.rightIcons {
+  display: none;
+  @media (max-width: $mobile-break) {
+    @include flex(row, center, center, $sp-sm);
+  }
+}
+
+.mobileIcon {
+  @extend .icon;
+  width: 30px;
+  height: 30px;
+}
+
+.mobileLogoWrapper {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.logoMobile {
+  display: none;
+  @media (max-width: $mobile-break) { display: block; }
+}
+
+/* MENU BUTTON */
+.menuBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  @media (max-width: $mobile-break) {
+    @include flex-center;
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.menuIcon {
+  transition: 0.25s ease;
+  color: #333;
+}
+
+.menuIconOpen {
+  transition: 0.25s ease;
+  transform: scale(1.2);
+  color: #ef4444;
+}
+
+/* MOBILE MENU */
+.mobileMenu {
+  display: none;
+
+  @media (max-width: $mobile-break) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   
+    gap: $sp-sm;           
+    margin-top: $sp-md;
+    padding-top: $sp-md;
+    border-top: 1px solid $border;
+  }
+}
+
+.mobileLink {
+  width: 100%;       
+  text-align: center; 
+  padding: $sp-md;
+  color: $text;
+  font-weight: 600;
+  border-radius: $radius;
+  transition: $transition;
+}
+
+.mobileLink:hover {
+  background: rgba(0,0,0,0.05);
+}

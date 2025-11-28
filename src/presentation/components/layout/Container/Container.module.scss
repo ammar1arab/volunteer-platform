@@ -1,0 +1,17 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.container {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 $sp-lg;
+
+  @media (max-width: 900px) {
+    padding: 0 $sp-md;
+  }
+
+  @media (max-width: 600px) {
+    padding: 0 $sp-sm;
+  }
+}

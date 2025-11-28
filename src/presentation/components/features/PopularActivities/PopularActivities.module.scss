@@ -1,0 +1,56 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.section {
+  padding: 90px 0;
+}
+
+.grid {
+  @include grid(4, $sp-lg);
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: $sp-md;
+  }
+}
+
+.card {
+  @include card;
+  background: white;
+  transition: $transition;
+  box-shadow: $shadow;
+
+  &:hover {
+    transform: translateY(-6px);
+    border-color: $green;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.category {
+  font-size: $font-sm;
+  color: $green;
+  font-weight: 700;
+}
+
+.title {
+  font-size: $font-lg;
+  margin: $sp-sm 0;
+  font-weight: 700;
+}
+
+.learnMore {
+  @include flex(row, center, flex-start, $sp-xs);
+  font-weight: 600;
+  color: $text;
+  transition: $transition;
+
+  &:hover {
+    color: $green;
+    transform: translateX(-4px);
+  }
+}

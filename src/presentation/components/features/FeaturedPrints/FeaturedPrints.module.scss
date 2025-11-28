@@ -1,0 +1,116 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.section {
+  padding: 80px 0 0;
+}
+
+.grid {
+  @include grid(4, $sp-lg);
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-md;
+  }
+}
+
+.card {
+  @include glass-card;
+  padding: $sp-md $sp-lg;
+  border-radius: $radius-lg;
+  text-align: center;
+  transition: all 0.35s ease;
+  transform-style: preserve-3d;
+
+  &:hover {
+    transform: translateY(-8px) scale(1.04) rotateX(3deg);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.image {
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: $radius-lg;
+  margin: 0 auto $sp-md;
+
+  @media (max-width: 900px) {
+    width: 110px;
+    height: 110px;
+  }
+}
+
+.name {
+  font-size: $font-xl;
+  font-weight: 700;
+  margin-bottom: $sp-xs;
+
+  @media (max-width: 900px) {
+    font-size: $font-lg;
+  }
+
+  @media (max-width: 600px) {
+    font-size: $font-base;
+  }
+}
+
+.title {
+  font-size: $font-sm;
+  color: $text-muted;
+  margin-bottom: $sp-sm;
+}
+
+.desc {
+  @include line-clamp(3);
+  color: $text-muted;
+  font-size: $font-sm;
+  line-height: 1.6;
+  margin-bottom: $sp-md;
+
+  @media (max-width: 600px) {
+    display: none;
+  }
+}
+
+.actions {
+  @include flex(row, center, space-between, $sp-md);
+  margin-top: $sp-sm;
+  padding-top: $sp-sm;
+}
+
+.actionBtn {
+  @include flex-center;
+  gap: 4px;
+  transition: $transition;
+
+  &:hover {
+    transform: scale(1.09);
+  }
+}
+
+.heart {
+  color: $text-muted;
+  transition: $transition;
+}
+
+.heartFilled {
+  color: $red;
+  filter: drop-shadow(0 0 6px rgba($red, 0.6));
+  transition: $transition;
+}
+
+.likesCount {
+  font-size: $font-sm;
+  color: $text;
+}
+
+.share,
+.profile {
+  color: $text;
+  transition: $transition;
+}

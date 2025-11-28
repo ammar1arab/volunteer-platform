@@ -1,0 +1,153 @@
+@use "./variables" as *;
+@use "./mixins" as *;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: $font-base;
+  line-height: 1.5;
+  color: $text;
+  background: $bg;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-size: $font-3xl;
+  margin-bottom: $sp-md;
+}
+h2 {
+  font-size: $font-2xl;
+  margin-bottom: $sp-md;
+}
+h3 {
+  font-size: $font-xl;
+  margin-bottom: $sp-md;
+}
+
+p {
+  margin-bottom: $sp-md;
+  line-height: 1.6;
+}
+
+a {
+  color: $text; 
+  text-decoration: none;
+  transition: $transition;
+
+  &:hover {
+    color: $green;
+  }
+}
+
+button {
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  @include input;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.container {
+  @include container;
+}
+.flex {
+  @include flex;
+}
+.flex-center {
+  @include flex-center;
+}
+.flex-between {
+  @include flex-between;
+}
+.flex-col {
+  @include flex-col;
+}
+
+.grid {
+  @include grid-auto;
+}
+.grid-2 {
+  @include grid(2);
+}
+.grid-3 {
+  @include grid(3);
+}
+.grid-4 {
+  @include grid(4);
+}
+
+.btn {
+  @include btn;
+}
+.btn-primary {
+  @include btn-primary;
+}
+.btn-secondary {
+  @include btn-secondary;
+}
+
+.card {
+  @include card;
+}
+.card-hover {
+  @include card-hover;
+}
+
+.truncate {
+  @include truncate;
+}
+.line-clamp-2 {
+  @include line-clamp(2);
+}
+
+.hidden {
+  @include hidden;
+}
+
+// ===== RESPONSIVE =====
+@include sm {
+  .sm\:grid-1 {
+    @include grid(1);
+  }
+  .sm\:grid-2 {
+    @include grid(2);
+  }
+  .sm\:hidden {
+    display: none;
+  }
+}
+
+@include md {
+  .md\:grid-2 {
+    @include grid(2);
+  }
+  .md\:grid-3 {
+    @include grid(3);
+  }
+}
+
+@include lg {
+  .lg\:grid-4 {
+    @include grid(4);
+  }
+}

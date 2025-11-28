@@ -1,0 +1,306 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.section {
+  padding: 80px 0 0;
+}
+
+.grid {
+  @include grid(2, $sp-xl);
+  margin-bottom: $sp-xl;
+
+  @media (max-width: 1024px) {
+    gap: $sp-lg;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  @include card;
+  @include flex(row, stretch, flex-start, $sp-md);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba($green, 0.03) 100%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: rgba($green, 0.3);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .image {
+      transform: scale(1.08);
+    }
+
+    .badge {
+      transform: scale(1.05);
+    }
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.imageCol {
+  position: relative;
+  min-width: 200px;
+  max-width: 200px;
+
+  @media (max-width: 1024px) {
+    min-width: 180px;
+    max-width: 180px;
+  }
+
+  @media (max-width: 600px) {
+    min-width: 100%;
+    max-width: 100%;
+    height: 200px;
+  }
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.badge {
+  position: absolute;
+  top: $sp-sm;
+  right: $sp-sm;
+  padding: 6px 14px;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 700;
+  box-shadow: $shadow;
+  transition: transform 0.25s ease;
+  z-index: 2;
+
+  @media (max-width: 600px) {
+    top: $sp-md;
+    right: $sp-md;
+  }
+}
+
+.badge-environmental {
+  background: rgba($green, 0.95);
+  color: white;
+}
+
+.badge-social {
+  background: rgba(59, 130, 246, 0.95);
+  color: white;
+}
+
+.badge-educational {
+  background: rgba(249, 115, 22, 0.95);
+  color: white;
+}
+
+.badge-health {
+  background: rgba($red, 0.95);
+  color: white;
+}
+
+.badge-other {
+  background: rgba(107, 114, 128, 0.95);
+  color: white;
+}
+
+.content {
+  @include flex-col;
+  flex: 1;
+  padding: $sp-lg $sp-md;
+
+  @media (max-width: 600px) {
+    padding: $sp-lg;
+  }
+}
+
+.title {
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $text;
+  margin-bottom: $sp-sm;
+  line-height: 1.4;
+
+  @media (max-width: 1024px) {
+    font-size: $font-md;
+  }
+}
+
+.desc {
+  font-size: $font-sm;
+  color: $text-muted;
+  line-height: 1.65;
+  margin-bottom: $sp-md;
+  flex-grow: 1;
+}
+
+.meta {
+  @include grid(2, $sp-sm);
+  margin-bottom: $sp-lg;
+  padding: $sp-md;
+  background: rgba($green, 0.03);
+  border-radius: $radius-md;
+  border: 1px solid rgba($green, 0.1);
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: $sp-xs;
+  }
+}
+
+.metaItem {
+  @include flex(row, center, flex-start, 8px);
+  font-size: $font-xs;
+  color: $text-muted;
+  font-weight: 500;
+
+  span {
+    line-height: 1.4;
+  }
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: $green;
+}
+
+.actions {
+  @include flex(row, center, flex-start, $sp-sm);
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+.moreBtn {
+  @include btn-secondary;
+  flex: 1;
+  padding: 10px 20px;
+  font-size: $font-sm;
+  font-weight: 600;
+  border-radius: $radius-md;
+
+  &:hover {
+    background: rgba($green, 0.08);
+    border-color: $green;
+    color: $green;
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 480px) {
+    flex: none;
+  }
+}
+
+.applyBtn {
+  @include btn-primary;
+  flex: 1;
+  padding: 10px 20px;
+  font-size: $font-sm;
+  font-weight: 600;
+  border-radius: $radius-md;
+  box-shadow: 0 4px 12px rgba($green, 0.2);
+  color: white;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($green, 0.3);
+  }
+
+  @media (max-width: 480px) {
+    flex: none;
+  }
+}
+
+.navigation {
+  @include flex-center;
+  gap: $sp-lg;
+  margin-top: $sp-xl;
+}
+
+.navBtn {
+  @include flex-center;
+  width: 48px;
+  height: 48px;
+  border-radius: $radius-full;
+  border: 2px solid $border;
+  background: $bg;
+  color: $text;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 20px;
+
+  &:hover:not(:disabled) {
+    background: $green;
+    border-color: $green;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba($green, 0.25);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+  }
+}
+
+.dots {
+  @include flex(row, center, center, $sp-xs);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: $radius-full;
+  background: $border;
+  border: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba($green, 0.5);
+    transform: scale(1.2);
+  }
+}
+
+.activeDot {
+  background: $green;
+  width: 28px;
+  border-radius: $radius-full;
+
+  &:hover {
+    background: $green;
+    transform: scale(1);
+  }
+}

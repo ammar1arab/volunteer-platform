@@ -1,0 +1,28 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.header {
+  text-align: center;
+  margin-top: $sp-xl;
+  margin-bottom: $sp-xl;
+}
+
+.title {
+  font-size: $font-2xl;
+  font-weight: 700;
+  margin-bottom: $sp-sm;
+}
+
+.subtitle {
+  color: $text-muted;
+  max-width: 600px;
+  margin: 0 auto $sp-md;
+}
+
+.underline {
+  width: 60px;
+  height: 4px;
+  background: $green;
+  margin: 0 auto;
+  border-radius: $radius-full;
+}

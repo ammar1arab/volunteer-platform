@@ -1,0 +1,25 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+enum UserRole {
+    ADMIN
+    VOLUNTEER
+}
+
+model Volunteer {
+    id          String     @id @default(cuid())
+    firstName   String
+    lastName    String
+    email       String     @unique
+    phone       String
+    password    String
+    role        UserRole   @default(VOLUNTEER)
+    isActive    Boolean    @default(true)
+    createdAt   DateTime   @default(now())
+}

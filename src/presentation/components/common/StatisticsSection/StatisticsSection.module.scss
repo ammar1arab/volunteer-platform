@@ -1,0 +1,42 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.section {
+  padding: 0px 0;
+}
+
+.grid {
+  @include grid(3, $sp-xl);
+
+  @media (max-width: 600px) {
+    @include grid(1, $sp-lg);
+  }
+}
+
+.card {
+  @include glass-card;
+  padding: $sp-lg;
+  border-radius: $radius-lg;
+  text-align: center;
+  transition: 0.25s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: $shadow-deep;
+  }
+}
+
+.icon {
+  font-size: 36px;
+  color: $green;
+}
+
+.number {
+  font-size: 40px;
+  font-weight: 800;
+  margin: $sp-sm 0;
+}
+
+.label {
+  color: $text-muted;
+}

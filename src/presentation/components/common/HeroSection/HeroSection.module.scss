@@ -1,0 +1,80 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.hero {
+  padding: 90px 0 0;
+}
+
+.wrapper {
+  @include flex(row, center, space-between, $sp-xl);
+  flex-wrap: wrap;
+}
+
+.textBox {
+  max-width: 520px;
+}
+
+.title {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.3;
+
+  span {
+    color: $green;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 32px;
+  }
+}
+
+.subtitle {
+  margin: $sp-md 0;
+  color: $text-muted;
+  font-size: $font-lg;
+}
+
+.actions {
+  @include flex(row, center, flex-start, $sp-md);
+  margin-top: $sp-md;
+}
+
+.primaryBtn {
+  @include btn-primary;
+  font-size: $font-lg;
+  color: white
+}
+
+.secondaryBtn {
+  @include btn-secondary;
+  font-size: $font-lg;
+}
+
+.stats {
+  margin-top: $sp-lg;
+  @include flex(row, center, flex-start, $sp-lg);
+  flex-wrap: wrap;
+
+  div {
+    @include flex(row, center, flex-start, $sp-xs);
+    font-weight: 600;
+    color: $text;
+  }
+
+  svg {
+    color: $green;
+    font-size: 22px;
+  }
+}
+
+.heroImage img {
+  width: 360px;
+  height: auto;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-deep;
+
+  @media (max-width: 600px) {
+    width: 100%;
+    margin-top: $sp-lg;
+  }
+}

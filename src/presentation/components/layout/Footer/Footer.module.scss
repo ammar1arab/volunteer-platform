@@ -1,0 +1,96 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.footer {
+  background: linear-gradient(to bottom, #fafafa, #f5f5f5);
+  border-top: 1px solid $border;
+  padding: 20px 0;
+  color: $text-muted;
+}
+
+.grid {
+  @include grid(3, $sp-xl);
+  grid-template-columns: 2fr 1fr 1fr;
+  margin-bottom: $sp-xl;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: $sp-lg;
+    text-align: center;
+  }
+}
+
+.col {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.title {
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $text;
+}
+
+.desc {
+  line-height: 1.7;
+  color: $text-muted;
+}
+
+.list {
+  @include flex-col;
+  gap: $sp-sm;
+  list-style: none;
+
+  a {
+    color: $text-muted;
+    font-weight: 500;
+    transition: $transition;
+
+    &:hover {
+      color: $green;
+      padding-right: 4px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    align-items: center;
+  }
+}
+
+.social {
+  @include flex-col;
+  gap: $sp-sm;
+
+  a {
+    @include flex(row, center, flex-start, $sp-sm);
+    color: $text-muted;
+    font-weight: 500;
+    transition: $transition;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      color: $green;
+      transform: translateX(-4px);
+    }
+  }
+
+  @media (max-width: 768px) {
+    align-items: center;
+
+    a:hover {
+      transform: translateX(0) scale(1.05);
+    }
+  }
+}
+
+.bottom {
+  text-align: center;
+  padding-top: $sp-md;
+  border-top: 1px solid $border;
+  color: $text-muted;
+  font-size: $font-sm;
+}

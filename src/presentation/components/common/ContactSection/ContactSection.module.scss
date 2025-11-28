@@ -1,0 +1,61 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.section {
+  padding: 80px 0;
+}
+
+.form {
+  max-width: 650px;
+  margin: 0 auto;
+  display: grid;
+  gap: $sp-lg;
+}
+
+.field {
+  position: relative;
+}
+
+.icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: $text-muted;
+}
+
+.inputBase {
+  width: 100%;
+  padding: 14px 50px 14px 14px;
+  border-radius: $radius;
+  border: 1px solid $border;
+  background: white;
+  font-size: $font-base;
+  transition: 0.2s ease;
+
+  &:focus {
+    border-color: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.15);
+    outline: none;
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+textarea.inputBase {
+  min-height: 130px;
+  resize: none;
+}
+
+/* ------------------------ */
+
+.submitBtn {
+  @include btn-primary;
+  font-size: $font-lg;
+  width: 100%;
+  padding: 14px;
+  color: white;
+}
