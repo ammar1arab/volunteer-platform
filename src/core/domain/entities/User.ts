@@ -3,21 +3,11 @@ import { UserRole } from "@/core/domain/enums";
 import { UserProps } from "@/core/domain/interfaces";
 
 class User extends BaseEntity {
-  public firstName: string;
-  public lastName: string;
-  public email: string;
-  public phone?: string;
-  public password: string;
-  public role: UserRole;
+  private props: UserProps;
 
-  private constructor(props: UserProps) {
-    super(props.id, props.createdAt, props.isActive ?? true);
-    this.firstName = props.firstName;
-    this.lastName = props.lastName;
-    this.email = props.email;
-    this.phone = props.phone;
-    this.password = props.password;
-    this.role = props.role;
+  constructor(props: UserProps) {
+    super(props.id, props.createdAt, props.updatedAt, props.isActive ?? true);
+    this.props = { ...props };
   }
 
   static create(input: Omit<UserProps, "id" | "createdAt" | "isActive">): User {
@@ -26,6 +16,40 @@ class User extends BaseEntity {
       role: input.role ?? UserRole.VOLUNTEER,
     });
   }
+
+  get email(): string {
+    return this.props.email;
+  }
+
+  get password(): string {
+    return this.props.password;
+  }
+
+  get fullName(): string {
+    return this.props.fullName;
+  }
+
+  get phone(): string {
+    return this.props.phone;
+  }
+
+  get role(): UserRole {
+    return this.props.role;
+  }
+
+  isAdmin(): boolean {
+    return this.props.role === "ADMIN";
+  }
+
+  isActiveAccount(): boolean {
+    return this.props.isActive === true;
+  }
+
+  toObject(): UserProps {
+    return {
+      ...this.props,
+    };
+  }
 }
 
-export default User
+export default User;

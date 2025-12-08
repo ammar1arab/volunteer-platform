@@ -12,3 +12,7 @@ export { default as StatisticsSection } from './common/StatisticsSection/Statist
 export { default as AvailableActivities } from './features/AvailableActivities/AvailableActivities';
 export { default as FeaturedPrints } from './features/FeaturedPrints/FeaturedPrints';
 export { default as PopularActivities } from './features/PopularActivities/PopularActivities';
+export { default as LoginForm } from './features/LoginForm/LoginForm';
+
+export { default as Input } from './ui/Input/Input';
+export { default as Button } from './ui/Button/Button';

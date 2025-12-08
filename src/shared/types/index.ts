@@ -1,2 +1,2 @@
-export * from './contracts/activity.contract'
-export * from './contracts/featuredPrint.contract'
+export type * from './ui.types';
+export type * from './auth.types';

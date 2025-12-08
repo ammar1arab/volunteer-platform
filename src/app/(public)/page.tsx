@@ -8,7 +8,7 @@ export default function Home() {
       <FeaturedPrints />
       <AvailableActivities />
       {/* <PopularActivities/> */}
-      <AboutSection/>
+      <AboutSection/>k
       <ContactSection/>
     </>
   );

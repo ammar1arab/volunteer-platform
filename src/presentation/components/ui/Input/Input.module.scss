@@ -1,0 +1,56 @@
+@use "@/presentation/styles/variables" as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+  width: 100%;
+}
+
+.label {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: #111827;
+}
+
+.input {
+  width: 100%;
+  padding: $sp-md;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  border-radius: $radius;
+  color: #111827;
+  font-size: $font-base;
+  transition: all $transition;
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f9fafb;
+  }
+
+  &.hasError {
+    border-color: #ef4444;
+
+    &:focus {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+}
+
+.error {
+  font-size: $font-xs;
+  color: #ef4444;
+  font-weight: 500;
+}

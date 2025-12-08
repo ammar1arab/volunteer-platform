@@ -1,0 +1,107 @@
+@use "@/presentation/styles/mixins" as *;
+@use "@/presentation/styles/variables" as *;
+
+.container {
+  min-height: 100vh;
+  @include flex-center;
+  background: linear-gradient(to bottom right, #f8fafc, #e2e8f0);
+  padding: $sp-lg;
+}
+
+.form {
+  @include flex-col;
+  gap: $sp-xl;
+  width: 100%;
+  max-width: 440px;
+  padding: $sp-xl * 2;
+  background: white;
+  border-radius: $radius-lg;
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 10px 40px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.4s ease;
+
+  @include sm {
+    padding: $sp-xl;
+    gap: $sp-lg;
+  }
+}
+
+.header {
+  text-align: center;
+  @include flex-col;
+  gap: $sp-sm;
+  margin-bottom: $sp-md;
+}
+
+.title {
+  font-size: $font-3xl;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.02em;
+
+  @include sm {
+    font-size: $font-2xl;
+  }
+}
+
+.subtitle {
+  font-size: $font-base;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+.errorBanner {
+  padding: $sp-md;
+  background: rgba(#ef4444, 0.08);
+  border: 1px solid rgba(#ef4444, 0.2);
+  border-radius: $radius;
+  color: #ef4444;
+  font-size: $font-sm;
+  text-align: center;
+  font-weight: 500;
+  animation: shake 0.4s ease;
+}
+
+.fields {
+  @include flex-col;
+  gap: $sp-lg;
+}
+
+.footer {
+  text-align: center;
+  padding-top: $sp-lg;
+  margin-top: $sp-md;
+  border-top: 1px solid #e5e7eb;
+
+  small {
+    font-size: $font-xs;
+    color: #6b7280;
+    font-weight: 500;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
+}
