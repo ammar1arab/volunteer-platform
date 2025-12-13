@@ -1,0 +1,15 @@
+@use "@/presentation/styles/variables" as *;
+
+.welcome {
+  h2 {
+    font-size: $font-xl;
+    font-weight: 600;
+    margin: 0 0 $sp-xs;
+  }
+
+  p {
+    font-size: $font-base;
+    color: $text-muted;
+    margin: 0;
+  }
+}

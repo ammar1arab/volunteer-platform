@@ -1,28 +1,47 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
-    ADMIN
-    VOLUNTEER
+  ADMIN
+  VOLUNTEER
+}
+
+enum ActivityStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
 }
 
 model User {
-    id        String   @id @default(uuid())
-    email     String   @unique
-    password  String
-    fullName  String
-    phone     String
-    role      UserRole
-    isActive  Boolean  @default(true)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullName  String
+  phone     String
+  role      UserRole
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@map("users")
-    @@index([email])
+  @@map("users")
+}
+
+model FeaturedPost {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  imageUrl    String?
+  date        DateTime
+  impact      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("featured_posts")
+  @@index([date])
 }

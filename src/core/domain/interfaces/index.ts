@@ -1,1 +1,1 @@
-export * from './UserProps'
+export * from './UserProps';

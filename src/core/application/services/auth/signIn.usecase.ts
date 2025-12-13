@@ -1,7 +1,7 @@
 import { UserRepository } from "@/infrastructure/persistence/repositories";
 import { Password } from "@/core/domain/value-objects";
 import { SignInRequest } from "../../dtos/authDto/signInRequest.dto";
-import { SignInResponse } from "../../dtos/authDto/signInResponse.dto";
+import { SignInResponse } from "../../dtos/authDto/signIn.dto";
 
 class SignInUseCase {
   constructor(private userRepository: UserRepository) {}
