@@ -4,8 +4,8 @@ import { useState, useTransition, useCallback } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Input, Button } from '@/presentation/components';
-import type { LoginCredentials } from '@/shared/types';
 import styles from './LoginForm.module.scss';
+import { LoginCredentials } from '@/lib/types';
 
 const INITIAL_STATE: LoginCredentials = {
   email: '',

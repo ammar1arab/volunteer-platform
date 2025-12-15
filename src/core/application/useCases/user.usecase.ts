@@ -1,5 +1,5 @@
 import { UserRepository } from "@/infrastructure/persistence/repositories";
-import { Password } from "@/core/domain/value-objects";
+import { Password } from "@/core/domain/valueObjects";
 import { SignInRequest } from "../../dtos/authDto/signInRequest.dto";
 import { SignInResponse } from "../../dtos/authDto/signIn.dto";
 

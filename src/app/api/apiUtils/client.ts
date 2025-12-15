@@ -1,1 +1,0 @@
-// اشي مشترك بين كل الEntities الي همه ال CRUD operations Create , Update, Delete, GetOne, GetAll
