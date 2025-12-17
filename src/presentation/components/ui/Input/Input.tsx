@@ -1,32 +1,32 @@
 import styles from './Input.module.scss';
-import type { InputProps } from '@/shared/types';
+import type { InputProps } from '@/lib/types';
 
-const Input = ({ label, error, className, disabled, ...inputProps }: InputProps) => {
-    return (
-        <div className={styles.field}>
-            <label className={styles.label}>
-                {label}
-            </label>
+const detectDir = (type?: string) => {
+  if (type === 'email' || type === 'password' || type === 'tel' || type === 'number' || type === 'url') return 'ltr';
+  return 'rtl';
+};
 
-            <input
-                className={`${styles.input} ${error ? styles.hasError : ''} ${className || ''}`}
-                disabled={disabled}
-                aria-invalid={!!error}
-                aria-describedby={error ? `${inputProps.id}-error` : undefined}
-                {...inputProps}
-            />
+const Input: React.FC<InputProps> = ({ label, error, onChange, className = '', dirMode = 'auto', type, ...rest }) => {
+  const dir = dirMode === 'auto' ? detectDir(type) : dirMode;
 
-            {error && (
-                <span
-                    id={`${inputProps.id}-error`}
-                    className={styles.error}
-                    role="alert"
-                >
-                    {error}
-                </span>
-            )}
-        </div>
-    );
-}
+  return (
+    <div className={styles.inputWrapper}>
+      <label className={styles.label}>
+        {label}
+        {rest.required && <span className={styles.required}>*</span>}
+      </label>
 
-export default Input
+      <input
+        dir={dir}
+        className={`${styles.input} ${error ? styles.inputError : ''} ${className}`}
+        onChange={onChange}
+        type={type}
+        {...rest}
+      />
+
+      {error && <span className={styles.error}>{error}</span>}
+    </div>
+  );
+};
+
+export default Input;

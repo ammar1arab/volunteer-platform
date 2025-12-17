@@ -1,57 +1,62 @@
 @use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
 
-.btn {
+.button {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  padding: $sp-md $sp-lg;
-  border: none;
-  border-radius: $radius;
-  font-size: $font-base;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all $transition;
+  gap: 0.5rem;
 
   &:disabled {
-    opacity: 0.6;
     cursor: not-allowed;
-  }
-
-  &:not(:disabled):active {
-    transform: scale(0.98);
+    opacity: 0.6;
   }
 }
 
 .primary {
-  background: #10b981;
+  background-color: $green;
   color: white;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
-  &:not(:disabled):hover {
-    background: #059669;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($green, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 }
 
 .secondary {
-  background: white;
-  color: #111827;
-  border: 1.5px solid #e5e7eb;
+  background-color: transparent;
+  color: $green;
+  border: 2px solid $green;
 
-  &:not(:disabled):hover {
-    background: #f9fafb;
-    border-color: #9ca3af;
+  &:hover:not(:disabled) {
+    background-color: rgba($green, 0.1);
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 }
 
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2.5px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {

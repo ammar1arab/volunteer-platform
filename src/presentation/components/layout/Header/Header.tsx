@@ -1,110 +1,181 @@
 'use client';
 
-import styles from './Header.module.scss';
-
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
-
-import { FaInstagram, FaFacebookF } from "react-icons/fa6";
-import { FiUser } from "react-icons/fi";
-import { RxHamburgerMenu, RxCross2 } from "react-icons/rx";
+import { usePathname } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
+import styles from './Header.module.scss';
 
 const Header = () => {
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [socialOpen, setSocialOpen] = useState(false);
+  const socialRef = useRef<HTMLLIElement | null>(null);
 
-  const links = [
-    { label: "الرئيسية", href: "/" },
-    { label: "الفرص", href: "/opportunities" },
-    { label: "الأعضاء", href: "/members" },
-    { label: "من نحن", href: "/about" },
-    { label: "تواصل معنا", href: "/contact" },
-  ];
+  const navLinks = useMemo(
+    () => [
+      { href: '/opportunities', label: 'الفرص' },
+      { href: '/members', label: 'الأعضاء' },
+      { href: '/about', label: 'من نحن' },
+      { href: '/contact', label: 'تواصل معنا' },
+    ],
+    []
+  );
+
+  const socialLinks = useMemo(
+    () => [
+      { href: 'https://www.facebook.com/p/%D9%85%D8%A8%D8%A7%D8%AF%D8%B1%D8%A9-%D8%A8%D8%B5%D9%85%D8%A7%D8%AA-%D8%B4%D8%A8%D8%A7%D8%A8%D9%8A%D8%A9-100063497834494/', label: 'فيسبوك', title: 'Facebook' },
+      { href: 'https://www.instagram.com/basmatshababia/', label: 'انستقرام', title: 'Instagram' },
+    ],
+    []
+  );
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setSocialOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (!socialRef.current) return;
+      if (!socialRef.current.contains(e.target as Node)) setSocialOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, []);
+
+  if (pathname === '/login' || pathname === '/signup') return null;
 
   return (
     <header className={styles.header}>
       <div className="container">
-
         <nav className={styles.nav}>
-          {/* ================= MOBILE BAR ================= */}
-          <div className={styles.mobileBar}>
-            <div className={styles.leftIcons}>
-              <a href="https://www.instagram.com/basmatshababia/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className={`${styles.mobileIcon} ${styles.instabg}`}>
-                <FaInstagram size={16} color="#fff" />
-              </a>
-
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className={`${styles.mobileIcon} ${styles.fbBg}`}>
-                <FaFacebookF size={16} color="#fff" />
-              </a>
-            </div>
-
-            <Link href="/" aria-label="الرئيسية" className={styles.mobileLogoWrapper}>
-              <Image src="/images/logo.png" alt="Logo" width={90} height={50} className={styles.logoMobile} />
-            </Link>
-
-            <div className={styles.rightIcons}>
-              <Link href="/login" aria-label="Login" className={`${styles.mobileIcon} ${styles.loginBg}`}>
-                <FiUser size={18} color="#fff" />
-              </Link>
-
-              <button type="button" aria-label="Menu" className={styles.menuBtn} onClick={() => setOpen(!open)}>
-                {open
-                  ? <RxCross2 size={24} className={styles.menuIconOpen} />
-                  : <RxHamburgerMenu size={24} className={styles.menuIcon} />}
-              </button>
-            </div>
-          </div>
-
-          <Link href="/" aria-label="الرئيسية" className={styles.logoDesktop}>
-            <Image src="/images/logo.png" alt="Logo" width={100} height={50} />
+          <Link href="/" className={styles.logoDesktop} title="الرئيسية">
+            <Image src="/images/logo.png" alt="Logo" width={100} height={50} priority />
           </Link>
 
           <ul className={styles.navLinks}>
-            {links.map(link => (
+            {navLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className={styles.navItem}>
+                <Link
+                  href={link.href}
+                  title={link.label}
+                  className={`${styles.navItem} ${pathname === link.href ? styles.active : ''}`}
+                >
                   {link.label}
                 </Link>
               </li>
             ))}
+
+            <li className={styles.socialWrapper} ref={socialRef}>
+              <button
+                type="button"
+                className={styles.socialToggle}
+                onClick={() => setSocialOpen((v) => !v)}
+                aria-expanded={socialOpen}
+                title="مواقعنا للتواصل الاجتماعي"
+              >
+                مواقعنا
+              </button>
+
+              {socialOpen && (
+                <div className={styles.socialMenu} role="menu">
+                  {socialLinks.map((s) => (
+                    <a
+                      key={s.title}
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.socialLink}
+                      title={s.title}
+                      role="menuitem"
+                    >
+                      {s.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </li>
           </ul>
 
-          <div className={styles.desktopSocial}>
-            <a href="https://www.instagram.com/basmatshababia/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className={`${styles.icon} ${styles.instabg}`}>
-              <FaInstagram size={20} color="#fff" />
-            </a>
-
-            <a
-              href="https://www.facebook.com/p/%D9%85%D8%A8%D8%A7%D8%AF%D8%B1%D8%A9-%D8%A8%D8%B5%D9%85%D8%A7%D8%AA-%D8%B4%D8%A8%D8%A7%D8%A8%D9%8A%D8%A9-100063497834494/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className={`${styles.icon} ${styles.fbBg}`}
-            >
-              <FaFacebookF size={20} color="#fff" />
-            </a>
-
-            <Link href="/login" aria-label="Login" className={`${styles.icon} ${styles.loginBg}`}>
-              <FiUser size={20} color="#fff" />
+          <div className={styles.actions}>
+            <Link href="/login" className={styles.loginBtn} title="تسجيل الدخول">
+              تسجيل الدخول
             </Link>
+          </div>
+
+          <div className={styles.mobileBar}>
+            <Link href="/" className={styles.mobileLogo} title="الرئيسية">
+              <Image src="/images/logo.png" alt="Logo" width={90} height={45} priority />
+            </Link>
+
+            <div className={styles.mobileRight}>
+              <Link
+                href="/login"
+                className={styles.mobileLogin}
+                title="تسجيل الدخول"
+              >
+                تسجيل الدخول
+              </Link>
+
+              <button
+                type="button"
+                className={styles.menuBtn}
+                onClick={() => {
+                  setMenuOpen((v) => !v);
+                  setSocialOpen(false);
+                }}
+                aria-expanded={menuOpen}
+                title={menuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
+              >
+                {menuOpen ? <RxCross2 size={22} /> : <RxHamburgerMenu size={22} />}
+              </button>
+            </div>
           </div>
         </nav>
 
-        {open && (
+        {menuOpen && (
           <div className={styles.mobileMenu}>
-            {links.map(link => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={styles.mobileLink}
-                onClick={() => setOpen(false)}
+                title={link.label}
+                className={`${styles.mobileLink} ${pathname === link.href ? styles.activeMobile : ''}`}
               >
                 {link.label}
               </Link>
             ))}
+
+            <button
+              type="button"
+              className={styles.mobileLink}
+              onClick={() => setSocialOpen((v) => !v)}
+              aria-expanded={socialOpen}
+              title="مواقعنا للتواصل الاجتماعي"
+            >
+              مواقعنا
+            </button>
+
+            {socialOpen && (
+              <div className={styles.mobileSocialMenu}>
+                {socialLinks.map((s) => (
+                  <a
+                    key={s.title}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.socialLink}
+                    title={s.title}
+                  >
+                    {s.label}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         )}
-
       </div>
     </header>
   );

@@ -1,4 +1,4 @@
-import "@/presentation/styles/global.scss";
+import "@/presentation/styles/globals.scss";
 import { Footer, Header } from "@/presentation/components";
 
 const PublicLayout = ({ children }: { children: React.ReactNode; }) => {

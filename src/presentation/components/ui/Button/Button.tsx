@@ -1,21 +1,20 @@
 import styles from './Button.module.scss';
-import type { ButtonProps } from '@/shared/types';
+import type { ButtonProps } from '@/lib/types';
 
-const Button = ({ children, loading = false, variant = 'primary', disabled, className, ...buttonProps }: ButtonProps) => {
+const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', loading = false, disabled, className = '', ...rest }) => {
     return (
         <button
-            className={`${styles.btn} ${styles[variant]} ${className || ''}`}
+            className={`${styles.button} ${styles[variant]} ${className}`}
             disabled={disabled || loading}
-            aria-busy={loading}
-            {...buttonProps}
+            {...rest}
         >
             {loading ? (
-                <span className={styles.spinner} aria-label="Loading" />
+                <span className={styles.spinner}></span>
             ) : (
                 children
             )}
         </button>
     );
-}
+};
 
-export default Button
+export default Button;

@@ -1,11 +1,9 @@
 import { User } from "@/core/domain/entities";
 import { UserProps } from "@/core/domain/interfaces";
 import { prisma } from "@/infrastructure/persistence/prisma";
-
 import IUserRepository from "./IUserRespository";
 
 class UserRepository implements IUserRepository {
-  // Find User By Their Email
   async findByEmail(email: string): Promise<User | null> {
     const userData = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
@@ -15,7 +13,7 @@ class UserRepository implements IUserRepository {
 
     return new User(userData as UserProps);
   }
-  // Find User By Their Id
+
   async findById(id: string): Promise<User | null> {
     const userData = await prisma.user.findUnique({
       where: { id },
@@ -25,25 +23,25 @@ class UserRepository implements IUserRepository {
 
     return new User(userData as UserProps);
   }
-  // Create A New User
+
   async create(user: User): Promise<User> {
     const userProps = user.toObject();
 
     const createdUser = await prisma.user.create({
       data: {
         id: userProps.id,
-        email: user.email,
+        email: userProps.email,
         password: userProps.password,
         fullName: userProps.fullName,
         phone: userProps.phone,
         role: userProps.role,
+        isActive: userProps.isActive,
       },
     });
 
     return new User(createdUser as UserProps);
   }
 
-  // Update An Existing User
   async update(user: User): Promise<User> {
     const userProps = user.toObject();
 
@@ -51,8 +49,9 @@ class UserRepository implements IUserRepository {
       where: { id: user.id },
       data: {
         email: userProps.email,
-        phone: userProps.phone,
         fullName: userProps.fullName,
+        phone: userProps.phone,
+        isActive: userProps.isActive,
       },
     });
 

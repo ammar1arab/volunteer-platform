@@ -1,6 +1,5 @@
 @use "./variables" as *;
 
-// ===== FLEX =====
 @mixin flex($dir: row, $align: center, $justify: center, $gap: 0) {
   display: flex;
   flex-direction: $dir;
@@ -14,14 +13,15 @@
 @mixin flex-center {
   @include flex;
 }
+
 @mixin flex-between {
   @include flex(row, center, space-between);
 }
+
 @mixin flex-col {
   @include flex(column, stretch, flex-start);
 }
 
-// ===== GRID =====
 @mixin grid-auto($min: 250px, $gap: 40px) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax($min, 1fr));
@@ -34,19 +34,16 @@
   gap: $gap;
 }
 
-// ===== CONTAINER =====
 @mixin container {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 $sp-md;
-
   @media (max-width: $bp-sm) {
     padding: 0 $sp-sm;
   }
 }
 
-// ===== RESPONSIVE =====
 @mixin sm {
   @media (max-width: ($bp-sm - 1)) {
     @content;
@@ -65,7 +62,6 @@
   }
 }
 
-// ===== BUTTONS =====
 @mixin btn {
   display: inline-flex;
   align-items: center;
@@ -84,9 +80,8 @@
   @include btn;
   background: $green;
   color: #000;
-
   &:hover {
-    background: $green;
+    background: darken($green, 5%);
     transform: translateY(-2px);
     box-shadow: $shadow;
   }
@@ -97,15 +92,12 @@
   background: transparent;
   border: 1px solid $border;
   color: $text;
-
-  // &:hover {
-  //   background: $bg-hover;
-  // }
+  &:hover {
+    background: rgba($green, 0.05);
+  }
 }
 
-// ===== CARDS =====
 @mixin card {
-  // background: $bg-card;
   border: 1px solid $border;
   border-radius: $radius-lg;
   padding: $sp-lg;
@@ -114,24 +106,20 @@
 @mixin card-hover {
   @include card;
   transition: $transition;
-
   &:hover {
     transform: translateY(-4px);
     box-shadow: $shadow-deep;
   }
 }
 
-// ===== INPUTS =====
 @mixin input {
   width: 100%;
   padding: $sp-sm $sp-md;
-  // background: $bg-card;
   border: 1px solid $border;
   border-radius: $radius;
   color: $text;
   font: inherit;
   transition: $transition;
-
   &:focus {
     outline: none;
     border-color: $green;
@@ -139,7 +127,6 @@
   }
 }
 
-// ===== TEXT =====
 @mixin truncate {
   overflow: hidden;
   white-space: nowrap;
@@ -153,7 +140,6 @@
   overflow: hidden;
 }
 
-// ===== MISC =====
 @mixin hidden {
   position: absolute;
   width: 1px;
@@ -165,9 +151,163 @@
   border: 0;
 }
 
-
 @mixin glass-card {
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+@mixin hover-lift($translateY: -4px, $scale: 1.02) {
+  transition: all $transition;
+  &:hover {
+    transform: translateY($translateY) scale($scale);
+    box-shadow: $shadow-deep;
+  }
+  &:active {
+    transform: translateY(-2px) scale(1);
+  }
+}
+
+@mixin hover-scale($scale: 1.05) {
+  transition: transform $transition;
+  &:hover {
+    transform: scale($scale);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+@mixin hover-glow($color: $green) {
+  transition: all $transition;
+  &:hover {
+    box-shadow: 0 0 20px rgba($color, 0.4);
+  }
+}
+
+@mixin hover-underline($color: $green, $width: 70%) {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: $color;
+    transition: width $transition;
+  }
+  &:hover::after {
+    width: $width;
+  }
+}
+
+@mixin hover-slide-right($distance: -3px) {
+  transition: transform $transition;
+  &:hover {
+    transform: translateX($distance);
+  }
+}
+
+@mixin hover-bg-fade($color: $green, $opacity: 0.1) {
+  transition: background-color $transition;
+  &:hover {
+    background-color: rgba($color, $opacity);
+  }
+}
+
+@mixin focus-ring($color: $green) {
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color, 0.2);
+  }
+  &:focus-visible {
+    outline: 2px solid $color;
+    outline-offset: 2px;
+  }
+}
+
+@mixin skeleton-loading {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.12) 50%,
+    rgba(0, 0, 0, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@mixin alert-base {
+  padding: $sp-md;
+  border-radius: $radius;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid;
+  margin-bottom: $sp-md;
+}
+
+@mixin alert-error {
+  @include alert-base;
+  background: rgba($red, 0.1);
+  color: $red;
+  border-color: $red;
+  animation: shake 0.3s ease;
+}
+
+@mixin alert-success {
+  @include alert-base;
+  background: rgba($green, 0.1);
+  color: $green;
+  border-color: $green;
+  animation: slideDown 0.3s ease;
+}
+
+@mixin alert-warning {
+  @include alert-base;
+  background: rgba(#f59e0b, 0.1);
+  color: #f59e0b;
+  border-color: #f59e0b;
+  animation: slideDown 0.3s ease;
+}
+
+@mixin alert-info {
+  @include alert-base;
+  background: rgba(#3b82f6, 0.1);
+  color: #3b82f6;
+  border-color: #3b82f6;
+  animation: slideDown 0.3s ease;
+}
+
+@mixin animate-fadeIn($duration: 0.3s, $delay: 0s) {
+  animation: fadeIn $duration ease $delay;
+}
+
+@mixin animate-slideDown($duration: 0.3s, $delay: 0s) {
+  animation: slideDown $duration ease $delay;
+}
+
+@mixin animate-slideUp($duration: 0.3s, $delay: 0s) {
+  animation: slideUp $duration ease $delay;
+}
+
+@mixin animate-slideRight($duration: 0.3s, $delay: 0s) {
+  animation: slideRight $duration ease $delay;
+}
+
+@mixin animate-scaleIn($duration: 0.3s, $delay: 0s) {
+  animation: scaleIn $duration ease $delay;
+}
+
+@mixin animate-spin($duration: 0.8s) {
+  animation: spin $duration linear infinite;
+}
+
+@mixin animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@mixin animate-shake {
+  animation: shake 0.3s ease;
 }

@@ -3,167 +3,295 @@
 
 $mobile-break: 900px;
 
-/* CORE */
 .header {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset: 0 0 auto 0;
   z-index: $z-fixed;
   background: $bg;
   border-bottom: 1px solid $border;
   padding: $sp-md 0;
 }
 
-.nav {
-  @include flex-between;
-  height: 30px;
-  width: 100%;
+.header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba($green, 0.9), transparent);
+  background-size: 200% 100%;
+  animation: scanline 2.8s linear infinite;
+  pointer-events: none;
 }
 
-/* DESKTOP */
+@keyframes scanline {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.nav {
+  @include flex-between;
+  height: 44px;
+  position: relative;
+}
+
 .logoDesktop {
   display: block;
-  @media (max-width: $mobile-break) { display: none; }
+
+  @media (max-width: $mobile-break) {
+    display: none;
+  }
 }
 
 .navLinks {
-  @include flex(row, center, center, $sp-xl);
+  @include flex(row, center, center, $sp-lg);
   list-style: none;
-  @media (max-width: $mobile-break) { display: none; }
+
+  @media (max-width: $mobile-break) {
+    display: none;
+  }
 }
 
 .navItem {
   color: $text-muted;
+  font-weight: 650;
   padding: $sp-sm $sp-md;
-  font-weight: 600;
   border-radius: $radius;
   transition: $transition;
   position: relative;
+  overflow: hidden;
 }
-.navItem:hover { color: $text; }
-.navItem:hover::after { width: 80%; }
 
-.navItem::after {
+.navItem::before {
   content: "";
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 2px;
-  background: $green;
-  transition: $transition;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba($green, 0.12) 40%, transparent 70%);
+  transform: translateX(-120%) skewX(-18deg);
+  transition: transform $transition;
 }
 
-.desktopSocial {
-  @include flex(row, center, center, $sp-md);
-  @media (max-width: $mobile-break) { display: none; }
+.navItem:hover {
+  color: $text;
 }
 
-/* ICONS */
-.icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  @include flex-center;
-  transition: $transition;
-}
-.instabg { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
-.fbBg { background: #1877F2; }
-.loginBg { background: #16a34a }
 
-/* ===================== MOBILE ===================== */
-.mobileBar {
-  display: none;
-  position: relative;
+
+.navItem.active {
+  color: $green;
+  font-weight: 750;
+}
+
+.actions {
+  @include flex(row, center, center, $sp-sm);
 
   @media (max-width: $mobile-break) {
-    @include flex(row, center, space-between);
+    display: none;
+  }
+}
+
+.loginBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $sp-sm $sp-lg;
+  border-radius: $radius;
+  background: $green;
+  color: white;
+  font-weight: 800;
+  transition: $transition;
+  position: relative;
+  overflow: hidden;
+}
+
+.loginBtn::after {
+  content: "";
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  width: 42px;
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateX(-180%) skewX(-22deg);
+  animation: sheen 3.6s ease-in-out infinite;
+}
+
+@keyframes sheen {
+  0% { transform: translateX(-180%) skewX(-22deg); }
+  55% { transform: translateX(260%) skewX(-22deg); }
+  100% { transform: translateX(260%) skewX(-22deg); }
+}
+
+.loginBtn:hover {
+  background: darken($green, 6%);
+}
+
+.socialWrapper {
+  position: relative;
+}
+
+.socialToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $text-muted;
+  font-weight: 650;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  transition: $transition;
+}
+
+.socialToggle:hover {
+  color: $green;
+  background: rgba($green, 0.08);
+}
+
+.socialMenu {
+  position: absolute;
+  top: 46px;
+  left: 0;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  min-width: 190px;
+  padding: $sp-xs;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-xs;
+  clip-path: inset(0 0 100% 0 round $radius);
+  animation: unfold 320ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  transform-origin: top;
+}
+
+@keyframes unfold {
+  0% { clip-path: inset(0 0 100% 0 round $radius); }
+  100% { clip-path: inset(0 0 0 0 round $radius); }
+}
+
+.socialLink {
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  font-weight: 650;
+  color: $text;
+  transition: $transition;
+}
+
+.socialLink:hover {
+  background: rgba($green, 0.1);
+  color: $green;
+}
+
+.mobileBar {
+  display: none;
+
+  @media (max-width: $mobile-break) {
+    @include flex-between;
     width: 100%;
   }
 }
 
-.leftIcons {
-  display: none;
-  @media (max-width: $mobile-break) {
-    @include flex(row, center, center, $sp-sm);
-  }
+.mobileLogo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-.rightIcons {
-  display: none;
-  @media (max-width: $mobile-break) {
-    @include flex(row, center, center, $sp-sm);
-  }
+.mobileRight {
+  @include flex(row, center, center, $sp-sm);
 }
 
-.mobileIcon {
-  @extend .icon;
-  width: 30px;
-  height: 30px;
+.mobileLogin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  background: $green;
+  color: white;
+  font-weight: 800;
+  transition: $transition;
+  position: relative;
+  overflow: hidden;
 }
 
-.mobileLogoWrapper {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+.mobileLogin:hover {
+  background: darken($green, 6%);
 }
 
-.logoMobile {
-  display: none;
-  @media (max-width: $mobile-break) { display: block; }
-}
-
-/* MENU BUTTON */
 .menuBtn {
   background: none;
-  border: none;
+  border: 1px solid $border;
   cursor: pointer;
-
-  @media (max-width: $mobile-break) {
-    @include flex-center;
-    width: 30px;
-    height: 30px;
-  }
+  width: 40px;
+  height: 40px;
+  border-radius: $radius;
+  @include flex-center;
+  color: $text;
+  transition: $transition;
 }
 
-.menuIcon {
-  transition: 0.25s ease;
-  color: #333;
+.menuBtn:hover {
+  background: rgba($green, 0.08);
+  border-color: rgba($green, 0.35);
 }
 
-.menuIconOpen {
-  transition: 0.25s ease;
-  transform: scale(1.2);
-  color: #ef4444;
-}
-
-/* MOBILE MENU */
 .mobileMenu {
   display: none;
 
   @media (max-width: $mobile-break) {
     display: flex;
     flex-direction: column;
-    align-items: center;   
-    gap: $sp-sm;           
+    gap: $sp-xs;
     margin-top: $sp-md;
     padding-top: $sp-md;
     border-top: 1px solid $border;
+    clip-path: inset(0 0 100% 0 round $radius);
+    animation: unfold 360ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
   }
 }
 
 .mobileLink {
-  width: 100%;       
-  text-align: center; 
+  text-align: center;
   padding: $sp-md;
-  color: $text;
-  font-weight: 600;
+  font-weight: 650;
   border-radius: $radius;
+  color: $text;
   transition: $transition;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .mobileLink:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba($green, 0.1);
+  color: $green;
+}
+
+.mobileLink.activeMobile {
+  color: $green;
+  font-weight: 800;
+}
+
+.mobileSocialMenu {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-xs;
+  padding: 0 $sp-xs $sp-xs;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header::after,
+  .loginBtn::after {
+    animation: none;
+  }
+
+  .socialMenu,
+  .mobileMenu {
+    animation: none;
+    clip-path: inset(0 0 0 0 round $radius);
+  }
+
+  .navItem::before {
+    transition: none;
+  }
 }

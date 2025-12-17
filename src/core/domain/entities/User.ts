@@ -10,10 +10,16 @@ class User extends BaseEntity {
     this.props = { ...props };
   }
 
-  static create(input: Omit<UserProps, "id" | "createdAt" | "isActive">): User {
+  static create(
+    input: Omit<UserProps, "id" | "createdAt" | "updatedAt">
+  ): User {
     return new User({
       ...input,
+      id: crypto.randomUUID(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       role: input.role ?? UserRole.VOLUNTEER,
+      isActive: input.isActive ?? true,
     });
   }
 
@@ -38,7 +44,7 @@ class User extends BaseEntity {
   }
 
   isAdmin(): boolean {
-    return this.props.role === "ADMIN";
+    return this.props.role === UserRole.ADMIN;
   }
 
   isActiveAccount(): boolean {

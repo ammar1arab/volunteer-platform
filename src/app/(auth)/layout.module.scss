@@ -1,0 +1,17 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.shell {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+
+  @media (max-width: $bp-sm) {
+    padding: $sp-lg 0;
+  }
+}
+
+.container {
+  @include container;
+  width: 100%;
+}

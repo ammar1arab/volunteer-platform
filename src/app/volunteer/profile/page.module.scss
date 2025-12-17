@@ -1,0 +1,89 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+@use "@/presentation/styles/effects" as *;
+
+.pageWrapper {
+  min-height: 100vh;
+  padding: 100px $sp-md $sp-xl;
+  background: $bg;
+}
+
+.contentWrapper {
+  @include container;
+}
+
+.loadingWrapper {
+  @include flex-center;
+  min-height: 100vh;
+}
+
+.loadingText {
+  font-size: $font-xl;
+  color: $text-muted;
+  @include animate-pulse;
+}
+
+.pageHeader {
+  margin-bottom: $sp-xl;
+  @include animate-slideDown;
+}
+
+.pageTitle {
+  font-size: $font-3xl;
+  font-weight: 700;
+  color: $text;
+  margin-bottom: $sp-sm;
+}
+
+.welcomeText {
+  font-size: $font-lg;
+  color: $text-muted;
+}
+
+.cardsGrid {
+  @include grid(2, $sp-lg);
+
+  @media (max-width: $bp-md) {
+    @include grid(1, $sp-lg);
+  }
+}
+
+.profileCard {
+  @include card;
+  @include hover-lift;
+  @include animate-scaleIn;
+  cursor: pointer;
+  text-align: center;
+  padding: $sp-xl;
+}
+
+.cardIconWrapper {
+  @include flex-center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto $sp-md;
+  background: rgba($green, 0.1);
+  border-radius: $radius-full;
+  transition: $transition;
+
+  .profileCard:hover & {
+    background: rgba($green, 0.2);
+    transform: scale(1.1);
+  }
+}
+
+.cardIcon {
+  color: $green;
+}
+
+.cardTitle {
+  font-size: $font-xl;
+  color: $text;
+  margin-bottom: $sp-sm;
+  font-weight: 700;
+}
+
+.cardDescription {
+  color: $text-muted;
+  line-height: 1.6;
+}

@@ -1,56 +1,59 @@
 @use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
 
-.field {
+.inputWrapper {
   display: flex;
   flex-direction: column;
   gap: $sp-sm;
-  width: 100%;
+  margin-bottom: $sp-lg;
 }
 
 .label {
   font-size: $font-sm;
-  font-weight: 600;
-  color: #111827;
+  font-weight: 500;
+  color: $text;
+}
+
+.required {
+  color: $red;
+  margin-inline-start: $sp-xs;
 }
 
 .input {
   width: 100%;
-  padding: $sp-md;
-  background: white;
-  border: 1.5px solid #e5e7eb;
-  border-radius: $radius;
-  color: #111827;
+  padding: $sp-sm $sp-md;
   font-size: $font-base;
-  transition: all $transition;
-
-  &::placeholder {
-    color: #9ca3af;
-  }
+  border: 1px solid $border;
+  border-radius: $radius;
+  background-color: $bg;
+  color: $text;
+  transition: $transition;
+  text-align: start;
 
   &:focus {
     outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    border-color: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.1);
   }
 
   &:disabled {
-    opacity: 0.5;
+    background-color: #f5f5f5;
     cursor: not-allowed;
-    background: #f9fafb;
+    opacity: 0.6;
   }
+}
 
-  &.hasError {
-    border-color: #ef4444;
+.inputError {
+  border-color: $red;
 
-    &:focus {
-      border-color: #ef4444;
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-    }
+  &:focus {
+    border-color: $red;
+    box-shadow: 0 0 0 3px rgba($red, 0.1);
   }
 }
 
 .error {
   font-size: $font-xs;
-  color: #ef4444;
-  font-weight: 500;
+  color: $red;
+  margin-top: calc($sp-xs * -1);
 }
