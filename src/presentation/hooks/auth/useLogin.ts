@@ -44,25 +44,19 @@ export const useLogin = (): UseLoginReturn => {
         return;
       }
 
-      const response = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (data.success && data.user) {
-        const redirectPath = data.user.role === 'ADMIN' 
-          ? '/admin/dashboard' 
-          : '/volunteer/profile';
-        
-        router.push(redirectPath);
+      // ✅ بعد نجاح تسجيل الدخول، next-auth بتحفظ الـ session تلقائياً
+      // ✅ نستخدم callback URL من next-auth مباشرة
+      if (result?.ok) {
+        // الـ session هتكون محدثة، ممكن نوجه للصفحة المناسبة
+        // أو نستخدم callbackUrl من next-auth
+        router.push('/volunteer/profile'); // أو استخدم router.refresh() بعدين redirect من middleware
+        router.refresh(); // عشان تحديث الـ session
       } else {
         setError('حدث خطأ أثناء تسجيل الدخول');
         setLoading(false);
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError('حدث خطأ في الاتصال');
       setLoading(false);
     }

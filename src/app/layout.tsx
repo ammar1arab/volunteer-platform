@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import '@/presentation/styles/globals.scss';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: {
@@ -10,10 +11,12 @@ export const metadata: Metadata = {
   description: "مبادرة بصمات شبابية",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children, }: { children: React.ReactNode; }) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

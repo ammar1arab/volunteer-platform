@@ -1,89 +1,75 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
-@use "@/presentation/styles/effects" as *;
 
-.pageWrapper {
+.page {
   min-height: 100vh;
-  padding: 100px $sp-md $sp-xl;
+  padding: 120px $sp-md $sp-xl;
   background: $bg;
 }
 
-.contentWrapper {
-  @include container;
-}
-
-.loadingWrapper {
-  @include flex-center;
-  min-height: 100vh;
-}
-
-.loadingText {
-  font-size: $font-xl;
-  color: $text-muted;
-  @include animate-pulse;
-}
-
-.pageHeader {
-  margin-bottom: $sp-xl;
+.header {
+  @include card;
   @include animate-slideDown;
+  display: flex;
+  align-items: center;
+  gap: $sp-lg;
+  padding: $sp-xl;
+  margin-bottom: $sp-xl;
 }
 
-.pageTitle {
-  font-size: $font-3xl;
+.avatar {
+  @include flex-center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, $green, lighten($green, 10%));
+  border-radius: $radius-full;
+  color: white;
+  flex-shrink: 0;
+}
+
+.name {
+  font-size: $font-2xl;
   font-weight: 700;
   color: $text;
-  margin-bottom: $sp-sm;
+  margin-bottom: $sp-xs;
 }
 
-.welcomeText {
-  font-size: $font-lg;
+.email {
   color: $text-muted;
+  font-size: $font-base;
 }
 
-.cardsGrid {
-  @include grid(2, $sp-lg);
-
+.stats {
+  @include grid(3, $sp-lg);
+  
   @media (max-width: $bp-md) {
-    @include grid(1, $sp-lg);
+    @include grid(1, $sp-md);
   }
 }
 
-.profileCard {
+.stat {
   @include card;
   @include hover-lift;
   @include animate-scaleIn;
-  cursor: pointer;
-  text-align: center;
-  padding: $sp-xl;
-}
-
-.cardIconWrapper {
   @include flex-center;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto $sp-md;
-  background: rgba($green, 0.1);
-  border-radius: $radius-full;
-  transition: $transition;
-
-  .profileCard:hover & {
-    background: rgba($green, 0.2);
-    transform: scale(1.1);
-  }
+  flex-direction: column;
+  padding: $sp-xl;
+  gap: $sp-sm;
+  text-align: center;
 }
 
-.cardIcon {
+.icon {
   color: $green;
+  margin-bottom: $sp-xs;
 }
 
-.cardTitle {
-  font-size: $font-xl;
-  color: $text;
-  margin-bottom: $sp-sm;
+.value {
+  font-size: $font-3xl;
   font-weight: 700;
+  color: $text;
 }
 
-.cardDescription {
+.label {
   color: $text-muted;
-  line-height: 1.6;
+  font-size: $font-sm;
 }

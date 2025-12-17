@@ -36,7 +36,7 @@ export const useSignup = (): UseSignupReturn => {
       const result = await authApi.signUp(formData);
 
       if (result.success) {
-        router.push('/login?signup=success');
+        router.push('/signin?signup=success');
       } else {
         setError(result.error || 'حدث خطأ أثناء إنشاء الحساب');
       }

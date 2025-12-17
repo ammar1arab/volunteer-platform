@@ -1,46 +1,30 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
-@use "@/presentation/styles/effects" as *;
 
-.pageWrapper {
+.page {
   min-height: 100vh;
-  padding: 100px $sp-md $sp-xl;
+  padding: 120px $sp-md $sp-xl;
   background: $bg;
 }
 
-.contentWrapper {
-  @include container;
-}
-
-.loadingWrapper {
-  @include flex-center;
-  min-height: 100vh;
-}
-
-.loadingText {
-  font-size: $font-xl;
-  color: $text-muted;
-  @include animate-pulse;
-}
-
-.pageHeader {
+.header {
   margin-bottom: $sp-xl;
   @include animate-slideDown;
 }
 
-.pageTitle {
+.title {
   font-size: $font-3xl;
   font-weight: 700;
   color: $text;
   margin-bottom: $sp-sm;
 }
 
-.welcomeText {
+.welcome {
   font-size: $font-lg;
   color: $text-muted;
 }
 
-.cardsGrid {
+.grid {
   @include grid(2, $sp-lg);
 
   @media (max-width: $bp-md) {
@@ -48,7 +32,7 @@
   }
 }
 
-.dashboardCard {
+.card {
   @include card;
   @include hover-lift;
   @include animate-scaleIn;
@@ -57,7 +41,7 @@
   padding: $sp-xl;
 }
 
-.cardIconWrapper {
+.iconWrapper {
   @include flex-center;
   width: 64px;
   height: 64px;
@@ -66,13 +50,13 @@
   border-radius: $radius-full;
   transition: $transition;
 
-  .dashboardCard:hover & {
+  .card:hover & {
     background: rgba($green, 0.2);
     transform: scale(1.1);
   }
 }
 
-.cardIcon {
+.icon {
   color: $green;
 }
 

@@ -24,7 +24,7 @@ const SigninPage = () => {
             type="email"
             name="email"
             autoComplete="username"
-            dir="ltr"
+            dir="rtl"
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
             required
@@ -36,7 +36,7 @@ const SigninPage = () => {
             type="password"
             name="password"
             autoComplete="current-password"
-            dir="ltr"
+            dir="rtl"
             value={formData.password}
             onChange={(e) => handleChange('password', e.target.value)}
             required

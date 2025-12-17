@@ -70,7 +70,7 @@ const SignupPage = () => {
 
         <footer className={styles.footer}>
           <span className={styles.footerText}>لديك حساب؟</span>
-          <Link href="/login" className={styles.footerLink}>تسجيل الدخول</Link>
+          <Link href="/signin" className={styles.footerLink}>تسجيل الدخول</Link>
         </footer>
       </main>
     </div>

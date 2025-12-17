@@ -45,7 +45,7 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', onDown);
   }, []);
 
-  if (pathname === '/login' || pathname === '/signup') return null;
+  if (pathname === '/signin' || pathname === '/signup') return null;
 
   return (
     <header className={styles.header}>
@@ -100,7 +100,7 @@ const Header = () => {
           </ul>
 
           <div className={styles.actions}>
-            <Link href="/login" className={styles.loginBtn} title="تسجيل الدخول">
+            <Link href="/signin" className={styles.loginBtn} title="تسجيل الدخول">
               تسجيل الدخول
             </Link>
           </div>
@@ -112,7 +112,7 @@ const Header = () => {
 
             <div className={styles.mobileRight}>
               <Link
-                href="/login"
+                href="/signin"
                 className={styles.mobileLogin}
                 title="تسجيل الدخول"
               >
