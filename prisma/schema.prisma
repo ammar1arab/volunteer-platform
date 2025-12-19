@@ -23,6 +23,53 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  createdActivities Activity[] @relation("ActivityCreator")
+
+  @@map("users")
+}
+
+model Activity {
+  id                String   @id @default(uuid())
+  title             String
+  description       String
+  imageUrl          String
+  dayOfWeek         String
+  date              DateTime
+  startTime         String
+  endTime           String
+  placeName         String
+  latitude          Float
+  longitude         Float
+  address           String
+  targetAudience    String
+  maxVolunteers     Int
+  currentVolunteers Int      @default(0)
+  status            String   @default("DRAFT")
+  createdBy         String
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  creator User @relation("ActivityCreator", fields: [createdBy], references: [id])
+
+  @@index([status, date])
+  @@index([createdBy])
+  @@map("activities")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullName  String
+  phone     String
+  role      UserRole
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activities Activity[]
+
   @@map("users")
 }
 
@@ -38,3 +85,5 @@ model FeaturedPost {
   @@index([title])
   @@map("featured_posts")
 }
+
+

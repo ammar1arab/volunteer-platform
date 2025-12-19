@@ -1,11 +1,9 @@
 import { UserRepository } from "@/infrastructure/persistence/repositories";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
-
 import { User } from "@/core/domain/entities";
 import { UserRole } from "@/core/domain/enums";
-import { Password } from "@/core/domain/valueObjects";
+import { Password, Email } from "@/core/domain/valueObjects";
 import { serviceError } from "@/core/application/helpers";
-
 import type {
   SignInRequest,
   SignInResponse,
@@ -20,13 +18,13 @@ class AuthService {
 
   async signIn(dto: SignInRequest): Promise<SignInResponse> {
     try {
-      const email = InputSanitizer.sanitizeEmail(dto.email);
+      const emailStr = InputSanitizer.sanitizeEmail(dto.email);
 
-      if (!SecurityValidator.isValidEmail(email)) {
+      if (!SecurityValidator.isValidEmail(emailStr)) {
         return { success: false, error: "Invalid email format" };
       }
 
-      const user = await this.userRepository.findByEmail(email);
+      const user = await this.userRepository.findByEmail(emailStr);
       if (!user) {
         return { success: false, error: "Invalid email or password" };
       }
@@ -37,7 +35,6 @@ class AuthService {
 
       const password = Password.fromHash(user.password);
       const isValid = await password.compare(dto.password);
-
       if (!isValid) {
         return { success: false, error: "Invalid email or password" };
       }
@@ -63,19 +60,14 @@ class AuthService {
 
   async signUp(dto: SignUpRequest): Promise<SignUpResponse> {
     try {
-      const email = InputSanitizer.sanitizeEmail(dto.email);
+      const emailObj = new Email(dto.email);
       const phone = InputSanitizer.sanitizePhone(dto.phone);
       const fullName = InputSanitizer.sanitizeString(dto.fullName);
-
-      if (!SecurityValidator.isValidEmail(email)) {
-        return { success: false, error: "Invalid email format" };
-      }
 
       if (!SecurityValidator.isStrongPassword(dto.password)) {
         return {
           success: false,
-          error:
-            "Password must be at least 8 characters with uppercase, lowercase, and number",
+          error: "Password must be at least 8 characters with uppercase, lowercase, and number",
         };
       }
 
@@ -86,7 +78,7 @@ class AuthService {
         };
       }
 
-      const existingUser = await this.userRepository.findByEmail(email);
+      const existingUser = await this.userRepository.findByEmail(emailObj.getValue());
       if (existingUser) {
         return { success: false, error: "Email already registered" };
       }
@@ -94,7 +86,7 @@ class AuthService {
       const hashedPassword = await Password.create(dto.password);
 
       const user = User.create({
-        email,
+        email: emailObj.getValue(),
         password: hashedPassword.getValue(),
         fullName,
         phone,
@@ -117,7 +109,7 @@ class AuthService {
         AuthService.SCOPE,
         "signUp",
         error,
-        "An error occurred during sign up"
+        error instanceof Error ? error.message : "An error occurred during sign up"
       );
     }
   }

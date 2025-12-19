@@ -1,1 +1,2 @@
-export * from './UserRole'
+export { UserRole } from './UserRole';
+export { DayOfWeek } from './DayOfWeek';

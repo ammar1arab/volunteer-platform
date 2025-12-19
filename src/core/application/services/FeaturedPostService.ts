@@ -14,7 +14,6 @@ import type {
   FeaturedPostDto,
 } from "@/core/application/dtos";
 
-
 class FeaturedPostService {
   private static readonly SCOPE = "FeaturedPostService";
 
@@ -70,7 +69,7 @@ class FeaturedPostService {
         FeaturedPostService.SCOPE,
         "create",
         error,
-        "An error occurred while creating featured post"
+        error instanceof Error ? error.message : "An error occurred while creating featured post"
       );
     }
   }
@@ -98,7 +97,7 @@ class FeaturedPostService {
         FeaturedPostService.SCOPE,
         "update",
         error,
-        "An error occurred while updating featured post"
+        error instanceof Error ? error.message : "An error occurred while updating featured post"
       );
     }
   }
