@@ -9,6 +9,6 @@ export const API_ENDPOINTS = {
   },
 
   UPLOADS: {
-    IMAGE: "/api/uploads",
+    FEATURED_IMAGE: "/api/uploads",
   },
 } as const;

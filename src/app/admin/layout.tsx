@@ -1,28 +1,17 @@
-'use client';
+import type { ReactNode } from "react";
+import styles from "./layout.module.scss";
 
-import { ReactNode } from 'react';
-import { useAuth } from '@/presentation/hooks';
-import styles from './layout.module.scss';
+import { AdminSidebar, AdminTopbar } from "@/presentation/components";
 
-interface AdminLayoutProps {
-  children: ReactNode;
-}
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className={styles.shell}>
+      <AdminSidebar />
 
-const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const { isLoading } = useAuth({
-    requireAuth: true,
-    requireRole: 'ADMIN',
-  });
-
-  if (isLoading) {
-    return (
-      <div className={styles.loading}>
-        <p>جاري التحميل...</p>
+      <div className={styles.main}>
+        <AdminTopbar title="Admin Dashboard" />
+        <div className={styles.content}>{children}</div>
       </div>
-    );
-  }
-
-  return <>{children}</>;
-};
-
-export default AdminLayout;
+    </div>
+  );
+}

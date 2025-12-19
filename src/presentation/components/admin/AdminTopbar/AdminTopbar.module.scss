@@ -1,0 +1,68 @@
+/* src/presentation/components/admin/AdminTopbar/AdminTopbar.module.scss */
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.bar {
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: $sp-sm $sp-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $sp-md;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 800;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: $sp-md;
+  min-width: 0;
+}
+
+.user {
+  font-size: $font-sm;
+  color: $text-muted;
+  white-space: nowrap;
+  @include truncate;
+  max-width: 280px;
+}
+
+.logout {
+  border: 1px solid $border;
+  background: transparent;
+  color: $text;
+
+  padding: $sp-xs $sp-md;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    border-color: $green;
+  }
+
+  @include focus-ring($green);
+}
+
+@include sm {
+  .bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $sp-sm;
+    padding: $sp-sm;
+  }
+
+  .right {
+    justify-content: space-between;
+  }
+
+  .user {
+    max-width: 60%;
+  }
+}

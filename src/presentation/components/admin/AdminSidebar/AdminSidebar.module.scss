@@ -1,0 +1,70 @@
+/* src/presentation/components/admin/AdminSidebar/AdminSidebar.module.scss */
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.sidebar {
+  width: 240px;
+  min-width: 220px;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: $sp-md;
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.brand {
+  display: block;
+  text-decoration: none;
+  color: $text;
+  font-weight: 800;
+  text-align: center;
+  padding-bottom: $sp-sm;
+  border-bottom: 4px solid rgba($green, 0.35);
+  @include focus-ring($green);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+  border-bottom: 2px solid rgba($green, 0.35);
+}
+
+.link {
+  text-decoration: none;
+  color: $text;
+  font-weight: 600;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  border: 1px solid transparent;
+  text-align: center;
+  transition: $transition;
+  @include focus-ring($green);
+}
+
+.active {
+  @include focus-ring($green);
+}
+
+@include sm {
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    padding: $sp-sm;
+    gap: $sp-sm;
+  }
+
+  .brand {
+    text-align: start;
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: $sp-sm;
+  }
+
+  .link {
+    padding: $sp-xs $sp-md;
+  }
+}

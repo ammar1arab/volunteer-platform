@@ -1,0 +1,44 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.container {
+  @include flex-col;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: $sp-xl $sp-lg;
+  min-height: 300px;
+  gap: $sp-md;
+}
+
+.icon {
+  @include flex-center;
+  width: 80px;
+  height: 80px;
+  border-radius: $radius-full;
+  background: rgba($green, 0.08);
+  color: $green;
+  margin-bottom: $sp-sm;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $text;
+}
+
+.message {
+  margin: 0;
+  font-size: $font-sm;
+  color: $text-muted;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.action {
+  @include btn-primary;
+  margin-top: $sp-sm;
+  padding: 10px 24px;
+  font-size: $font-sm;
+}

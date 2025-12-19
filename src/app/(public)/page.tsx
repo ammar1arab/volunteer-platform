@@ -1,14 +1,12 @@
-import { AboutSection, AvailableActivities, ContactSection, FeaturedPrints, HeroSection, PopularActivities, StatisticsSection } from "@/presentation/components";
+import { AboutSection, AvailableActivities, ContactSection, FeaturedPosts, HeroSection } from "@/presentation/components";
 
 export default function Home() {
   return (
     <>
       <HeroSection />
-      <StatisticsSection />
-      <FeaturedPrints />
+      <FeaturedPosts />
       <AvailableActivities />
-      {/* <PopularActivities/> */}
-      <AboutSection/>k
+      <AboutSection/>
       <ContactSection/>
     </>
   );

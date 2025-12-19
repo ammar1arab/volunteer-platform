@@ -1,0 +1,142 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.container {
+  position: fixed;
+  bottom: $sp-lg;
+  right: $sp-lg;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: $sp-sm;
+  pointer-events: none;
+  max-width: 420px;
+
+  @media (max-width: $bp-sm) {
+    bottom: $sp-md;
+    right: $sp-md;
+    left: $sp-md;
+    max-width: none;
+  }
+}
+
+.toast {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: $sp-md $sp-lg $sp-md $sp-md;
+  background: $bg;
+  border-radius: $radius-lg;
+  box-shadow: 0 10px 40px rgba($black, 0.15), 0 0 0 1px rgba($black, 0.05);
+  pointer-events: all;
+  position: relative;
+  overflow: hidden;
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &[data-type="success"] {
+    .iconWrapper {
+      background: rgba($green, 0.12);
+      color: $green;
+    }
+    .progress {
+      background: $green;
+    }
+  }
+
+  &[data-type="error"] {
+    .iconWrapper {
+      background: rgba($red, 0.12);
+      color: $red;
+    }
+    .progress {
+      background: $red;
+    }
+  }
+
+  &[data-type="warning"] {
+    .iconWrapper {
+      background: rgba(#f59e0b, 0.12);
+      color: #f59e0b;
+    }
+    .progress {
+      background: #f59e0b;
+    }
+  }
+
+  &[data-type="info"] {
+    .iconWrapper {
+      background: rgba(#3b82f6, 0.12);
+      color: #3b82f6;
+    }
+    .progress {
+      background: #3b82f6;
+    }
+  }
+}
+
+.iconWrapper {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message {
+  margin: 0;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text;
+  line-height: 1.4;
+}
+
+.closeBtn {
+  @include flex-center;
+  width: 24px;
+  height: 24px;
+  border-radius: $radius;
+  background: transparent;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba($black, 0.06);
+    color: $text;
+  }
+}
+
+.progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  opacity: 0.4;
+  animation: progress 5s linear;
+  border-radius: 0 0 $radius-lg $radius-lg;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(120%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
