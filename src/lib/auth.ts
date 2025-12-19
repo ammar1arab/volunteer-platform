@@ -1,12 +1,13 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+
 import { UserRepository } from "@/infrastructure/persistence/repositories";
 import AuthService from "@/core/application/services/AuthService";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
-  pages: { signIn: "/login" },
+  pages: { signIn: "/signin" },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -36,12 +37,16 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
+        token.sub = (user as any).id;
+        (token as any).role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
-      (session as any).role = token.role;
+      if (session.user) {
+        session.user.id = token.sub ?? "";
+        session.user.role = (token as any).role;
+      }
       return session;
     },
   },

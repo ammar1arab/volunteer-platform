@@ -1,28 +1,49 @@
-import { withAuth } from 'next-auth/middleware';
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
-    const path = req.nextUrl.pathname;
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-    if (path.startsWith('/admin') && token?.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/volunteer/profile', req.url));
-    }
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
 
-    if (path.startsWith('/volunteer') && token?.role !== 'VOLUNTEER') {
-      return NextResponse.redirect(new URL('/admin/dashboard', req.url));
-    }
+  const isAuthPage = pathname.startsWith("/signin") || pathname.startsWith("/signup");
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isVolunteerRoute = pathname.startsWith("/volunteer");
 
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
+  if (isAuthPage && token) {
+    const role = (token as any).role;
+    const url = req.nextUrl.clone();
+    url.pathname = role === "ADMIN" ? "/admin/dashboard" : "/volunteer/profile";
+    return NextResponse.redirect(url);
   }
-);
+
+  if (isAdminRoute) {
+    if (!token) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/signin";
+      return NextResponse.redirect(url);
+    }
+
+    if ((token as any).role !== "ADMIN") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/volunteer/profile";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  if (isVolunteerRoute && !token) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/signin";
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: ['/admin/:path*', '/volunteer/:path*'],
+  matcher: ["/signin", "/signup", "/admin/:path*", "/volunteer/:path*"],
 };

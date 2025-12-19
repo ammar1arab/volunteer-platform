@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, ButtonHTMLAttributes } from "react";
+import { ButtonHTMLAttributes } from "react";
 
 export type InputDirMode = "auto" | "rtl" | "ltr";
 

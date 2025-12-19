@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { Input, Button } from '@/presentation/components';
-import { useLogin } from '@/presentation/hooks';
+import { useSignin } from '@/presentation/hooks';
 import styles from './page.module.scss';
 
 const SigninPage = () => {
-  const { formData, error, loading, handleChange, handleSubmit } = useLogin();
+  const { formData, error, loading, handleChange, handleSubmit } = useSignin();
 
   return (
     <div className={styles.page}>
@@ -26,7 +26,7 @@ const SigninPage = () => {
             autoComplete="username"
             dir="rtl"
             value={formData.email}
-            onChange={(e) => handleChange('email', e.target.value)}
+            onChange={(e: { target: { value: string; }; }) => handleChange('email', e.target.value)}
             required
             aria-required="true"
           />
@@ -38,7 +38,7 @@ const SigninPage = () => {
             autoComplete="current-password"
             dir="rtl"
             value={formData.password}
-            onChange={(e) => handleChange('password', e.target.value)}
+            onChange={(e: { target: { value: string; }; }) => handleChange('password', e.target.value)}
             required
             aria-required="true"
           />

@@ -22,7 +22,7 @@ const SignupPage = () => {
             label="الأسم"
             type="text"
             value={formData.fullName}
-            onChange={(e) => handleChange('fullName', e.target.value)}
+            onChange={(e: { target: { value: string; }; }) => handleChange('fullName', e.target.value)}
             required
             autoComplete="name"
             aria-required="true"
@@ -33,7 +33,7 @@ const SignupPage = () => {
             type="email"
             dir="ltr"
             value={formData.email}
-            onChange={(e) => handleChange('email', e.target.value)}
+            onChange={(e: { target: { value: string; }; }) => handleChange('email', e.target.value)}
             required
             autoComplete="email"
             aria-required="true"
@@ -45,7 +45,7 @@ const SignupPage = () => {
             dir="ltr"
             inputMode="tel"
             value={formData.phone}
-            onChange={(e) => handleChange('phone', e.target.value)}
+            onChange={(e: { target: { value: string; }; }) => handleChange('phone', e.target.value)}
             required
             autoComplete="tel"
             aria-required="true"
@@ -56,7 +56,7 @@ const SignupPage = () => {
             type="password"
             dir="ltr"
             value={formData.password}
-            onChange={(e) => handleChange('password', e.target.value)}
+            onChange={(e: { target: { value: string; }; }) => handleChange('password', e.target.value)}
             required
             autoComplete="new-password"
             aria-required="true"

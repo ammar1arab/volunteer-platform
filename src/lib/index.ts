@@ -6,5 +6,4 @@ export * from "./constants/api.constants";
 
 export type * from "./types/screens.types";
 export type * from "./types/components.types";
-export type * from "./types/auth.types";
-
+export type * from "./types/next-auth"

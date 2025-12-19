@@ -1,10 +1,13 @@
-import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+"use client";
+
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import type { UserRole } from "@/core/domain/enums";
 
 interface UseAuthOptions {
   requireAuth?: boolean;
-  requireRole?: 'ADMIN' | 'VOLUNTEER';
+  requireRole?: UserRole;
   redirectTo?: string;
 }
 
@@ -12,34 +15,27 @@ export const useAuth = (options: UseAuthOptions = {}) => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const {
-    requireAuth = true,
-    requireRole,
-    redirectTo = '/login',
-  } = options;
+  const { requireAuth = true, requireRole, redirectTo = "/signin" } = options;
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === "loading") return;
 
-    if (requireAuth && status === 'unauthenticated') {
-      router.push(redirectTo);
+    if (requireAuth && status === "unauthenticated") {
+      router.replace(redirectTo);
       return;
     }
 
-    if (requireRole && session?.user?.role !== requireRole) {
-      const fallbackPath = session?.user?.role === 'ADMIN' 
-        ? '/admin/dashboard' 
-        : '/volunteer/profile';
-      
-      router.push(fallbackPath);
+    if (requireRole && session?.user?.role && session.user.role !== requireRole) {
+      router.replace(session.user.role === "ADMIN" ? "/admin/dashboard" : "/volunteer/profile");
     }
   }, [status, session, requireAuth, requireRole, redirectTo, router]);
 
   return {
     session,
     status,
-    isLoading: status === 'loading',
-    isAuthenticated: status === 'authenticated',
+    isLoading: status === "loading",
+    isAuthenticated: status === "authenticated",
     user: session?.user,
+    role: session?.user?.role,
   };
 };
