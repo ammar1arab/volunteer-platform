@@ -1,10 +1,7 @@
+import { BaseEntityProps } from "./BaseEntityProps";
 import { UserRole } from "@/core/domain/enums";
 
-export interface UserProps {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
+export interface UserProps extends BaseEntityProps {
   fullName: string;
   email: string;
   phone: string;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { authApi } from '@/lib/api';
+import { authApi } from '@/lib';
 import type { SignupFormData } from '@/lib/types';
 
 interface UseSignupReturn {

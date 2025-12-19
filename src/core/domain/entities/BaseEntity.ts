@@ -1,7 +1,7 @@
 abstract class BaseEntity {
   public readonly id: string;
   public readonly createdAt: Date;
-  public readonly updatedAt: Date;
+  public updatedAt: Date;
   public isActive: boolean;
 
   protected constructor(
@@ -14,6 +14,15 @@ abstract class BaseEntity {
     this.createdAt = createdAt ?? new Date();
     this.updatedAt = updatedAt ?? new Date();
     this.isActive = isActive;
+  }
+
+  protected touch(): void {
+    this.updatedAt = new Date();
+  }
+
+  protected setActive(value: boolean): void {
+    this.isActive = value;
+    this.touch();
   }
 }
 

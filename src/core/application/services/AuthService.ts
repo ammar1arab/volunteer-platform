@@ -4,41 +4,37 @@ import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
 import { User } from "@/core/domain/entities";
 import { UserRole } from "@/core/domain/enums";
 import { Password } from "@/core/domain/valueObjects";
+import { serviceError } from "@/core/application/helpers";
 
 import type {
   SignInRequest,
   SignInResponse,
   SignUpRequest,
   SignUpResponse,
-} from "../dtos";
-
+} from "@/core/application/dtos";
 
 class AuthService {
+  private static readonly SCOPE = "AuthService";
+
   constructor(private userRepository: UserRepository) {}
 
-  // ========== SIGN IN ==========
   async signIn(dto: SignInRequest): Promise<SignInResponse> {
     try {
-      // 1. Sanitize input
       const email = InputSanitizer.sanitizeEmail(dto.email);
 
-      // 2. Validate format
       if (!SecurityValidator.isValidEmail(email)) {
         return { success: false, error: "Invalid email format" };
       }
 
-      // 3. Find user
       const user = await this.userRepository.findByEmail(email);
       if (!user) {
         return { success: false, error: "Invalid email or password" };
       }
 
-      // 4. Check account active
       if (!user.isActiveAccount()) {
         return { success: false, error: "Account is not active" };
       }
 
-      // 5. Compare password
       const password = Password.fromHash(user.password);
       const isValid = await password.compare(dto.password);
 
@@ -46,7 +42,6 @@ class AuthService {
         return { success: false, error: "Invalid email or password" };
       }
 
-      // 6. Return success
       return {
         success: true,
         user: {
@@ -57,20 +52,21 @@ class AuthService {
         },
       };
     } catch (error) {
-      console.error("SignIn error:", error);
-      return { success: false, error: "An error occurred during sign in" };
+      return serviceError<SignInResponse>(
+        AuthService.SCOPE,
+        "signIn",
+        error,
+        "An error occurred during sign in"
+      );
     }
   }
 
-  // ========== SIGN UP ==========
   async signUp(dto: SignUpRequest): Promise<SignUpResponse> {
     try {
-      // 1. Sanitize input
       const email = InputSanitizer.sanitizeEmail(dto.email);
       const phone = InputSanitizer.sanitizePhone(dto.phone);
       const fullName = InputSanitizer.sanitizeString(dto.fullName);
 
-      // 2. Validate format
       if (!SecurityValidator.isValidEmail(email)) {
         return { success: false, error: "Invalid email format" };
       }
@@ -90,16 +86,13 @@ class AuthService {
         };
       }
 
-      // 3. Check if email exists
       const existingUser = await this.userRepository.findByEmail(email);
       if (existingUser) {
         return { success: false, error: "Email already registered" };
       }
 
-      // 4. Hash password
       const hashedPassword = await Password.create(dto.password);
 
-      // 5. Create user entity
       const user = User.create({
         email,
         password: hashedPassword.getValue(),
@@ -109,10 +102,8 @@ class AuthService {
         isActive: true,
       });
 
-      // 6. Save to database
       const createdUser = await this.userRepository.create(user);
 
-      // 7. Return success
       return {
         success: true,
         user: {
@@ -122,8 +113,12 @@ class AuthService {
         },
       };
     } catch (error) {
-      console.error("SignUp error:", error);
-      return { success: false, error: "An error occurred during sign up" };
+      return serviceError<SignUpResponse>(
+        AuthService.SCOPE,
+        "signUp",
+        error,
+        "An error occurred during sign up"
+      );
     }
   }
 }

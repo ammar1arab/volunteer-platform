@@ -48,12 +48,16 @@ class User extends BaseEntity {
   }
 
   isActiveAccount(): boolean {
-    return this.props.isActive === true;
+    return this.isActive === true;
   }
 
   toObject(): UserProps {
     return {
       ...this.props,
+      id: this.id,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      isActive: this.isActive,
     };
   }
 }

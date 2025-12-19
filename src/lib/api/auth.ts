@@ -1,6 +1,6 @@
 import { signIn } from "next-auth/react";
 import { apiClient } from "./client";
-import { API_ENDPOINTS } from "@/lib/constants";
+import { API_ENDPOINTS } from "@/lib";
 import type {
   SignInRequest,
   SignInResponse,

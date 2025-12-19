@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import FeaturedPostService from "@/core/application/services/FeaturedPostService";
-import type { CreateFeaturedPostRequest } from "@/core/application/dtos";
+import type { UpdateFeaturedPostRequest } from "@/core/application/dtos";
 import { FeaturedPostRepository } from "@/infrastructure/persistence/repositories";
 
 export const runtime = "nodejs";
@@ -19,17 +19,20 @@ const statusFromError = (error?: string) => {
   return 400;
 };
 
-export async function GET() {
+export async function GET(_: Request, ctx: { params: { id: string } }) {
   const service = buildService();
-  const result = await service.getAll();
-  return NextResponse.json(result, { status: result.success ? 200 : statusFromError(result.error) });
+  const result = await service.getOne(ctx.params.id);
+
+  return NextResponse.json(result, {
+    status: result.success ? 200 : statusFromError(result.error),
+  });
 }
 
-export async function POST(req: Request) {
-  let body: CreateFeaturedPostRequest;
+export async function PUT(req: Request, ctx: { params: { id: string } }) {
+  let body: UpdateFeaturedPostRequest;
 
   try {
-    body = (await req.json()) as CreateFeaturedPostRequest;
+    body = (await req.json()) as UpdateFeaturedPostRequest;
   } catch {
     return NextResponse.json(
       { success: false, error: "Invalid JSON body" },
@@ -38,9 +41,18 @@ export async function POST(req: Request) {
   }
 
   const service = buildService();
-  const result = await service.create(body);
+  const result = await service.update(ctx.params.id, body);
 
   return NextResponse.json(result, {
-    status: result.success ? 201 : statusFromError(result.error),
+    status: result.success ? 200 : statusFromError(result.error),
+  });
+}
+
+export async function DELETE(_: Request, ctx: { params: { id: string } }) {
+  const service = buildService();
+  const result = await service.delete(ctx.params.id);
+
+  return NextResponse.json(result, {
+    status: result.success ? 200 : statusFromError(result.error),
   });
 }

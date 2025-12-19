@@ -1,58 +1,74 @@
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public data?: unknown
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
 
 interface FetchOptions {
   method?: HttpMethod;
-  body?: any;
+  body?: unknown;
   headers?: HeadersInit;
 }
 
 class ApiClient {
   private async request<T>(url: string, options?: FetchOptions): Promise<T> {
+    const body = options?.body;
+    const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...options?.headers,
     };
 
     const config: RequestInit = {
-      method: options?.method || 'GET',
+      method: options?.method || "GET",
       headers,
+      credentials: "include",
+      body: body
+        ? isFormData
+          ? (body as FormData)
+          : JSON.stringify(body)
+        : undefined,
     };
 
-    if (options?.body) {
-      config.body = JSON.stringify(options.body);
+    const response = await fetch(url, config);
+
+    const contentType = response.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+      ? await response.json().catch(() => null)
+      : await response.text().catch(() => "");
+
+    if (!response.ok) {
+      const msg =
+        (data && typeof data === "object" && "error" in (data as any) && (data as any).error) ||
+        "Request failed";
+      throw new ApiError(String(msg), response.status, data);
     }
 
-    try {
-      const response = await fetch(url, config);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Request failed');
-      }
-
-      return data;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Network error');
-    }
+    return data as T;
   }
 
-  async get<T>(url: string): Promise<T> {
-    return this.request<T>(url, { method: 'GET' });
+  get<T>(url: string): Promise<T> {
+    return this.request<T>(url, { method: "GET" });
   }
 
-  async post<T>(url: string, body: any): Promise<T> {
-    return this.request<T>(url, { method: 'POST', body });
+  post<T>(url: string, body?: unknown): Promise<T> {
+    return this.request<T>(url, { method: "POST", body });
   }
 
-  async put<T>(url: string, body: any): Promise<T> {
-    return this.request<T>(url, { method: 'PUT', body });
+  put<T>(url: string, body?: unknown): Promise<T> {
+    return this.request<T>(url, { method: "PUT", body });
   }
 
-  async delete<T>(url: string): Promise<T> {
-    return this.request<T>(url, { method: 'DELETE' });
+  delete<T>(url: string): Promise<T> {
+    return this.request<T>(url, { method: "DELETE" });
   }
 }
 
