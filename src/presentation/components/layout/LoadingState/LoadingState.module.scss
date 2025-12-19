@@ -9,13 +9,34 @@
   gap: $sp-md;
 }
 
+// Modern 3-Ring Spinner
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba($green, 0.15);
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  border: 3px solid transparent;
   border-top-color: $green;
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+  animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+
+  &:nth-child(1) {
+    animation-delay: -0.45s;
+    opacity: 0.4;
+  }
+
+  &:nth-child(2) {
+    animation-delay: -0.3s;
+    opacity: 0.7;
+  }
+
+  &:nth-child(3) {
+    opacity: 1;
+  }
 }
 
 .message {
@@ -25,17 +46,67 @@
   font-weight: 500;
 }
 
+// Modern Card Skeleton
 .skeleton {
   border: 1px solid $border;
   border-radius: $radius-lg;
-  height: 280px;
-  background: linear-gradient(90deg, rgba($black, 0.02) 25%, rgba($black, 0.04) 50%, rgba($black, 0.02) 75%);
+  overflow: hidden;
+  background: $bg;
+}
+
+.skeletonImage {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(
+    110deg,
+    rgba($black, 0.04) 8%,
+    rgba($black, 0.08) 18%,
+    rgba($black, 0.04) 33%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 2s infinite;
+}
+
+.skeletonBody {
+  padding: $sp-md;
+  @include flex-col;
+  gap: $sp-xs;
+}
+
+.skeletonTitle {
+  height: 16px;
+  width: 80%;
+  border-radius: $radius;
+  background: linear-gradient(
+    110deg,
+    rgba($black, 0.04) 8%,
+    rgba($black, 0.08) 18%,
+    rgba($black, 0.04) 33%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  margin-bottom: 4px;
+}
+
+.skeletonLine {
+  height: 12px;
+  width: 100%;
+  border-radius: $radius;
+  background: linear-gradient(
+    110deg,
+    rgba($black, 0.04) 8%,
+    rgba($black, 0.08) 18%,
+    rgba($black, 0.04) 33%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
 @keyframes spin {
-  to {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }

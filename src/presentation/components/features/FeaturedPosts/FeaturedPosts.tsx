@@ -12,7 +12,7 @@ const FeaturedPosts = () => {
   return (
     <section className={styles.section}>
       <Container>
-        <SectionHeader title="منشورات مميزة" subtitle="تجارب وإنجازات ملهمة" />
+        <SectionHeader title="منشورات" subtitle="تجارب وإنجازات ملهمة" />
         <div className={styles.grid}>
           {isLoading ? (
             <LoadingState variant="skeleton" count={8} />

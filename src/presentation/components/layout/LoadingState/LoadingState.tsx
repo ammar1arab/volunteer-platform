@@ -11,7 +11,14 @@ const LoadingState = ({ variant = "spinner", count = 6, message }: LoadingStateP
     return (
       <>
         {Array.from({ length: count }).map((_, i) => (
-          <div key={i} className={styles.skeleton} />
+          <div key={i} className={styles.skeleton}>
+            <div className={styles.skeletonImage} />
+            <div className={styles.skeletonBody}>
+              <div className={styles.skeletonTitle} />
+              <div className={styles.skeletonLine} />
+              <div className={styles.skeletonLine} style={{ width: '70%' }} />
+            </div>
+          </div>
         ))}
       </>
     );
@@ -19,7 +26,11 @@ const LoadingState = ({ variant = "spinner", count = 6, message }: LoadingStateP
 
   return (
     <div className={styles.container}>
-      <div className={styles.spinner} />
+      <div className={styles.spinner}>
+        <div className={styles.ring} />
+        <div className={styles.ring} />
+        <div className={styles.ring} />
+      </div>
       {message && <p className={styles.message}>{message}</p>}
     </div>
   );

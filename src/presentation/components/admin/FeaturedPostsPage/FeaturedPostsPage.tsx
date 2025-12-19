@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, FileImage } from "lucide-react";
 import styles from "./FeaturedPostsPage.module.scss";
 import { ROUTES, type FeaturedPostDto } from "@/lib";
-import { useFeaturedPosts, useToast } from "@/presentation/hooks";
+import { useConfirmDialog, useFeaturedPosts, useToast } from "@/presentation/hooks";
 import { FeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState } from "@/presentation/components";
 import { processImageForUpload, revokeImagePreview } from "@/lib";
 
@@ -36,6 +36,8 @@ const FeaturedPostsPage = () => {
   const [preview, setPreview] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+  const { confirm, ConfirmDialog } = useConfirmDialog();
+
   const { list, isLoading, isSubmitting, isUploading, error, uploadImage, create, update, remove } = useFeaturedPosts();
   const role = (session?.user as any)?.role ?? "VOLUNTEER";
 
@@ -51,7 +53,10 @@ const FeaturedPostsPage = () => {
   }, [status, role, router]);
 
   useEffect(() => {
-    if (error) showToast(error, "error");
+    if (error && error.trim()) {
+      console.error("Error detected:", error);
+      showToast(error, "error");
+    }
   }, [error, showToast]);
 
   useEffect(() => {
@@ -88,6 +93,8 @@ const FeaturedPostsPage = () => {
     async (file: File | null) => {
       if (!file) return;
 
+      console.log("📤 Uploading file:", file.name);
+
       const result = await processImageForUpload(file, { maxSizeMB: 5, quality: 0.85 });
       if (result.error) {
         showToast(result.error, "error");
@@ -100,58 +107,110 @@ const FeaturedPostsPage = () => {
       const uploaded = await uploadImage(result.file);
       if (uploaded) {
         setForm((prev) => ({ ...prev, imageUrl: uploaded }));
-        showToast("تم رفع الصورة", "success");
+        showToast("تم رفع الصورة بنجاح ✅", "success");
+        console.log("✅ Image uploaded:", uploaded);
+      } else {
+        showToast("فشل رفع الصورة", "error");
       }
     },
     [uploadImage, showToast, preview]
   );
 
   const handleSubmit = useCallback(async () => {
-    if (!form.title.trim() || !form.description.trim() || !form.imageUrl) {
-      showToast("يرجى تعبئة جميع الحقول", "warning");
+    console.log("🚀 Submitting form:", { mode, form });
+
+    if (!form.title.trim()) {
+      showToast("يرجى إدخال العنوان", "warning");
       return;
     }
 
-    const payload = { imageUrl: form.imageUrl, title: form.title, description: form.description, isActive: form.isActive };
-    const success = mode === "create" ? await create(payload) : form.id && (await update(form.id, payload));
+    if (!form.description.trim()) {
+      showToast("يرجى إدخال الوصف", "warning");
+      return;
+    }
 
-    if (success) {
-      showToast(mode === "create" ? "تم الإنشاء" : "تم التحديث", "success");
-      resetForm();
+    if (!form.imageUrl) {
+      showToast("يرجى رفع صورة", "warning");
+      return;
+    }
+
+    const payload = {
+      imageUrl: form.imageUrl,
+      title: form.title,
+      description: form.description,
+      isActive: form.isActive
+    };
+
+    console.log("📦 Payload:", payload);
+
+    try {
+      let success = false;
+
+      if (mode === "create") {
+        success = await create(payload);
+      } else if (form.id) {
+        success = await update(form.id, payload);
+      }
+
+      if (success) {
+        showToast(mode === "create" ? "تم الإنشاء بنجاح ✅" : "تم التحديث بنجاح ✅", "success");
+        resetForm();
+      } else {
+        showToast(mode === "create" ? "فشل الإنشاء" : "فشل التحديث", "error");
+      }
+    } catch (err: any) {
+      console.error("❌ Submit error:", err);
+      showToast(err?.message || "حدث خطأ", "error");
     }
   }, [mode, form, create, update, resetForm, showToast]);
 
   const handleToggle = useCallback(
     async (post: FeaturedPostDto) => {
-      await update(post.id, { ...post, isActive: !post.isActive });
-      showToast(post.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
+      const success = await update(post.id, { ...post, isActive: !post.isActive });
+      if (success) {
+        showToast(post.isActive ? "تم الإخفاء ✅" : "تم التفعيل ✅", "success");
+      }
     },
     [update, showToast]
   );
 
   const handleDelete = useCallback(
     async (post: FeaturedPostDto) => {
-      if (!confirm(`حذف "${post.title}"؟`)) return;
+      const ok = await confirm({
+        title: "تأكيد الحذف",
+        message: `هل تريد حذف "${post.title}"؟`,
+        confirmText: "حذف",
+        cancelText: "إلغاء",
+        variant: "danger",
+      });
+
+      if (!ok) return;
+
       const success = await remove(post.id);
       if (success) {
-        showToast("تم الحذف", "success");
+        showToast("تم الحذف بنجاح ✅", "success");
         if (form.id === post.id) resetForm();
       }
     },
-    [form.id, remove, resetForm, showToast]
+    [confirm, form.id, remove, resetForm, showToast]
   );
 
-  if (status === "loading") return <LoadingState />;
+
+  if (status === "loading") return <LoadingState message="جاري التحميل..." />;
 
   return (
     <div className={styles.page}>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       <div className={styles.header}>
-        <h1 className={styles.title}>المنشورات المميزة</h1>
-        <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
+        <h1 className={styles.title}>المنشورات</h1>
+        <button
+          className={styles.btnCreate}
+          onClick={openCreate}
+          disabled={isSubmitting}
+        >
           <Plus size={18} />
-          إضافة
+          إضافة منشور جديد
         </button>
       </div>
 
@@ -160,7 +219,11 @@ const FeaturedPostsPage = () => {
           <LoadingState variant="skeleton" count={6} />
         </div>
       ) : list.length === 0 ? (
-        <EmptyState icon={FileImage} message="لا توجد منشورات" action={{ label: "إضافة", onClick: openCreate }} />
+        <EmptyState
+          icon={FileImage}
+          message="لا توجد منشورات"
+          action={{ label: "إضافة منشور", onClick: openCreate }}
+        />
       ) : (
         <div className={styles.grid}>
           {list.map((post) => (
@@ -169,16 +232,35 @@ const FeaturedPostsPage = () => {
               imageUrl={post.imageUrl}
               title={post.title}
               description={post.description}
-              meta={<span className={`${styles.badge} ${post.isActive ? styles.active : styles.inactive}`}>{post.isActive ? "نشط" : "مخفي"}</span>}
+              meta={
+                <span className={`${styles.badge} ${post.isActive ? styles.active : styles.inactive}`}>
+                  {post.isActive ? "نشط" : "مخفي"}
+                </span>
+              }
               actions={
                 <div className={styles.actions}>
-                  <button className={styles.btn} onClick={() => openEdit(post)} disabled={isSubmitting}>
+                  <button
+                    className={styles.btn}
+                    onClick={() => openEdit(post)}
+                    disabled={isSubmitting}
+                    title="تعديل"
+                  >
                     <Edit2 size={14} />
                   </button>
-                  <button className={styles.btn} onClick={() => handleToggle(post)} disabled={isSubmitting}>
+                  <button
+                    className={styles.btn}
+                    onClick={() => handleToggle(post)}
+                    disabled={isSubmitting}
+                    title={post.isActive ? "إخفاء" : "تفعيل"}
+                  >
                     {post.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
                   </button>
-                  <button className={styles.btnDanger} onClick={() => handleDelete(post)} disabled={isSubmitting}>
+                  <button
+                    className={styles.btnDanger}
+                    onClick={() => handleDelete(post)}
+                    disabled={isSubmitting}
+                    title="حذف"
+                  >
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -188,10 +270,15 @@ const FeaturedPostsPage = () => {
         </div>
       )}
 
-      <Modal isOpen={showModal} onClose={resetForm} title={mode === "create" ? "إضافة منشور" : "تعديل المنشور"} size="lg">
+      <Modal
+        isOpen={showModal}
+        onClose={resetForm}
+        title={mode === "create" ? "إضافة منشور" : "تعديل المنشور"}
+        size="lg"
+      >
         <div className={styles.form}>
           <div className={styles.field}>
-            <label className={styles.label}>العنوان</label>
+            <label className={styles.label}>العنوان *</label>
             <input
               className={styles.input}
               value={form.title}
@@ -202,7 +289,7 @@ const FeaturedPostsPage = () => {
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>الوصف</label>
+            <label className={styles.label}>الوصف *</label>
             <textarea
               className={styles.textarea}
               value={form.description}
@@ -214,35 +301,60 @@ const FeaturedPostsPage = () => {
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>الصورة</label>
+            <label className={styles.label}>الصورة *</label>
             {(preview || form.imageUrl) && (
               <div className={styles.preview}>
-                <Image src={preview || form.imageUrl} alt="Preview" fill className={styles.previewImg} />
+                <Image
+                  src={preview || form.imageUrl}
+                  alt="Preview"
+                  fill
+                  className={styles.previewImg}
+                />
               </div>
             )}
             <label className={styles.btnUpload}>
               <Upload size={16} />
               {isUploading ? "جاري الرفع..." : "رفع صورة"}
-              <input type="file" accept="image/*" className={styles.fileInput} onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)} disabled={isSubmitting || isUploading} />
+              <input
+                type="file"
+                accept="image/*"
+                className={styles.fileInput}
+                onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                disabled={isSubmitting || isUploading}
+              />
             </label>
           </div>
 
           <label className={styles.toggle}>
-            <input type="checkbox" checked={form.isActive} onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))} disabled={isSubmitting || isUploading} />
+            <input
+              type="checkbox"
+              checked={form.isActive}
+              onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))}
+              disabled={isSubmitting || isUploading}
+            />
             <span className={styles.slider} />
             <span>نشط</span>
           </label>
 
           <div className={styles.actions}>
-            <button className={styles.btnCancel} onClick={resetForm} disabled={isSubmitting || isUploading}>
+            <button
+              className={styles.btnCancel}
+              onClick={resetForm}
+              disabled={isSubmitting || isUploading}
+            >
               إلغاء
             </button>
-            <button className={styles.btnSubmit} onClick={handleSubmit} disabled={isSubmitting || isUploading || !form.imageUrl}>
-              {isSubmitting ? "جاري الحفظ..." : mode === "create" ? "إنشاء" : "حفظ"}
+            <button
+              className={styles.btnSubmit}
+              onClick={handleSubmit}
+              disabled={isSubmitting || isUploading || !form.imageUrl}
+            >
+              {isSubmitting ? "جاري الحفظ..." : mode === "create" ? "إنشاء" : "حفظ التعديلات"}
             </button>
           </div>
         </div>
       </Modal>
+      <ConfirmDialog />
     </div>
   );
 };

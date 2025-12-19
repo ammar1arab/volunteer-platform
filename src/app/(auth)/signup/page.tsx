@@ -12,7 +12,7 @@ const SignupPage = () => {
     <div className={styles.page}>
       <main className={styles.card} aria-labelledby="signup-title">
         <header className={styles.header}>
-          <h1 id="signup-title" className={styles.title}>إنشاء حساب جديد</h1>
+          <h1 id="signup-title" className={styles.title}>انضمامك لبصمات شبابية يشرفنا</h1>
         </header>
 
         {error && <div className={styles.error} role="alert" aria-live="polite">{error}</div>}

@@ -145,17 +145,12 @@
 }
 
 .btnUpload {
-  @include btn-secondary;
+  @include btn-primary;
   @include flex(row, center, center, 6px);
   padding: 8px 16px;
   font-size: $font-sm;
   cursor: pointer;
   flex: 1;
-
-  &:hover {
-    background: rgba($green, 0.05);
-    border-color: $green;
-  }
 }
 
 .fileInput {
@@ -246,7 +241,12 @@
 
 .skeleton {
   height: 300px;
-  background: linear-gradient(90deg, rgba($black, 0.03) 25%, rgba($black, 0.06) 50%, rgba($black, 0.03) 75%);
+  background: linear-gradient(
+    90deg,
+    rgba($black, 0.03) 25%,
+    rgba($black, 0.06) 50%,
+    rgba($black, 0.03) 75%
+  );
   background-size: 200% 100%;
   border-radius: $radius-lg;
   border: 1px solid $border;
@@ -314,6 +314,18 @@
     border-color: $red;
     color: $red;
   }
+}
+
+.btnCreate,
+.btnSubmit,
+.btnUpload {
+  color: #fff;
+}
+
+.btnCreate svg,
+.btnSubmit svg,
+.btnUpload svg {
+  stroke: currentColor;
 }
 
 @keyframes spin {

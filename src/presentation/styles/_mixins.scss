@@ -1,3 +1,4 @@
+@use "sass:color";
 @use "./variables" as *;
 
 @mixin flex($dir: row, $align: center, $justify: center, $gap: 0) {
@@ -81,7 +82,7 @@
   background: $green;
   color: #000;
   &:hover {
-    background: darken($green, 5%);
+    background: color.adjust($green, $lightness: -5%);
     transform: translateY(-2px);
     box-shadow: $shadow;
   }

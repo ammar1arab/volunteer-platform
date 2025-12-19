@@ -8,10 +8,10 @@ type Props = { title?: string };
 
 const AdminTopbar: React.FC<Props> = ({ title = "لوحة الإدارة" }) => {
   const { data } = useSession();
-  const name = data?.user?.name ?? "مستخدم";
-  const role = data?.user?.role ?? "VOLUNTEER";
+  const name = data?.user?.name ?? "Ammar";
+  const role = data?.user?.role ?? "Ammar";
 
-  const roleLabel = role === "ADMIN" ? "Admin" : "Volunteer";
+  const roleLabel = role === "ADMIN" ? "Admin" : "Admin";
 
   return (
     <header className={styles.bar}>

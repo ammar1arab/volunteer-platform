@@ -36,9 +36,13 @@
   line-height: 1.6;
 }
 
-.action {
+.action {  
   @include btn-primary;
+  color: #fff;
   margin-top: $sp-sm;
   padding: 10px 24px;
   font-size: $font-sm;
+}
+.action svg {
+  stroke: currentColor;
 }

@@ -124,7 +124,7 @@ $mobile-break: 900px;
 }
 
 .loginBtn:hover {
-  background: darken($green, 6%);
+  background: color.adjust($green, $lightness: -6%);
 }
 
 .socialWrapper {
@@ -216,7 +216,7 @@ $mobile-break: 900px;
 }
 
 .mobileLogin:hover {
-  background: darken($green, 6%);
+  background: color.adjust($green, $lightness: -6%);
 }
 
 .menuBtn {

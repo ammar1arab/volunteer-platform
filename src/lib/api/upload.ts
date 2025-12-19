@@ -1,16 +1,25 @@
 import { apiClient, API_ENDPOINTS } from "@/lib";
 
-export type UploadImageResponse = {
+type ApiResponse<T> = {
   success: boolean;
-  imageUrl?: string;
+  data?: T;
   error?: string;
 };
 
+export type UploadImageResponse = {
+  imageUrl: string;
+};
+
 export const uploadApi = {
-  uploadFeaturedImage: (file: File) => {
+  uploadFeaturedImage: (
+    file: File
+  ): Promise<ApiResponse<UploadImageResponse>> => {
     const form = new FormData();
     form.append("file", file);
 
-    return apiClient.post<UploadImageResponse>(API_ENDPOINTS.UPLOADS.FEATURED_IMAGE, form);
+    return apiClient.post<ApiResponse<UploadImageResponse>>(
+      API_ENDPOINTS.UPLOADS.FEATURED_IMAGE,
+      form
+    );
   },
 };

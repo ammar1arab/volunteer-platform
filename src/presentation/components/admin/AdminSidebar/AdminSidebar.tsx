@@ -20,7 +20,7 @@ const AdminSidebar = () => {
           href={ROUTES.ADMIN.FEATURED_POSTS}
           className={`${styles.link} ${isActive(ROUTES.ADMIN.FEATURED_POSTS) ? styles.active : ""}`}
         >
-          إدارة المنشورات المميزة
+          إدارة المنشورات 
         </Link>
       </nav>
     </aside>

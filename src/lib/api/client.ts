@@ -1,26 +1,17 @@
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public data?: unknown
-  ) {
-    super(message);
-    this.name = "ApiError";
-  }
-}
-
 interface FetchOptions {
   method?: HttpMethod;
-  body?: unknown;
+  body?: any;
   headers?: HeadersInit;
 }
 
 class ApiClient {
   private async request<T>(url: string, options?: FetchOptions): Promise<T> {
     const body = options?.body;
-    const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+
+    const isFormData =
+      typeof FormData !== "undefined" && body instanceof FormData;
 
     const headers: HeadersInit = {
       ...(isFormData ? {} : { "Content-Type": "application/json" }),
@@ -30,44 +21,39 @@ class ApiClient {
     const config: RequestInit = {
       method: options?.method || "GET",
       headers,
-      credentials: "include",
-      body: body
-        ? isFormData
-          ? (body as FormData)
-          : JSON.stringify(body)
-        : undefined,
+      body:
+        body === undefined
+          ? undefined
+          : isFormData
+          ? body
+          : JSON.stringify(body),
     };
 
-    const response = await fetch(url, config);
+    const res = await fetch(url, config);
 
-    const contentType = response.headers.get("content-type") || "";
-    const data = contentType.includes("application/json")
-      ? await response.json().catch(() => null)
-      : await response.text().catch(() => "");
+    const contentType = res.headers.get("content-type") || "";
+    const isJson = contentType.includes("application/json");
 
-    if (!response.ok) {
-      const msg =
-        (data && typeof data === "object" && "error" in (data as any) && (data as any).error) ||
-        "Request failed";
-      throw new ApiError(String(msg), response.status, data);
+    const data = isJson ? await res.json() : await res.text();
+
+    if (!res.ok) {
+      const msg = (data as any)?.error || "Request failed";
+      throw new Error(msg);
     }
 
     return data as T;
   }
 
-  get<T>(url: string): Promise<T> {
+  get<T>(url: string) {
     return this.request<T>(url, { method: "GET" });
   }
-
-  post<T>(url: string, body?: unknown): Promise<T> {
+  post<T>(url: string, body: any) {
     return this.request<T>(url, { method: "POST", body });
   }
-
-  put<T>(url: string, body?: unknown): Promise<T> {
+  put<T>(url: string, body: any) {
     return this.request<T>(url, { method: "PUT", body });
   }
-
-  delete<T>(url: string): Promise<T> {
+  delete<T>(url: string) {
     return this.request<T>(url, { method: "DELETE" });
   }
 }
