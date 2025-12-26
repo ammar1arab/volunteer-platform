@@ -1,3 +1,4 @@
+@use "sass:color";
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
@@ -21,7 +22,7 @@
   @include flex-center;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, $green, lighten($green, 10%));
+  background: linear-gradient(135deg, $green, rgba($green, 0.8));
   border-radius: $radius-full;
   color: white;
   flex-shrink: 0;
@@ -41,7 +42,7 @@
 
 .stats {
   @include grid(3, $sp-lg);
-  
+
   @media (max-width: $bp-md) {
     @include grid(1, $sp-md);
   }

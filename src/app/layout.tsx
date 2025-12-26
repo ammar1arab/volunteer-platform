@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
 import '@/presentation/styles/globals.scss';
 import { Providers } from './providers';
 
@@ -9,6 +8,10 @@ export const metadata: Metadata = {
     template: '%s | مبادرة بصمات شبابية',
   },
   description: "مبادرة بصمات شبابية",
+  icons: {
+    icon: '/images/logo.png',
+    shortcut: '/images/logo.png'
+  }
 };
 
 export default function RootLayout({ children, }: { children: React.ReactNode; }) {

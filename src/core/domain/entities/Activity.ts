@@ -45,7 +45,10 @@ class Activity extends BaseEntity {
   }
 
   static create(
-    input: Omit<ActivityProps, "id" | "createdAt" | "updatedAt" | "currentVolunteers" | "status">
+    input: Omit<
+      ActivityProps,
+      "id" | "createdAt" | "updatedAt" | "currentVolunteers" | "status"
+    >
   ): Activity {
     return new Activity({
       ...input,
@@ -110,13 +113,24 @@ class Activity extends BaseEntity {
     return this.props.status === "DRAFT";
   }
 
-  update(input: Partial<Omit<ActivityProps, "id" | "createdAt" | "currentVolunteers" | "status" | "createdBy">>): void {
+  update(
+    input: Partial<
+      Omit<
+        ActivityProps,
+        "id" | "createdAt" | "currentVolunteers" | "status" | "createdBy"
+      >
+    >
+  ): void {
     if (!this.canBeEdited()) {
       throw new Error("Only draft activities can be edited");
     }
 
     if (input.title !== undefined) {
-      if (!input.title?.trim() || input.title.length < 2 || input.title.length > 300) {
+      if (
+        !input.title?.trim() ||
+        input.title.length < 2 ||
+        input.title.length > 300
+      ) {
         throw new Error("Title must be 2-300 characters");
       }
       this.props.title = input.title.trim();
@@ -147,11 +161,18 @@ class Activity extends BaseEntity {
     }
 
     if (input.imageUrl !== undefined) this.props.imageUrl = input.imageUrl;
-    if (input.dayOfWeek !== undefined) this.props.dayOfWeek = input.dayOfWeek;
+    if (input.dayOfWeek !== undefined) {
+      if (!Object.values(DayOfWeek).includes(input.dayOfWeek)) {
+        throw new Error("Invalid day of week");
+      }
+      this.props.dayOfWeek = input.dayOfWeek;
+    }
     if (input.date !== undefined) this.props.date = input.date;
-    if (input.placeName !== undefined) this.props.placeName = input.placeName.trim();
+    if (input.placeName !== undefined)
+      this.props.placeName = input.placeName.trim();
     if (input.location !== undefined) this.props.location = input.location;
-    if (input.targetAudience !== undefined) this.props.targetAudience = input.targetAudience;
+    if (input.targetAudience !== undefined)
+      this.props.targetAudience = input.targetAudience;
 
     if (input.isActive !== undefined) {
       this.setActive(input.isActive);
@@ -162,14 +183,30 @@ class Activity extends BaseEntity {
     this.touch();
   }
 
-  get title(): string { return this.props.title; }
-  get description(): string { return this.props.description; }
-  get imageUrl(): string { return this.props.imageUrl; }
-  get date(): Date { return this.props.date; }
-  get status(): string { return this.props.status; }
-  get currentVolunteers(): number { return this.props.currentVolunteers; }
-  get maxVolunteers(): number { return this.props.maxVolunteers; }
-  get createdBy(): string { return this.props.createdBy; }
+  get title(): string {
+    return this.props.title;
+  }
+  get description(): string {
+    return this.props.description;
+  }
+  get imageUrl(): string {
+    return this.props.imageUrl;
+  }
+  get date(): Date {
+    return this.props.date;
+  }
+  get status(): string {
+    return this.props.status;
+  }
+  get currentVolunteers(): number {
+    return this.props.currentVolunteers;
+  }
+  get maxVolunteers(): number {
+    return this.props.maxVolunteers;
+  }
+  get createdBy(): string {
+    return this.props.createdBy;
+  }
 
   toObject(): ActivityProps {
     return {

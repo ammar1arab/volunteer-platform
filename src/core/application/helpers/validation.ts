@@ -29,8 +29,15 @@ export class ValidationHelper {
     return null;
   }
 
-  static validateRequired(value: any, fieldName: string): string | null {
-    if (!value?.toString()?.trim()) return `${fieldName} is required`;
+  static validateRequired(value: unknown, fieldName: string): string | null {
+    if (value === null || value === undefined) {
+      return `${fieldName} is required`;
+    }
+    
+    if (typeof value === 'string' && !value.trim()) {
+      return `${fieldName} is required`;
+    }
+    
     return null;
   }
 }

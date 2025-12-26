@@ -2,6 +2,7 @@
 
 import styles from './HeroSection.module.scss';
 import { Container } from '@/presentation/components';
+import Image from 'next/image';
 import { FiArrowLeft, FiUsers, FiHeart } from 'react-icons/fi';
 
 const HeroSection = () => {
@@ -40,7 +41,7 @@ const HeroSection = () => {
           </div>
 
           <div className={styles.heroImage}>
-            <img src="/images/about.jpg" alt="Volunteer Image" />
+            <Image priority src="/images/about.jpg" alt="Volunteer Image" />
           </div>
 
         </div>

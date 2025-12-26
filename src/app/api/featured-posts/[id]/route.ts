@@ -19,16 +19,26 @@ const statusFromError = (error?: string) => {
   return 400;
 };
 
-export async function GET(_: Request, ctx: { params: { id: string } }) {
+export async function GET(
+  _: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+  
   const service = buildService();
-  const result = await service.getOne(ctx.params.id);
+  const result = await service.getOne(id);
 
   return NextResponse.json(result, {
     status: result.success ? 200 : statusFromError(result.error),
   });
 }
 
-export async function PUT(req: Request, ctx: { params: { id: string } }) {
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+  
   let body: UpdateFeaturedPostRequest;
 
   try {
@@ -41,16 +51,21 @@ export async function PUT(req: Request, ctx: { params: { id: string } }) {
   }
 
   const service = buildService();
-  const result = await service.update(ctx.params.id, body);
+  const result = await service.update(id, body);
 
   return NextResponse.json(result, {
     status: result.success ? 200 : statusFromError(result.error),
   });
 }
 
-export async function DELETE(_: Request, ctx: { params: { id: string } }) {
+export async function DELETE(
+  _: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+  
   const service = buildService();
-  const result = await service.delete(ctx.params.id);
+  const result = await service.delete(id);
 
   return NextResponse.json(result, {
     status: result.success ? 200 : statusFromError(result.error),

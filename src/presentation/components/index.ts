@@ -17,7 +17,9 @@ export { default as PopularActivities } from "./features/PopularActivities/Popul
 export { default as AdminSidebar } from "./admin/AdminSidebar/AdminSidebar";
 export { default as AdminTopbar } from "./admin/AdminTopbar/AdminTopbar";
 export { default as FeaturedPostsPage } from "./admin/FeaturedPostsPage/FeaturedPostsPage";
+export { default as ActivitiesPage } from "./admin/ActivitiesPage/ActivitiesPage";
 
+export { default as ActivityCard } from "./features/ActivityCard/ActivityCard";
 export { default as FeaturedPostCard } from "./features/FeaturedPostCard/FeaturedPostCard";
 export { default as FeaturedPosts } from "./features/FeaturedPosts/FeaturedPosts";
 

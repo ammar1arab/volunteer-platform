@@ -80,7 +80,7 @@
 @mixin btn-primary {
   @include btn;
   background: $green;
-  color: #000;
+  color: #fff;
   &:hover {
     background: color.adjust($green, $lightness: -5%);
     transform: translateY(-2px);

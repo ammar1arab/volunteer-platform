@@ -12,7 +12,7 @@ const AdminSidebar = () => {
   return (
     <aside className={styles.sidebar} aria-label="لوحة إدارة">
       <Link href={ROUTES.ADMIN.DASHBOARD} className={styles.brand}>
-       Admin Dashboard
+        Admin Dashboard
       </Link>
 
       <nav className={styles.nav}>
@@ -20,8 +20,15 @@ const AdminSidebar = () => {
           href={ROUTES.ADMIN.FEATURED_POSTS}
           className={`${styles.link} ${isActive(ROUTES.ADMIN.FEATURED_POSTS) ? styles.active : ""}`}
         >
-          إدارة المنشورات 
+          إدارة المنشورات
         </Link>
+        <Link
+          href={ROUTES.ADMIN.ACTIVITIES}
+          className={`${styles.link} ${isActive(ROUTES.ADMIN.ACTIVITIES) ? styles.active : ""}`}
+        >
+          إدارة الأنشطة
+        </Link>
+
       </nav>
     </aside>
   );

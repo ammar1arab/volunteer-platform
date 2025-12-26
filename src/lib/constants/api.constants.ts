@@ -8,7 +8,25 @@ export const API_ENDPOINTS = {
     BY_ID: (id: string) => `/api/featured-posts/${id}`,
   },
 
+  ACTIVITIES: {
+    BASE: "/api/activities",
+    BY_ID: (id: string) => `/api/activities/${id}`,
+    PUBLISH: (id: string) => `/api/activities/${id}/publish`,
+    CANCEL: (id: string) => `/api/activities/${id}/cancel`,
+    PUBLISHED: "/api/activities?filter=published",
+  },
+
+  ACTIVITY_PARTICIPATIONS: {
+    BASE: "/api/activity-participations",
+    BY_ID: (id: string) => `/api/activity-participations/${id}`,
+    APPROVE: (id: string) => `/api/activity-participations/${id}/approve`,
+    REJECT: (id: string) => `/api/activity-participations/${id}/reject`,
+    MY_REQUESTS: "/api/activity-participations/my-requests",
+  },
+
   UPLOADS: {
-    FEATURED_IMAGE: "/api/uploads",
+    BY_SCOPE: (scope: "featured-posts" | "activities") => `/api/uploads/${scope}`,
+    FEATURED_IMAGE: "/api/uploads/featured-posts",
+    ACTIVITY_IMAGE: "/api/uploads/activities",
   },
 } as const;

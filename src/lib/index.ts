@@ -6,5 +6,6 @@ export type * from "./types/components.types";
 export type * from "./types/screens.types";
 export type * from "./types/next-auth";
 
+export type { ApiResponse } from "./types/api.types";
 
 export type * from "@/core/application/dtos";

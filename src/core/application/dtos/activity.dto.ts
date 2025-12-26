@@ -103,15 +103,3 @@ export interface CancelActivityResponse {
   activity?: ActivityDto;
   error?: string;
 }
-
-export interface JoinActivityResponse {
-  success: boolean;
-  message?: string;
-  error?: string;
-}
-
-export interface LeaveActivityResponse {
-  success: boolean;
-  message?: string;
-  error?: string;
-}

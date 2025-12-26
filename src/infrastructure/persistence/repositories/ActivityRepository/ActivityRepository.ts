@@ -45,29 +45,12 @@ class ActivityRepository implements IActivityRepository {
 
   async create(activity: Activity): Promise<Activity> {
     const props = activity.toObject();
+    const data = this.toPrismaData(props);
 
     const created = await prisma.activity.create({
       data: {
-        id: props.id,
-        title: props.title,
-        description: props.description,
-        imageUrl: props.imageUrl,
-        dayOfWeek: props.dayOfWeek,
-        date: props.date,
-        startTime: props.startTime,
-        endTime: props.endTime,
-        placeName: props.placeName,
-        latitude: props.location.latitude,
-        longitude: props.location.longitude,
-        address: props.location.address,
-        targetAudience: props.targetAudience,
-        maxVolunteers: props.maxVolunteers,
-        currentVolunteers: props.currentVolunteers,
-        status: props.status,
-        createdBy: props.createdBy,
-        isActive: props.isActive,
+        ...data,
         createdAt: props.createdAt,
-        updatedAt: props.updatedAt,
       },
     });
 
@@ -76,28 +59,11 @@ class ActivityRepository implements IActivityRepository {
 
   async update(activity: Activity): Promise<Activity> {
     const props = activity.toObject();
+    const data = this.toPrismaData(props);
 
     const updated = await prisma.activity.update({
       where: { id: activity.id },
-      data: {
-        title: props.title,
-        description: props.description,
-        imageUrl: props.imageUrl,
-        dayOfWeek: props.dayOfWeek,
-        date: props.date,
-        startTime: props.startTime,
-        endTime: props.endTime,
-        placeName: props.placeName,
-        latitude: props.location.latitude,
-        longitude: props.location.longitude,
-        address: props.location.address,
-        targetAudience: props.targetAudience,
-        maxVolunteers: props.maxVolunteers,
-        currentVolunteers: props.currentVolunteers,
-        status: props.status,
-        isActive: props.isActive,
-        updatedAt: props.updatedAt,
-      },
+      data,
     });
 
     return this.toDomain(updated);
@@ -114,7 +80,52 @@ class ActivityRepository implements IActivityRepository {
     }
   }
 
-  private toDomain(raw: any): Activity {
+  private toPrismaData(props: ActivityProps) {
+    return {
+      id: props.id,
+      title: props.title,
+      description: props.description,
+      imageUrl: props.imageUrl,
+      dayOfWeek: props.dayOfWeek,
+      date: props.date,
+      startTime: props.startTime,
+      endTime: props.endTime,
+      placeName: props.placeName,
+      latitude: props.location.latitude,
+      longitude: props.location.longitude,
+      address: props.location.address,
+      targetAudience: props.targetAudience,
+      maxVolunteers: props.maxVolunteers,
+      currentVolunteers: props.currentVolunteers,
+      status: props.status,
+      createdBy: props.createdBy,
+      isActive: props.isActive,
+      updatedAt: props.updatedAt,
+    };
+  }
+
+  private toDomain(raw: {
+    id: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+    dayOfWeek: string;
+    date: Date;
+    startTime: string;
+    endTime: string;
+    placeName: string;
+    latitude: number;
+    longitude: number;
+    address: string;
+    targetAudience: string;
+    maxVolunteers: number;
+    currentVolunteers: number;
+    status: string;
+    createdBy: string;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }): Activity {
     return new Activity({
       id: raw.id,
       title: raw.title,

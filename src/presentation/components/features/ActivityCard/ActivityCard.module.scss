@@ -1,0 +1,83 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.card {
+  @include glass-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba($black, 0.12);
+  }
+
+  &.featured {
+    border: 2px solid rgba($green, 0.2);
+  }
+}
+
+.media {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, rgba($green, 0.05), rgba($green, 0.1));
+  flex-shrink: 0;
+
+  @media (max-width: 600px) {
+    height: 160px;
+  }
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.4s ease;
+
+  .card:hover & {
+    transform: scale(1.05);
+  }
+}
+
+.body {
+  padding: $sp-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+  flex: 1;
+}
+
+.content {
+  flex: 1;
+}
+
+.title {
+  font-size: $font-lg;
+  font-weight: 800;
+  margin: 0 0 $sp-sm;
+  @include line-clamp(2);
+  color: $text;
+}
+
+.desc {
+  margin: 0;
+  color: $text-muted;
+  font-size: $font-sm;
+  line-height: 1.6;
+  @include line-clamp(3);
+}
+
+.meta {
+  @include flex-col;
+  gap: $sp-xs;
+  padding-top: $sp-sm;
+  border-top: 1px solid rgba($black, 0.06);
+}
+
+.actions {
+  @include flex(row, center, flex-end, $sp-xs);
+  padding-top: $sp-sm;
+  border-top: 1px solid rgba($black, 0.06);
+}

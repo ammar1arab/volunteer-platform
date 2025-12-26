@@ -107,8 +107,8 @@ const FeaturedPostsPage = () => {
       const uploaded = await uploadImage(result.file);
       if (uploaded) {
         setForm((prev) => ({ ...prev, imageUrl: uploaded }));
-        showToast("تم رفع الصورة بنجاح ✅", "success");
-        console.log("✅ Image uploaded:", uploaded);
+        showToast("تم رفع الصورة بنجاح ", "success");
+        console.log(" Image uploaded:", uploaded);
       } else {
         showToast("فشل رفع الصورة", "error");
       }
@@ -153,7 +153,7 @@ const FeaturedPostsPage = () => {
       }
 
       if (success) {
-        showToast(mode === "create" ? "تم الإنشاء بنجاح ✅" : "تم التحديث بنجاح ✅", "success");
+        showToast(mode === "create" ? "تم الإنشاء بنجاح" : "تم التحديث بنجاح", "success");
         resetForm();
       } else {
         showToast(mode === "create" ? "فشل الإنشاء" : "فشل التحديث", "error");
@@ -168,7 +168,7 @@ const FeaturedPostsPage = () => {
     async (post: FeaturedPostDto) => {
       const success = await update(post.id, { ...post, isActive: !post.isActive });
       if (success) {
-        showToast(post.isActive ? "تم الإخفاء ✅" : "تم التفعيل ✅", "success");
+        showToast(post.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
       }
     },
     [update, showToast]
@@ -188,7 +188,7 @@ const FeaturedPostsPage = () => {
 
       const success = await remove(post.id);
       if (success) {
-        showToast("تم الحذف بنجاح ✅", "success");
+        showToast("تم الحذف بنجاح ", "success");
         if (form.id === post.id) resetForm();
       }
     },

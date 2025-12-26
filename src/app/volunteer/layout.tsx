@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import { useAuth } from '@/presentation/hooks';
 import styles from './layout.module.scss';
+import { UserRole } from '@/core/domain/enums';
 
 interface VolunteerLayoutProps {
   children: ReactNode;
@@ -11,7 +12,7 @@ interface VolunteerLayoutProps {
 const VolunteerLayout = ({ children }: VolunteerLayoutProps) => {
   const { isLoading } = useAuth({
     requireAuth: true,
-    requireRole: 'VOLUNTEER',
+    requireRole: UserRole.VOLUNTEER,
   });
 
   if (isLoading) {

@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { featuredPostApi, uploadApi } from "@/lib/api";
+import { featuredPostApi, uploadApi } from "@/lib";
 import type {
   FeaturedPostDto,
   CreateFeaturedPostRequest,
   UpdateFeaturedPostRequest,
-} from "@/lib";
+} from "@/core/application/dtos";
 
 type ListState = {
   list: FeaturedPostDto[];
@@ -21,7 +21,9 @@ const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") =
   return fallback;
 };
 
-export const useFeaturedPosts = (options: { activeOnly?: boolean; autoLoad?: boolean } = {}) => {
+export const useFeaturedPosts = (
+  options: { activeOnly?: boolean; autoLoad?: boolean } = {}
+) => {
   const { activeOnly = false, autoLoad = true } = options;
 
   const [state, setState] = useState<ListState>({
@@ -43,10 +45,11 @@ export const useFeaturedPosts = (options: { activeOnly?: boolean; autoLoad?: boo
     try {
       const res: any = await featuredPostApi.getAll();
 
-      // ✅ الباكند بيرجع posts مش data
       const posts: FeaturedPostDto[] = res?.posts ?? res?.data ?? [];
 
-      const filtered = activeOnly ? posts.filter((x) => x.isActive !== false) : posts;
+      const filtered = activeOnly
+        ? posts.filter((x) => x.isActive !== false)
+        : posts;
 
       setState((p) => ({
         ...p,
@@ -69,26 +72,18 @@ export const useFeaturedPosts = (options: { activeOnly?: boolean; autoLoad?: boo
     }
   }, [autoLoad, refresh]);
 
-  const uploadImage = useCallback(async (file: File): Promise<string | null> => {
+  const uploadImage = useCallback(async (file: File) => {
     setState((p) => ({ ...p, isUploading: true, error: "" }));
 
     try {
       const res: any = await uploadApi.uploadFeaturedImage(file);
 
-      // ✅ خليها مرنة: مرات بترجع data.imageUrl ومرات imageUrl مباشرة
-      const url =
-        res?.data?.imageUrl ??
-        res?.imageUrl ??
-        res?.data?.url ??
-        res?.url ??
-        null;
-
-      if (!url) {
-        setError("فشل رفع الصورة");
-        return null;
+      const imageUrl = res?.data?.imageUrl;
+      if (!res?.success || !imageUrl) {
+        throw new Error(res?.error || "فشل رفع الصورة");
       }
 
-      return url;
+      return imageUrl as string;
     } catch (err: unknown) {
       setError(getErrMsg(err, "فشل رفع الصورة"));
       return null;
@@ -97,69 +92,77 @@ export const useFeaturedPosts = (options: { activeOnly?: boolean; autoLoad?: boo
     }
   }, []);
 
-  const create = useCallback(async (payload: CreateFeaturedPostRequest) => {
-    setState((p) => ({ ...p, isSubmitting: true, error: "" }));
+  const create = useCallback(
+    async (payload: CreateFeaturedPostRequest) => {
+      setState((p) => ({ ...p, isSubmitting: true, error: "" }));
 
-    try {
-      const res: any = await featuredPostApi.create(payload);
+      try {
+        const res: any = await featuredPostApi.create(payload);
 
-      // ✅ الباكند بيرجع post
-      if (!res?.success) {
-        setError(res?.error || "فشل في الإنشاء");
+        if (!res?.success) {
+          setError(res?.error || "فشل في الإنشاء");
+          return false;
+        }
+
+        await refresh();
+        return true;
+      } catch (err: unknown) {
+        setError(getErrMsg(err, "فشل في الإنشاء"));
         return false;
+      } finally {
+        setState((p) => ({ ...p, isSubmitting: false }));
       }
+    },
+    [refresh]
+  );
 
-      await refresh();
-      return true;
-    } catch (err: unknown) {
-      setError(getErrMsg(err, "فشل في الإنشاء"));
-      return false;
-    } finally {
-      setState((p) => ({ ...p, isSubmitting: false }));
-    }
-  }, [refresh]);
+  const update = useCallback(
+    async (id: string, payload: UpdateFeaturedPostRequest) => {
+      setState((p) => ({ ...p, isSubmitting: true, error: "" }));
 
-  const update = useCallback(async (id: string, payload: UpdateFeaturedPostRequest) => {
-    setState((p) => ({ ...p, isSubmitting: true, error: "" }));
+      try {
+        const res: any = await featuredPostApi.update(id, payload);
 
-    try {
-      const res: any = await featuredPostApi.update(id, payload);
+        if (!res?.success) {
+          setError(res?.error || "فشل في التحديث");
+          return false;
+        }
 
-      if (!res?.success) {
-        setError(res?.error || "فشل في التحديث");
+        await refresh();
+        return true;
+      } catch (err: unknown) {
+        setError(getErrMsg(err, "فشل في التحديث"));
         return false;
+      } finally {
+        setState((p) => ({ ...p, isSubmitting: false }));
       }
+    },
+    [refresh]
+  );
 
-      await refresh();
-      return true;
-    } catch (err: unknown) {
-      setError(getErrMsg(err, "فشل في التحديث"));
-      return false;
-    } finally {
-      setState((p) => ({ ...p, isSubmitting: false }));
-    }
-  }, [refresh]);
+  const remove = useCallback(
+    async (id: string) => {
+      setState((p) => ({ ...p, isSubmitting: true, error: "" }));
 
-  const remove = useCallback(async (id: string) => {
-    setState((p) => ({ ...p, isSubmitting: true, error: "" }));
+      try {
+        const res: any = await featuredPostApi.delete(id);
 
-    try {
-      const res: any = await featuredPostApi.delete(id);
+        if (!res?.success) {
+          setError(res?.error || "فشل في الحذف");
+          return false;
+        }
 
-      if (!res?.success) {
-        setError(res?.error || "فشل في الحذف");
+        await refresh();
+        return true;
+      } catch (err: unknown) {
+        setError(getErrMsg(err, "فشل في الحذف"));
         return false;
+      } finally {
+        setState((p) => ({ ...p, isSubmitting: false }));
       }
-
-      await refresh();
-      return true;
-    } catch (err: unknown) {
-      setError(getErrMsg(err, "فشل في الحذف"));
-      return false;
-    } finally {
-      setState((p) => ({ ...p, isSubmitting: false }));
-    }
-  }, [refresh]);
+    },
+    [refresh]
+  );
 
   return {
     list: state.list,

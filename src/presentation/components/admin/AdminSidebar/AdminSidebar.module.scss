@@ -27,7 +27,6 @@
   display: flex;
   flex-direction: column;
   gap: $sp-sm;
-  border-bottom: 2px solid rgba($green, 0.35);
 }
 
 .link {
@@ -36,7 +35,8 @@
   font-weight: 600;
   padding: $sp-sm $sp-md;
   border-radius: $radius;
-  border: 1px solid transparent;
+  border-bottom: 2px solid rgba($green, 0.35);
+
   text-align: center;
   transition: $transition;
   @include focus-ring($green);

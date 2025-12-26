@@ -23,7 +23,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  createdActivities Activity[] @relation("ActivityCreator")
+  createdActivities Activity[]                @relation("ActivityCreator")
+  participations    ActivityParticipation[]   @relation("VolunteerParticipations")
 
   @@map("users")
 }
@@ -50,27 +51,33 @@ model Activity {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  creator User @relation("ActivityCreator", fields: [createdBy], references: [id])
+  creator        User                      @relation("ActivityCreator", fields: [createdBy], references: [id])
+  participations ActivityParticipation[]
 
   @@index([status, date])
   @@index([createdBy])
   @@map("activities")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  fullName  String
-  phone     String
-  role      UserRole
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model ActivityParticipation {
+  id          String    @id @default(uuid())
+  activityId  String
+  volunteerId String
+  status      String    @default("PENDING")
+  requestedAt DateTime  @default(now())
+  respondedAt DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  activities Activity[]
+  activity  Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  volunteer User     @relation("VolunteerParticipations", fields: [volunteerId], references: [id])
 
-  @@map("users")
+  @@unique([activityId, volunteerId])
+  @@index([activityId])
+  @@index([volunteerId])
+  @@index([status])
+  @@map("activity_participations")
 }
 
 model FeaturedPost {
@@ -85,5 +92,3 @@ model FeaturedPost {
   @@index([title])
   @@map("featured_posts")
 }
-
-
