@@ -2,17 +2,32 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { UserRepository } from "@/infrastructure/persistence/repositories";
 import AuthService from "@/core/application/services/AuthService";
+import { UserRole } from "@/core/domain/enums";
 
-interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
+// Extend NextAuth types to match our application
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      role: UserRole;
+    };
+  }
+
+  interface User {
+    id: string;
+    email: string;
+    name: string;
+    role: UserRole;
+  }
 }
 
-interface ExtendedToken {
-  sub?: string;
-  role?: string;
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    role?: UserRole;
+  }
 }
 
 export const authOptions: NextAuthOptions = {
@@ -40,7 +55,7 @@ export const authOptions: NextAuthOptions = {
           id: result.user.id,
           email: result.user.email,
           name: result.user.fullName,
-          role: result.user.role,
+          role: result.user.role as UserRole,
         };
       },
     }),
@@ -48,18 +63,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const authUser = user as AuthUser;
-        const extendedToken = token as ExtendedToken;
-        token.sub = authUser.id;
-        extendedToken.role = authUser.role;
+        token.id = user.id;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        const extendedToken = token as ExtendedToken;
-        session.user.id = token.sub ?? "";
-        session.user.role = extendedToken.role ?? "";
+      if (session.user && token.id && token.role) {
+        session.user.id = token.id;
+        session.user.role = token.role;
       }
       return session;
     },
