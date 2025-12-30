@@ -39,7 +39,7 @@ const FeaturedPostsPage = () => {
   const { confirm, ConfirmDialog } = useConfirmDialog();
 
   const { list, isLoading, isSubmitting, isUploading, error, uploadImage, create, update, remove } = useFeaturedPosts();
-  const role = (session?.user as any)?.role ?? "VOLUNTEER";
+  const role = session?.user?.role ?? "VOLUNTEER";
 
   useEffect(() => {
     if (status === "loading") return;
@@ -108,7 +108,7 @@ const FeaturedPostsPage = () => {
       if (uploaded) {
         setForm((prev) => ({ ...prev, imageUrl: uploaded }));
         showToast("تم رفع الصورة بنجاح ", "success");
-        console.log(" Image uploaded:", uploaded);
+        console.log("✅ Image uploaded:", uploaded);
       } else {
         showToast("فشل رفع الصورة", "error");
       }
@@ -158,9 +158,9 @@ const FeaturedPostsPage = () => {
       } else {
         showToast(mode === "create" ? "فشل الإنشاء" : "فشل التحديث", "error");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("❌ Submit error:", err);
-      showToast(err?.message || "حدث خطأ", "error");
+      showToast(err instanceof Error ? err.message : "حدث خطأ", "error");
     }
   }, [mode, form, create, update, resetForm, showToast]);
 

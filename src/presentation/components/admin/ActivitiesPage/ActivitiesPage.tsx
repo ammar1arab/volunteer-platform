@@ -28,6 +28,8 @@ import {
 } from "@/lib";
 import { useActivities, useConfirmDialog, useToast } from "@/presentation/hooks";
 import { Modal, LoadingState, EmptyState, ToastContainer, ActivityCard } from "@/presentation/components";
+import type { CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
+import { DayOfWeek } from "@/core/domain/enums";
 
 type FormData = {
   id: string;
@@ -103,7 +105,7 @@ const ActivitiesPage = () => {
   const [uploading, setUploading] = useState(false);
   const [useCustomLocation, setUseCustomLocation] = useState(false);
 
-  const role = (session?.user as any)?.role;
+  const role = session?.user?.role ?? "VOLUNTEER";
 
   useEffect(() => {
     if (status === "loading") return;
@@ -218,11 +220,11 @@ const ActivitiesPage = () => {
       return;
     }
 
-    const payload = {
+    const payload: CreateActivityRequest | UpdateActivityRequest = {
       title: form.title.trim(),
       description: form.description.trim(),
       imageUrl: form.imageUrl,
-      dayOfWeek: form.dayOfWeek,
+      dayOfWeek: form.dayOfWeek as DayOfWeek,
       date: form.date,
       startTime: form.startTime,
       endTime: form.endTime,
@@ -236,13 +238,17 @@ const ActivitiesPage = () => {
       maxVolunteers: form.maxVolunteers,
     };
 
-    const success = mode === "create"
-      ? await create(payload as any)
-      : await update(form.id, payload as any);
+    try {
+      const success = mode === "create"
+        ? await create(payload as CreateActivityRequest)
+        : await update(form.id, payload as UpdateActivityRequest);
 
-    if (success) {
-      showToast(mode === "create" ? "تم الإنشاء" : "تم التحديث", "success");
-      reset();
+      if (success) {
+        showToast(mode === "create" ? "تم الإنشاء" : "تم التحديث", "success");
+        reset();
+      }
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "حدث خطأ", "error");
     }
   }, [mode, form, create, update, reset, showToast, validate]);
 
@@ -445,7 +451,7 @@ const ActivitiesPage = () => {
                 type="number"
                 min={1}
                 value={form.maxVolunteers}
-                onChange={(e) => setForm((p) => ({ ...p, maxVolunteers: +e.target.value }))}
+                onChange={(e) => setForm((p) => ({ ...p, maxVolunteers: parseInt(e.target.value) || 1 }))}
               />
             </div>
           </div>
@@ -523,7 +529,7 @@ const ActivitiesPage = () => {
                     type="number"
                     step="any"
                     value={form.latitude}
-                    onChange={(e) => setForm((p) => ({ ...p, latitude: +e.target.value }))}
+                    onChange={(e) => setForm((p) => ({ ...p, latitude: parseFloat(e.target.value) || 0 }))}
                   />
                 </div>
                 <div className={styles.field}>
@@ -533,7 +539,7 @@ const ActivitiesPage = () => {
                     type="number"
                     step="any"
                     value={form.longitude}
-                    onChange={(e) => setForm((p) => ({ ...p, longitude: +e.target.value }))}
+                    onChange={(e) => setForm((p) => ({ ...p, longitude: parseFloat(e.target.value) || 0 }))}
                   />
                 </div>
               </div>

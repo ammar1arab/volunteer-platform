@@ -1,5 +1,5 @@
 import styles from './Button.module.scss';
-import type { ButtonProps } from '@/lib/types';
+import type { ButtonProps } from '@/lib';
 
 const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', loading = false, disabled, className = '', ...rest }) => {
     return (

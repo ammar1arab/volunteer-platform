@@ -43,9 +43,12 @@ export const useFeaturedPosts = (
     setState((p) => ({ ...p, isLoading: true, error: "" }));
 
     try {
-      const res: any = await featuredPostApi.getAll();
+      const res = await featuredPostApi.getAll();
 
-      const posts: FeaturedPostDto[] = res?.posts ?? res?.data ?? [];
+      const posts: FeaturedPostDto[] = 
+        (res as { posts?: FeaturedPostDto[] })?.posts ?? 
+        (res as { data?: FeaturedPostDto[] })?.data ?? 
+        [];
 
       const filtered = activeOnly
         ? posts.filter((x) => x.isActive !== false)
@@ -56,7 +59,7 @@ export const useFeaturedPosts = (
         list: filtered,
         isLoading: false,
       }));
-    } catch (err: unknown) {
+    } catch (err) {
       setState((p) => ({
         ...p,
         isLoading: false,
@@ -76,15 +79,17 @@ export const useFeaturedPosts = (
     setState((p) => ({ ...p, isUploading: true, error: "" }));
 
     try {
-      const res: any = await uploadApi.uploadFeaturedImage(file);
+      const res = await uploadApi.uploadFeaturedImage(file);
 
-      const imageUrl = res?.data?.imageUrl;
-      if (!res?.success || !imageUrl) {
-        throw new Error(res?.error || "فشل رفع الصورة");
+      const imageUrl = (res as { data?: { imageUrl?: string } })?.data?.imageUrl;
+      const success = (res as { success?: boolean })?.success;
+      
+      if (!success || !imageUrl) {
+        throw new Error((res as { error?: string })?.error || "فشل رفع الصورة");
       }
 
-      return imageUrl as string;
-    } catch (err: unknown) {
+      return imageUrl;
+    } catch (err) {
       setError(getErrMsg(err, "فشل رفع الصورة"));
       return null;
     } finally {
@@ -97,16 +102,16 @@ export const useFeaturedPosts = (
       setState((p) => ({ ...p, isSubmitting: true, error: "" }));
 
       try {
-        const res: any = await featuredPostApi.create(payload);
+        const res = await featuredPostApi.create(payload);
 
-        if (!res?.success) {
-          setError(res?.error || "فشل في الإنشاء");
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في الإنشاء");
           return false;
         }
 
         await refresh();
         return true;
-      } catch (err: unknown) {
+      } catch (err) {
         setError(getErrMsg(err, "فشل في الإنشاء"));
         return false;
       } finally {
@@ -121,16 +126,16 @@ export const useFeaturedPosts = (
       setState((p) => ({ ...p, isSubmitting: true, error: "" }));
 
       try {
-        const res: any = await featuredPostApi.update(id, payload);
+        const res = await featuredPostApi.update(id, payload);
 
-        if (!res?.success) {
-          setError(res?.error || "فشل في التحديث");
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في التحديث");
           return false;
         }
 
         await refresh();
         return true;
-      } catch (err: unknown) {
+      } catch (err) {
         setError(getErrMsg(err, "فشل في التحديث"));
         return false;
       } finally {
@@ -145,16 +150,16 @@ export const useFeaturedPosts = (
       setState((p) => ({ ...p, isSubmitting: true, error: "" }));
 
       try {
-        const res: any = await featuredPostApi.delete(id);
+        const res = await featuredPostApi.delete(id);
 
-        if (!res?.success) {
-          setError(res?.error || "فشل في الحذف");
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في الحذف");
           return false;
         }
 
         await refresh();
         return true;
-      } catch (err: unknown) {
+      } catch (err) {
         setError(getErrMsg(err, "فشل في الحذف"));
         return false;
       } finally {

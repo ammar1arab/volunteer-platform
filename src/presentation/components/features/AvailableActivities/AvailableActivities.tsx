@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from './AvailableActivities.module.scss';
 import { Container, SectionHeader } from '@/presentation/components';
 import { FiMapPin, FiCalendar, FiClock, FiUsers, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import Image from 'next/image';
 
 // ==================== TYPES ====================
 type ActivityType = 'environmental' | 'social' | 'educational' | 'health' | 'other';
@@ -245,7 +246,7 @@ const AvailableActivities = () => {
             {pagedActivities.map(activity => (
               <article key={activity.id} className={styles.card}>
                 <div className={styles.imageCol}>
-                  <img src={activity.image} alt={activity.title} className={styles.image} />
+                  <Image src={activity.image} alt={activity.title} className={styles.image} priority/>
                   <span className={`${styles.badge} ${styles[`badge-${activity.type}`]}`}>
                     {activity.category}
                   </span>

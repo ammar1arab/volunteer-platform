@@ -1,5 +1,5 @@
 import styles from './Input.module.scss';
-import type { InputProps } from '@/lib/types';
+import type { InputProps } from '@/lib';
 
 const detectDir = (type?: string) => {
   if (type === 'email' || type === 'password' || type === 'tel' || type === 'number' || type === 'url') return 'ltr';
