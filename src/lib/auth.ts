@@ -4,7 +4,6 @@ import { UserRepository } from "@/infrastructure/persistence/repositories";
 import AuthService from "@/core/application/services/AuthService";
 import { UserRole } from "@/core/domain/enums";
 
-// Extend NextAuth types to match our application
 declare module "next-auth" {
   interface Session {
     user: {
@@ -20,13 +19,6 @@ declare module "next-auth" {
     email: string;
     name: string;
     role: UserRole;
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    id?: string;
-    role?: UserRole;
   }
 }
 
@@ -64,14 +56,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        (token as Record<string, unknown>).role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.id && token.role) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = (token as Record<string, unknown>).role as UserRole;
       }
       return session;
     },

@@ -10,6 +10,7 @@ import type {
 
 const getErr = (e: unknown) =>
   e instanceof Error ? e.message : "Unexpected error";
+
 export type ActivitiesFilter = "all" | "published";
 
 export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
@@ -89,7 +90,6 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
         if (!res.success || !res.activity)
           throw new Error(res.error || "Create failed");
 
-        // تحديث سريع + بعدها silent refresh للتأكيد
         setItems((prev) => [res.activity!, ...prev]);
         await fetchList(true);
 
@@ -195,73 +195,6 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
     [fetchList]
   );
 
-  const join = useCallback(
-    async (id: string) => {
-      setError("");
-      setSubmitting(true);
-      try {
-        const res = await activityApi.join(id);
-        if (!res.success) throw new Error(res.error || "Join failed");
-
-        // optimistic
-        setItems((prev) =>
-          prev.map((x) => {
-            if (x.id !== id) return x;
-            const max = x.maxVolunteers ?? 999999;
-            const newCount = Math.min((x.currentVolunteers ?? 0) + 1, max);
-            return {
-              ...x,
-              currentVolunteers: newCount,
-              isFull: newCount >= max,
-            };
-          })
-        );
-
-        await fetchList(true);
-        return true;
-      } catch (e) {
-        setError(getErr(e));
-        return false;
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [fetchList]
-  );
-
-  const leave = useCallback(
-    async (id: string) => {
-      setError("");
-      setSubmitting(true);
-      try {
-        const res = await activityApi.leave(id);
-        if (!res.success) throw new Error(res.error || "Leave failed");
-
-        setItems((prev) =>
-          prev.map((x) => {
-            if (x.id !== id) return x;
-            const max = x.maxVolunteers ?? 999999;
-            const newCount = Math.max((x.currentVolunteers ?? 0) - 1, 0);
-            return {
-              ...x,
-              currentVolunteers: newCount,
-              isFull: newCount >= max,
-            };
-          })
-        );
-
-        await fetchList(true);
-        return true;
-      } catch (e) {
-        setError(getErr(e));
-        return false;
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [fetchList]
-  );
-
   return {
     list,
     loading,
@@ -275,7 +208,5 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
     remove,
     publish,
     cancel,
-    join,
-    leave,
   };
 };

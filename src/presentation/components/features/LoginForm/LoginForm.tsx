@@ -5,9 +5,13 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Input, Button } from '@/presentation/components';
 import styles from './LoginForm.module.scss';
-import { LoginCredentials } from '@/lib/types';
 
-const INITIAL_STATE: LoginCredentials = {
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+const INITIAL_STATE: LoginFormData = {
   email: '',
   password: '',
 };
@@ -15,13 +19,13 @@ const INITIAL_STATE: LoginCredentials = {
 export default function LoginForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [credentials, setCredentials] = useState<LoginCredentials>(INITIAL_STATE);
+  const [credentials, setCredentials] = useState<LoginFormData>(INITIAL_STATE);
   const [error, setError] = useState('');
 
   const updateField = useCallback(
-    (field: keyof LoginCredentials) => 
+    (field: keyof LoginFormData) => 
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        setCredentials(prev => ({ ...prev, [field]: e.target.value }));
+        setCredentials((prev: LoginFormData) => ({ ...prev, [field]: e.target.value }));
         setError('');
       },
     []
