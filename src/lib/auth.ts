@@ -1,8 +1,19 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
 import { UserRepository } from "@/infrastructure/persistence/repositories";
 import AuthService from "@/core/application/services/AuthService";
+
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+interface ExtendedToken {
+  sub?: string;
+  role?: string;
+}
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -30,22 +41,25 @@ export const authOptions: NextAuthOptions = {
           email: result.user.email,
           name: result.user.fullName,
           role: result.user.role,
-        } as any;
+        };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.sub = (user as any).id;
-        (token as any).role = (user as any).role;
+        const authUser = user as AuthUser;
+        const extendedToken = token as ExtendedToken;
+        token.sub = authUser.id;
+        extendedToken.role = authUser.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
+        const extendedToken = token as ExtendedToken;
         session.user.id = token.sub ?? "";
-        session.user.role = (token as any).role;
+        session.user.role = extendedToken.role ?? "";
       }
       return session;
     },
