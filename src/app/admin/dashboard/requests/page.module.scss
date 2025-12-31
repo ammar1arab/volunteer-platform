@@ -4,7 +4,7 @@
 
 .page {
   @include flex-col;
-  gap: $sp-xl;
+  gap: $sp-sm;
   padding: $sp-lg;
   max-width: 1400px;
   margin: 0 auto;

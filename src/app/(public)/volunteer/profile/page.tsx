@@ -55,11 +55,6 @@ const VolunteerProfile = () => {
       label: 'رقم الهاتف', 
       value: profile?.phone || 'غير متوفر' 
     },
-    { 
-      icon: Shield, 
-      label: 'الدور', 
-      value: profile?.role === 'VOLUNTEER' ? 'متطوع' : 'مستخدم' 
-    },
   ];
 
   const statistics = [

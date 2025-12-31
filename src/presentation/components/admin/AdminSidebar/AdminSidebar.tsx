@@ -28,7 +28,12 @@ const AdminSidebar = () => {
         >
           إدارة الأنشطة
         </Link>
-
+        <Link
+          href={ROUTES.ADMIN.REQUESTS}
+          className={`${styles.link} ${isActive(ROUTES.ADMIN.REQUESTS) ? styles.active : ""}`}
+        >
+          طلبات الانضمام
+        </Link>
       </nav>
     </aside>
   );

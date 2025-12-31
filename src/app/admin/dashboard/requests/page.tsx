@@ -99,12 +99,7 @@ const AdminRequestsPage = () => {
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       <div className={styles.header}>
-        <div>
           <h1 className={styles.title}>طلبات الانضمام</h1>
-          <p className={styles.subtitle}>
-            إدارة طلبات المتطوعين للانضمام للأنشطة ({requests.length})
-          </p>
-        </div>
       </div>
 
       <div className={styles.filters}>
