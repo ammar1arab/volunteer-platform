@@ -10,6 +10,11 @@ interface TokenWithRole {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // ✅ استثني NextAuth API routes تماماً
+  if (pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
+  }
+
   const token = (await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
@@ -50,5 +55,10 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/signin", "/signup", "/admin/:path*", "/volunteer/:path*"],
+  matcher: [
+    "/signin",
+    "/signup", 
+    "/admin/:path*", 
+    "/volunteer/:path*"
+  ],
 };

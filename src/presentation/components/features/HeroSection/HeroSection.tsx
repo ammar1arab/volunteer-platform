@@ -41,7 +41,7 @@ const HeroSection = () => {
           </div>
 
           <div className={styles.heroImage}>
-            <Image priority src="/images/about.jpg" alt="Volunteer Image" />
+            <Image width={360}  height={360} priority src="/images/about.jpg" alt="Volunteer Image" />
           </div>
 
         </div>

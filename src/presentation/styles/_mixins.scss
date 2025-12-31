@@ -1,5 +1,5 @@
 @use "sass:color";
-@use "./variables" as *;
+@use "@/presentation/styles/_variables" as *;
 
 @mixin flex($dir: row, $align: center, $justify: center, $gap: 0) {
   display: flex;

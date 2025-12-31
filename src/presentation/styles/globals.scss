@@ -1,7 +1,6 @@
-@use "./variables" as *;
-@use "./mixins" as *;
+@use "@/presentation/styles/_variables" as *;
+@use "@/presentation/styles/_mixins" as *;
 
-/* ===== RESET ===== */
 *,
 *::before,
 *::after {
@@ -23,19 +22,16 @@ body {
   overflow-x: hidden;
 }
 
-/* Next.js root */
 #__next {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-/* ===== ELEMENTS ===== */
 a {
   text-decoration: none;
   color: inherit;
   transition: color $transition;
-
   &:hover {
     color: $green;
   }
@@ -70,7 +66,6 @@ textarea {
   min-height: 120px;
 }
 
-/* ===== LAYOUT HELPERS ===== */
 .container {
   @include container;
 }
@@ -91,7 +86,6 @@ textarea {
   @include flex-col;
 }
 
-/* ===== GRID ===== */
 .grid {
   @include grid-auto;
 }
@@ -108,7 +102,6 @@ textarea {
   @include grid(4);
 }
 
-/* ===== UI ===== */
 .btn {
   @include btn;
 }
@@ -129,7 +122,6 @@ textarea {
   @include card-hover;
 }
 
-/* ===== TEXT ===== */
 .truncate {
   @include truncate;
 }
@@ -138,21 +130,17 @@ textarea {
   @include line-clamp(2);
 }
 
-/* ===== VISIBILITY ===== */
 .hidden {
   @include hidden;
 }
 
-/* ===== RESPONSIVE ===== */
 @include sm {
   .sm\:grid-1 {
     @include grid(1);
   }
-
   .sm\:grid-2 {
     @include grid(2);
   }
-
   .sm\:hidden {
     display: none;
   }
@@ -162,7 +150,6 @@ textarea {
   .md\:grid-2 {
     @include grid(2);
   }
-
   .md\:grid-3 {
     @include grid(3);
   }

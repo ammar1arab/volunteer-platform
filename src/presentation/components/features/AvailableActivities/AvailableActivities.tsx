@@ -246,7 +246,7 @@ const AvailableActivities = () => {
             {pagedActivities.map(activity => (
               <article key={activity.id} className={styles.card}>
                 <div className={styles.imageCol}>
-                  <Image src={activity.image} alt={activity.title} className={styles.image} priority/>
+                  <Image width={360}  height={360} src={activity.image} alt={activity.title} className={styles.image} priority/>
                   <span className={`${styles.badge} ${styles[`badge-${activity.type}`]}`}>
                     {activity.category}
                   </span>
