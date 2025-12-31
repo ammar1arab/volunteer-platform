@@ -18,6 +18,11 @@ export const activityParticipationApi = {
       API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.MY_REQUESTS
     ),
 
+  getPending: () =>
+    apiClient.get<GetJoinRequestsResponse>(
+      API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.PENDING
+    ),
+
   approve: (id: string) =>
     apiClient.post<ApproveJoinRequestResponse>(
       API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.APPROVE(id)

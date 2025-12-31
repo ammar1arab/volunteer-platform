@@ -1,9 +1,0 @@
-@use "@/presentation/styles/variables" as *;
-@use "@/presentation/styles/mixins" as *;
-
-.loading {
-  @include flex-center;
-  min-height: 100vh;
-  font-size: $font-xl;
-  color: $text-muted;
-}

@@ -2,7 +2,27 @@
 @use "@/presentation/styles/mixins" as *;
 
 .section {
-  padding: 80px 0 0;
+  padding: 80px 0;
+}
+
+.loadingContainer,
+.emptyState {
+  @include flex-center;
+  min-height: 300px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.emptyState p {
+  color: $text-muted;
+  font-size: $font-lg;
 }
 
 .grid {
@@ -23,12 +43,10 @@
   @include flex(row, stretch, flex-start, $sp-md);
   padding: 0;
   overflow: hidden;
-  cursor: pointer;
-  position: relative;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(135deg, transparent 0%, rgba($green, 0.03) 100%);
@@ -96,6 +114,7 @@
   box-shadow: $shadow;
   transition: transform 0.25s ease;
   z-index: 2;
+  color: white;
 
   @media (max-width: 600px) {
     top: $sp-md;
@@ -103,29 +122,16 @@
   }
 }
 
-.badge-environmental {
-  background: rgba($green, 0.95);
-  color: white;
-}
-
-.badge-social {
-  background: rgba(59, 130, 246, 0.95);
-  color: white;
-}
-
-.badge-educational {
-  background: rgba(249, 115, 22, 0.95);
-  color: white;
-}
-
-.badge-health {
-  background: rgba($red, 0.95);
-  color: white;
-}
-
-.badge-other {
+.badgeFull {
   background: rgba(107, 114, 128, 0.95);
-  color: white;
+}
+
+.badgePending {
+  background: rgba(59, 130, 246, 0.95);
+}
+
+.badgeApproved {
+  background: rgba($green, 0.95);
 }
 
 .content {
@@ -185,56 +191,76 @@
 
 .icon {
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
   color: $green;
 }
 
 .actions {
   @include flex(row, center, flex-start, $sp-sm);
-
-  @media (max-width: 480px) {
-    flex-direction: column;
-  }
-}
-
-.moreBtn {
-  @include btn-secondary;
-  flex: 1;
-  padding: 10px 20px;
-  font-size: $font-sm;
-  font-weight: 600;
-  border-radius: $radius-md;
-
-  &:hover {
-    background: rgba($green, 0.08);
-    border-color: $green;
-    color: $green;
-    transform: translateY(-2px);
-  }
-
-  @media (max-width: 480px) {
-    flex: none;
-  }
 }
 
 .applyBtn {
-  @include btn-primary;
+  @include flex-center;
+  gap: $sp-xs;
   flex: 1;
   padding: 10px 20px;
   font-size: $font-sm;
   font-weight: 600;
   border-radius: $radius-md;
-  box-shadow: 0 4px 12px rgba($green, 0.2);
-  color: white;
+  border: none;
+  transition: $transition;
+  cursor: pointer;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba($green, 0.3);
+  &.primary {
+    background: $green;
+    color: white;
+    box-shadow: 0 4px 12px rgba($green, 0.2);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba($green, 0.3);
+    }
   }
 
-  @media (max-width: 480px) {
-    flex: none;
+  &.secondary {
+    background: transparent;
+    color: $green;
+    border: 2px solid $green;
+
+    &:hover:not(:disabled) {
+      background: rgba($green, 0.08);
+    }
+  }
+
+  &.pending {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    cursor: not-allowed;
+  }
+
+  &.approved {
+    background: rgba($green, 0.1);
+    color: $green;
+    border: 1px solid rgba($green, 0.3);
+    cursor: not-allowed;
+  }
+
+  &.rejected {
+    background: rgba($red, 0.1);
+    color: $red;
+    border: 1px solid rgba($red, 0.3);
+    cursor: not-allowed;
+  }
+
+  &.disabled {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+    cursor: not-allowed;
+  }
+
+  &:disabled {
+    opacity: 0.7;
   }
 }
 
@@ -253,7 +279,6 @@
   background: $bg;
   color: $text;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 20px;
 
   &:hover:not(:disabled) {
     background: $green;
@@ -271,7 +296,6 @@
   @media (max-width: 768px) {
     width: 42px;
     height: 42px;
-    font-size: 18px;
   }
 }
 

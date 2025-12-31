@@ -3,6 +3,10 @@ export const API_ENDPOINTS = {
     REGISTER: "/api/auth/register",
   },
 
+  USERS: {
+    ME: "/api/users/me",
+  },
+
   FEATURED_POSTS: {
     BASE: "/api/featured-posts",
     BY_ID: (id: string) => `/api/featured-posts/${id}`,
@@ -19,13 +23,15 @@ export const API_ENDPOINTS = {
   ACTIVITY_PARTICIPATIONS: {
     BASE: "/api/activity-participations",
     BY_ID: (id: string) => `/api/activity-participations/${id}`,
+    PENDING: "/api/activity-participations/pending",
     APPROVE: (id: string) => `/api/activity-participations/${id}/approve`,
     REJECT: (id: string) => `/api/activity-participations/${id}/reject`,
     MY_REQUESTS: "/api/activity-participations/my-requests",
   },
 
   UPLOADS: {
-    BY_SCOPE: (scope: "featured-posts" | "activities") => `/api/uploads/${scope}`,
+    BY_SCOPE: (scope: "featured-posts" | "activities") =>
+      `/api/uploads/${scope}`,
     FEATURED_IMAGE: "/api/uploads/featured-posts",
     ACTIVITY_IMAGE: "/api/uploads/activities",
   },

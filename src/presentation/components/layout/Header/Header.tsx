@@ -4,14 +4,22 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
+import { Bell, User } from 'lucide-react';
+import { ROUTES } from '@/lib';
 import styles from './Header.module.scss';
 
 const Header = () => {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [socialOpen, setSocialOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const socialRef = useRef<HTMLLIElement | null>(null);
+  const notifRef = useRef<HTMLDivElement | null>(null);
+
+  const isVolunteer = session?.user?.role === 'VOLUNTEER';
 
   const navLinks = useMemo(
     () => [
@@ -25,8 +33,16 @@ const Header = () => {
 
   const socialLinks = useMemo(
     () => [
-      { href: 'https://www.facebook.com/p/%D9%85%D8%A8%D8%A7%D8%AF%D8%B1%D8%A9-%D8%A8%D8%B5%D9%85%D8%A7%D8%AA-%D8%B4%D8%A8%D8%A7%D8%A8%D9%8A%D8%A9-100063497834494/', label: 'فيسبوك', title: 'Facebook' },
-      { href: 'https://www.instagram.com/basmatshababia/', label: 'انستقرام', title: 'Instagram' },
+      { 
+        href: 'https://www.facebook.com/p/%D9%85%D8%A8%D8%A7%D8%AF%D8%B1%D8%A9-%D8%A8%D8%B5%D9%85%D8%A7%D8%AA-%D8%B4%D8%A8%D8%A7%D8%A8%D9%8A%D8%A9-100063497834494/', 
+        label: 'فيسبوك', 
+        title: 'Facebook' 
+      },
+      { 
+        href: 'https://www.instagram.com/basmatshababia/', 
+        label: 'انستقرام', 
+        title: 'Instagram' 
+      },
     ],
     []
   );
@@ -34,12 +50,17 @@ const Header = () => {
   useEffect(() => {
     setMenuOpen(false);
     setSocialOpen(false);
+    setNotifOpen(false);
   }, [pathname]);
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
-      if (!socialRef.current) return;
-      if (!socialRef.current.contains(e.target as Node)) setSocialOpen(false);
+      if (socialRef.current && !socialRef.current.contains(e.target as Node)) {
+        setSocialOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
     };
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
@@ -100,9 +121,40 @@ const Header = () => {
           </ul>
 
           <div className={styles.actions}>
-            <Link href="/signin" className={styles.loginBtn} title="تسجيل الدخول">
-              تسجيل الدخول
-            </Link>
+            {isVolunteer ? (
+              <>
+                <div className={styles.iconWrapper} ref={notifRef}>
+                  <button
+                    type="button"
+                    className={styles.iconBtn}
+                    onClick={() => setNotifOpen((v) => !v)}
+                    title="الإشعارات"
+                  >
+                    <Bell size={20} />
+                  </button>
+
+                  {notifOpen && (
+                    <div className={styles.notifMenu}>
+                      <p className={styles.notifMessage}>
+                        سنعمل على هذه الميزة مستقبلاً
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <Link
+                  href={ROUTES.VOLUNTEER.PROFILE}
+                  className={styles.iconBtn}
+                  title="الملف الشخصي"
+                >
+                  <User size={20} />
+                </Link>
+              </>
+            ) : (
+              <Link href="/signin" className={styles.loginBtn} title="تسجيل الدخول">
+                تسجيل الدخول
+              </Link>
+            )}
           </div>
 
           <div className={styles.mobileBar}>
@@ -111,13 +163,34 @@ const Header = () => {
             </Link>
 
             <div className={styles.mobileRight}>
-              <Link
-                href="/signin"
-                className={styles.mobileLogin}
-                title="تسجيل الدخول"
-              >
-                تسجيل الدخول
-              </Link>
+              {isVolunteer ? (
+                <>
+                  <button
+                    type="button"
+                    className={styles.mobileIconBtn}
+                    onClick={() => setNotifOpen((v) => !v)}
+                    title="الإشعارات"
+                  >
+                    <Bell size={18} />
+                  </button>
+
+                  <Link
+                    href={ROUTES.VOLUNTEER.PROFILE}
+                    className={styles.mobileIconBtn}
+                    title="الملف الشخصي"
+                  >
+                    <User size={18} />
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  href="/signin"
+                  className={styles.mobileLogin}
+                  title="تسجيل الدخول"
+                >
+                  تسجيل الدخول
+                </Link>
+              )}
 
               <button
                 type="button"
@@ -125,6 +198,7 @@ const Header = () => {
                 onClick={() => {
                   setMenuOpen((v) => !v);
                   setSocialOpen(false);
+                  setNotifOpen(false);
                 }}
                 aria-expanded={menuOpen}
                 title={menuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
@@ -172,6 +246,14 @@ const Header = () => {
                     {s.label}
                   </a>
                 ))}
+              </div>
+            )}
+
+            {notifOpen && (
+              <div className={styles.mobileNotifMenu}>
+                <p className={styles.notifMessage}>
+                  سنعمل على هذه الميزة مستقبلاً
+                </p>
               </div>
             )}
           </div>

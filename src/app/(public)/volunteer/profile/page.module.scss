@@ -1,0 +1,405 @@
+@use "sass:color";
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.page {
+  min-height: 100vh;
+  padding: 120px $sp-md $sp-2xl;
+  background: $bg;
+}
+
+.pageHeader {
+  @include flex(row, center, space-between, $sp-md);
+  margin-bottom: $sp-xl;
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-size: $font-2xl;
+  font-weight: 800;
+  color: $text;
+  margin: 0;
+}
+
+.pageActions {
+  @include flex(row, center, flex-end, $sp-sm);
+}
+
+.navBtn {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-sm $sp-lg;
+  background: transparent;
+  color: $green;
+  border: 2px solid $green;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 700;
+  transition: $transition;
+  text-decoration: none;
+
+  &:hover {
+    background: rgba($green, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.logoutBtn {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-sm $sp-lg;
+  background: $red;
+  color: white;
+  border: 2px solid $red;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 700;
+  transition: $transition;
+  cursor: pointer;
+
+  &:hover {
+    background: color.adjust($red, $lightness: -6%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($red, 0.3);
+  }
+}
+
+.error {
+  @include card;
+  padding: $sp-2xl;
+  text-align: center;
+  color: #ef4444;
+  font-size: $font-lg;
+}
+
+.headerCard {
+  @include card;
+  @include animate-slideDown;
+  position: relative;
+  overflow: hidden;
+  padding: $sp-2xl;
+  margin-bottom: $sp-xl;
+  display: flex;
+  align-items: center;
+  gap: $sp-xl;
+  background: linear-gradient(135deg, $bg 0%, rgba($green, 0.02) 100%);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba($green, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  @media (max-width: $bp-md) {
+    flex-direction: column;
+    text-align: center;
+    padding: $sp-xl;
+  }
+}
+
+.profileAvatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatarCircle {
+  @include flex-center;
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, $green, color.adjust($green, $lightness: -8%));
+  border-radius: $radius-full;
+  color: white;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 24px rgba($green, 0.3);
+
+  @media (max-width: $bp-md) {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+.avatarGlow {
+  position: absolute;
+  inset: -10px;
+  background: linear-gradient(135deg, rgba($green, 0.2), transparent);
+  border-radius: $radius-full;
+  filter: blur(20px);
+  z-index: 1;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.profileInfo {
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.profileName {
+  font-size: $font-3xl;
+  font-weight: 800;
+  color: $text;
+  margin-bottom: $sp-sm;
+  line-height: 1.2;
+
+  @media (max-width: $bp-md) {
+    font-size: $font-2xl;
+  }
+}
+
+.profileBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: $sp-xs;
+  padding: $sp-xs $sp-md;
+  background: rgba($green, 0.1);
+  color: $green;
+  border-radius: $radius-full;
+  font-size: $font-sm;
+  font-weight: 700;
+  border: 1px solid rgba($green, 0.2);
+}
+
+.contentGrid {
+  @include grid(2, $sp-lg);
+  margin-bottom: $sp-lg;
+
+  @media (max-width: $bp-lg) {
+    @include grid(1, $sp-lg);
+  }
+}
+
+.infoCard,
+.statsCard {
+  @include card;
+  padding: $sp-xl;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $green, color.adjust($green, $lightness: 10%));
+  }
+}
+
+.cardHeader {
+  margin-bottom: $sp-lg;
+  position: relative;
+  padding-bottom: $sp-md;
+}
+
+.cardTitle {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $text;
+  margin-bottom: $sp-xs;
+}
+
+.cardDecor {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, $green, transparent);
+  border-radius: $radius-full;
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: $sp-md;
+  padding: $sp-md;
+  border-radius: $radius;
+  transition: $transition;
+  background: transparent;
+
+  &:hover {
+    background: rgba($green, 0.04);
+    transform: translateX(-4px);
+  }
+}
+
+.infoIconWrapper {
+  @include flex-center;
+  width: 48px;
+  height: 48px;
+  background: rgba($green, 0.08);
+  border-radius: $radius;
+  color: $green;
+  flex-shrink: 0;
+  transition: $transition;
+
+  .infoItem:hover & {
+    background: rgba($green, 0.15);
+    transform: scale(1.05);
+  }
+}
+
+.infoContent {
+  @include flex-col;
+  gap: $sp-xs;
+  flex: 1;
+  min-width: 0;
+}
+
+.infoLabel {
+  font-size: $font-sm;
+  color: $text-muted;
+  font-weight: 600;
+}
+
+.infoValue {
+  font-size: $font-base;
+  color: $text;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $sp-md;
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: $sp-md;
+  padding: $sp-lg;
+  background: rgba($green, 0.02);
+  border-radius: $radius;
+  border: 1px solid rgba($border, 0.5);
+  transition: $transition;
+  animation: fadeInUp 0.5s ease-out backwards;
+
+  &:hover {
+    @include hover-lift;
+    background: rgba($green, 0.05);
+    border-color: rgba($green, 0.2);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.statIcon {
+  @include flex-center;
+  width: 56px;
+  height: 56px;
+  border-radius: $radius;
+  flex-shrink: 0;
+  transition: $transition;
+
+  .statItem:hover & {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statValue {
+  font-size: $font-3xl;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: $sp-xs;
+}
+
+.statLabel {
+  font-size: $font-sm;
+  color: $text-muted;
+  font-weight: 600;
+}
+
+.comingSoonCard {
+  @include card;
+  @include animate-fadeIn;
+  padding: $sp-2xl;
+  text-align: center;
+  background: linear-gradient(135deg, rgba($green, 0.03), rgba($green, 0.01));
+  border: 2px dashed rgba($green, 0.2);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba($green, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.comingSoonIcon {
+  @include flex-center;
+  width: 80px;
+  height: 80px;
+  background: rgba($green, 0.1);
+  border-radius: $radius-full;
+  color: $green;
+  margin: 0 auto $sp-lg;
+  position: relative;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.comingSoonTitle {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $text;
+  margin-bottom: $sp-sm;
+}
+
+.comingSoonText {
+  color: $text-muted;
+  font-size: $font-base;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatarGlow,
+  .comingSoonIcon {
+    animation: none;
+  }
+
+  .statItem {
+    animation: none;
+  }
+}
