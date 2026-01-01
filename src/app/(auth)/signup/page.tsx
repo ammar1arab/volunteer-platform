@@ -32,7 +32,6 @@ const SignupPage = () => {
             required
             autoComplete="name"
             aria-required="true"
-            placeholder="أدخل اسمك الكامل"
           />
 
           <Input
@@ -44,7 +43,6 @@ const SignupPage = () => {
             required
             autoComplete="email"
             aria-required="true"
-            placeholder="example@email.com"
           />
 
           <Input
@@ -57,7 +55,6 @@ const SignupPage = () => {
             required
             autoComplete="tel"
             aria-required="true"
-            placeholder="07XXXXXXXX"
           />
 
           <Input
@@ -69,7 +66,6 @@ const SignupPage = () => {
             required
             autoComplete="new-password"
             aria-required="true"
-            placeholder="6 أحرف على الأقل"
           />
 
           <Button type="submit" loading={loading} aria-busy={loading} disabled={loading}>

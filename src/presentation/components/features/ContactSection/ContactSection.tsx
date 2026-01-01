@@ -20,7 +20,6 @@ const ContactSection = () => {
             <FiUser className={styles.icon} />
             <input
               type="text"
-              placeholder="الاسم الكامل"
               aria-label="الاسم الكامل"
               className={styles.inputBase}
             />
@@ -30,7 +29,6 @@ const ContactSection = () => {
             <FiMail className={styles.icon} />
             <input
               type="email"
-              placeholder="البريد الإلكتروني"
               aria-label="البريد الإلكتروني"
               className={styles.inputBase}
             />
@@ -39,7 +37,6 @@ const ContactSection = () => {
           <div className={styles.field}>
             <FiMessageCircle className={styles.icon} />
             <textarea
-              placeholder="اكتب رسالتك هنا..."
               aria-label="نص الرسالة"
               className={styles.inputBase}
             ></textarea>

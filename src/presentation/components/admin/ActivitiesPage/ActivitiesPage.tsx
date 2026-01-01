@@ -397,7 +397,6 @@ const ActivitiesPage = () => {
                 className={styles.input}
                 value={form.title}
                 onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-                placeholder="عنوان النشاط"
               />
             </div>
             <div className={styles.field}>
@@ -406,7 +405,6 @@ const ActivitiesPage = () => {
                 className={styles.input}
                 value={form.targetAudience}
                 onChange={(e) => setForm((p) => ({ ...p, targetAudience: e.target.value }))}
-                placeholder="شباب، عائلات، الكل..."
               />
             </div>
           </div>
@@ -418,7 +416,6 @@ const ActivitiesPage = () => {
               value={form.description}
               onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
               rows={4}
-              placeholder="وصف النشاط..."
             />
           </div>
 
@@ -484,7 +481,6 @@ const ActivitiesPage = () => {
                 className={styles.input}
                 value={form.placeName}
                 onChange={(e) => setForm((p) => ({ ...p, placeName: e.target.value }))}
-                placeholder="حدائق الحسين"
               />
             </div>
             <div className={styles.field}>
@@ -493,7 +489,6 @@ const ActivitiesPage = () => {
                 className={styles.input}
                 value={form.address}
                 onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
-                placeholder="عمان، الأردن"
               />
             </div>
           </div>
