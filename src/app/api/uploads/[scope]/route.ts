@@ -5,7 +5,7 @@ import { R2StorageService, type StorageFolder } from '@/infrastructure/external'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { scope: string } }
+  { params }: { params: Promise<{ scope: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
