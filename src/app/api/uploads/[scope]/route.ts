@@ -7,6 +7,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ scope: string }> }
 ) {
+  const { scope } = await params;
+  
   try {
     const session = await getServerSession(authOptions);
 
@@ -24,7 +26,6 @@ export async function POST(
       );
     }
 
-    const scope = params.scope;
     const validScopes: StorageFolder[] = ['activities', 'featured-posts'];
 
     if (!validScopes.includes(scope as StorageFolder)) {
