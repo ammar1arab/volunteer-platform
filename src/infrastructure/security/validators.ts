@@ -4,13 +4,36 @@ export class SecurityValidator {
     return emailRegex.test(email);
   }
 
-  static isStrongPassword(password: string): boolean {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    return passwordRegex.test(password);
+  static isValidPassword(password: string): { valid: boolean; message?: string } {
+    if (password.length < 6) {
+      return {
+        valid: false,
+        message: "كلمة المرور يجب أن تكون 6 أحرف على الأقل"
+      };
+    }
+    return { valid: true };
   }
 
-  static isValidJordanianPhone(phone: string): boolean {
-    const phoneRegex = /^07[0-9]{8}$/;
-    return phoneRegex.test(phone);
+  static isValidPhone(phone: string): { valid: boolean; message?: string } {
+    const cleanPhone = phone.replace(/\s/g, "");
+    
+    if (cleanPhone.length < 10) {
+      return {
+        valid: false,
+        message: "رقم الهاتف يجب أن يكون 10 أرقام على الأقل"
+      };
+    }
+    
+    return { valid: true };
+  }
+
+  static isValidName(name: string): { valid: boolean; message?: string } {
+    if (name.trim().length < 3) {
+      return {
+        valid: false,
+        message: "الاسم يجب أن يكون 3 أحرف على الأقل"
+      };
+    }
+    return { valid: true };
   }
 }

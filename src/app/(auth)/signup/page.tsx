@@ -12,20 +12,27 @@ const SignupPage = () => {
     <div className={styles.page}>
       <main className={styles.card} aria-labelledby="signup-title">
         <header className={styles.header}>
-          <h1 id="signup-title" className={styles.title}>انضمامك لبصمات شبابية يشرفنا</h1>
+          <h1 id="signup-title" className={styles.title}>
+            انضمامك لبصمات شبابية يشرفنا
+          </h1>
         </header>
 
-        {error && <div className={styles.error} role="alert" aria-live="polite">{error}</div>}
+        {error && (
+          <div className={styles.error} role="alert" aria-live="polite">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           <Input
-            label="الأسم"
+            label="الاسم الكامل"
             type="text"
             value={formData.fullName}
-            onChange={(e: { target: { value: string; }; }) => handleChange('fullName', e.target.value)}
+            onChange={(e) => handleChange('fullName', e.target.value)}
             required
             autoComplete="name"
             aria-required="true"
+            placeholder="أدخل اسمك الكامل"
           />
 
           <Input
@@ -33,10 +40,11 @@ const SignupPage = () => {
             type="email"
             dir="ltr"
             value={formData.email}
-            onChange={(e: { target: { value: string; }; }) => handleChange('email', e.target.value)}
+            onChange={(e) => handleChange('email', e.target.value)}
             required
             autoComplete="email"
             aria-required="true"
+            placeholder="example@email.com"
           />
 
           <Input
@@ -45,10 +53,11 @@ const SignupPage = () => {
             dir="ltr"
             inputMode="tel"
             value={formData.phone}
-            onChange={(e: { target: { value: string; }; }) => handleChange('phone', e.target.value)}
+            onChange={(e) => handleChange('phone', e.target.value)}
             required
             autoComplete="tel"
             aria-required="true"
+            placeholder="07XXXXXXXX"
           />
 
           <Input
@@ -56,11 +65,11 @@ const SignupPage = () => {
             type="password"
             dir="ltr"
             value={formData.password}
-            onChange={(e: { target: { value: string; }; }) => handleChange('password', e.target.value)}
+            onChange={(e) => handleChange('password', e.target.value)}
             required
             autoComplete="new-password"
             aria-required="true"
-            minLength={8}
+            placeholder="6 أحرف على الأقل"
           />
 
           <Button type="submit" loading={loading} aria-busy={loading} disabled={loading}>
@@ -70,7 +79,9 @@ const SignupPage = () => {
 
         <footer className={styles.footer}>
           <span className={styles.footerText}>لديك حساب؟</span>
-          <Link href="/signin" className={styles.footerLink}>تسجيل الدخول</Link>
+          <Link href="/signin" className={styles.footerLink}>
+            تسجيل الدخول
+          </Link>
         </footer>
       </main>
     </div>

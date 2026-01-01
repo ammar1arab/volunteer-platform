@@ -19,24 +19,23 @@ class AuthService {
   async signIn(dto: SignInRequest): Promise<SignInResponse> {
     try {
       const emailStr = InputSanitizer.sanitizeEmail(dto.email);
-
+      
       if (!SecurityValidator.isValidEmail(emailStr)) {
-        return { success: false, error: "Invalid email format" };
+        return { success: false, error: "البريد الإلكتروني غير صحيح" };
       }
 
       const user = await this.userRepository.findByEmail(emailStr);
+      
       if (!user) {
-        return { success: false, error: "Invalid email or password" };
+        return { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
       }
 
       if (!user.isActiveAccount()) {
-        return { success: false, error: "Account is not active" };
+        return { success: false, error: "الحساب غير مفعل" };
       }
 
-      const password = Password.fromHash(user.password);
-      const isValid = await password.compare(dto.password);
-      if (!isValid) {
-        return { success: false, error: "Invalid email or password" };
+      if (user.password !== dto.password) {
+        return { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
       }
 
       return {
@@ -53,41 +52,45 @@ class AuthService {
         AuthService.SCOPE,
         "signIn",
         error,
-        "An error occurred during sign in"
+        "حدث خطأ أثناء تسجيل الدخول"
       );
     }
   }
 
   async signUp(dto: SignUpRequest): Promise<SignUpResponse> {
     try {
-      const emailObj = new Email(dto.email);
-      const phone = InputSanitizer.sanitizePhone(dto.phone);
       const fullName = InputSanitizer.sanitizeString(dto.fullName);
+      const phone = InputSanitizer.sanitizePhone(dto.phone);
 
-      if (!SecurityValidator.isStrongPassword(dto.password)) {
-        return {
-          success: false,
-          error: "Password must be at least 8 characters with uppercase, lowercase, and number",
-        };
+      const nameValidation = SecurityValidator.isValidName(fullName);
+      if (!nameValidation.valid) {
+        return { success: false, error: nameValidation.message };
       }
 
-      if (!SecurityValidator.isValidJordanianPhone(phone)) {
-        return {
-          success: false,
-          error: "Invalid phone number. Must be 07XXXXXXXX",
-        };
+      if (!SecurityValidator.isValidEmail(dto.email)) {
+        return { success: false, error: "البريد الإلكتروني غير صحيح" };
       }
 
+      const passwordValidation = SecurityValidator.isValidPassword(dto.password);
+      if (!passwordValidation.valid) {
+        return { success: false, error: passwordValidation.message };
+      }
+
+      const phoneValidation = SecurityValidator.isValidPhone(phone);
+      if (!phoneValidation.valid) {
+        return { success: false, error: phoneValidation.message };
+      }
+
+      const emailObj = new Email(dto.email);
       const existingUser = await this.userRepository.findByEmail(emailObj.getValue());
+      
       if (existingUser) {
-        return { success: false, error: "Email already registered" };
+        return { success: false, error: "البريد الإلكتروني مستخدم مسبقاً" };
       }
-
-      const hashedPassword = await Password.create(dto.password);
 
       const user = User.create({
         email: emailObj.getValue(),
-        password: hashedPassword.getValue(),
+        password: dto.password,
         fullName,
         phone,
         role: UserRole.VOLUNTEER,
@@ -109,7 +112,7 @@ class AuthService {
         AuthService.SCOPE,
         "signUp",
         error,
-        error instanceof Error ? error.message : "An error occurred during sign up"
+        error instanceof Error ? error.message : "حدث خطأ أثناء إنشاء الحساب"
       );
     }
   }
