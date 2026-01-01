@@ -23,25 +23,24 @@ const Header = () => {
 
   const navLinks = useMemo(
     () => [
-      { href: '/opportunities', label: 'الفرص' },
-      { href: '/members', label: 'الأعضاء' },
-      { href: '/about', label: 'من نحن' },
-      { href: '/contact', label: 'تواصل معنا' },
+      { href: '/#opportunities', label: 'الفرص' },
+      { href: '/#about', label: 'من نحن' },
+      { href: '/#contact', label: 'تواصل معنا' },
     ],
     []
   );
 
   const socialLinks = useMemo(
     () => [
-      { 
-        href: 'https://www.facebook.com/p/%D9%85%D8%A8%D8%A7%D8%AF%D8%B1%D8%A9-%D8%A8%D8%B5%D9%85%D8%A7%D8%AA-%D8%B4%D8%A8%D8%A7%D8%A8%D9%8A%D8%A9-100063497834494/', 
-        label: 'فيسبوك', 
-        title: 'Facebook' 
+      {
+        href: 'https://www.facebook.com/p/%D9%85%D8%A8%D8%A7%D8%AF%D8%B1%D8%A9-%D8%A8%D8%B5%D9%85%D8%A7%D8%AA-%D8%B4%D8%A8%D8%A7%D8%A8%D9%8A%D8%A9-100063497834494/',
+        label: 'فيسبوك',
+        title: 'Facebook'
       },
-      { 
-        href: 'https://www.instagram.com/basmatshababia/', 
-        label: 'انستقرام', 
-        title: 'Instagram' 
+      {
+        href: 'https://www.instagram.com/basmatshababia/',
+        label: 'انستقرام',
+        title: 'Instagram'
       },
     ],
     []

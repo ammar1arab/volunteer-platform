@@ -1,13 +1,21 @@
-import { AboutSection, AvailableActivities, ContactSection, FeaturedPosts, HeroSection } from "@/presentation/components";
+import { HeroSection, FeaturedPosts, AvailableActivities, AboutSection, ContactSection } from '@/presentation/components';
 
-export default function Home() {
+const HomePage = () => {
   return (
     <>
       <HeroSection />
       <FeaturedPosts />
-      <AvailableActivities />
-      <AboutSection/>
-      <ContactSection/>
+      <section id="opportunities">
+        <AvailableActivities />
+      </section>
+      <section id="about">
+        <AboutSection />
+      </section>
+      <section id="contact">
+        <ContactSection />
+      </section>
     </>
   );
-}
+};
+
+export default HomePage;
