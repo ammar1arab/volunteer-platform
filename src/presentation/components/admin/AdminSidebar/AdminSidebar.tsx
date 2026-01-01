@@ -34,6 +34,12 @@ const AdminSidebar = () => {
         >
           طلبات الانضمام
         </Link>
+        <Link
+          href={ROUTES.ADMIN.USERS}
+          className={`${styles.link} ${isActive(ROUTES.ADMIN.USERS) ? styles.active : ""}`}
+        >
+          إدارة المستخدمين
+        </Link>
       </nav>
     </aside>
   );

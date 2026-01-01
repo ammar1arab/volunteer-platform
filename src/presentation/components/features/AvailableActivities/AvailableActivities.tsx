@@ -88,7 +88,7 @@ const AvailableActivities = () => {
       <section className={styles.section}>
         <Container>
           <SectionHeader
-            title="الأنشطة المتاحة"
+            title= "الفرص المتاحة"
             subtitle="فرص تطوعية يمكنك استكشافها والتقديم عليها"
           />
           <div className={styles.loadingContainer}>
@@ -104,7 +104,7 @@ const AvailableActivities = () => {
       <section className={styles.section}>
         <Container>
           <SectionHeader
-            title="الأنشطة المتاحة"
+            title= "الفرص المتاحة"
             subtitle="فرص تطوعية يمكنك استكشافها والتقديم عليها"
           />
           <div className={styles.emptyState}>
@@ -119,7 +119,7 @@ const AvailableActivities = () => {
     <section className={styles.section}>
       <Container>
         <SectionHeader
-          title="الأنشطة المتاحة"
+          title= "الفرص المتاحة"
           subtitle="فرص تطوعية يمكنك استكشافها والتقديم عليها"
         />
 

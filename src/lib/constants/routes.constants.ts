@@ -8,6 +8,7 @@ export const ROUTES = {
     FEATURED_POSTS: "/admin/dashboard/featured-posts",
     ACTIVITIES: "/admin/dashboard/activities",
     REQUESTS: "/admin/dashboard/requests",
+    USERS: "/admin/dashboard/users",
   },
 
   VOLUNTEER: {

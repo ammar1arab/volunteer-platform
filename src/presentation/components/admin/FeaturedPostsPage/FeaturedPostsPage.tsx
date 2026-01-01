@@ -7,8 +7,8 @@ import { useSession } from "next-auth/react";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, FileImage } from "lucide-react";
 import styles from "./FeaturedPostsPage.module.scss";
 import { ROUTES, type FeaturedPostDto } from "@/lib";
-import { useConfirmDialog, useFeaturedPosts, useToast } from "@/presentation/hooks";
-import { FeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState } from "@/presentation/components";
+import { useConfirmDialog, useFeaturedPosts, useToast, usePagination } from "@/presentation/hooks";
+import { FeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination } from "@/presentation/components";
 import { processImageForUpload, revokeImagePreview } from "@/lib";
 
 interface FormState {
@@ -40,6 +40,14 @@ const FeaturedPostsPage = () => {
 
   const { list, isLoading, isSubmitting, isUploading, error, uploadImage, create, update, remove } = useFeaturedPosts();
   const role = session?.user?.role ?? "VOLUNTEER";
+
+  // Pagination
+  const pagination = usePagination({
+    totalItems: list.length,
+    itemsPerPage: 20,
+  });
+
+  const paginatedList = pagination.paginateItems(list);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -195,7 +203,6 @@ const FeaturedPostsPage = () => {
     [confirm, form.id, remove, resetForm, showToast]
   );
 
-
   if (status === "loading") return <LoadingState message="جاري التحميل..." />;
 
   return (
@@ -225,49 +232,67 @@ const FeaturedPostsPage = () => {
           action={{ label: "إضافة منشور", onClick: openCreate }}
         />
       ) : (
-        <div className={styles.grid}>
-          {list.map((post) => (
-            <FeaturedPostCard
-              key={post.id}
-              imageUrl={post.imageUrl}
-              title={post.title}
-              description={post.description}
-              meta={
-                <span className={`${styles.badge} ${post.isActive ? styles.active : styles.inactive}`}>
-                  {post.isActive ? "نشط" : "مخفي"}
-                </span>
-              }
-              actions={
-                <div className={styles.actions}>
-                  <button
-                    className={styles.btn}
-                    onClick={() => openEdit(post)}
-                    disabled={isSubmitting}
-                    title="تعديل"
-                  >
-                    <Edit2 size={14} />
-                  </button>
-                  <button
-                    className={styles.btn}
-                    onClick={() => handleToggle(post)}
-                    disabled={isSubmitting}
-                    title={post.isActive ? "إخفاء" : "تفعيل"}
-                  >
-                    {post.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
-                  </button>
-                  <button
-                    className={styles.btnDanger}
-                    onClick={() => handleDelete(post)}
-                    disabled={isSubmitting}
-                    title="حذف"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              }
-            />
-          ))}
-        </div>
+        <>
+          <div className={styles.grid}>
+            {paginatedList.map((post) => (
+              <FeaturedPostCard
+                key={post.id}
+                imageUrl={post.imageUrl}
+                title={post.title}
+                description={post.description}
+                meta={
+                  <span className={`${styles.badge} ${post.isActive ? styles.active : styles.inactive}`}>
+                    {post.isActive ? "نشط" : "مخفي"}
+                  </span>
+                }
+                actions={
+                  <div className={styles.actions}>
+                    <button
+                      className={styles.btn}
+                      onClick={() => openEdit(post)}
+                      disabled={isSubmitting}
+                      title="تعديل"
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                    <button
+                      className={styles.btn}
+                      onClick={() => handleToggle(post)}
+                      disabled={isSubmitting}
+                      title={post.isActive ? "إخفاء" : "تفعيل"}
+                    >
+                      {post.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                    </button>
+                    <button
+                      className={styles.btnDanger}
+                      onClick={() => handleDelete(post)}
+                      disabled={isSubmitting}
+                      title="حذف"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                }
+              />
+            ))}
+          </div>
+
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={pagination.goToPage}
+            onPrevious={pagination.goToPrevious}
+            onNext={pagination.goToNext}
+            onFirst={pagination.goToFirst}
+            onLast={pagination.goToLast}
+            canGoPrevious={pagination.canGoPrevious}
+            canGoNext={pagination.canGoNext}
+            showInfo={true}
+            startIndex={pagination.startIndex}
+            endIndex={pagination.endIndex}
+            totalItems={list.length}
+          />
+        </>
       )}
 
       <Modal

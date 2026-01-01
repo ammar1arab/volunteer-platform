@@ -5,6 +5,9 @@ export const API_ENDPOINTS = {
 
   USERS: {
     ME: "/api/users/me",
+    BASE: "/api/users",
+    BY_ID: (id: string) => `/api/users/${id}`,
+    ACTIVITIES: (id: string) => `/api/users/${id}/activities`,
   },
 
   FEATURED_POSTS: {

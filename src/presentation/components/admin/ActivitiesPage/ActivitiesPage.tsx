@@ -26,8 +26,8 @@ import {
   revokeImagePreview,
   type ActivityDto,
 } from "@/lib";
-import { useActivities, useConfirmDialog, useToast } from "@/presentation/hooks";
-import { Modal, LoadingState, EmptyState, ToastContainer, ActivityCard } from "@/presentation/components";
+import { useActivities, useConfirmDialog, useToast, usePagination } from "@/presentation/hooks";
+import { Modal, LoadingState, EmptyState, ToastContainer, ActivityCard, Pagination } from "@/presentation/components";
 import type { CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
 import { DayOfWeek } from "@/core/domain/enums";
 
@@ -123,6 +123,19 @@ const ActivitiesPage = () => {
     if (activeFilter === "all") return list;
     return list.filter((a) => a.status === activeFilter);
   }, [list, activeFilter]);
+
+  // Pagination
+  const pagination = usePagination({
+    totalItems: filtered.length,
+    itemsPerPage: 20,
+  });
+
+  const paginatedActivities = pagination.paginateItems(filtered);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    pagination.resetPage();
+  }, [activeFilter]);
 
   const reset = useCallback(() => {
     setMode("create");
@@ -320,67 +333,85 @@ const ActivitiesPage = () => {
           action={{ label: "إضافة نشاط", onClick: () => setShowModal(true) }}
         />
       ) : (
-        <div className={styles.grid}>
-          {filtered.map((activity) => {
-            const statusInfo = STATUS_MAP[activity.status as keyof typeof STATUS_MAP];
+        <>
+          <div className={styles.grid}>
+            {paginatedActivities.map((activity) => {
+              const statusInfo = STATUS_MAP[activity.status as keyof typeof STATUS_MAP];
 
-            return (
-              <ActivityCard
-                key={activity.id}
-                imageUrl={activity.imageUrl}
-                title={activity.title}
-                description={activity.description}
-                meta={
-                  <>
-                    <div className={styles.metaRow}>
-                      <span className={`${styles.status} ${styles[statusInfo.class]}`}>
-                        {statusInfo.label}
-                      </span>
-                    </div>
-                    <div className={styles.metaRow}>
-                      <CalendarDays size={14} />
-                      <span>{new Date(activity.date).toISOString().slice(0, 10)}</span>
-                    </div>
-                    <div className={styles.metaRow}>
-                      <Clock size={14} />
-                      <span>{activity.startTime} - {activity.endTime}</span>
-                    </div>
-                    <div className={styles.metaRow}>
-                      <MapPin size={14} />
-                      <span>{activity.placeName}</span>
-                    </div>
-                    <div className={styles.metaRow}>
-                      <Users size={14} />
-                      <span>{activity.currentVolunteers}/{activity.maxVolunteers}</span>
-                    </div>
-                  </>
-                }
-                actions={
-                  <>
-                    {activity.status === "DRAFT" && (
-                      <>
-                        <button className={styles.btn} onClick={() => handleEdit(activity)} title="تعديل">
-                          <Edit2 size={14} />
+              return (
+                <ActivityCard
+                  key={activity.id}
+                  imageUrl={activity.imageUrl}
+                  title={activity.title}
+                  description={activity.description}
+                  meta={
+                    <>
+                      <div className={styles.metaRow}>
+                        <span className={`${styles.status} ${styles[statusInfo.class]}`}>
+                          {statusInfo.label}
+                        </span>
+                      </div>
+                      <div className={styles.metaRow}>
+                        <CalendarDays size={14} />
+                        <span>{new Date(activity.date).toISOString().slice(0, 10)}</span>
+                      </div>
+                      <div className={styles.metaRow}>
+                        <Clock size={14} />
+                        <span>{activity.startTime} - {activity.endTime}</span>
+                      </div>
+                      <div className={styles.metaRow}>
+                        <MapPin size={14} />
+                        <span>{activity.placeName}</span>
+                      </div>
+                      <div className={styles.metaRow}>
+                        <Users size={14} />
+                        <span>{activity.currentVolunteers}/{activity.maxVolunteers}</span>
+                      </div>
+                    </>
+                  }
+                  actions={
+                    <>
+                      {activity.status === "DRAFT" && (
+                        <>
+                          <button className={styles.btn} onClick={() => handleEdit(activity)} title="تعديل">
+                            <Edit2 size={14} />
+                          </button>
+                          <button className={styles.btnSuccess} onClick={() => handlePublish(activity)} title="نشر">
+                            <Send size={14} />
+                          </button>
+                        </>
+                      )}
+                      {activity.status !== "CANCELLED" && (
+                        <button className={styles.btnWarning} onClick={() => handleCancel(activity)} title="إلغاء">
+                          <Ban size={14} />
                         </button>
-                        <button className={styles.btnSuccess} onClick={() => handlePublish(activity)} title="نشر">
-                          <Send size={14} />
-                        </button>
-                      </>
-                    )}
-                    {activity.status !== "CANCELLED" && (
-                      <button className={styles.btnWarning} onClick={() => handleCancel(activity)} title="إلغاء">
-                        <Ban size={14} />
+                      )}
+                      <button className={styles.btnDanger} onClick={() => handleDelete(activity)} title="حذف">
+                        <Trash2 size={14} />
                       </button>
-                    )}
-                    <button className={styles.btnDanger} onClick={() => handleDelete(activity)} title="حذف">
-                      <Trash2 size={14} />
-                    </button>
-                  </>
-                }
-              />
-            );
-          })}
-        </div>
+                    </>
+                  }
+                />
+              );
+            })}
+          </div>
+
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={pagination.goToPage}
+            onPrevious={pagination.goToPrevious}
+            onNext={pagination.goToNext}
+            onFirst={pagination.goToFirst}
+            onLast={pagination.goToLast}
+            canGoPrevious={pagination.canGoPrevious}
+            canGoNext={pagination.canGoNext}
+            showInfo={true}
+            startIndex={pagination.startIndex}
+            endIndex={pagination.endIndex}
+            totalItems={filtered.length}
+          />
+        </>
       )}
 
       <Modal
