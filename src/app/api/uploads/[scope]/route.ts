@@ -69,7 +69,9 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      imageUrl: result.url,
+      data: {
+        imageUrl: result.url,
+      }
     });
 
   } catch (error) {
