@@ -2,6 +2,7 @@ import { FeaturedPostRepository } from "@/infrastructure/persistence/repositorie
 import { InputSanitizer } from "@/infrastructure/security";
 import { FeaturedPost } from "@/core/domain/entities";
 import { serviceError } from "@/core/application/helpers";
+import { R2StorageService } from "@/infrastructure/external";
 
 import type {
   CreateFeaturedPostRequest,
@@ -16,8 +17,11 @@ import type {
 
 class FeaturedPostService {
   private static readonly SCOPE = "FeaturedPostService";
+  private storageService: R2StorageService;
 
-  constructor(private featuredPostRepository: FeaturedPostRepository) {}
+  constructor(private featuredPostRepository: FeaturedPostRepository) {
+    this.storageService = new R2StorageService();
+  }
 
   private toDto(entity: FeaturedPost): FeaturedPostDto {
     const props = entity.toObject();
@@ -81,6 +85,15 @@ class FeaturedPostService {
       const existing = await this.featuredPostRepository.findById(id);
       if (!existing) return { success: false, error: "Featured post not found" };
 
+      // Delete old image if URL changed
+      if (dto.imageUrl && dto.imageUrl !== existing.imageUrl) {
+        try {
+          await this.storageService.delete(existing.imageUrl);
+        } catch (error) {
+          console.warn('Failed to delete old image:', error);
+        }
+      }
+
       const payload = this.sanitize(dto);
       const err = this.validateRequiredStrings(payload);
       if (err) return { success: false, error: err };
@@ -105,6 +118,16 @@ class FeaturedPostService {
   async delete(id: string): Promise<DeleteFeaturedPostResponse> {
     try {
       if (!id?.trim()) return { success: false, error: "Id is required" };
+
+      // Get post to delete its image
+      const existing = await this.featuredPostRepository.findById(id);
+      if (existing) {
+        try {
+          await this.storageService.delete(existing.imageUrl);
+        } catch (error) {
+          console.warn('Failed to delete image:', error);
+        }
+      }
 
       const deleted = await this.featuredPostRepository.delete(id);
       if (!deleted) return { success: false, error: "Featured post not found", deleted: false };

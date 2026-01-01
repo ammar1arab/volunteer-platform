@@ -3,6 +3,7 @@ import { InputSanitizer } from "@/infrastructure/security";
 import { Activity } from "@/core/domain/entities";
 import { DayOfWeek } from "@/core/domain/enums";
 import { serviceError, logger } from "@/core/application/helpers";
+import { R2StorageService } from "@/infrastructure/external";
 
 import type {
   CreateActivityRequest,
@@ -19,8 +20,11 @@ import type {
 
 class ActivityService {
   private static readonly SCOPE = "ActivityService";
+  private storageService: R2StorageService;
 
-  constructor(private activityRepository: ActivityRepository) {}
+  constructor(private activityRepository: ActivityRepository) {
+    this.storageService = new R2StorageService();
+  }
 
   private toDto(entity: Activity): ActivityDto {
     const props = entity.toObject();
@@ -146,6 +150,16 @@ class ActivityService {
         return { success: false, error: "Activity not found" };
       }
 
+      // Delete old image if URL changed
+      if (dto.imageUrl && dto.imageUrl !== existing.imageUrl) {
+        try {
+          await this.storageService.delete(existing.imageUrl);
+          logger.info(ActivityService.SCOPE, "update", `Old image deleted: ${existing.imageUrl}`);
+        } catch (error) {
+          logger.warn(ActivityService.SCOPE, "update", `Failed to delete old image: ${error}`);
+        }
+      }
+
       const sanitized = this.sanitizeTextFields({
         title: dto.title,
         description: dto.description,
@@ -203,6 +217,17 @@ class ActivityService {
       }
 
       logger.info(ActivityService.SCOPE, "delete", `Deleting activity: ${id}`);
+
+      // Get activity to delete its image
+      const existing = await this.activityRepository.findById(id);
+      if (existing) {
+        try {
+          await this.storageService.delete(existing.imageUrl);
+          logger.info(ActivityService.SCOPE, "delete", `Image deleted: ${existing.imageUrl}`);
+        } catch (error) {
+          logger.warn(ActivityService.SCOPE, "delete", `Failed to delete image: ${error}`);
+        }
+      }
 
       const deleted = await this.activityRepository.delete(id);
       if (!deleted) {
