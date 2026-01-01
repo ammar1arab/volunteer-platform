@@ -2,7 +2,7 @@ import { UserRepository } from "@/infrastructure/persistence/repositories";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
 import { User } from "@/core/domain/entities";
 import { UserRole } from "@/core/domain/enums";
-import { Password, Email } from "@/core/domain/valueObjects";
+import { Email } from "@/core/domain/valueObjects";
 import { serviceError } from "@/core/application/helpers";
 import type {
   SignInRequest,
