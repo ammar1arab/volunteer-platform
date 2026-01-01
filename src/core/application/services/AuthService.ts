@@ -34,7 +34,32 @@ class AuthService {
         return { success: false, error: "الحساب غير مفعل" };
       }
 
-      if (user.password !== dto.password) {
+      let isValid = false;
+
+      // تحقق إذا الـ password قديمة (bcrypt)
+      if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+        try {
+          const bcrypt = require('bcryptjs');
+          isValid = await bcrypt.compare(dto.password, user.password);
+          
+          // إذا الـ password صح، حدّثها لـ plain text
+          if (isValid) {
+            const userProps = user.toObject();
+            const updatedUser = new User({
+              ...userProps,
+              password: dto.password,
+            });
+            await this.userRepository.update(updatedUser);
+          }
+        } catch (err) {
+          console.error('bcrypt comparison failed:', err);
+        }
+      } else {
+        // plain text password (مستخدمين جدد)
+        isValid = user.password === dto.password;
+      }
+
+      if (!isValid) {
         return { success: false, error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
       }
 
