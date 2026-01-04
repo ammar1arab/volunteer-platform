@@ -4,10 +4,12 @@ const HomePage = () => {
   return (
     <>
       <HeroSection />
-      <FeaturedPosts />
       <section id="opportunities">
         <AvailableActivities />
       </section>
+
+      <FeaturedPosts />
+
       <section id="about">
         <AboutSection />
       </section>
