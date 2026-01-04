@@ -1,11 +1,24 @@
 'use client';
 
+import { ROUTES } from '@/lib';
 import styles from './HeroSection.module.scss';
 import { Container } from '@/presentation/components';
 import Image from 'next/image';
 import { FiArrowLeft, FiUsers, FiHeart } from 'react-icons/fi';
+import Link from 'next/link';
 
 const HeroSection = () => {
+  const handleAboutClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const aboutSection = document.getElementById('about');
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <section className={styles.hero}>
       <Container>
@@ -21,13 +34,17 @@ const HeroSection = () => {
             </p>
 
             <div className={styles.actions}>
-              <button type="button" className={styles.primaryBtn}>
+              <Link href={ROUTES.LOGIN} className={styles.primaryBtn}>
                 ابدأ الآن <FiArrowLeft />
-              </button>
+              </Link>
 
-              <button type="button" className={styles.secondaryBtn}>
+              <Link 
+                href='/#about' 
+                onClick={handleAboutClick} 
+                className={styles.secondaryBtn}
+              >
                 تعرف علينا
-              </button>
+              </Link>
             </div>
 
             <div className={styles.stats}>

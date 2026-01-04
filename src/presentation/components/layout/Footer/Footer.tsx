@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { FiInstagram, FiFacebook } from 'react-icons/fi';
 
 const LINKS = [
-  { href: '/opportunities', label: 'الفرص المتاحة' },
-  { href: '/contact', label: 'تواصل معنا' },
+  { href: '/#opportunities', label: 'الفرص المتاحة' },
+  { href: '/#contact', label: 'تواصل معنا' },
 ];
 
 const SOCIAL = [
