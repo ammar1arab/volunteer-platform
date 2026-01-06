@@ -3,3 +3,4 @@ export * from './UserProps';
 export * from './FeaturedPostProps';
 export * from './ActivityProps';
 export * from './ActivityParticipationProps';
+export * from './VolunterProfileProps'

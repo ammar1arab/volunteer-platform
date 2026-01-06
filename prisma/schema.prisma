@@ -12,6 +12,26 @@ enum UserRole {
   VOLUNTEER
 }
 
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum JordanianCity {
+  AMMAN
+  ZARQA
+  IRBID
+  AQABA
+  SALT
+  MAFRAQ
+  KARAK
+  MADABA
+  JERASH
+  AJLOUN
+  TAFILAH
+  MAAN
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -23,10 +43,32 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  createdActivities Activity[]                @relation("ActivityCreator")
-  participations    ActivityParticipation[]   @relation("VolunteerParticipations")
+  createdActivities Activity[]              @relation("ActivityCreator")
+  participations    ActivityParticipation[] @relation("VolunteerParticipations")
+  volunteerProfile  VolunteerProfile?
 
   @@map("users")
+}
+
+model VolunteerProfile {
+  id                     String        @id @default(uuid())
+  userId                 String        @unique
+  city                   JordanianCity
+  dateOfBirth            DateTime
+  profilePictureUrl      String?
+  gender                 Gender?
+  bio                    String?
+  skills                 String[]      @default([])
+  interests              String[]      @default([])
+  hasVolunteerExperience Boolean       @default(false)
+  isActive               Boolean       @default(true)
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("volunteer_profiles")
 }
 
 model Activity {
@@ -51,7 +93,7 @@ model Activity {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  creator        User                      @relation("ActivityCreator", fields: [createdBy], references: [id])
+  creator        User                    @relation("ActivityCreator", fields: [createdBy], references: [id])
   participations ActivityParticipation[]
 
   @@index([status, date])

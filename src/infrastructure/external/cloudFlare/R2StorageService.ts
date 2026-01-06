@@ -3,11 +3,13 @@ import R2Client from './R2Client';
 import crypto from 'crypto';
 
 export interface UploadResult {
-  key: string;
-  url: string;
+  success: boolean;
+  key?: string;
+  url?: string;
+  error?: string;
 }
 
-export type StorageFolder = 'activities' | 'featured-posts';
+export type StorageFolder = 'activities' | 'featured-posts' | 'profiles';
 
 class R2StorageService {
   private bucketName: string;
@@ -45,10 +47,13 @@ class R2StorageService {
 
       const url = `${this.publicUrl}/${key}`;
 
-      return { key, url };
+      return { success: true, key, url };
     } catch (error) {
       console.error('R2 upload error:', error);
-      throw new Error('Failed to upload file to storage');
+      return { 
+        success: false, 
+        error: 'فشل رفع الملف إلى التخزين' 
+      };
     }
   }
 

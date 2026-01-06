@@ -1,6 +1,6 @@
-import { UserRepository } from "@/infrastructure/persistence/repositories";
+import { UserRepository, VolunteerProfileRepository } from "@/infrastructure/persistence/repositories";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
-import { User } from "@/core/domain/entities";
+import { User, VolunteerProfile } from "@/core/domain/entities";
 import { UserRole } from "@/core/domain/enums";
 import { Email } from "@/core/domain/valueObjects";
 import { serviceError } from "@/core/application/helpers";
@@ -14,7 +14,10 @@ import type {
 class AuthService {
   private static readonly SCOPE = "AuthService";
 
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private volunteerProfileRepository: VolunteerProfileRepository
+  ) {}
 
   async signIn(dto: SignInRequest): Promise<SignInResponse> {
     try {
@@ -36,13 +39,13 @@ class AuthService {
 
       let isValid = false;
 
-      // تحقق إذا الـ password قديمة (bcrypt)
+      // Check if password is bcrypt hashed
       if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
         try {
           const bcrypt = require('bcryptjs');
           isValid = await bcrypt.compare(dto.password, user.password);
           
-          // إذا الـ password صح، حدّثها لـ plain text
+          // If valid, update to plain text
           if (isValid) {
             const userProps = user.toObject();
             const updatedUser = new User({
@@ -55,7 +58,7 @@ class AuthService {
           console.error('bcrypt comparison failed:', err);
         }
       } else {
-        // plain text password (مستخدمين جدد)
+        // Plain text password
         isValid = user.password === dto.password;
       }
 
@@ -84,35 +87,55 @@ class AuthService {
 
   async signUp(dto: SignUpRequest): Promise<SignUpResponse> {
     try {
+      // Sanitize inputs
       const fullName = InputSanitizer.sanitizeString(dto.fullName);
       const phone = InputSanitizer.sanitizePhone(dto.phone);
+      const emailStr = InputSanitizer.sanitizeEmail(dto.email);
 
+      // Validate full name
       const nameValidation = SecurityValidator.isValidName(fullName);
       if (!nameValidation.valid) {
         return { success: false, error: nameValidation.message };
       }
 
-      if (!SecurityValidator.isValidEmail(dto.email)) {
+      // Validate email
+      if (!SecurityValidator.isValidEmail(emailStr)) {
         return { success: false, error: "البريد الإلكتروني غير صحيح" };
       }
 
+      // Validate password
       const passwordValidation = SecurityValidator.isValidPassword(dto.password);
       if (!passwordValidation.valid) {
         return { success: false, error: passwordValidation.message };
       }
 
+      // Validate phone
       const phoneValidation = SecurityValidator.isValidPhone(phone);
       if (!phoneValidation.valid) {
         return { success: false, error: phoneValidation.message };
       }
 
-      const emailObj = new Email(dto.email);
+      // Validate city
+      const cityValidation = SecurityValidator.isValidCity(dto.city);
+      if (!cityValidation.valid) {
+        return { success: false, error: cityValidation.message };
+      }
+
+      // Validate date of birth
+      const dobValidation = SecurityValidator.isValidDateOfBirth(dto.dateOfBirth);
+      if (!dobValidation.valid) {
+        return { success: false, error: dobValidation.message };
+      }
+
+      // Check if email already exists
+      const emailObj = new Email(emailStr);
       const existingUser = await this.userRepository.findByEmail(emailObj.getValue());
       
       if (existingUser) {
         return { success: false, error: "البريد الإلكتروني مستخدم مسبقاً" };
       }
 
+      // Create User entity
       const user = User.create({
         email: emailObj.getValue(),
         password: dto.password,
@@ -122,7 +145,25 @@ class AuthService {
         isActive: true,
       });
 
+      // Save user to database
       const createdUser = await this.userRepository.create(user);
+
+      // Create VolunteerProfile entity
+      const volunteerProfile = VolunteerProfile.create({
+        userId: createdUser.id,
+        city: dto.city,
+        dateOfBirth: dto.dateOfBirth,
+        profilePictureUrl: null,
+        gender: null,
+        bio: null,
+        skills: [],
+        interests: [],
+        hasVolunteerExperience: false,
+        isActive: true,
+      });
+
+      // Save volunteer profile to database
+      await this.volunteerProfileRepository.create(volunteerProfile);
 
       return {
         success: true,
@@ -137,7 +178,7 @@ class AuthService {
         AuthService.SCOPE,
         "signUp",
         error,
-        error instanceof Error ? error.message : "حدث خطأ أثناء إنشاء الحساب"
+        "حدث خطأ أثناء إنشاء الحساب"
       );
     }
   }

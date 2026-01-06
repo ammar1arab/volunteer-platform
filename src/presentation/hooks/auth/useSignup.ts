@@ -3,19 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/lib";
-import type { SignupFormData } from "@/lib";
+import type { SignUpRequest } from "@/core/application/dtos";
 
 interface UseSignupReturn {
-  formData: SignupFormData;
+  formData: SignUpRequest;
   error: string;
   loading: boolean;
-  handleChange: (field: keyof SignupFormData, value: string) => void;
+  handleChange: (field: keyof SignUpRequest, value: string) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
 export const useSignup = (): UseSignupReturn => {
   const router = useRouter();
-  const [formData, setFormData] = useState<SignupFormData>({
+  const [formData, setFormData] = useState<SignUpRequest>({
     email: "",
     password: "",
     fullName: "",
@@ -24,7 +24,7 @@ export const useSignup = (): UseSignupReturn => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (field: keyof SignupFormData, value: string) => {
+  const handleChange = (field: keyof SignUpRequest, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError("");
   };

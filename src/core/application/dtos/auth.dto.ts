@@ -1,6 +1,5 @@
-import { UserRole } from "@/core/domain/enums";
+import { UserRole, JordanianCity } from "@/core/domain/enums";
 
-// ========== SIGN IN ==========
 export interface SignInRequest {
   email: string;
   password: string;
@@ -17,12 +16,13 @@ export interface SignInResponse {
   error?: string;
 }
 
-// ========== SIGN UP ==========
 export interface SignUpRequest {
   email: string;
   password: string;
   fullName: string;
   phone: string;
+  city: JordanianCity;
+  dateOfBirth: Date;
 }
 
 export interface SignUpResponse {

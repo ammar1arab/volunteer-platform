@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import AuthService from "@/core/application/services/AuthService";
+import { AuthService } from "@/core/application/services";
 import { UserRepository } from "@/infrastructure/persistence/repositories";
 
 export const runtime = "nodejs";
