@@ -239,3 +239,46 @@
 .btnSubmit {
   @include btn-primary;
 }
+.btnInfo {
+  @include flex-center;
+  position: relative;
+  min-width: 50px;
+  height: 36px;
+  padding: 0 $sp-sm;
+  border-radius: $radius;
+  border: 1px solid rgba(#3b82f6, 0.3);
+  background: rgba(#3b82f6, 0.1);
+  color: #3b82f6;
+  transition: $transition;
+  cursor: pointer;
+  gap: 4px;
+
+  &:hover {
+    background: rgba(#3b82f6, 0.2);
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+  }
+}
+
+.badgeCount {
+  font-size: $font-xs;
+  font-weight: 700;
+}
+
+.btnRestore {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius;
+  border: 1px solid rgba($green, 0.3);
+  background: rgba($green, 0.1);
+  color: $green;
+  transition: $transition;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba($green, 0.2);
+    border-color: $green;
+    transform: translateY(-2px);
+  }
+}

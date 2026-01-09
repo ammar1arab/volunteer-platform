@@ -40,13 +40,13 @@ const UsersPage = () => {
   // Pagination for volunteers
   const volunteerPagination = usePagination({
     totalItems: volunteers.length,
-    itemsPerPage: 10,
+    itemsPerPage: 12,
   });
 
   // Pagination for admins
   const adminPagination = usePagination({
     totalItems: admins.length,
-    itemsPerPage: 10,
+    itemsPerPage: 12,
   });
 
   const paginatedVolunteers = volunteerPagination.paginateItems(volunteers);
@@ -60,15 +60,19 @@ const UsersPage = () => {
     <div className={styles.page}>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
-      <div className={styles.header}>
-        <div className={styles.titleSection}>
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
+          <div className={styles.iconWrapper}>
+            <UsersIcon size={32} />
+          </div>
           <div>
+            <h1 className={styles.title}>إدارة المستخدمين</h1>
             <p className={styles.subtitle}>
               {volunteers.length} متطوع • {admins.length} مدير • {users.length} إجمالي
             </p>
           </div>
         </div>
-      </div>
+      </header>
 
       {isLoading ? (
         <div className={styles.loadingContainer}>
@@ -78,61 +82,67 @@ const UsersPage = () => {
         <EmptyState icon={UsersIcon} message="لا يوجد مستخدمين" />
       ) : (
         <>
+          {/* Volunteers Section */}
           {volunteers.length > 0 && (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>المتطوعين</h2>
                 <span className={styles.count}>{volunteers.length}</span>
               </div>
-              <div className={styles.list}>
+              <div className={styles.grid}>
                 {paginatedVolunteers.map((user) => (
                   <UserCard key={user.id} user={user} />
                 ))}
               </div>
-              <Pagination
-                currentPage={volunteerPagination.currentPage}
-                totalPages={volunteerPagination.totalPages}
-                onPageChange={volunteerPagination.goToPage}
-                onPrevious={volunteerPagination.goToPrevious}
-                onNext={volunteerPagination.goToNext}
-                onFirst={volunteerPagination.goToFirst}
-                onLast={volunteerPagination.goToLast}
-                canGoPrevious={volunteerPagination.canGoPrevious}
-                canGoNext={volunteerPagination.canGoNext}
-                showInfo={true}
-                startIndex={volunteerPagination.startIndex}
-                endIndex={volunteerPagination.endIndex}
-                totalItems={volunteers.length}
-              />
+              {volunteerPagination.totalPages > 1 && (
+                <Pagination
+                  currentPage={volunteerPagination.currentPage}
+                  totalPages={volunteerPagination.totalPages}
+                  onPageChange={volunteerPagination.goToPage}
+                  onPrevious={volunteerPagination.goToPrevious}
+                  onNext={volunteerPagination.goToNext}
+                  onFirst={volunteerPagination.goToFirst}
+                  onLast={volunteerPagination.goToLast}
+                  canGoPrevious={volunteerPagination.canGoPrevious}
+                  canGoNext={volunteerPagination.canGoNext}
+                  showInfo={true}
+                  startIndex={volunteerPagination.startIndex}
+                  endIndex={volunteerPagination.endIndex}
+                  totalItems={volunteers.length}
+                />
+              )}
             </section>
           )}
 
+          {/* Admins Section */}
           {admins.length > 0 && (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>المديرين</h2>
                 <span className={styles.count}>{admins.length}</span>
               </div>
-              <div className={styles.list}>
+              <div className={styles.grid}>
                 {paginatedAdmins.map((user) => (
                   <UserCard key={user.id} user={user} />
                 ))}
               </div>
-              <Pagination
-                currentPage={adminPagination.currentPage}
-                totalPages={adminPagination.totalPages}
-                onPageChange={adminPagination.goToPage}
-                onPrevious={adminPagination.goToPrevious}
-                onNext={adminPagination.goToNext}
-                onFirst={adminPagination.goToFirst}
-                onLast={adminPagination.goToLast}
-                canGoPrevious={adminPagination.canGoPrevious}
-                canGoNext={adminPagination.canGoNext}
-                showInfo={true}
-                startIndex={adminPagination.startIndex}
-                endIndex={adminPagination.endIndex}
-                totalItems={admins.length}
-              />
+              {adminPagination.totalPages > 1 && (
+                <Pagination
+                  currentPage={adminPagination.currentPage}
+                  totalPages={adminPagination.totalPages}
+                  onPageChange={adminPagination.goToPage}
+                  onPrevious={adminPagination.goToPrevious}
+                  onNext={adminPagination.goToNext}
+                  onFirst={adminPagination.goToFirst}
+                  onLast={adminPagination.goToLast}
+                  canGoPrevious={adminPagination.canGoPrevious}
+                  canGoNext={adminPagination.canGoNext}
+                  showInfo={true}
+                  startIndex={adminPagination.startIndex}
+                  endIndex={adminPagination.endIndex}
+                  totalItems={admins.length}
+                />
+              )}
             </section>
           )}
         </>

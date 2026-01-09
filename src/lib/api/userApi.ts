@@ -7,6 +7,13 @@ import type {
 } from "@/core/application/dtos";
 
 export const userApi = {
+  updateBasicInfo: (data: {
+    email?: string;
+    phone?: string;
+    fullName?: string;
+  }) => {
+    return apiClient.patch(API_ENDPOINTS.USERS.ME, data);
+  },
   getProfile: (): Promise<GetUserProfileResponse> => {
     return apiClient.get<GetUserProfileResponse>(API_ENDPOINTS.USERS.ME);
   },
@@ -20,6 +27,8 @@ export const userApi = {
   },
 
   getActivities: (id: string): Promise<GetUserActivitiesResponse> => {
-    return apiClient.get<GetUserActivitiesResponse>(API_ENDPOINTS.USERS.ACTIVITIES(id));
+    return apiClient.get<GetUserActivitiesResponse>(
+      API_ENDPOINTS.USERS.ACTIVITIES(id)
+    );
   },
 };

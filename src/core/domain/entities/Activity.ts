@@ -82,6 +82,15 @@ class Activity extends BaseEntity {
     this.props.status = "CANCELLED";
     this.touch();
   }
+  
+  restore(): void {
+  if (this.props.status !== "CANCELLED") {
+    throw new Error("Only cancelled activities can be restored");
+  }
+
+  this.props.status = "DRAFT";
+  this.touch();
+}
 
   addVolunteer(): void {
     if (this.props.status !== "PUBLISHED") {

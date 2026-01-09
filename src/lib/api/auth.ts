@@ -1,6 +1,7 @@
 import { signIn } from "next-auth/react";
 import { apiClient } from "./client";
 import { API_ENDPOINTS } from "@/lib";
+import { JordanianCity } from "@/core/domain/enums";
 import type {
   SignInRequest,
   SignInResponse,
@@ -20,7 +21,32 @@ export const authApi = {
     return { success: true };
   },
 
-  signUp: async (data: SignUpRequest): Promise<SignUpResponse> => {
-    return apiClient.post<SignUpResponse>(API_ENDPOINTS.AUTH.REGISTER, data);
+  signUp: async (data: {
+    email: string;
+    password: string;
+    fullName: string;
+    phone: string;
+    city: string;
+    dateOfBirth: string;
+  }): Promise<SignUpResponse> => {
+    try {
+      const response = await apiClient.post<SignUpResponse>(
+        API_ENDPOINTS.AUTH.REGISTER,
+        {
+          email: data.email,
+          password: data.password,
+          fullName: data.fullName,
+          phone: data.phone,
+          city: data.city,
+          dateOfBirth: data.dateOfBirth,
+        }
+      );
+      return response;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "حدث خطأ أثناء إنشاء الحساب",
+      };
+    }
   },
 };

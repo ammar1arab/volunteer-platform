@@ -17,6 +17,8 @@ import {
   Ban,
   Filter,
   MapPinned,
+  UsersIcon,
+  RotateCcw,
 } from "lucide-react";
 
 import styles from "./ActivitiesPage.module.scss";
@@ -27,7 +29,7 @@ import {
   type ActivityDto,
 } from "@/lib";
 import { useActivities, useConfirmDialog, useToast, usePagination } from "@/presentation/hooks";
-import { Modal, LoadingState, EmptyState, ToastContainer, ActivityCard, Pagination } from "@/presentation/components";
+import { Modal, LoadingState, EmptyState, ToastContainer, ActivityCard, Pagination, VolunteersModal } from "@/presentation/components";
 import type { CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
 import { DayOfWeek } from "@/core/domain/enums";
 
@@ -94,7 +96,7 @@ const ActivitiesPage = () => {
   const { toasts, showToast, removeToast } = useToast();
   const { confirm, ConfirmDialog } = useConfirmDialog();
 
-  const { list, loading, submitting, uploadImage, create, update, remove, publish, cancel } =
+  const { list, loading, submitting, uploadImage, create, update, remove, publish, cancel, restore } =
     useActivities({ filter: "all" });
 
   const [activeFilter, setActiveFilter] = useState("all");
@@ -104,6 +106,8 @@ const ActivitiesPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [useCustomLocation, setUseCustomLocation] = useState(false);
+  const [showVolunteersModal, setShowVolunteersModal] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<ActivityDto | null>(null);
 
   const role = session?.user?.role ?? "VOLUNTEER";
 
@@ -288,10 +292,41 @@ const ActivitiesPage = () => {
 
   const handleCancel = useCallback(async (activity: ActivityDto) => {
     if (activity.status === "CANCELLED") return;
-    if (await cancel(activity.id)) {
+
+    const ok = await confirm({
+      title: "إلغاء النشاط",
+      message: `هل تريد إلغاء "${activity.title}"؟ يمكنك استعادته لاحقاً.`,
+      confirmText: "إلغاء النشاط",
+      cancelText: "رجوع",
+      variant: "danger",
+    });
+
+    if (ok && await cancel(activity.id)) {
       showToast("تم الإلغاء", "success");
     }
-  }, [cancel, showToast]);
+  }, [confirm, cancel, showToast]);
+
+  const handleRestore = useCallback(async (activity: ActivityDto) => {
+    if (activity.status !== "CANCELLED") return;
+
+    const ok = await confirm({
+      title: "استعادة النشاط",
+      message: `هل تريد استعادة "${activity.title}" كمسودة؟`,
+      confirmText: "استعادة",
+      cancelText: "إلغاء",
+      variant: "primary",
+    });
+
+    if (ok && await restore(activity.id)) {
+      showToast("تم الاستعادة كمسودة", "success");
+    }
+  }, [confirm, restore, showToast]);
+
+  const handleViewVolunteers = useCallback((activity: ActivityDto) => {
+    setSelectedActivity(activity);
+    setShowVolunteersModal(true);
+  }, []);
+
 
   if (status === "loading") return <LoadingState message="جاري التحميل..." />;
 
@@ -381,11 +416,28 @@ const ActivitiesPage = () => {
                           </button>
                         </>
                       )}
-                      {activity.status !== "CANCELLED" && (
+
+                      {activity.status === "PUBLISHED" && activity.currentVolunteers > 0 && (
+                        <button
+                          className={styles.btnInfo}
+                          onClick={() => handleViewVolunteers(activity)}
+                          title={`المتطوعون (${activity.currentVolunteers})`}
+                        >
+                          <UsersIcon size={14} />
+                          <span className={styles.badgeCount}>{activity.currentVolunteers}</span>
+                        </button>
+                      )}
+
+                      {activity.status === "CANCELLED" ? (
+                        <button className={styles.btnRestore} onClick={() => handleRestore(activity)} title="استعادة">
+                          <RotateCcw size={14} />
+                        </button>
+                      ) : (
                         <button className={styles.btnWarning} onClick={() => handleCancel(activity)} title="إلغاء">
                           <Ban size={14} />
                         </button>
                       )}
+
                       <button className={styles.btnDanger} onClick={() => handleDelete(activity)} title="حذف">
                         <Trash2 size={14} />
                       </button>
@@ -602,8 +654,16 @@ const ActivitiesPage = () => {
         </form>
       </Modal>
 
+      <VolunteersModal
+        activityId={selectedActivity?.id || ""}
+        activityTitle={selectedActivity?.title || ""}
+        isOpen={showVolunteersModal}
+        onClose={() => setShowVolunteersModal(false)}
+      />
+
       <ConfirmDialog />
     </div>
+
   );
 };
 

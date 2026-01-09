@@ -7,7 +7,7 @@ export type UploadImageResponse = {
 
 export const uploadApi = {
   upload: (
-    scope: "featured-posts" | "activities",
+    scope: "featured-posts" | "activities" | "profiles",
     file: File
   ): Promise<ApiResponse<UploadImageResponse>> => {
     const form = new FormData();
@@ -21,4 +21,5 @@ export const uploadApi = {
 
   uploadFeaturedImage: (file: File) => uploadApi.upload("featured-posts", file),
   uploadActivityImage: (file: File) => uploadApi.upload("activities", file),
+  uploadProfilePicture: (file: File) => uploadApi.upload("profiles", file),
 };

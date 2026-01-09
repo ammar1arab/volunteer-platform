@@ -55,7 +55,16 @@ class ActivityParticipationService {
         dto.activity = {
           id: activityProps.id,
           title: activityProps.title,
+          description: activityProps.description,
           date: activityProps.date.toISOString(),
+          startTime: activityProps.startTime,
+          endTime: activityProps.endTime,
+          placeName: activityProps.placeName,
+          address: activityProps.location.address,
+          targetAudience: activityProps.targetAudience,
+          maxVolunteers: activityProps.maxVolunteers,
+          currentVolunteers: activityProps.currentVolunteers,
+          status: activityProps.status,
         };
       }
     }
@@ -85,14 +94,18 @@ class ActivityParticipationService {
         return { success: false, error: "Activity is full" };
       }
 
-      const existing = await this.participationRepository.findByActivityAndVolunteer(
-        activityId,
-        volunteerId
-      );
+      const existing =
+        await this.participationRepository.findByActivityAndVolunteer(
+          activityId,
+          volunteerId
+        );
 
       if (existing) {
         if (existing.status === "PENDING") {
-          return { success: false, error: "You already have a pending request" };
+          return {
+            success: false,
+            error: "You already have a pending request",
+          };
         }
         if (existing.status === "APPROVED") {
           return { success: false, error: "You are already a participant" };
@@ -120,7 +133,8 @@ class ActivityParticipationService {
 
   async getAllPending(): Promise<GetJoinRequestsResponse> {
     try {
-      const participations = await this.participationRepository.findAllPending();
+      const participations =
+        await this.participationRepository.findAllPending();
       const requests = await Promise.all(
         participations.map((p) => this.toDto(p, true))
       );
@@ -142,7 +156,9 @@ class ActivityParticipationService {
         return { success: false, error: "Volunteer ID is required" };
       }
 
-      const participations = await this.participationRepository.findByVolunteer(volunteerId);
+      const participations = await this.participationRepository.findByVolunteer(
+        volunteerId
+      );
       const requests = await Promise.all(
         participations.map((p) => this.toDto(p, true))
       );
@@ -169,7 +185,9 @@ class ActivityParticipationService {
         return { success: false, error: "Request not found" };
       }
 
-      const activity = await this.activityRepository.findById(participation.activityId);
+      const activity = await this.activityRepository.findById(
+        participation.activityId
+      );
       if (!activity) {
         return { success: false, error: "Activity not found" };
       }

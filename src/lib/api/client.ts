@@ -29,7 +29,6 @@ class ApiClient {
     };
 
     const res = await fetch(url, config);
-
     const contentType = res.headers.get("content-type") || "";
     const isJson = contentType.includes("application/json");
 
@@ -39,11 +38,9 @@ class ApiClient {
 
     if (!res.ok) {
       let msg = "Request failed";
-
       if (data && typeof data === "object" && data !== null && "error" in data) {
         msg = String((data as { error: unknown }).error);
       }
-
       throw new Error(msg);
     }
 
@@ -60,6 +57,10 @@ class ApiClient {
 
   put<T>(url: string, body?: unknown) {
     return this.request<T>(url, { method: "PUT", body });
+  }
+
+  patch<T>(url: string, body?: unknown) {
+    return this.request<T>(url, { method: "PATCH", body });
   }
 
   delete<T>(url: string) {

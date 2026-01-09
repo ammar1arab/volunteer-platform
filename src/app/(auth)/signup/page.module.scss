@@ -3,60 +3,93 @@
 
 .page {
   min-height: 100svh;
-  display: grid;
-  place-items: center;
+  @include flex-center;
+  padding: $sp-lg;
 }
 
 .card {
-  width: min(560px, 100%);
+  position: relative;
+  width: min(580px, 100%);
   background: $bg;
   border: 1px solid $border;
   border-radius: $radius-lg;
   box-shadow: $shadow-deep;
-  padding: $sp-xl;
-  transform-origin: 50% 12%;
-  animation: liftIn 520ms cubic-bezier(.2,.9,.2,1);
-  will-change: transform;
+  padding: $sp-2xl $sp-xl;
+  animation: cardAppear 0.4s ease;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      $green 50%, 
+      transparent 100%
+    );
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
 
   @media (max-width: $bp-sm) {
-    padding: $sp-lg;
+    padding: $sp-xl $sp-lg;
   }
 }
 
-@keyframes liftIn {
-  from { transform: translateY(16px) rotate(-0.5deg); }
-  to { transform: translateY(0) rotate(0deg); }
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .header {
   text-align: center;
-  margin-bottom: $sp-lg;
+  margin-bottom: $sp-xl;
 }
 
 .title {
   font-size: $font-2xl;
   font-weight: 800;
-  color: $green;
+  background: linear-gradient(135deg, $green 0%, darken($green, 10%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: 1.2;
+  
+  @media (max-width: $bp-sm) {
+    font-size: $font-xl;
+  }
 }
 
 .form {
   @include flex-col;
+  gap: 0;
 }
 
 .error {
   @include alert-error;
   margin-bottom: $sp-md;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .footer {
-  margin-top: $sp-lg;
-  padding-top: $sp-lg;
+  margin-top: $sp-xl;
+  padding-top: $sp-xl;
   border-top: 1px solid $border;
-  display: flex;
-  justify-content: center;
+  @include flex(row, center, center);
   gap: $sp-sm;
-  align-items: center;
   flex-wrap: wrap;
 }
 
@@ -68,14 +101,20 @@
 .footerLink {
   color: $green;
   font-weight: 700;
-  transition: transform $transition, opacity $transition;
-
+  transition: all 0.2s ease;
+  
   &:hover {
     transform: translateY(-1px);
-    opacity: 0.95;
+    opacity: 0.8;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card { animation: none; }
+  .card { 
+    animation: none !important;
+  }
+  
+  .error {
+    animation: none !important;
+  }
 }

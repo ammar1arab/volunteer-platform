@@ -1,521 +1,477 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
-@use "@/presentation/styles/effects" as *;
 
 .page {
-  padding: .5rem;
-  max-width: 1400px;
+  @include flex-col;
+  gap: $sp-xl;
+  padding: $sp-xl;
+  max-width: 1200px;
   margin: 0 auto;
 
-  @media (max-width: 1024px) {
-    padding: 1.5rem;
-  }
-
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: $sp-md;
+    gap: $sp-lg;
   }
 }
 
 .header {
-  margin-bottom: 2rem;
-
-  @media (max-width: 768px) {
-    margin-bottom: 1.5rem;
-  }
+  margin-bottom: $sp-md;
 }
 
 .back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--color-background);
-  border: 2px solid var(--color-border);
-  border-radius: 0.75rem;
-  color: var(--color-text-primary);
+  @include flex(row, center, flex-start, $sp-xs);
+  padding: $sp-sm $sp-lg;
+  background: $bg;
+  border: 2px solid $border;
+  border-radius: $radius-lg;
+  color: $text;
   text-decoration: none;
-  font-size: 0.9375rem;
   font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s ease;
 
   &:hover {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    border-color: $green;
+    background: rgba($green, 0.05);
     transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.875rem;
-    padding: 0.625rem 1.25rem;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
   }
 }
 
+// ===== PROFILE CARD =====
 .profileCard {
-  @include card;
-  padding: 0;
-  margin-bottom: 2.5rem;
+  background: $bg;
+  border-radius: $radius-lg;
   overflow: hidden;
-  position: relative;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 200px;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-    opacity: 0.1;
-  }
-
-  @media (max-width: 768px) {
-    margin-bottom: 2rem;
-  }
+  box-shadow: 0 4px 12px rgba($black, 0.05);
 }
 
-.profileHeader {
-  padding: 3rem;
-  display: flex;
-  gap: 3rem;
-  align-items: flex-start;
-  position: relative;
-
-  @media (max-width: 1024px) {
-    padding: 2.5rem;
-    gap: 2.5rem;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    padding: 2rem;
-    gap: 2rem;
-    align-items: center;
-    text-align: center;
-  }
+.profileBanner {
+  height: 120px;
+  background: linear-gradient(135deg, $green, #059669);
 }
 
-.avatarSection {
+.profileContent {
+  @include flex-col;
+  gap: $sp-lg;
+  padding: 0 $sp-xl $sp-xl;
+  margin-top: -60px;
   position: relative;
-  flex-shrink: 0;
+}
+
+.avatarWrapper {
+  @include flex-center;
+  width: 120px;
+  height: 120px;
+  border-radius: $radius-full;
+  background: $bg;
+  border: 4px solid $bg;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba($black, 0.1);
 }
 
 .avatar {
-  width: 8rem;
-  height: 8rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.3);
-  position: relative;
-  z-index: 2;
-  border: 4px solid var(--color-background);
-
-  @media (max-width: 1024px) {
-    width: 7rem;
-    height: 7rem;
-
-    svg {
-      width: 48px;
-      height: 48px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    width: 6rem;
-    height: 6rem;
-
-    svg {
-      width: 40px;
-      height: 40px;
-    }
-  }
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.avatarGlow {
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  opacity: 0.2;
-  filter: blur(20px);
-  animation: pulse 3s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 0.2;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: scale(1.1);
-  }
+.avatarFallback {
+  @include flex-center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, $green, #059669);
+  font-size: $font-3xl;
+  font-weight: 700;
+  color: $bg;
 }
 
 .userInfo {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  min-width: 0;
-
-  @media (max-width: 768px) {
-    align-items: center;
-    gap: 1.5rem;
-  }
+  @include flex-col;
+  gap: $sp-sm;
+  align-items: center;
+  text-align: center;
 }
 
-.nameSection {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-  @media (max-width: 768px) {
-    align-items: center;
-  }
-}
-
-.name {
-  font-size: 2.5rem;
+.userName {
+  font-size: $font-2xl;
   font-weight: 800;
-  color: var(--color-text-primary);
+  color: $text;
   margin: 0;
-  line-height: 1.2;
-  background: linear-gradient(135deg, var(--color-text-primary), var(--color-primary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-
-  @media (max-width: 1024px) {
-    font-size: 2.25rem;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 1.75rem;
-  }
 }
 
 .badges {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  @include flex(row, center, center, $sp-xs);
   flex-wrap: wrap;
 }
 
 .roleBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1.25rem;
-  border-radius: 2rem;
-  font-size: 0.875rem;
+  @include flex(row, center, center, 6px);
+  padding: 6px $sp-md;
+  background: linear-gradient(135deg, rgba($green, 0.15), rgba($green, 0.1));
+  border: 2px solid rgba($green, 0.3);
+  border-radius: $radius-full;
+  font-size: $font-xs;
   font-weight: 700;
+  color: $green;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: 2px solid;
-
-  &.admin {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
-    color: #dc2626;
-    border-color: rgba(239, 68, 68, 0.3);
-  }
-
-  &.volunteer {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1));
-    color: var(--color-primary);
-    border-color: rgba(16, 185, 129, 0.3);
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
-    padding: 0.4rem 1rem;
-
-    svg {
-      width: 12px;
-      height: 12px;
-    }
-  }
 }
 
 .inactiveBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem 1.25rem;
-  border-radius: 2rem;
-  font-size: 0.875rem;
+  padding: 6px $sp-md;
+  background: linear-gradient(135deg, rgba($red, 0.15), rgba($red, 0.1));
+  border: 2px solid rgba($red, 0.3);
+  border-radius: $radius-full;
+  font-size: $font-xs;
   font-weight: 700;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
-  color: #dc2626;
-  border: 2px solid rgba(239, 68, 68, 0.3);
+  color: $red;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
-    padding: 0.4rem 1rem;
-  }
 }
 
 .contactGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: $sp-md;
+  margin-top: $sp-lg;
 }
 
-.contactItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: rgba(16, 185, 129, 0.03);
-  border: 1px solid rgba(16, 185, 129, 0.1);
-  border-radius: 0.75rem;
-  transition: all 0.3s ease;
+.contactCard {
+  @include flex(row, center, flex-start, $sp-md);
+  padding: $sp-md;
+  background: rgba($green, 0.03);
+  border: 2px solid rgba($green, 0.1);
+  border-radius: $radius;
+  transition: all 0.25s ease;
 
   &:hover {
-    background: rgba(16, 185, 129, 0.05);
-    border-color: rgba(16, 185, 129, 0.2);
+    background: rgba($green, 0.05);
+    border-color: rgba($green, 0.2);
     transform: translateY(-2px);
   }
 
-  @media (max-width: 768px) {
-    padding: 1rem;
+  svg {
+    color: $green;
+    flex-shrink: 0;
   }
-}
 
-.contactIcon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  flex-shrink: 0;
-
-  @media (max-width: 768px) {
-    width: 2.25rem;
-    height: 2.25rem;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
+  div {
+    @include flex-col;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
   }
-}
-
-.contactContent {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  flex: 1;
-  min-width: 0;
 }
 
 .contactLabel {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-  font-weight: 600;
+  font-size: $font-xs;
+  color: $text-muted;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-
-  @media (max-width: 768px) {
-    font-size: 0.7rem;
-  }
+  font-weight: 600;
 }
 
 .contactValue {
-  font-size: 1rem;
-  color: var(--color-text-primary);
+  font-size: $font-sm;
+  color: $text;
   font-weight: 600;
-  word-break: break-word;
+  @include line-clamp(1);
+}
 
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
+// ===== STATS GRID =====
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: $sp-lg;
+}
+
+.statCard {
+  @include flex(row, center, flex-start, $sp-md);
+  padding: $sp-lg;
+  border-radius: $radius-lg;
+  transition: transform 0.25s ease;
+
+  &:hover {
+    transform: translateY(-4px);
   }
 }
 
-.section {
-  margin-bottom: 2rem;
+.statTotal {
+  background: linear-gradient(135deg, rgba(#3b82f6, 0.1), rgba(#3b82f6, 0.05));
+  border: 2px solid rgba(#3b82f6, 0.2);
 
-  &:last-child {
-    margin-bottom: 0;
+  .statIcon {
+    background: rgba(#3b82f6, 0.15);
+    color: #3b82f6;
   }
 
-  @media (max-width: 768px) {
-    margin-bottom: 1.5rem;
+  .statValue {
+    color: #3b82f6;
   }
+}
+
+.statApproved {
+  background: linear-gradient(135deg, rgba($green, 0.1), rgba($green, 0.05));
+  border: 2px solid rgba($green, 0.2);
+
+  .statIcon {
+    background: rgba($green, 0.15);
+    color: $green;
+  }
+
+  .statValue {
+    color: $green;
+  }
+}
+
+.statPending {
+  background: linear-gradient(135deg, rgba(#f59e0b, 0.1), rgba(#f59e0b, 0.05));
+  border: 2px solid rgba(#f59e0b, 0.2);
+
+  .statIcon {
+    background: rgba(#f59e0b, 0.15);
+    color: #f59e0b;
+  }
+
+  .statValue {
+    color: #f59e0b;
+  }
+}
+
+.statRejected {
+  background: linear-gradient(135deg, rgba($red, 0.1), rgba($red, 0.05));
+  border: 2px solid rgba($red, 0.2);
+
+  .statIcon {
+    background: rgba($red, 0.15);
+    color: $red;
+  }
+
+  .statValue {
+    color: $red;
+  }
+}
+
+.statIcon {
+  @include flex-center;
+  width: 48px;
+  height: 48px;
+  border-radius: $radius;
+  flex-shrink: 0;
+}
+
+.statContent {
+  @include flex-col;
+  gap: 4px;
+}
+
+.statValue {
+  font-size: $font-2xl;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: $font-sm;
+  color: $text-muted;
+}
+
+// ===== APPROVAL CARD =====
+.approvalCard {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-xl;
+  background: linear-gradient(135deg, rgba($green, 0.05), $bg);
+  border: 2px solid rgba($green, 0.2);
+  border-radius: $radius-lg;
+}
+
+.approvalHeader {
+  @include flex-between;
+}
+
+.approvalLabel {
+  font-size: $font-md;
+  font-weight: 600;
+  color: $text-muted;
+}
+
+.approvalValue {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $green;
+}
+
+.progressBar {
+  height: 12px;
+  background: rgba($text, 0.05);
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $green, #059669);
+  border-radius: $radius-full;
+  transition: width 0.6s ease;
+}
+
+// ===== ACTIVITIES =====
+.activitiesSection {
+  @include flex-col;
+  gap: $sp-lg;
 }
 
 .sectionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--color-border);
-
-  @media (max-width: 768px) {
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.75rem;
-  }
-}
-
-.sectionTitleGroup {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-
-  svg {
-    color: var(--color-primary);
-  }
-
-  @media (max-width: 768px) {
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
+  @include flex-between;
+  padding-bottom: $sp-md;
+  border-bottom: 2px solid $border;
 }
 
 .sectionTitle {
-  font-size: 1.75rem;
+  @include flex(row, center, flex-start, $sp-sm);
+  font-size: $font-xl;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: $text;
   margin: 0;
 
-  @media (max-width: 1024px) {
-    font-size: 1.5rem;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 1.25rem;
+  svg {
+    color: $green;
   }
 }
 
 .activityCount {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 3rem;
-  height: 3rem;
-  padding: 0 1rem;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  border-radius: 1rem;
-  font-size: 1.125rem;
+  @include flex-center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 $sp-md;
+  background: linear-gradient(135deg, $green, #059669);
+  border-radius: $radius-lg;
+  font-size: $font-md;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  color: $bg;
+}
 
-  @media (max-width: 768px) {
-    min-width: 2.5rem;
-    height: 2.5rem;
-    font-size: 0.9rem;
+.activitiesList {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.activityCard {
+  @include flex(row, center, space-between, $sp-md);
+  padding: $sp-lg;
+  background: $bg;
+  border: 2px solid $border;
+  border-radius: $radius-lg;
+  transition: all 0.25s ease;
+
+  &:hover {
+    border-color: rgba($green, 0.3);
+    box-shadow: 0 4px 12px rgba($green, 0.1);
+    transform: translateY(-2px);
   }
 }
 
-.error {
-  @include card;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 5rem 3rem;
-  gap: 2rem;
-  text-align: center;
-  min-height: 60vh;
+.activityInfo {
+  @include flex-col;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
 
-  @media (max-width: 768px) {
-    padding: 4rem 2rem;
+.activityTitle {
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+  margin: 0;
+  @include line-clamp(1);
+}
+
+.activityDate {
+  font-size: $font-sm;
+  color: $text-muted;
+}
+
+.statusBadge {
+  padding: 6px $sp-md;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;
+
+  &.approved {
+    background: linear-gradient(135deg, rgba($green, 0.15), rgba($green, 0.1));
+    color: $green;
+    border: 2px solid rgba($green, 0.3);
   }
+
+  &.pending {
+    background: linear-gradient(135deg, rgba(#f59e0b, 0.15), rgba(#f59e0b, 0.1));
+    color: #f59e0b;
+    border: 2px solid rgba(#f59e0b, 0.3);
+  }
+
+  &.rejected {
+    background: linear-gradient(135deg, rgba($red, 0.15), rgba($red, 0.1));
+    color: $red;
+    border: 2px solid rgba($red, 0.3);
+  }
+}
+
+.emptyActivities {
+  @include flex-col;
+  align-items: center;
+  gap: $sp-md;
+  padding: $sp-2xl;
+  color: $text-muted;
+
+  svg {
+    opacity: 0.3;
+  }
+}
+
+// ===== ERROR =====
+.error {
+  @include flex-col;
+  align-items: center;
+
+  gap: $sp-xl;
+  padding: $sp-2xl;
+  min-height: 60vh;
+  text-align: center;
 }
 
 .errorIcon {
-  width: 7rem;
-  height: 7rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #dc2626;
-
-  svg {
-    opacity: 0.5;
-  }
-
-  @media (max-width: 768px) {
-    width: 5rem;
-    height: 5rem;
-
-    svg {
-      width: 48px;
-      height: 48px;
-    }
-  }
+  @include flex-center;
+  width: 100px;
+  height: 100px;
+  border-radius: $radius-full;
+  background: rgba($red, 0.1);
+  color: $red;
 }
 
 .error h2 {
-  font-size: 2rem;
+  font-size: $font-2xl;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: $text;
   margin: 0;
-
-  @media (max-width: 768px) {
-    font-size: 1.5rem;
-  }
 }
 
 .error p {
-  font-size: 1.125rem;
-  color: var(--color-text-secondary);
+  font-size: $font-md;
+  color: $text-muted;
   margin: 0;
-
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
 }
 
 .backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  color: white;
-  border-radius: 0.75rem;
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-md $sp-xl;
+  background: linear-gradient(135deg, $green, #059669);
+  color: $bg;
+  border-radius: $radius-lg;
   text-decoration: none;
   font-weight: 700;
-  font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transition: all 0.25s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-    padding: 0.875rem 1.75rem;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
+    box-shadow: 0 4px 12px rgba($green, 0.3);
   }
 }

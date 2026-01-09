@@ -16,7 +16,11 @@ import type {
   PublishActivityResponse,
   CancelActivityResponse,
   ActivityDto,
+  ActivityVolunteerDto,
+  GetActivityVolunteersResponse,
+  RestoreActivityResponse,
 } from "@/core/application/dtos";
+import { prisma } from "@/infrastructure/persistence/prisma";
 
 class ActivityService {
   private static readonly SCOPE = "ActivityService";
@@ -58,8 +62,12 @@ class ActivityService {
   }) {
     return {
       title: dto.title ? InputSanitizer.sanitizeString(dto.title) : undefined,
-      description: dto.description ? InputSanitizer.sanitizeString(dto.description) : undefined,
-      placeName: dto.placeName ? InputSanitizer.sanitizeString(dto.placeName) : undefined,
+      description: dto.description
+        ? InputSanitizer.sanitizeString(dto.description)
+        : undefined,
+      placeName: dto.placeName
+        ? InputSanitizer.sanitizeString(dto.placeName)
+        : undefined,
     };
   }
 
@@ -80,9 +88,16 @@ class ActivityService {
     return null;
   }
 
-  async create(dto: CreateActivityRequest, userId: string): Promise<CreateActivityResponse> {
+  async create(
+    dto: CreateActivityRequest,
+    userId: string
+  ): Promise<CreateActivityResponse> {
     try {
-      logger.info(ActivityService.SCOPE, "create", `Creating activity for user: ${userId}`);
+      logger.info(
+        ActivityService.SCOPE,
+        "create",
+        `Creating activity for user: ${userId}`
+      );
 
       const sanitized = this.sanitizeTextFields({
         title: dto.title,
@@ -101,7 +116,11 @@ class ActivityService {
 
       const err = this.validateRequiredFields(payload);
       if (err) {
-        logger.warn(ActivityService.SCOPE, "create", `Validation failed: ${err}`);
+        logger.warn(
+          ActivityService.SCOPE,
+          "create",
+          `Validation failed: ${err}`
+        );
         return { success: false, error: err };
       }
 
@@ -122,7 +141,11 @@ class ActivityService {
       });
 
       const created = await this.activityRepository.create(activity);
-      logger.info(ActivityService.SCOPE, "create", `Activity created: ${created.id}`);
+      logger.info(
+        ActivityService.SCOPE,
+        "create",
+        `Activity created: ${created.id}`
+      );
 
       return { success: true, activity: this.toDto(created) };
     } catch (error) {
@@ -130,12 +153,17 @@ class ActivityService {
         ActivityService.SCOPE,
         "create",
         error,
-        error instanceof Error ? error.message : "An error occurred while creating activity"
+        error instanceof Error
+          ? error.message
+          : "An error occurred while creating activity"
       );
     }
   }
 
-  async update(id: string, dto: UpdateActivityRequest): Promise<UpdateActivityResponse> {
+  async update(
+    id: string,
+    dto: UpdateActivityRequest
+  ): Promise<UpdateActivityResponse> {
     try {
       if (!id?.trim()) {
         logger.warn(ActivityService.SCOPE, "update", "Id is required");
@@ -146,7 +174,11 @@ class ActivityService {
 
       const existing = await this.activityRepository.findById(id);
       if (!existing) {
-        logger.warn(ActivityService.SCOPE, "update", `Activity not found: ${id}`);
+        logger.warn(
+          ActivityService.SCOPE,
+          "update",
+          `Activity not found: ${id}`
+        );
         return { success: false, error: "Activity not found" };
       }
 
@@ -154,9 +186,17 @@ class ActivityService {
       if (dto.imageUrl && dto.imageUrl !== existing.imageUrl) {
         try {
           await this.storageService.delete(existing.imageUrl);
-          logger.info(ActivityService.SCOPE, "update", `Old image deleted: ${existing.imageUrl}`);
+          logger.info(
+            ActivityService.SCOPE,
+            "update",
+            `Old image deleted: ${existing.imageUrl}`
+          );
         } catch (error) {
-          logger.warn(ActivityService.SCOPE, "update", `Failed to delete old image: ${error}`);
+          logger.warn(
+            ActivityService.SCOPE,
+            "update",
+            `Failed to delete old image: ${error}`
+          );
         }
       }
 
@@ -181,8 +221,10 @@ class ActivityService {
       } = {};
 
       if (sanitized.title !== undefined) updateData.title = sanitized.title;
-      if (sanitized.description !== undefined) updateData.description = sanitized.description;
-      if (sanitized.placeName !== undefined) updateData.placeName = sanitized.placeName;
+      if (sanitized.description !== undefined)
+        updateData.description = sanitized.description;
+      if (sanitized.placeName !== undefined)
+        updateData.placeName = sanitized.placeName;
 
       if (dto.imageUrl !== undefined) updateData.imageUrl = dto.imageUrl;
       if (dto.dayOfWeek !== undefined) updateData.dayOfWeek = dto.dayOfWeek;
@@ -190,8 +232,10 @@ class ActivityService {
       if (dto.startTime !== undefined) updateData.startTime = dto.startTime;
       if (dto.endTime !== undefined) updateData.endTime = dto.endTime;
       if (dto.location !== undefined) updateData.location = dto.location;
-      if (dto.targetAudience !== undefined) updateData.targetAudience = dto.targetAudience;
-      if (dto.maxVolunteers !== undefined) updateData.maxVolunteers = dto.maxVolunteers;
+      if (dto.targetAudience !== undefined)
+        updateData.targetAudience = dto.targetAudience;
+      if (dto.maxVolunteers !== undefined)
+        updateData.maxVolunteers = dto.maxVolunteers;
 
       existing.update(updateData);
 
@@ -204,7 +248,9 @@ class ActivityService {
         ActivityService.SCOPE,
         "update",
         error,
-        error instanceof Error ? error.message : "An error occurred while updating activity"
+        error instanceof Error
+          ? error.message
+          : "An error occurred while updating activity"
       );
     }
   }
@@ -223,15 +269,27 @@ class ActivityService {
       if (existing) {
         try {
           await this.storageService.delete(existing.imageUrl);
-          logger.info(ActivityService.SCOPE, "delete", `Image deleted: ${existing.imageUrl}`);
+          logger.info(
+            ActivityService.SCOPE,
+            "delete",
+            `Image deleted: ${existing.imageUrl}`
+          );
         } catch (error) {
-          logger.warn(ActivityService.SCOPE, "delete", `Failed to delete image: ${error}`);
+          logger.warn(
+            ActivityService.SCOPE,
+            "delete",
+            `Failed to delete image: ${error}`
+          );
         }
       }
 
       const deleted = await this.activityRepository.delete(id);
       if (!deleted) {
-        logger.warn(ActivityService.SCOPE, "delete", `Activity not found: ${id}`);
+        logger.warn(
+          ActivityService.SCOPE,
+          "delete",
+          `Activity not found: ${id}`
+        );
         return { success: false, error: "Activity not found", deleted: false };
       }
 
@@ -256,7 +314,11 @@ class ActivityService {
 
       const activity = await this.activityRepository.findById(id);
       if (!activity) {
-        logger.warn(ActivityService.SCOPE, "getOne", `Activity not found: ${id}`);
+        logger.warn(
+          ActivityService.SCOPE,
+          "getOne",
+          `Activity not found: ${id}`
+        );
         return { success: false, error: "Activity not found" };
       }
 
@@ -278,7 +340,11 @@ class ActivityService {
       const activities = await this.activityRepository.findAll();
       const items = activities.map((x) => this.toDto(x));
 
-      logger.info(ActivityService.SCOPE, "getAll", `Found ${items.length} activities`);
+      logger.info(
+        ActivityService.SCOPE,
+        "getAll",
+        `Found ${items.length} activities`
+      );
       return { success: true, activities: items };
     } catch (error) {
       return serviceError<GetAllActivitiesResponse>(
@@ -292,12 +358,20 @@ class ActivityService {
 
   async getPublished(): Promise<GetAllActivitiesResponse> {
     try {
-      logger.info(ActivityService.SCOPE, "getPublished", "Fetching published activities");
+      logger.info(
+        ActivityService.SCOPE,
+        "getPublished",
+        "Fetching published activities"
+      );
 
       const activities = await this.activityRepository.findPublished();
       const items = activities.map((x) => this.toDto(x));
 
-      logger.info(ActivityService.SCOPE, "getPublished", `Found ${items.length} published activities`);
+      logger.info(
+        ActivityService.SCOPE,
+        "getPublished",
+        `Found ${items.length} published activities`
+      );
       return { success: true, activities: items };
     } catch (error) {
       return serviceError<GetAllActivitiesResponse>(
@@ -312,16 +386,28 @@ class ActivityService {
   async getByCreator(creatorId: string): Promise<GetAllActivitiesResponse> {
     try {
       if (!creatorId?.trim()) {
-        logger.warn(ActivityService.SCOPE, "getByCreator", "Creator id is required");
+        logger.warn(
+          ActivityService.SCOPE,
+          "getByCreator",
+          "Creator id is required"
+        );
         return { success: false, error: "Creator id is required" };
       }
 
-      logger.info(ActivityService.SCOPE, "getByCreator", `Fetching activities by creator: ${creatorId}`);
+      logger.info(
+        ActivityService.SCOPE,
+        "getByCreator",
+        `Fetching activities by creator: ${creatorId}`
+      );
 
       const activities = await this.activityRepository.findByCreator(creatorId);
       const items = activities.map((x) => this.toDto(x));
 
-      logger.info(ActivityService.SCOPE, "getByCreator", `Found ${items.length} activities`);
+      logger.info(
+        ActivityService.SCOPE,
+        "getByCreator",
+        `Found ${items.length} activities`
+      );
       return { success: true, activities: items };
     } catch (error) {
       return serviceError<GetAllActivitiesResponse>(
@@ -340,18 +426,30 @@ class ActivityService {
         return { success: false, error: "Id is required" };
       }
 
-      logger.info(ActivityService.SCOPE, "publish", `Publishing activity: ${id}`);
+      logger.info(
+        ActivityService.SCOPE,
+        "publish",
+        `Publishing activity: ${id}`
+      );
 
       const activity = await this.activityRepository.findById(id);
       if (!activity) {
-        logger.warn(ActivityService.SCOPE, "publish", `Activity not found: ${id}`);
+        logger.warn(
+          ActivityService.SCOPE,
+          "publish",
+          `Activity not found: ${id}`
+        );
         return { success: false, error: "Activity not found" };
       }
 
       activity.publish();
 
       const updated = await this.activityRepository.update(activity);
-      logger.info(ActivityService.SCOPE, "publish", `Activity published: ${id}`);
+      logger.info(
+        ActivityService.SCOPE,
+        "publish",
+        `Activity published: ${id}`
+      );
 
       return { success: true, activity: this.toDto(updated) };
     } catch (error) {
@@ -359,7 +457,9 @@ class ActivityService {
         ActivityService.SCOPE,
         "publish",
         error,
-        error instanceof Error ? error.message : "An error occurred while publishing activity"
+        error instanceof Error
+          ? error.message
+          : "An error occurred while publishing activity"
       );
     }
   }
@@ -371,11 +471,19 @@ class ActivityService {
         return { success: false, error: "Id is required" };
       }
 
-      logger.info(ActivityService.SCOPE, "cancel", `Cancelling activity: ${id}`);
+      logger.info(
+        ActivityService.SCOPE,
+        "cancel",
+        `Cancelling activity: ${id}`
+      );
 
       const activity = await this.activityRepository.findById(id);
       if (!activity) {
-        logger.warn(ActivityService.SCOPE, "cancel", `Activity not found: ${id}`);
+        logger.warn(
+          ActivityService.SCOPE,
+          "cancel",
+          `Activity not found: ${id}`
+        );
         return { success: false, error: "Activity not found" };
       }
 
@@ -390,7 +498,134 @@ class ActivityService {
         ActivityService.SCOPE,
         "cancel",
         error,
-        error instanceof Error ? error.message : "An error occurred while cancelling activity"
+        error instanceof Error
+          ? error.message
+          : "An error occurred while cancelling activity"
+      );
+    }
+  }
+  async restore(id: string): Promise<RestoreActivityResponse> {
+    try {
+      if (!id?.trim()) {
+        logger.warn(ActivityService.SCOPE, "restore", "Id is required");
+        return { success: false, error: "Id is required" };
+      }
+
+      logger.info(
+        ActivityService.SCOPE,
+        "restore",
+        `Restoring activity: ${id}`
+      );
+
+      const activity = await this.activityRepository.findById(id);
+      if (!activity) {
+        logger.warn(
+          ActivityService.SCOPE,
+          "restore",
+          `Activity not found: ${id}`
+        );
+        return { success: false, error: "Activity not found" };
+      }
+
+      if (activity.status !== "CANCELLED") {
+        logger.warn(
+          ActivityService.SCOPE,
+          "restore",
+          `Activity is not cancelled: ${id}`
+        );
+        return {
+          success: false,
+          error: "Only cancelled activities can be restored",
+        };
+      }
+
+      activity.restore();
+
+      const updated = await this.activityRepository.update(activity);
+      logger.info(
+        ActivityService.SCOPE,
+        "restore",
+        `Activity restored to draft: ${id}`
+      );
+
+      return { success: true, activity: this.toDto(updated) };
+    } catch (error) {
+      return serviceError<RestoreActivityResponse>(
+        ActivityService.SCOPE,
+        "restore",
+        error,
+        error instanceof Error
+          ? error.message
+          : "An error occurred while restoring activity"
+      );
+    }
+  }
+
+  async getVolunteers(
+    activityId: string
+  ): Promise<GetActivityVolunteersResponse> {
+    try {
+      if (!activityId?.trim()) {
+        logger.warn(
+          ActivityService.SCOPE,
+          "getVolunteers",
+          "Activity ID is required"
+        );
+        return { success: false, error: "Activity ID is required" };
+      }
+
+      logger.info(
+        ActivityService.SCOPE,
+        "getVolunteers",
+        `Fetching volunteers for activity: ${activityId}`
+      );
+
+      // Get approved participations with volunteer details
+      const participations = await prisma.activityParticipation.findMany({
+        where: {
+          activityId,
+          status: "APPROVED",
+        },
+        include: {
+          volunteer: {
+            include: {
+              volunteerProfile: {
+                select: {
+                  profilePictureUrl: true,
+                  city: true,
+                  dateOfBirth: true,
+                  gender: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const volunteers: ActivityVolunteerDto[] = participations.map((p) => ({
+        id: p.volunteer.id,
+        fullName: p.volunteer.fullName,
+        email: p.volunteer.email,
+        phone: p.volunteer.phone,
+        profilePictureUrl:
+          p.volunteer.volunteerProfile?.profilePictureUrl ?? undefined,
+        city: p.volunteer.volunteerProfile?.city ?? undefined,
+        dateOfBirth: p.volunteer.volunteerProfile?.dateOfBirth?.toISOString(),
+        gender: p.volunteer.volunteerProfile?.gender ?? undefined,
+      }));
+
+      logger.info(
+        ActivityService.SCOPE,
+        "getVolunteers",
+        `Found ${volunteers.length} volunteers`
+      );
+      return { success: true, volunteers };
+    } catch (error) {
+      return serviceError<GetActivityVolunteersResponse>(
+        ActivityService.SCOPE,
+        "getVolunteers",
+        error,
+        "An error occurred while fetching volunteers"
       );
     }
   }

@@ -195,6 +195,29 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
     [fetchList]
   );
 
+  const restore = useCallback(
+  async (id: string) => {
+    setError("");
+    setSubmitting(true);
+    try {
+      const res = await activityApi.restore(id);
+      if (!res.success || !res.activity)
+        throw new Error(res.error || "Restore failed");
+
+      setItems((prev) => prev.map((x) => (x.id === id ? res.activity! : x)));
+      await fetchList(true);
+
+      return res.activity!;
+    } catch (e) {
+      setError(getErr(e));
+      return null;
+    } finally {
+      setSubmitting(false);
+    }
+  },
+  [fetchList]
+);
+
   return {
     list,
     loading,
@@ -208,5 +231,6 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
     remove,
     publish,
     cancel,
+    restore
   };
 };

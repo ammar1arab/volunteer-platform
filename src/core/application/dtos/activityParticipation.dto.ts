@@ -14,7 +14,16 @@ export interface ActivityParticipationDto {
   activity?: {
     id: string;
     title: string;
+    description: string;
     date: string;
+    startTime: string;
+    endTime: string;
+    placeName: string;
+    address: string;
+    targetAudience: string;
+    maxVolunteers: number;
+    currentVolunteers: number;
+    status: string;
   };
 }
 

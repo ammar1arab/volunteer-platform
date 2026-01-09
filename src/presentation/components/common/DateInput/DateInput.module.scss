@@ -1,0 +1,128 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrapper {
+  @include flex-col;
+  gap: 6px;
+  margin-bottom: $sp-md;
+}
+
+/* ---------- Label ---------- */
+.label {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: rgba($text, 0.85);
+  display: flex;
+  gap: 4px;
+  transition: color 0.2s ease;
+
+  .wrapper:focus-within & {
+    color: $green;
+  }
+}
+
+.required {
+  color: rgba($red, 0.75);
+}
+
+/* ---------- Container ---------- */
+.inputContainer {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &.error .input {
+    border-color: rgba($red, 0.5);
+    background: rgba($red, 0.03);
+
+    &:focus {
+      border-color: $red;
+      box-shadow: 0 0 0 3px rgba($red, 0.12);
+    }
+  }
+}
+
+/* ---------- Input ---------- */
+.input {
+  width: 100%;
+  padding: 12px 42px 12px 14px;
+  background: $bg;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text;
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+
+  direction: ltr;
+  text-align: left;
+
+  /* mobile width 80% */
+  @media (max-width: 776px) {
+  width: 80%;
+  margin-inline: auto;
+}
+
+
+  &:hover:not(:disabled) {
+    border-color: rgba($green, 0.25);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.12);
+  }
+
+  &:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+  }
+
+  /* Hide native icon but keep modal */
+  &::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
+/* ---------- Icon ---------- */
+.icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba($text, 0.45);
+  pointer-events: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+
+  .inputContainer:hover & {
+    color: rgba($green, 0.7);
+  }
+
+  .input:focus ~ & {
+    color: $green;
+  }
+}
+
+/* ---------- Error ---------- */
+.errorText {
+  font-size: $font-xs;
+  color: $red;
+  margin-top: 4px;
+}

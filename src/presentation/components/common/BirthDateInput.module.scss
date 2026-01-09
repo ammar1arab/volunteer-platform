@@ -1,0 +1,73 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrapper {
+  @include flex-col;
+  gap: $sp-xs;
+  margin-bottom: $sp-md;
+}
+
+.label {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 2px;
+  transition: color 0.2s ease;
+  
+  .wrapper:focus-within & {
+    color: $green;
+  }
+}
+
+.required {
+  color: rgba($red, 0.7);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr;
+  gap: $sp-sm;
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+    gap: $sp-xs;
+  }
+}
+
+.col {
+  // SelectInput inside handles its own styles
+  
+  // Remove margin-bottom from SelectInput when inside BirthDateInput
+  :global(.SelectInput_wrapper) {
+    margin-bottom: 0;
+  }
+}
+
+.errorText {
+  font-size: 13px;
+  color: $red;
+  margin-top: 6px;
+  font-weight: 500;
+  animation: errorSlide 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &::before {
+    content: '⚠';
+    font-size: 14px;
+  }
+}
+
+@keyframes errorSlide {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

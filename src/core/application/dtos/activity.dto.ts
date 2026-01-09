@@ -103,3 +103,30 @@ export interface CancelActivityResponse {
   activity?: ActivityDto;
   error?: string;
 }
+
+
+// Volunteer info for activity
+export interface ActivityVolunteerDto {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  profilePictureUrl?: string;
+  city?: string;
+  dateOfBirth?: string;
+  gender?: string;
+}
+
+// Response for getting activity volunteers
+export interface GetActivityVolunteersResponse {
+  success: boolean;
+  volunteers?: ActivityVolunteerDto[];
+  error?: string;
+}
+
+// Response for restoring activity
+export interface RestoreActivityResponse {
+  success: boolean;
+  activity?: ActivityDto;
+  error?: string;
+}

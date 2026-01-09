@@ -160,3 +160,13 @@ textarea {
     @include grid(4);
   }
 }
+.birthRow {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.birthCol {
+  flex: 1;
+  min-width: 0;
+}

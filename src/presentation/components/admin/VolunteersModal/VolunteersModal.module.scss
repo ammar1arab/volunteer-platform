@@ -1,0 +1,235 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  @include flex-center;
+  padding: $sp-lg;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  background: $bg;
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 700px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+.header {
+  @include flex-between;
+  padding: $sp-xl;
+  border-bottom: 2px solid $border;
+  gap: $sp-md;
+}
+
+.headerContent {
+  @include flex(row, center, flex-start, $sp-md);
+  flex: 1;
+  min-width: 0;
+
+  svg {
+    color: $green;
+    flex-shrink: 0;
+  }
+}
+
+.title {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $text;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: $font-sm;
+  color: $text-muted;
+  margin: $sp-xs 0 0 0;
+  @include line-clamp(1);
+}
+
+.closeBtn {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius;
+  background: rgba($red, 0.1);
+  border: none;
+  color: $red;
+  cursor: pointer;
+  transition: $transition;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba($red, 0.2);
+    transform: scale(1.1);
+  }
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: $sp-lg;
+}
+
+.loading {
+  @include flex-col;
+  @include flex-center;
+  gap: $sp-md;
+  padding: $sp-2xl;
+  color: $text-muted;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba($green, 0.2);
+  border-top-color: $green;
+  border-radius: $radius-full;
+  @include animate-spin;
+}
+
+.empty {
+  @include flex-col;
+  @include flex-center;
+  gap: $sp-md;
+  padding: $sp-2xl;
+  color: $text-muted;
+
+  svg {
+    opacity: 0.3;
+  }
+}
+
+.list {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.volunteerCard {
+  @include flex(row, center, flex-start, $sp-md);
+  padding: $sp-lg;
+  background: rgba($green, 0.03);
+  border: 2px solid rgba($green, 0.1);
+  border-radius: $radius-lg;
+  transition: all $transition;
+
+  &:hover {
+    background: rgba($green, 0.05);
+    border-color: rgba($green, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($green, 0.15);
+  }
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: $radius-full;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 3px solid $green;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  @include flex-center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, $green, #059669);
+  color: $bg;
+  font-size: $font-xl;
+  font-weight: 700;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $text;
+  margin: 0 0 $sp-xs 0;
+}
+
+.email {
+  font-size: $font-sm;
+  color: $text-muted;
+  margin: 0 0 $sp-sm 0;
+  @include line-clamp(1);
+}
+
+.meta {
+  @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
+  font-size: $font-xs;
+  color: $text-muted;
+}
+
+.metaItem {
+  @include flex(row, center, flex-start, 4px);
+}
+
+.divider {
+  margin: 0 $sp-xs;
+}
+
+.viewBtn {
+  @include btn-primary;
+  padding: $sp-sm $sp-lg;
+  font-size: $font-sm;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.footer {
+  padding: $sp-lg $sp-xl;
+  border-top: 2px solid $border;
+  background: rgba($green, 0.02);
+}
+
+.count {
+  font-size: $font-md;
+  color: $text-muted;
+  margin: 0;
+  text-align: center;
+
+  strong {
+    color: $green;
+    font-weight: 700;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

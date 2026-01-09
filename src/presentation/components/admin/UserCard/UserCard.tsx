@@ -1,5 +1,8 @@
-import Link from "next/link";
-import { User, Mail, Phone, Calendar, Activity, ChevronRight, CheckCircle, Clock, XCircle } from "lucide-react";
+"use client";
+
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { User, Mail, Phone, CheckCircle } from "lucide-react";
 import styles from "./UserCard.module.scss";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 
@@ -7,107 +10,61 @@ interface UserCardProps {
   user: UserAnalyticsDto;
 }
 
-const UserCard = ({ user }: UserCardProps) => {
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("ar-JO", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+export default function UserCard({ user }: UserCardProps) {
+  const router = useRouter();
+  const isVolunteer = user.role === "VOLUNTEER";
+
+  const handleClick = () => {
+    if (isVolunteer) {
+      router.push(`/admin/dashboard/users/${user.id}`);
+    }
   };
 
-  const isAdmin = user.role === "ADMIN";
-
-  const cardContent = (
-    <>
-      <div className={styles.userInfo}>
-        <div className={styles.avatar}>
-          <User size={28} />
-        </div>
-        <div className={styles.details}>
-          <div className={styles.nameGroup}>
-            <h3 className={styles.name}>{user.fullName}</h3>
-            <span className={`${styles.roleBadge} ${styles[user.role.toLowerCase()]}`}>
-              {user.role === "ADMIN" ? "ADMIN" : "متطوع"}
-            </span>
-            {!user.isActive && (
-              <span className={styles.inactiveBadge}>غير نشط</span>
-            )}
-          </div>
-          <div className={styles.contactInfo}>
-            <div className={styles.contactItem}>
-              <Mail size={14} />
-              <span>{user.email}</span>
-            </div>
-            <div className={styles.contactItem}>
-              <Phone size={14} />
-              <span>{user.phone}</span>
-            </div>
-            <div className={styles.contactItem}>
-              <Calendar size={14} />
-              <span>انضم {formatDate(user.createdAt)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {!isAdmin && (
-        <>
-          <div className={styles.statsGroup}>
-            <div className={styles.statCard} data-variant="total">
-              <Activity size={18} />
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{user.stats.totalActivities}</span>
-                <span className={styles.statLabel}>إجمالي</span>
-              </div>
-            </div>
-
-            <div className={styles.statCard} data-variant="success">
-              <CheckCircle size={18} />
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{user.stats.approvedActivities}</span>
-                <span className={styles.statLabel}>مقبول</span>
-              </div>
-            </div>
-
-            <div className={styles.statCard} data-variant="warning">
-              <Clock size={18} />
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{user.stats.pendingRequests}</span>
-                <span className={styles.statLabel}>انتظار</span>
-              </div>
-            </div>
-
-            <div className={styles.statCard} data-variant="danger">
-              <XCircle size={18} />
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>{user.stats.rejectedRequests}</span>
-                <span className={styles.statLabel}>مرفوض</span>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.action}>
-            <ChevronRight size={20} />
-          </div>
-        </>
-      )}
-    </>
-  );
-
-  if (isAdmin) {
-    return (
-      <div className={`${styles.row} ${styles.nonClickable}`}>
-        {cardContent}
-      </div>
-    );
-  }
-
   return (
-    <Link href={`/admin/dashboard/users/${user.id}`} className={styles.row}>
-      {cardContent}
-    </Link>
-  );
-};
+    <div
+      className={`${styles.card} ${isVolunteer ? styles.clickable : styles.admin}`}
+      onClick={handleClick}
+    >
+      {/* Avatar */}
+      <div className={styles.avatar}>
+        {user.volunteerProfile?.profilePictureUrl ? (
+          <Image
+            src={user.volunteerProfile.profilePictureUrl}
+            alt={user.fullName}
+            width={56}
+            height={56}
+            className={styles.avatarImg}
+          />
+        ) : (
+          <span className={styles.avatarText}>
+            {user.fullName.charAt(0).toUpperCase()}
+          </span>
+        )}
+      </div>
 
-export default UserCard;
+      {/* Info */}
+      <div className={styles.info}>
+        <h3 className={styles.name}>{user.fullName}</h3>
+
+        <div className={styles.contact}>
+          <div className={styles.contactItem}>
+            <Mail size={12} />
+            <span>{user.email}</span>
+          </div>
+          <div className={styles.contactItem}>
+            <Phone size={12} />
+            <span>{user.phone}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Badge */}
+      {isVolunteer && (
+        <div className={styles.badge}>
+          <CheckCircle size={16} />
+          <span>{user.stats.approvedActivities}</span>
+        </div>
+      )}
+    </div>
+  );
+}

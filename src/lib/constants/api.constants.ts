@@ -33,9 +33,15 @@ export const API_ENDPOINTS = {
   },
 
   UPLOADS: {
-    BY_SCOPE: (scope: "featured-posts" | "activities") =>
+    BY_SCOPE: (scope: "featured-posts" | "activities" | "profiles") =>
       `/api/uploads/${scope}`,
     FEATURED_IMAGE: "/api/uploads/featured-posts",
     ACTIVITY_IMAGE: "/api/uploads/activities",
+    PROFILE_PICTURE: "/api/uploads/profiles",
+  },
+
+  VOLUNTEER_PROFILE: {
+    BASE: "/api/volunteer-profile",
+    PICTURE: "/api/volunteer-profile/picture",
   },
 } as const;

@@ -43,6 +43,32 @@ class User extends BaseEntity {
     return this.props.role;
   }
 
+  set email(value: string) {
+    if (!value?.trim()) {
+      throw new Error("Email is required");
+    }
+    this.props.email = value.trim();
+    this.touch();
+  }
+
+  set fullName(value: string) {
+    if (!value?.trim()) {
+      throw new Error("Full name is required");
+    }
+    if (value.length < 2 || value.length > 100) {
+      throw new Error("Full name must be 2-100 characters");
+    }
+    this.props.fullName = value.trim();
+    this.touch();
+  }
+
+  set phone(value: string) {
+    if (!value?.trim()) {
+      throw new Error("Phone is required");
+    }
+    this.props.phone = value.trim();
+    this.touch();
+  }
   isAdmin(): boolean {
     return this.props.role === UserRole.ADMIN;
   }

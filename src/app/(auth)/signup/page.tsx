@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Input, Button } from '@/presentation/components';
+import { Input, Button, SelectInput, DateInput, BirthDateInput } from '@/presentation/components';
 import { useSignup } from '@/presentation/hooks';
+import { JORDANIAN_CITIES } from '@/lib/constants';
+import { getMinDateOfBirth, getMaxDateOfBirth } from '@/lib/utils';
 import styles from './page.module.scss';
 
 const SignupPage = () => {
@@ -57,12 +59,41 @@ const SignupPage = () => {
             aria-required="true"
           />
 
+          <SelectInput
+            label="المدينة"
+            value={formData.city}
+            options={JORDANIAN_CITIES}
+            onChange={(value) => handleChange('city', value)}
+            placeholder="اختر مدينتك"
+            required
+          />
+
+          <BirthDateInput
+            label="تاريخ الميلاد"
+            value={formData.dateOfBirth}
+            onChange={(value) => handleChange("dateOfBirth", value)}
+            required
+          />
+
+
+
           <Input
             label="كلمة المرور"
             type="password"
             dir="ltr"
             value={formData.password}
             onChange={(e) => handleChange('password', e.target.value)}
+            required
+            autoComplete="new-password"
+            aria-required="true"
+          />
+
+          <Input
+            label="تأكيد كلمة المرور"
+            type="password"
+            dir="ltr"
+            value={formData.confirmPassword}
+            onChange={(e) => handleChange('confirmPassword', e.target.value)}
             required
             autoComplete="new-password"
             aria-required="true"
