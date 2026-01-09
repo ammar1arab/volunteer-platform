@@ -3,9 +3,18 @@
 import { useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { 
-  ArrowRight, Mail, Phone, MapPin, Calendar, 
-  Activity, CheckCircle, Clock, XCircle, Shield, User 
+import {
+  ArrowRight,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Activity,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Shield,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -18,9 +27,11 @@ const UserDetailsPage = () => {
   const router = useRouter();
   const params = useParams();
   const userId = params.id as string;
+
   const { status, data: session } = useSession();
   const { toasts, showToast, removeToast } = useToast();
-  const { user, activities, isLoadingUser, isLoadingActivities, error } = useUserDetails(userId);
+  const { user, activities, isLoadingUser, isLoadingActivities, error } =
+    useUserDetails(userId);
 
   const role = session?.user?.role ?? "VOLUNTEER";
 
@@ -46,7 +57,10 @@ const UserDetailsPage = () => {
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
     return age;
@@ -72,17 +86,24 @@ const UserDetailsPage = () => {
     );
   }
 
-  const cityLabel = user.volunteerProfile?.city
-    ? JORDANIAN_CITIES.find((c) => c.value === user.volunteerProfile?.city)?.label
+  /* ✅ FIX: narrow volunteerProfile once */
+  const volunteerProfile = user.volunteerProfile;
+
+  const cityLabel = volunteerProfile?.city
+    ? JORDANIAN_CITIES.find((c) => c.value === volunteerProfile.city)?.label
     : undefined;
 
-  const age = user.volunteerProfile?.dateOfBirth 
-    ? calculateAge(user.volunteerProfile.dateOfBirth)
-    : undefined;
+  const age =
+    volunteerProfile?.dateOfBirth !== undefined
+      ? calculateAge(volunteerProfile.dateOfBirth)
+      : undefined;
 
-  const approvalRate = user.stats.totalActivities > 0
-    ? Math.round((user.stats.approvedActivities / user.stats.totalActivities) * 100)
-    : 0;
+  const approvalRate =
+    user.stats.totalActivities > 0
+      ? Math.round(
+          (user.stats.approvedActivities / user.stats.totalActivities) * 100
+        )
+      : 0;
 
   return (
     <div className={styles.page}>
@@ -99,13 +120,12 @@ const UserDetailsPage = () => {
       {/* Profile Card */}
       <div className={styles.profileCard}>
         <div className={styles.profileBanner} />
-        
+
         <div className={styles.profileContent}>
-          {/* Avatar */}
           <div className={styles.avatarWrapper}>
-            {user.volunteerProfile?.profilePictureUrl ? (
+            {volunteerProfile?.profilePictureUrl ? (
               <Image
-                src={user.volunteerProfile.profilePictureUrl}
+                src={volunteerProfile.profilePictureUrl}
                 alt={user.fullName}
                 width={120}
                 height={120}
@@ -118,7 +138,6 @@ const UserDetailsPage = () => {
             )}
           </div>
 
-          {/* User Info */}
           <div className={styles.userInfo}>
             <h1 className={styles.userName}>{user.fullName}</h1>
             <div className={styles.badges}>
@@ -132,7 +151,6 @@ const UserDetailsPage = () => {
             </div>
           </div>
 
-          {/* Contact Grid */}
           <div className={styles.contactGrid}>
             <div className={styles.contactCard}>
               <Mail size={18} />
@@ -170,7 +188,7 @@ const UserDetailsPage = () => {
               </div>
             )}
 
-            {age && (
+            {age !== undefined && (
               <div className={styles.contactCard}>
                 <User size={18} />
                 <div>
@@ -180,13 +198,13 @@ const UserDetailsPage = () => {
               </div>
             )}
 
-            {user.volunteerProfile?.gender && (
+            {volunteerProfile?.gender && (
               <div className={styles.contactCard}>
                 <Shield size={18} />
                 <div>
                   <span className={styles.contactLabel}>الجنس</span>
                   <span className={styles.contactValue}>
-                    {user.volunteerProfile.gender === "MALE" ? "ذكر" : "أنثى"}
+                    {volunteerProfile.gender === "MALE" ? "ذكر" : "أنثى"}
                   </span>
                 </div>
               </div>
@@ -195,103 +213,94 @@ const UserDetailsPage = () => {
         </div>
       </div>
 
-      {/* Stats Cards - للمتطوعين فقط */}
-      {user.role === "VOLUNTEER" && (
-        <div className={styles.statsGrid}>
-          <div className={`${styles.statCard} ${styles.statTotal}`}>
-            <div className={styles.statIcon}>
-              <Activity size={24} />
-            </div>
-            <div className={styles.statContent}>
-              <span className={styles.statValue}>{user.stats.totalActivities}</span>
-              <span className={styles.statLabel}>إجمالي الأنشطة</span>
-            </div>
-          </div>
+      {/* BIO */}
+      {volunteerProfile?.bio && (
+        <div className={styles.sectionCard}>
+          <h3 className={styles.sectionTitle}>النبذة</h3>
+          <p className={styles.bioText}>{volunteerProfile.bio}</p>
+        </div>
+      )}
 
-          <div className={`${styles.statCard} ${styles.statApproved}`}>
-            <div className={styles.statIcon}>
-              <CheckCircle size={24} />
-            </div>
-            <div className={styles.statContent}>
-              <span className={styles.statValue}>{user.stats.approvedActivities}</span>
-              <span className={styles.statLabel}>موافق عليها</span>
-            </div>
-          </div>
-
-          <div className={`${styles.statCard} ${styles.statPending}`}>
-            <div className={styles.statIcon}>
-              <Clock size={24} />
-            </div>
-            <div className={styles.statContent}>
-              <span className={styles.statValue}>{user.stats.pendingRequests}</span>
-              <span className={styles.statLabel}>معلقة</span>
-            </div>
-          </div>
-
-          <div className={`${styles.statCard} ${styles.statRejected}`}>
-            <div className={styles.statIcon}>
-              <XCircle size={24} />
-            </div>
-            <div className={styles.statContent}>
-              <span className={styles.statValue}>{user.stats.rejectedRequests}</span>
-              <span className={styles.statLabel}>مرفوضة</span>
-            </div>
+      {/* SKILLS */}
+      {volunteerProfile?.skills && volunteerProfile.skills.length > 0 && (
+        <div className={styles.sectionCard}>
+          <h3 className={styles.sectionTitle}>المهارات</h3>
+          <div className={styles.tags}>
+            {volunteerProfile.skills.map((skill) => (
+              <span key={skill} className={styles.tag}>
+                {skill}
+              </span>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Approval Rate - للمتطوعين فقط */}
+      {/* INTERESTS */}
+      {volunteerProfile?.interests && volunteerProfile.interests.length > 0 && (
+        <div className={styles.sectionCard}>
+          <h3 className={styles.sectionTitle}>الاهتمامات</h3>
+          <div className={styles.tags}>
+            {volunteerProfile.interests.map((interest) => (
+              <span key={interest} className={styles.tag}>
+                {interest}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* STATS */}
+      {user.role === "VOLUNTEER" && (
+        <div className={styles.statsGrid}>
+          <div className={`${styles.statCard} ${styles.statTotal}`}>
+            <Activity size={24} />
+            <span>{user.stats.totalActivities}</span>
+          </div>
+
+          <div className={`${styles.statCard} ${styles.statApproved}`}>
+            <CheckCircle size={24} />
+            <span>{user.stats.approvedActivities}</span>
+          </div>
+
+          <div className={`${styles.statCard} ${styles.statPending}`}>
+            <Clock size={24} />
+            <span>{user.stats.pendingRequests}</span>
+          </div>
+
+          <div className={`${styles.statCard} ${styles.statRejected}`}>
+            <XCircle size={24} />
+            <span>{user.stats.rejectedRequests}</span>
+          </div>
+        </div>
+      )}
+
       {user.role === "VOLUNTEER" && user.stats.totalActivities > 0 && (
         <div className={styles.approvalCard}>
           <div className={styles.approvalHeader}>
-            <span className={styles.approvalLabel}>نسبة القبول</span>
-            <span className={styles.approvalValue}>{approvalRate}%</span>
+            <span>نسبة القبول</span>
+            <span>{approvalRate}%</span>
           </div>
           <div className={styles.progressBar}>
-            <div 
-              className={styles.progressFill} 
+            <div
+              className={styles.progressFill}
               style={{ width: `${approvalRate}%` }}
             />
           </div>
         </div>
       )}
 
-      {/* Activities List - للمتطوعين فقط */}
       {user.role === "VOLUNTEER" && (
         <div className={styles.activitiesSection}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <Activity size={24} />
-              سجل الأنشطة
-            </h2>
-            <span className={styles.activityCount}>{activities.length}</span>
-          </div>
+          <h2>سجل الأنشطة</h2>
 
           {isLoadingActivities ? (
             <LoadingState variant="skeleton" count={3} />
           ) : activities.length === 0 ? (
-            <div className={styles.emptyActivities}>
-              <Activity size={48} />
-              <p>لا توجد أنشطة</p>
-            </div>
+            <p>لا توجد أنشطة</p>
           ) : (
-            <div className={styles.activitiesList}>
-              {activities.map((activity) => (
-                <div key={activity.id} className={styles.activityCard}>
-                  <div className={styles.activityInfo}>
-                    {/* <h3 className={styles.activityTitle}>{activity.title}</h3>
-                    <span className={styles.activityDate}>
-                      {new Date(activity.date).toLocaleDateString("ar-JO")}
-                    </span> */}
-                  </div>
-                  <span className={`${styles.statusBadge} ${styles[activity.status.toLowerCase()]}`}>
-                    {activity.status === "APPROVED" && "مقبول"}
-                    {activity.status === "PENDING" && "معلق"}
-                    {activity.status === "REJECTED" && "مرفوض"}
-                  </span>
-                </div>
-              ))}
-            </div>
+            activities.map((activity) => (
+              <div key={activity.id}>{activity.status}</div>
+            ))
           )}
         </div>
       )}

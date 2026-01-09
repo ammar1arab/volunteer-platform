@@ -66,7 +66,6 @@ const UsersPage = () => {
             <UsersIcon size={32} />
           </div>
           <div>
-            <h1 className={styles.title}>إدارة المستخدمين</h1>
             <p className={styles.subtitle}>
               {volunteers.length} متطوع • {admins.length} مدير • {users.length} إجمالي
             </p>

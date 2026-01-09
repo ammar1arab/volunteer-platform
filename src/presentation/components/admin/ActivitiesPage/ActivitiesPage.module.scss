@@ -34,10 +34,11 @@
 
 .filters {
   @include flex(row, center, flex-start, $sp-sm);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding: $sp-md;
   background: rgba($black, 0.02);
   border-radius: $radius-lg;
+  
 }
 
 .filterIcon {
@@ -48,7 +49,7 @@
   @include btn-secondary;
   padding: $sp-xs $sp-md;
   border-radius: $radius-full;
-  font-size: $font-sm;
+  font-size: 10px;
   transition: $transition;
 
   &.active {

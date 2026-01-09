@@ -345,7 +345,6 @@ const ActivitiesPage = () => {
       </header>
 
       <div className={styles.filters}>
-        <Filter size={16} className={styles.filterIcon} />
         {FILTERS.map((f) => (
           <button
             key={f.key}

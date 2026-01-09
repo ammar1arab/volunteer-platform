@@ -27,6 +27,9 @@ class UserService {
               city: true,
               dateOfBirth: true,
               gender: true,
+              bio: true,
+              skills: true,
+              interests: true,
             },
           },
           participations: {
@@ -60,8 +63,13 @@ class UserService {
               city: user.volunteerProfile.city ?? undefined,
               dateOfBirth: user.volunteerProfile.dateOfBirth?.toISOString(),
               gender: user.volunteerProfile.gender ?? undefined,
+
+              bio: user.volunteerProfile.bio ?? undefined,
+              skills: user.volunteerProfile.skills ?? [],
+              interests: user.volunteerProfile.interests ?? [],
             }
           : undefined,
+
         stats: {
           totalActivities: user.participations.length,
           pendingRequests: user.participations.filter(
@@ -98,6 +106,9 @@ class UserService {
               city: true,
               dateOfBirth: true,
               gender: true,
+              bio: true,
+              skills: true,
+              interests: true,
             },
           },
           participations: {
@@ -134,6 +145,9 @@ class UserService {
               city: user.volunteerProfile.city ?? undefined,
               dateOfBirth: user.volunteerProfile.dateOfBirth?.toISOString(),
               gender: user.volunteerProfile.gender ?? undefined,
+              bio: user.volunteerProfile.bio ?? undefined,
+              skills: user.volunteerProfile.skills ?? [],
+              interests: user.volunteerProfile.interests ?? [],
             }
           : undefined,
         stats: {

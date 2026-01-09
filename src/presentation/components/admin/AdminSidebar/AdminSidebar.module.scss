@@ -1,71 +1,186 @@
-/* src/presentation/components/admin/AdminSidebar/AdminSidebar.module.scss */
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
 .sidebar {
   width: 240px;
-  min-width: 220px;
-  border: 1px solid $border;
+  min-width: 240px;
+  background: $bg;
+  border: 2px solid $border;
   border-radius: $radius-lg;
   padding: $sp-md;
   @include flex-col;
   gap: $sp-md;
-}
+  height: fit-content;
+  position: sticky;
+  top: $sp-lg;
 
-.brand {
-  display: block;
-  text-decoration: none;
-  color: $text;
-  font-weight: 800;
-  text-align: center;
-  padding-bottom: $sp-sm;
-  border-bottom: 4px solid rgba($green, 0.35);
-  @include focus-ring($green);
-}
-
-.nav {
-  display: flex;
-  flex-direction: column;
-  gap: $sp-sm;
-}
-
-.link {
-  text-decoration: none;
-  color: $text;
-  font-weight: 600;
-  padding: $sp-sm $sp-md;
-  border-radius: $radius;
-  border-bottom: 2px solid rgba($green, 0.35);
-
-  text-align: center;
-  transition: $transition;
-  @include focus-ring($green);
-}
-
-.active {
-  @include focus-ring($green);
-}
-
-@include sm {
-  .sidebar {
+  @media (max-width: 1024px) {
+    position: static;
     width: 100%;
     min-width: 0;
     padding: $sp-sm;
-    gap: $sp-sm;
+  }
+}
+
+.brand {
+  @include flex(row, center, space-between, $sp-sm);
+  position: relative;
+
+  @media (max-width: 1024px) {
+    cursor: pointer;
+  }
+}
+
+.brandLink {
+  @include flex(row, center, flex-start, $sp-sm);
+  text-decoration: none;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  background: $green;
+  color: $bg;
+  font-weight: 700;
+  transition: $transition;
+  flex: 1;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow;
   }
 
-  .brand {
-    text-align: start;
-  }
+  @include focus-ring($green);
 
-  .nav {
+  @media (max-width: 1024px) {
+    pointer-events: none;
+  }
+}
+
+.brandIcon {
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.brandText {
+  font-size: $font-md;
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+}
+
+.toggleIcon {
+  display: none;
+  
+  @media (max-width: 1024px) {
+    @include flex-center;
+    width: 40px;
+    height: 40px;
+    background: $green;
+    color: $bg;
+    border: none;
+    border-radius: $radius;
+    cursor: pointer;
+    transition: $transition;
+    flex-shrink: 0;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+.nav {
+  @include flex-col;
+  gap: $sp-xs;
+  transition: all 0.3s ease;
+
+  @media (max-width: 1024px) {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: $sp-sm;
+    gap: $sp-xs;
+    overflow: hidden;
+  }
+}
+
+.navOpen {
+  @media (max-width: 1024px) {
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+.navClosed {
+  @media (max-width: 1024px) {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    padding: 0;
+  }
+}
+
+.link {
+  @include flex(row, center, flex-start, $sp-sm);
+  text-decoration: none;
+  color: $text;
+  font-weight: 600;
+  font-size: $font-sm;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  transition: $transition;
+  background: $bg;
+  border: 2px solid transparent;
+
+  &:hover:not(.active) {
+    border-color: $border;
+    background: $bg;
   }
 
-  .link {
-    padding: $sp-xs $sp-md;
-    font-size: 12px;
+  @include focus-ring($green);
+
+  @media (max-width: 1024px) {
+    flex: 1;
+    min-width: calc(50% - #{$sp-xs} / 2);
+    justify-content: center;
+    padding: $sp-sm;
+  }
+
+  @media (max-width: 640px) {
+    min-width: 100%;
+  }
+}
+
+.linkIcon {
+  flex-shrink: 0;
+  transition: $transition;
+
+  @media (max-width: 1024px) {
+    margin: 0;
+  }
+}
+
+.linkText {
+  transition: $transition;
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    display: inline;
+    font-size: $font-xs;
+  }
+}
+
+.active {
+  background: $bg;
+  color: $green;
+  border: 2px solid $green;
+  font-weight: 700;
+
+  &:hover {
+    border-color: $green;
   }
 }

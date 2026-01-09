@@ -44,6 +44,9 @@ export interface UserDto {
     city?: string;
     dateOfBirth?: string;
     gender?: string;
+    bio?: string;
+    skills?: string[];
+    interests?: string[];
   };
 }
 

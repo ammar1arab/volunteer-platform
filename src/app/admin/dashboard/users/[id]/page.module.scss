@@ -3,35 +3,36 @@
 
 .page {
   @include flex-col;
-  gap: $sp-xl;
-  padding: $sp-xl;
+  gap: $sp-lg;
+  padding: $sp-lg;
   max-width: 1200px;
   margin: 0 auto;
+  background: $bg;
 
   @media (max-width: 768px) {
     padding: $sp-md;
-    gap: $sp-lg;
+    gap: $sp-md;
   }
 }
 
 .header {
-  margin-bottom: $sp-md;
+  margin-bottom: $sp-sm;
 }
 
 .back {
-  @include flex(row, center, flex-start, $sp-xs);
-  padding: $sp-sm $sp-lg;
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: $sp-sm $sp-md;
   background: $bg;
   border: 2px solid $border;
   border-radius: $radius-lg;
   color: $text;
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.25s ease;
+  font-size: $font-sm;
+  transition: $transition;
 
   &:hover {
     border-color: $green;
-    background: rgba($green, 0.05);
     transform: translateX(4px);
   }
 }
@@ -41,31 +42,48 @@
   background: $bg;
   border-radius: $radius-lg;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba($black, 0.05);
+  border: 2px solid $border;
 }
 
 .profileBanner {
-  height: 120px;
-  background: linear-gradient(135deg, $green, #059669);
+  height: 180px;
+  background: $green;
+  position: relative;
+
+  @media (max-width: 768px) {
+    height: 140px;
+  }
 }
 
 .profileContent {
   @include flex-col;
   gap: $sp-lg;
-  padding: 0 $sp-xl $sp-xl;
-  margin-top: -60px;
+  padding: 0 $sp-lg $sp-lg;
+  margin-top: -50px;
   position: relative;
+
+  @media (max-width: 768px) {
+    padding: 0 $sp-md $sp-md;
+    margin-top: -40px;
+    gap: $sp-md;
+  }
 }
 
 .avatarWrapper {
   @include flex-center;
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   border-radius: $radius-full;
   background: $bg;
   border: 4px solid $bg;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba($black, 0.1);
+  box-shadow: $shadow;
+
+  @media (max-width: 768px) {
+    width: 80px;
+    height: 80px;
+    border: 3px solid $bg;
+  }
 }
 
 .avatar {
@@ -78,10 +96,14 @@
   @include flex-center;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, $green, #059669);
-  font-size: $font-3xl;
+  background: $green;
+  font-size: $font-2xl;
   font-weight: 700;
   color: $bg;
+
+  @media (max-width: 768px) {
+    font-size: $font-xl;
+  }
 }
 
 .userInfo {
@@ -96,6 +118,10 @@
   font-weight: 800;
   color: $text;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: $font-xl;
+  }
 }
 
 .badges {
@@ -106,44 +132,46 @@
 .roleBadge {
   @include flex(row, center, center, 6px);
   padding: 6px $sp-md;
-  background: linear-gradient(135deg, rgba($green, 0.15), rgba($green, 0.1));
-  border: 2px solid rgba($green, 0.3);
+  background: $bg;
+  border: 2px solid $green;
   border-radius: $radius-full;
   font-size: $font-xs;
   font-weight: 700;
   color: $green;
-  text-transform: uppercase;
 }
 
 .inactiveBadge {
   padding: 6px $sp-md;
-  background: linear-gradient(135deg, rgba($red, 0.15), rgba($red, 0.1));
-  border: 2px solid rgba($red, 0.3);
+  background: $bg;
+  border: 2px solid $red;
   border-radius: $radius-full;
   font-size: $font-xs;
   font-weight: 700;
   color: $red;
-  text-transform: uppercase;
 }
 
 .contactGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: $sp-md;
-  margin-top: $sp-lg;
+  margin-top: $sp-md;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: $sp-sm;
+  }
 }
 
 .contactCard {
-  @include flex(row, center, flex-start, $sp-md);
+  @include flex(row, center, flex-start, $sp-sm);
   padding: $sp-md;
-  background: rgba($green, 0.03);
-  border: 2px solid rgba($green, 0.1);
+  background: $bg;
+  border: 2px solid $border;
   border-radius: $radius;
-  transition: all 0.25s ease;
+  transition: $transition;
 
   &:hover {
-    background: rgba($green, 0.05);
-    border-color: rgba($green, 0.2);
+    border-color: $green;
     transform: translateY(-2px);
   }
 
@@ -163,7 +191,6 @@
 .contactLabel {
   font-size: $font-xs;
   color: $text-muted;
-  text-transform: uppercase;
   font-weight: 600;
 }
 
@@ -174,140 +201,178 @@
   @include line-clamp(1);
 }
 
+// ===== SECTION CARDS =====
+.sectionCard {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-lg;
+  background: $bg;
+  border: 2px solid $border;
+  border-radius: $radius-lg;
+
+  @media (max-width: 768px) {
+    padding: $sp-md;
+  }
+}
+
+.sectionTitle {
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $text;
+  margin: 0;
+}
+
+.bioText {
+  font-size: $font-md;
+  line-height: 1.6;
+  color: $text;
+  margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: $font-sm;
+  }
+}
+
+.tags {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 8px $sp-md;
+  background: $bg;
+  border: 2px solid $border;
+  border-radius: $radius-full;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text;
+  transition: $transition;
+
+  &:hover {
+    border-color: $green;
+  }
+
+  @media (max-width: 768px) {
+    font-size: $font-xs;
+    padding: 6px $sp-sm;
+  }
+}
+
 // ===== STATS GRID =====
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: $sp-lg;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: $sp-md;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-sm;
+  }
 }
 
 .statCard {
-  @include flex(row, center, flex-start, $sp-md);
+  @include flex-col;
+  align-items: center;
+  justify-content: center;
+  gap: $sp-xs;
   padding: $sp-lg;
   border-radius: $radius-lg;
-  transition: transform 0.25s ease;
+  transition: $transition;
+  background: $bg;
 
   &:hover {
     transform: translateY(-4px);
   }
+
+  svg {
+    transition: $transition;
+  }
+
+  span {
+    font-size: $font-2xl;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  @media (max-width: 768px) {
+    padding: $sp-md;
+    
+    span {
+      font-size: $font-xl;
+    }
+  }
 }
 
 .statTotal {
-  background: linear-gradient(135deg, rgba(#3b82f6, 0.1), rgba(#3b82f6, 0.05));
-  border: 2px solid rgba(#3b82f6, 0.2);
-
-  .statIcon {
-    background: rgba(#3b82f6, 0.15);
-    color: #3b82f6;
-  }
-
-  .statValue {
-    color: #3b82f6;
-  }
+  border: 2px solid #3b82f6;
+  color: #3b82f6;
 }
 
 .statApproved {
-  background: linear-gradient(135deg, rgba($green, 0.1), rgba($green, 0.05));
-  border: 2px solid rgba($green, 0.2);
-
-  .statIcon {
-    background: rgba($green, 0.15);
-    color: $green;
-  }
-
-  .statValue {
-    color: $green;
-  }
+  border: 2px solid $green;
+  color: $green;
 }
 
 .statPending {
-  background: linear-gradient(135deg, rgba(#f59e0b, 0.1), rgba(#f59e0b, 0.05));
-  border: 2px solid rgba(#f59e0b, 0.2);
-
-  .statIcon {
-    background: rgba(#f59e0b, 0.15);
-    color: #f59e0b;
-  }
-
-  .statValue {
-    color: #f59e0b;
-  }
+  border: 2px solid #f59e0b;
+  color: #f59e0b;
 }
 
 .statRejected {
-  background: linear-gradient(135deg, rgba($red, 0.1), rgba($red, 0.05));
-  border: 2px solid rgba($red, 0.2);
-
-  .statIcon {
-    background: rgba($red, 0.15);
-    color: $red;
-  }
-
-  .statValue {
-    color: $red;
-  }
-}
-
-.statIcon {
-  @include flex-center;
-  width: 48px;
-  height: 48px;
-  border-radius: $radius;
-  flex-shrink: 0;
-}
-
-.statContent {
-  @include flex-col;
-  gap: 4px;
-}
-
-.statValue {
-  font-size: $font-2xl;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.statLabel {
-  font-size: $font-sm;
-  color: $text-muted;
+  border: 2px solid $red;
+  color: $red;
 }
 
 // ===== APPROVAL CARD =====
 .approvalCard {
   @include flex-col;
   gap: $sp-md;
-  padding: $sp-xl;
-  background: linear-gradient(135deg, rgba($green, 0.05), $bg);
-  border: 2px solid rgba($green, 0.2);
+  padding: $sp-lg;
+  background: $bg;
+  border: 2px solid $green;
   border-radius: $radius-lg;
+
+  @media (max-width: 768px) {
+    padding: $sp-md;
+  }
 }
 
 .approvalHeader {
   @include flex-between;
-}
 
-.approvalLabel {
-  font-size: $font-md;
-  font-weight: 600;
-  color: $text-muted;
-}
+  span:first-child {
+    font-size: $font-md;
+    font-weight: 600;
+    color: $text-muted;
+  }
 
-.approvalValue {
-  font-size: $font-xl;
-  font-weight: 700;
-  color: $green;
+  span:last-child {
+    font-size: $font-2xl;
+    font-weight: 900;
+    color: $green;
+  }
+
+  @media (max-width: 768px) {
+    span:first-child {
+      font-size: $font-sm;
+    }
+    
+    span:last-child {
+      font-size: $font-xl;
+    }
+  }
 }
 
 .progressBar {
   height: 12px;
-  background: rgba($text, 0.05);
+  background: $border;
   border-radius: $radius-full;
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, $green, #059669);
+  background: $green;
   border-radius: $radius-full;
   transition: width 0.6s ease;
 }
@@ -315,115 +380,32 @@
 // ===== ACTIVITIES =====
 .activitiesSection {
   @include flex-col;
-  gap: $sp-lg;
-}
-
-.sectionHeader {
-  @include flex-between;
-  padding-bottom: $sp-md;
-  border-bottom: 2px solid $border;
-}
-
-.sectionTitle {
-  @include flex(row, center, flex-start, $sp-sm);
-  font-size: $font-xl;
-  font-weight: 700;
-  color: $text;
-  margin: 0;
-
-  svg {
-    color: $green;
-  }
-}
-
-.activityCount {
-  @include flex-center;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 $sp-md;
-  background: linear-gradient(135deg, $green, #059669);
-  border-radius: $radius-lg;
-  font-size: $font-md;
-  font-weight: 700;
-  color: $bg;
-}
-
-.activitiesList {
-  @include flex-col;
   gap: $sp-md;
-}
 
-.activityCard {
-  @include flex(row, center, space-between, $sp-md);
-  padding: $sp-lg;
-  background: $bg;
-  border: 2px solid $border;
-  border-radius: $radius-lg;
-  transition: all 0.25s ease;
+  h2 {
+    font-size: $font-xl;
+    font-weight: 900;
+    color: $text;
+    margin: 0;
 
-  &:hover {
-    border-color: rgba($green, 0.3);
-    box-shadow: 0 4px 12px rgba($green, 0.1);
-    transform: translateY(-2px);
-  }
-}
-
-.activityInfo {
-  @include flex-col;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
-}
-
-.activityTitle {
-  font-size: $font-md;
-  font-weight: 700;
-  color: $text;
-  margin: 0;
-  @include line-clamp(1);
-}
-
-.activityDate {
-  font-size: $font-sm;
-  color: $text-muted;
-}
-
-.statusBadge {
-  padding: 6px $sp-md;
-  border-radius: $radius-full;
-  font-size: $font-xs;
-  font-weight: 700;
-  text-transform: uppercase;
-  flex-shrink: 0;
-
-  &.approved {
-    background: linear-gradient(135deg, rgba($green, 0.15), rgba($green, 0.1));
-    color: $green;
-    border: 2px solid rgba($green, 0.3);
+    @media (max-width: 768px) {
+      font-size: $font-lg;
+    }
   }
 
-  &.pending {
-    background: linear-gradient(135deg, rgba(#f59e0b, 0.15), rgba(#f59e0b, 0.1));
-    color: #f59e0b;
-    border: 2px solid rgba(#f59e0b, 0.3);
-  }
+  p {
+    text-align: center;
+    color: $text-muted;
+    font-size: $font-md;
+    padding: $sp-xl;
+    background: $bg;
+    border-radius: $radius-lg;
+    border: 2px dashed $border;
 
-  &.rejected {
-    background: linear-gradient(135deg, rgba($red, 0.15), rgba($red, 0.1));
-    color: $red;
-    border: 2px solid rgba($red, 0.3);
-  }
-}
-
-.emptyActivities {
-  @include flex-col;
-  align-items: center;
-  gap: $sp-md;
-  padding: $sp-2xl;
-  color: $text-muted;
-
-  svg {
-    opacity: 0.3;
+    @media (max-width: 768px) {
+      font-size: $font-sm;
+      padding: $sp-lg;
+    }
   }
 }
 
@@ -431,11 +413,14 @@
 .error {
   @include flex-col;
   align-items: center;
-
-  gap: $sp-xl;
+  gap: $sp-lg;
   padding: $sp-2xl;
   min-height: 60vh;
   text-align: center;
+
+  @media (max-width: 768px) {
+    padding: $sp-xl $sp-md;
+  }
 }
 
 .errorIcon {
@@ -443,7 +428,8 @@
   width: 100px;
   height: 100px;
   border-radius: $radius-full;
-  background: rgba($red, 0.1);
+  background: $bg;
+  border: 3px solid $red;
   color: $red;
 }
 
@@ -452,26 +438,35 @@
   font-weight: 700;
   color: $text;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: $font-xl;
+  }
 }
 
 .error p {
   font-size: $font-md;
   color: $text-muted;
   margin: 0;
+  max-width: 400px;
+
+  @media (max-width: 768px) {
+    font-size: $font-sm;
+  }
 }
 
 .backLink {
   @include flex(row, center, center, $sp-xs);
   padding: $sp-md $sp-xl;
-  background: linear-gradient(135deg, $green, #059669);
+  background: $green;
   color: $bg;
   border-radius: $radius-lg;
   text-decoration: none;
   font-weight: 700;
-  transition: all 0.25s ease;
+  transition: $transition;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba($green, 0.3);
+    box-shadow: $shadow;
   }
 }
