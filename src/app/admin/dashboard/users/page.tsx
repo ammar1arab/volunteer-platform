@@ -46,7 +46,7 @@ const UsersPage = () => {
   // Pagination for admins
   const adminPagination = usePagination({
     totalItems: admins.length,
-    itemsPerPage: 12,
+    itemsPerPage: 30,
   });
 
   const paginatedVolunteers = volunteerPagination.paginateItems(volunteers);
@@ -59,19 +59,6 @@ const UsersPage = () => {
   return (
     <div className={styles.page}>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.iconWrapper}>
-            <UsersIcon size={32} />
-          </div>
-          <div>
-            <p className={styles.subtitle}>
-              {volunteers.length} متطوع • {admins.length} مدير • {users.length} إجمالي
-            </p>
-          </div>
-        </div>
-      </header>
 
       {isLoading ? (
         <div className={styles.loadingContainer}>
