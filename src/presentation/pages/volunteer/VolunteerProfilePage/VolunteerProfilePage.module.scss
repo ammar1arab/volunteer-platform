@@ -1,0 +1,534 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.page {
+  min-height: 100vh;
+  background: $bg;
+  padding: 80px 10px 0;
+}
+
+.container {
+  @include container;
+  padding: $sp-xl 0 $sp-2xl;
+}
+
+.errorAlert {
+  @include alert-error;
+  margin-bottom: $sp-md;
+}
+
+.successAlert {
+  @include alert-success;
+  margin-bottom: $sp-md;
+}
+
+// Hero
+.hero {
+  display: flex;
+  align-items: center;
+  gap: $sp-lg;
+  padding: $sp-lg;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  margin-bottom: $sp-lg;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.avatarSection {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatarLabel {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.avatar,
+.avatarPlaceholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid $green;
+}
+
+.avatar {
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  @include flex-center;
+  background: rgba($green, 0.1);
+  color: $green;
+}
+
+.uploadBadge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  background: $green;
+  border-radius: 50%;
+  color: $bg;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba($bg, 0.3);
+  border-top-color: $bg;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.fileInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.info {
+  flex: 1;
+  @include flex-col;
+  gap: $sp-sm;
+}
+
+.name {
+  margin: 0;
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $text;
+}
+
+.memberSince {
+  @include flex(row, center, flex-start, $sp-xs);
+  font-size: $font-xs;
+  color: $text-muted;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.stats {
+  @include flex(row, center, flex-start, $sp-lg);
+  margin-top: $sp-xs;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.stat {
+  @include flex-col;
+  align-items: center;
+  gap: 2px;
+}
+
+.statValue {
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $text;
+}
+
+.statLabel {
+  font-size: $font-xs;
+  color: $text-muted;
+}
+
+// Grid
+.grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: $sp-lg;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.col {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+// Card
+.card {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-md;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+}
+
+.cardHeader {
+  @include flex-between;
+  gap: $sp-sm;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+  @include flex(row, center, flex-start, $sp-xs);
+}
+
+.btnEdit {
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: $radius;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: rgba($green, 0.1);
+    color: $green;
+    border-color: $green;
+  }
+}
+
+// Info
+.infoList {
+  @include flex-col;
+  gap: $sp-sm;
+}
+
+.infoRow {
+  @include flex(row, flex-start, flex-start, $sp-sm);
+}
+
+.infoIcon {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  background: rgba($green, 0.1);
+  border-radius: $radius;
+  color: $green;
+  flex-shrink: 0;
+}
+
+.infoContent {
+  @include flex-col;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.infoLabel {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+}
+
+.infoValue {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text;
+}
+
+.infoValueRow {
+  @include flex-between;
+  gap: $sp-sm;
+}
+
+.btnEditIcon {
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 4px;
+  transition: $transition;
+
+  &:hover {
+    color: $green;
+  }
+}
+
+.inlineEdit {
+  @include flex(row, center, flex-start, 4px);
+  flex: 1;
+}
+
+.input {
+  @include input;
+  padding: $sp-xs $sp-sm;
+  font-size: $font-sm;
+  flex: 1;
+}
+
+.btnCheck,
+.btnX {
+  @include flex-center;
+  width: 24px;
+  height: 24px;
+  border-radius: $radius;
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+  flex-shrink: 0;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btnCheck {
+  background: $green;
+  color: $bg;
+
+  &:hover:not(:disabled) {
+    background: $green;
+  }
+}
+
+.btnX {
+  background: rgba($red, 0.1);
+  color: $red;
+
+  &:hover:not(:disabled) {
+    background: rgba($red, 0.2);
+  }
+}
+
+// Edit
+.editSection {
+  @include flex-col;
+  gap: $sp-sm;
+}
+
+.textarea {
+  @include input;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.bio {
+  margin: 0;
+  font-size: $font-sm;
+  line-height: 1.6;
+  color: $text;
+}
+
+.actions {
+  @include flex(row, center, flex-end, $sp-xs);
+}
+
+.btnSave,
+.btnCancel {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-xs $sp-sm;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  border: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btnSave {
+  background: $green;
+  color: $bg;
+
+  &:hover:not(:disabled) {
+    background: $green;
+  }
+}
+
+.btnCancel {
+  background: rgba($red, 0.1);
+  color: $red;
+
+  &:hover:not(:disabled) {
+    background: rgba($red, 0.2);
+  }
+}
+
+// Tags
+.tagInput {
+  @include flex(row, center, flex-start, $sp-xs);
+}
+
+.btnAdd {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  background: $green;
+  border: none;
+  border-radius: $radius;
+  color: $bg;
+  cursor: pointer;
+  transition: $transition;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    background: $green;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $sp-xs;
+}
+
+.tag {
+  @include flex(row, center, center, $sp-xs);
+  padding: 4px $sp-sm;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 600;
+
+  &.green {
+    background: rgba($green, 0.1);
+    border: 1px solid rgba($green, 0.3);
+    color: $green;
+  }
+
+  &.red {
+    background: rgba($red, 0.1);
+    border: 1px solid rgba($red, 0.3);
+    color: $red;
+  }
+}
+
+.btnRemove {
+  @include flex-center;
+  width: 16px;
+  height: 16px;
+  background: rgba($red, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: $red;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover:not(:disabled) {
+    background: rgba($red, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Activities
+.list {
+  @include flex-col;
+  gap: $sp-sm;
+}
+
+.activityCard {
+  @include flex-col;
+  gap: $sp-sm;
+  padding: $sp-md;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  transition: $transition;
+
+  &:hover {
+    border-color: $green;
+  }
+}
+
+.activityHeader {
+  @include flex-between;
+  gap: $sp-sm;
+}
+
+.activityTitle {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+  flex: 1;
+}
+
+.badge {
+  padding: 4px $sp-sm;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 700;
+
+  &.yellow {
+    background: rgba(#f59e0b, 0.1);
+    color: #f59e0b;
+  }
+
+  &.green {
+    background: rgba($green, 0.1);
+    color: $green;
+  }
+
+  &.red {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+}
+
+.activityDesc {
+  margin: 0;
+  font-size: $font-sm;
+  line-height: 1.5;
+  color: $text;
+}
+
+.activityDetails {
+  @include flex-col;
+  gap: 4px;
+}
+
+.detail {
+  @include flex(row, center, flex-start, $sp-xs);
+  font-size: $font-xs;
+  color: $text-muted;
+
+  svg {
+    color: $green;
+    flex-shrink: 0;
+  }
+}
+
+.activityFooter {
+  padding-top: $sp-xs;
+  border-top: 1px solid $border;
+  font-size: $font-xs;
+  color: $text-muted;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

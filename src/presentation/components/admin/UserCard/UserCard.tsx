@@ -2,9 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { User, Mail, Phone, CheckCircle } from "lucide-react";
+import { Mail, Phone, CheckCircle } from "lucide-react";
 import styles from "./UserCard.module.scss";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
+import { ROUTES } from "@/lib";
 
 interface UserCardProps {
   user: UserAnalyticsDto;
@@ -16,7 +17,7 @@ export default function UserCard({ user }: UserCardProps) {
 
   const handleClick = () => {
     if (isVolunteer) {
-      router.push(`/admin/dashboard/users/${user.id}`);
+      router.push(ROUTES.ADMIN.USER_DETAILS(user.id));
     }
   };
 

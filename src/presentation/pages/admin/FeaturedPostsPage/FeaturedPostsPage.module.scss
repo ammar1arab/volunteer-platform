@@ -1,0 +1,198 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+@use "@/presentation/styles/admin-mixins" as *;
+
+.header {
+  @include page-header;
+}
+
+.title {
+  @include page-title;
+}
+
+.actions {
+  @include header-actions;
+}
+
+.btnCreate {
+  @include create-btn;
+}
+
+.grid {
+  @include cards-grid;
+}
+
+.badge {
+  @include status-badge;
+
+  &.active {
+    background: rgba($green, 0.1);
+    color: $green;
+  }
+
+  &.inactive {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn {
+  @include action-btn;
+}
+
+.btnDanger {
+  @include action-btn;
+
+  &:hover:not(:disabled) {
+    background: rgba($red, 0.1);
+    border-color: $red;
+    color: $red;
+  }
+}
+
+// Modal Form
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text;
+}
+
+.input,
+.textarea {
+  @include input;
+  padding: $sp-sm $sp-md;
+  font-size: $font-sm;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 1px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+  background: rgba($black, 0.02);
+  margin-bottom: $sp-sm;
+}
+
+.previewImg {
+  object-fit: cover;
+}
+
+.btnUpload {
+  @include btn-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $sp-xs;
+  padding: $sp-sm $sp-md;
+  font-size: $font-sm;
+  width: 100%;
+  cursor: pointer;
+}
+
+.fileInput {
+  display: none;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: $sp-sm;
+  font-size: $font-sm;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+
+    &:checked + .slider {
+      background: $green;
+
+      &::before {
+        transform: translateX(16px);
+      }
+    }
+  }
+}
+
+.slider {
+  width: 36px;
+  height: 20px;
+  background: $border;
+  border-radius: $radius-full;
+  position: relative;
+  transition: all 0.2s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: $bg;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba($black, 0.2);
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $sp-sm;
+}
+
+.btnCancel {
+  @include btn-secondary;
+  padding: $sp-sm $sp-md;
+  font-size: $font-sm;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btnSubmit {
+  @include btn-primary;
+  padding: $sp-sm $sp-md;
+  font-size: $font-sm;
+  font-weight: 600;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

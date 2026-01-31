@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { UserRole } from "@/core/domain/enums";
+import { ROUTES } from "@/lib";
 
 interface UseAuthOptions {
   requireAuth?: boolean;
@@ -15,7 +16,11 @@ export const useAuth = (options: UseAuthOptions = {}) => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const { requireAuth = true, requireRole, redirectTo = "/signin" } = options;
+  const {
+    requireAuth = true,
+    requireRole,
+    redirectTo = ROUTES.LOGIN,
+  } = options;
 
   useEffect(() => {
     if (status === "loading") return;
@@ -25,8 +30,12 @@ export const useAuth = (options: UseAuthOptions = {}) => {
       return;
     }
 
-    if (requireRole && session?.user?.role && session.user.role !== requireRole) {
-      router.replace(session.user.role === "ADMIN" ? "/admin/dashboard" : "/volunteer/profile");
+    if (
+      requireRole &&
+      session?.user?.role &&
+      session.user.role !== requireRole
+    ) {
+      router.replace(ROUTES.redirectByRole(session.user.role));
     }
   }, [status, session, requireAuth, requireRole, redirectTo, router]);
 

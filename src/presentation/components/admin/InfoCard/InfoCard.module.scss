@@ -1,0 +1,48 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.card {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: $sp-md;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  transition: $transition;
+
+  &:hover {
+    border-color: $green;
+  }
+}
+
+.iconWrapper {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  background: rgba($green, 0.1);
+  border-radius: $radius;
+  color: $green;
+  flex-shrink: 0;
+}
+
+.content {
+  @include flex-col;
+  gap: $sp-xs;
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+}
+
+.value {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

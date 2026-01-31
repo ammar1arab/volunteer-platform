@@ -1,10 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Input, Button, SelectInput, DateInput, BirthDateInput } from '@/presentation/components';
+import { Input, Button, SelectInput, BirthDateInput } from '@/presentation/components';
 import { useSignup } from '@/presentation/hooks';
 import { JORDANIAN_CITIES } from '@/lib/constants';
-import { getMinDateOfBirth, getMaxDateOfBirth } from '@/lib/utils';
 import styles from './page.module.scss';
 
 const SignupPage = () => {

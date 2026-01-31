@@ -2,139 +2,133 @@
 @use "@/presentation/styles/mixins" as *;
 
 .bar {
-  background: $bg;
-  border: 2px solid $border;
-  border-radius: $radius-lg;
-  padding: $sp-md $sp-lg;
   @include flex(row, center, space-between, $sp-md);
+  padding: $sp-md $sp-lg;
+  border-bottom: 2px solid $border;
+  background: $bg;
   position: sticky;
-  top: $sp-lg;
-  z-index: 50;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: $sp-sm;
+     z-index: 10;
+     top: 0;
+  
+  @media (max-width: 1024px) {
     padding: $sp-sm $sp-md;
-    position: relative;
-    top: 0;
   }
 }
 
-.left {
-  flex: 1;
-  min-width: 0;
+.title {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $text;
+  
+  @media (max-width: 1024px) {
+    display: none;
+  }
 }
 
-.title {
-  margin: 0;
-  font-size: $font-lg;
-  font-weight: 800;
-  color: $text;
+.icons {
+  display: none;
+  
+  @media (max-width: 1024px) {
+    @include flex(row, center, flex-start, $sp-xs);
+    order: 1;
+  }
+}
 
-  @media (max-width: 768px) {
-    font-size: $font-md;
+.menuBtn {
+  display: none;
+  
+  @media (max-width: 1024px) {
+    @include flex-center;
+    background: $green;
+    color: $bg;
+    border: none;
+    border-radius: $radius;
+    padding: $sp-xs;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:active {
+      transform: scale(0.95);
+    }
+    
+    &.open {
+      background: $red;
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.logoutMobile {
+  display: none;
+  
+  @media (max-width: 1024px) {
+    @include flex-center;
+    background: $red;
+    color: $bg;
+    border: none;
+    border-radius: $radius;
+    padding: $sp-xs;
+    cursor: pointer;
+    transition: $transition;
+    
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+.mobileName {
+  display: none;
+  
+  @media (max-width: 1024px) {
+    display: block;
+    font-size: $font-sm;
+    font-weight: 700;
+    color: $green;
+    order: 2;
   }
 }
 
 .right {
   @include flex(row, center, flex-end, $sp-sm);
-  flex-shrink: 0;
-
-  @media (max-width: 768px) {
-    justify-content: space-between;
-    width: 100%;
+  
+  @media (max-width: 1024px) {
+    display: none;
   }
 }
 
 .userInfo {
   @include flex(row, center, flex-start, $sp-sm);
-  padding: $sp-xs $sp-sm;
-  background: $bg;
+  padding: $sp-xs $sp-md;
+  background: rgba($green, 0.1);
   border-radius: $radius-full;
-  min-width: 0;
-
-  @media (max-width: 768px) {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
-.avatar {
-  @include flex-center;
-  width: 32px;
-  height: 32px;
-  background: $green;
-  border-radius: $radius-full;
-  color: $bg;
-  flex-shrink: 0;
-}
-
-.userDetails {
-  @include flex-col;
-  gap: 2px;
-  min-width: 0;
-  flex: 1;
-
-
 }
 
 .userName {
   font-size: $font-sm;
-  font-weight: 700;
-  color: $text;
-  @include truncate;
-  max-width: 150px;
-
-  @media (max-width: 768px) {
-    max-width: 100px;
-  }
-}
-
-.userRole {
-  font-size: $font-xs;
-  color: $text-muted;
   font-weight: 600;
+  color: $green;
 }
 
 .logout {
-  @include flex(row, center, center, $sp-xs);
+  @include flex-center;
+  gap: $sp-xs;
   padding: $sp-xs $sp-md;
   background: $red;
-  border: 2px solid $red;
+  border: none;
   border-radius: $radius-full;
   color: $bg;
-  font-weight: 700;
+  font-weight: 600;
   font-size: $font-sm;
   cursor: pointer;
   transition: $transition;
-  flex-shrink: 0;
-
+  
   &:hover {
     transform: translateY(-2px);
     box-shadow: $shadow;
   }
-
+  
   &:active {
     transform: translateY(0);
-  }
-
-  @include focus-ring($red);
-
-  @media (max-width: 768px) {
-    flex: 1;
-    justify-content: center;
-    max-width: 140px;
-  }
-
-  @media (max-width: 480px) {
-    padding: $sp-xs $sp-sm;
-    min-width: 44px;
-  }
-}
-
-.logoutText {
-  @media (max-width: 480px) {
-    display: none;
   }
 }

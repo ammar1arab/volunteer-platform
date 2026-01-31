@@ -32,9 +32,6 @@ a {
   text-decoration: none;
   color: inherit;
   transition: color $transition;
-  &:hover {
-    color: $green;
-  }
 }
 
 button {

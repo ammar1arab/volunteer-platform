@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import UserService from "@/core/application/services/UserService";
+import { UserService } from "@/core/application/services";
 import { UserRepository } from "@/infrastructure/persistence/repositories";
 
 export const runtime = "nodejs";
@@ -25,7 +25,7 @@ export async function GET(
       );
     }
 
-    if (session.user.role !== "ADMIN") {
+    if (session.user.role !== "ADMIN" && session.user.id !== id) {
       return NextResponse.json(
         { success: false, error: "Forbidden" },
         { status: 403 }

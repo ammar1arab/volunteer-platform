@@ -25,7 +25,7 @@ export async function GET(
       );
     }
 
-    if (session.user.role !== "ADMIN") {
+    if (session.user.role !== "ADMIN" && session.user.id !== id) {
       return NextResponse.json(
         { success: false, error: "Forbidden" },
         { status: 403 }

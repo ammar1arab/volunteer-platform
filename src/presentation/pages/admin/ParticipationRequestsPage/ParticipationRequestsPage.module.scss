@@ -1,0 +1,25 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+@use "@/presentation/styles/admin-mixins" as *;
+
+.header {
+  @include page-header;
+}
+
+.title {
+  @include page-title;
+}
+
+.actions {
+  @include header-actions;
+}
+
+.btnApproveAll {
+  @include create-btn;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+}

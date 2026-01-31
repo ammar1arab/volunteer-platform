@@ -1,0 +1,121 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.item {
+  display: grid;
+  grid-template-columns: 1.5fr 2fr 1.5fr 1fr auto;
+  gap: $sp-md;
+  align-items: center;
+  padding: $sp-md;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  transition: $transition;
+
+  &:hover {
+    border-color: $green;
+    box-shadow: 0 2px 8px rgba($black, 0.06);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr auto;
+    gap: $sp-xs;
+    padding: $sp-sm;
+  }
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  gap: $sp-xs;
+  min-width: 0;
+
+  &.hideOnMobile {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    gap: 4px;
+  }
+}
+
+.icon {
+  color: $green;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.text {
+  font-size: $font-sm;
+  color: $text;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $sp-xs;
+
+  @media (max-width: 768px) {
+    gap: 4px;
+  }
+}
+
+.btnReject,
+.btnApprove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: $transition;
+  border: none;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+.btnReject {
+  background: rgba($red, 0.1);
+  color: $red;
+
+  &:hover {
+    background: rgba($red, 0.2);
+  }
+}
+
+.btnApprove {
+  background: rgba($green, 0.1);
+  color: $green;
+
+  &:hover {
+    background: rgba($green, 0.2);
+  }
+}

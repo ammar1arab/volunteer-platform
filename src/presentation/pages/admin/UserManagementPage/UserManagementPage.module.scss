@@ -1,0 +1,47 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-lg;
+
+  &:not(:last-child) {
+    margin-bottom: $sp-xl;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: $sp-md;
+  border-bottom: 1px solid $border;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $text;
+}
+
+.count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 $sp-sm;
+  background: rgba($green, 0.1);
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $green;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: $sp-md;
+}

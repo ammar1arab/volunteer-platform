@@ -1,0 +1,81 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.content {
+  @include flex-col;
+  gap: $sp-md;
+  align-items: center;
+  text-align: center;
+}
+
+.icon {
+  @include flex-center;
+  width: 48px;
+  height: 48px;
+  border-radius: $radius-full;
+
+  &.danger {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+
+  &.primary {
+    background: rgba($green, 0.1);
+    color: $green;
+  }
+}
+
+.message {
+  margin: 0;
+  font-size: $font-sm;
+  color: $text;
+  line-height: 1.6;
+}
+
+.actions {
+  @include flex(row, center, center, $sp-sm);
+  width: 100%;
+  margin-top: $sp-sm;
+}
+
+.cancel,
+.confirm {
+  flex: 1;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  border: none;
+}
+
+.cancel {
+  background: transparent;
+  border: 1px solid $border;
+  color: $text;
+
+  &:hover {
+    background: rgba($black, 0.03);
+  }
+}
+
+.confirm {
+  color: $bg;
+
+  &.danger {
+    background: $red;
+
+    &:hover {
+      background: $red;
+    }
+  }
+
+  &.primary {
+    background: $green;
+
+    &:hover {
+      background: $green;
+    }
+  }
+}

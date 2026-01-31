@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
-import { SigninFormData } from "@/lib/types/auth.types";
+import { ROUTES } from "@/lib";
 
 interface UseSigninReturn {
   formData: SigninFormData;
@@ -13,9 +13,17 @@ interface UseSigninReturn {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
+export interface SigninFormData {
+  email: string;
+  password: string;
+}
+
 export const useSignin = (): UseSigninReturn => {
   const router = useRouter();
-  const [formData, setFormData] = useState<SigninFormData>({ email: "", password: "" });
+  const [formData, setFormData] = useState<SigninFormData>({
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -46,7 +54,7 @@ export const useSignin = (): UseSigninReturn => {
       const role = session?.user?.role;
 
       router.refresh();
-      router.replace(role === "ADMIN" ? "/admin/dashboard" : "/volunteer/profile");
+      router.replace(ROUTES.redirectByRole(role));
     } catch {
       setError("حدث خطأ في الاتصال");
       setLoading(false);

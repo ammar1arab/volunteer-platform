@@ -1,0 +1,157 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.header {
+  margin-bottom: $sp-md;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: $sp-xs;
+  padding: $sp-sm $sp-md;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  color: $text;
+  text-decoration: none;
+  font-size: $font-sm;
+  font-weight: 600;
+  transition: $transition;
+
+  &:hover {
+    border-color: $green;
+    transform: translateX(4px);
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: $sp-sm;
+  margin-bottom: $sp-lg;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: $sp-lg;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftColumn,
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+  padding: $sp-md;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $sp-sm;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+}
+
+.bio {
+  margin: 0;
+  font-size: $font-sm;
+  line-height: 1.6;
+  color: $text;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $sp-xs;
+}
+
+.tag {
+  padding: 4px $sp-sm;
+  background: rgba($green, 0.1);
+  border: 1px solid rgba($green, 0.3);
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $green;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $sp-lg;
+  min-height: 60vh;
+  text-align: center;
+
+  h2 {
+    font-size: $font-xl;
+    font-weight: 700;
+    color: $text;
+    margin: 0;
+  }
+
+  svg {
+    color: $red;
+  }
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $sp-xs;
+  padding: $sp-sm $sp-lg;
+  background: $green;
+  color: $bg;
+  border-radius: $radius;
+  text-decoration: none;
+  font-weight: 600;
+  transition: $transition;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($green, 0.2);
+  }
+}

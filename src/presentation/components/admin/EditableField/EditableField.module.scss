@@ -1,0 +1,101 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.view {
+  @include flex(row, center, space-between, $sp-sm);
+}
+
+.value {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text;
+  flex: 1;
+}
+
+.btnEdit {
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: $radius;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: rgba($green, 0.1);
+    color: $green;
+  }
+}
+
+.edit {
+  @include flex-col;
+  gap: $sp-sm;
+}
+
+.input,
+.select,
+.textarea {
+  padding: $sp-sm;
+  border: 1px solid $border;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-family: inherit;
+  color: $text;
+  background: $bg;
+  transition: $transition;
+
+  &:focus {
+    outline: none;
+    border-color: $green;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.actions {
+  @include flex(row, center, flex-end, $sp-xs);
+}
+
+.btnSave,
+.btnCancel {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: $transition;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btnSave {
+  background: rgba($green, 0.1);
+  color: $green;
+
+  &:hover:not(:disabled) {
+    background: rgba($green, 0.2);
+  }
+}
+
+.btnCancel {
+  background: rgba($red, 0.1);
+  color: $red;
+
+  &:hover:not(:disabled) {
+    background: rgba($red, 0.2);
+  }
+}

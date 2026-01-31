@@ -1,5 +1,5 @@
-import { FeaturedPostsPage } from "@/presentation/components";
+import { FeaturedPostsPage } from "@/presentation/pages"
 
-export default function AdminFeaturedPostsPage() {
-    return <FeaturedPostsPage />;
+export default function FeaturedPosts() {
+    return <FeaturedPostsPage />
 }

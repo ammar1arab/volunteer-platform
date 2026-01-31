@@ -61,12 +61,18 @@ export interface UserAnalyticsDto extends UserDto {
 
 export interface UserActivityDto {
   id: string;
-  activityId: string;
-  activityTitle: string;
-  activityDate: string;
   status: string;
   requestedAt: string;
   respondedAt: string | null;
+  activity: {
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    placeName: string;
+  };
 }
 
 export interface GetAllUsersResponse {

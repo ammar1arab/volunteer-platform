@@ -1,6 +1,52 @@
 @use "sass:color";
 @use "@/presentation/styles/_variables" as *;
 
+
+@mixin respond($break) {
+  @media (max-width: map.get($breakpoints, $break)) {
+    @content;
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+@mixin flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+@mixin grid-responsive($min: 280px) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min, 1fr));
+  gap: map.get($spacings, xl);
+}
+
+@mixin container {
+  width: 100%;
+  max-width: $container-max-width;
+  margin-inline: auto;
+  padding-inline: map.get($spacings, lg);
+  
+  @include respond(lg) {
+    padding-inline: map.get($spacings, md);
+  }
+}
+
+
 @mixin flex($dir: row, $align: center, $justify: center, $gap: 0) {
   display: flex;
   flex-direction: $dir;

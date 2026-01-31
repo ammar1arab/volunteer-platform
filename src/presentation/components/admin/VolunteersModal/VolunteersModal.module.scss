@@ -1,14 +1,38 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba($black, 0.5);
   z-index: 9999;
   @include flex-center;
   padding: $sp-lg;
   animation: fadeIn 0.2s ease;
+
+  @media (max-width: 640px) {
+    padding: $sp-md;
+  }
 }
 
 .modal {
@@ -19,19 +43,28 @@
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba($black, 0.3);
   animation: slideUp 0.3s ease;
+
+  @media (max-width: 640px) {
+    max-height: 90vh;
+  }
 }
 
 .header {
   @include flex-between;
-  padding: $sp-xl;
+  padding: $sp-lg;
   border-bottom: 2px solid $border;
   gap: $sp-md;
+  flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    padding: $sp-md;
+  }
 }
 
 .headerContent {
-  @include flex(row, center, flex-start, $sp-md);
+  @include flex(row, center, flex-start, $sp-sm);
   flex: 1;
   min-width: 0;
 
@@ -39,20 +72,37 @@
     color: $green;
     flex-shrink: 0;
   }
+
+  @media (max-width: 640px) {
+    gap: $sp-xs;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
 }
 
 .title {
-  font-size: $font-xl;
+  font-size: $font-lg;
   font-weight: 700;
   color: $text;
   margin: 0;
+
+  @media (max-width: 640px) {
+    font-size: $font-md;
+  }
 }
 
 .subtitle {
   font-size: $font-sm;
   color: $text-muted;
-  margin: $sp-xs 0 0 0;
+  margin: $sp-xs 0 0;
   @include line-clamp(1);
+
+  @media (max-width: 640px) {
+    font-size: $font-xs;
+  }
 }
 
 .closeBtn {
@@ -71,20 +121,43 @@
     background: rgba($red, 0.2);
     transform: scale(1.1);
   }
+
+  @media (max-width: 640px) {
+    width: 32px;
+    height: 32px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
 }
 
 .body {
   flex: 1;
   overflow-y: auto;
   padding: $sp-lg;
+
+  @media (max-width: 640px) {
+    padding: $sp-md;
+  }
 }
 
-.loading {
+.loading,
+.empty {
   @include flex-col;
   @include flex-center;
   gap: $sp-md;
   padding: $sp-2xl;
   color: $text-muted;
+
+  svg {
+    opacity: 0.3;
+  }
+
+  @media (max-width: 640px) {
+    padding: $sp-xl;
+  }
 }
 
 .spinner {
@@ -96,30 +169,22 @@
   @include animate-spin;
 }
 
-.empty {
+.list {
   @include flex-col;
-  @include flex-center;
-  gap: $sp-md;
-  padding: $sp-2xl;
-  color: $text-muted;
+  gap: $sp-sm;
 
-  svg {
-    opacity: 0.3;
+  @media (max-width: 640px) {
+    gap: $sp-xs;
   }
 }
 
-.list {
-  @include flex-col;
-  gap: $sp-md;
-}
-
-.volunteerCard {
+.card {
   @include flex(row, center, flex-start, $sp-md);
-  padding: $sp-lg;
+  padding: $sp-md;
   background: rgba($green, 0.03);
-  border: 2px solid rgba($green, 0.1);
-  border-radius: $radius-lg;
-  transition: all $transition;
+  border: 1px solid rgba($green, 0.1);
+  border-radius: $radius;
+  transition: $transition;
 
   &:hover {
     background: rgba($green, 0.05);
@@ -127,15 +192,25 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba($green, 0.15);
   }
+
+  @media (max-width: 640px) {
+    padding: $sp-sm;
+    gap: $sp-sm;
+  }
 }
 
 .avatar {
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: $radius-full;
   overflow: hidden;
   flex-shrink: 0;
-  border: 3px solid $green;
+  border: 2px solid $green;
+
+  @media (max-width: 640px) {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .avatarImage {
@@ -150,8 +225,12 @@
   height: 100%;
   background: linear-gradient(135deg, $green, #059669);
   color: $bg;
-  font-size: $font-xl;
+  font-size: $font-lg;
   font-weight: 700;
+
+  @media (max-width: 640px) {
+    font-size: $font-md;
+  }
 }
 
 .info {
@@ -160,17 +239,27 @@
 }
 
 .name {
-  font-size: $font-lg;
+  font-size: $font-md;
   font-weight: 700;
   color: $text;
-  margin: 0 0 $sp-xs 0;
+  margin: 0 0 2px;
+  @include line-clamp(1);
+
+  @media (max-width: 640px) {
+    font-size: $font-sm;
+  }
 }
 
 .email {
   font-size: $font-sm;
   color: $text-muted;
-  margin: 0 0 $sp-sm 0;
+  margin: 0 0 $sp-xs;
   @include line-clamp(1);
+
+  @media (max-width: 640px) {
+    font-size: $font-xs;
+    margin-bottom: 4px;
+  }
 }
 
 .meta {
@@ -178,32 +267,48 @@
   flex-wrap: wrap;
   font-size: $font-xs;
   color: $text-muted;
+  gap: 4px;
+
+  @media (max-width: 640px) {
+    font-size: 10px;
+    gap: 2px;
+  }
 }
 
 .metaItem {
   @include flex(row, center, flex-start, 4px);
+
+  @media (max-width: 640px) {
+    gap: 2px;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
 }
 
 .divider {
-  margin: 0 $sp-xs;
-}
+  margin: 0 4px;
 
-.viewBtn {
-  @include btn-primary;
-  padding: $sp-sm $sp-lg;
-  font-size: $font-sm;
-  white-space: nowrap;
-  flex-shrink: 0;
+  @media (max-width: 640px) {
+    margin: 0 2px;
+  }
 }
 
 .footer {
-  padding: $sp-lg $sp-xl;
+  padding: $sp-md $sp-lg;
   border-top: 2px solid $border;
   background: rgba($green, 0.02);
+  flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    padding: $sp-sm $sp-md;
+  }
 }
 
 .count {
-  font-size: $font-md;
+  font-size: $font-sm;
   color: $text-muted;
   margin: 0;
   text-align: center;
@@ -212,24 +317,8 @@
     color: $green;
     font-weight: 700;
   }
-}
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  @media (max-width: 640px) {
+    font-size: $font-xs;
   }
 }

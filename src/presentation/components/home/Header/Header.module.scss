@@ -1,0 +1,401 @@
+@use "sass:color";
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+$mobile-break: 900px;
+
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: $z-fixed;
+  background: $bg;
+  border-bottom: 1px solid $border;
+  padding: $sp-md 0;
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba($green, 0.9), transparent);
+  background-size: 200% 100%;
+  animation: scanline 2.8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes scanline {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.nav {
+  @include flex-between;
+  height: 44px;
+  position: relative;
+}
+
+.logoDesktop {
+  display: block;
+
+  @media (max-width: $mobile-break) {
+    display: none;
+  }
+}
+
+.navLinks {
+  @include flex(row, center, center, $sp-lg);
+  list-style: none;
+
+  @media (max-width: $mobile-break) {
+    display: none;
+  }
+}
+
+.navItem {
+  color: $text-muted;
+  font-weight: 650;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  transition: $transition;
+  position: relative;
+  overflow: hidden;
+}
+
+.navItem::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba($green, 0.12) 40%, transparent 70%);
+  transform: translateX(-120%) skewX(-18deg);
+  transition: transform $transition;
+}
+
+.navItem:hover {
+  color: $text;
+}
+
+
+
+.navItem.active {
+  color: $green;
+  font-weight: 750;
+}
+
+.actions {
+  @include flex(row, center, center, $sp-sm);
+
+  @media (max-width: $mobile-break) {
+    display: none;
+  }
+}
+
+.loginBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $sp-sm $sp-lg;
+  border-radius: $radius;
+  background: $green;
+  color: white;
+  font-weight: 800;
+  transition: $transition;
+  position: relative;
+  overflow: hidden;
+}
+
+.loginBtn::after {
+  content: "";
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  width: 42px;
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateX(-180%) skewX(-22deg);
+  animation: sheen 3.6s ease-in-out infinite;
+}
+
+@keyframes sheen {
+  0% { transform: translateX(-180%) skewX(-22deg); }
+  55% { transform: translateX(260%) skewX(-22deg); }
+  100% { transform: translateX(260%) skewX(-22deg); }
+}
+
+.loginBtn:hover {
+  background: color.adjust($green, $lightness: -6%);
+}
+
+.socialWrapper {
+  position: relative;
+}
+
+.socialToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $text-muted;
+  font-weight: 650;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  transition: $transition;
+}
+
+.socialToggle:hover {
+  color: $green;
+  background: rgba($green, 0.08);
+}
+
+.socialMenu {
+  position: absolute;
+  top: 46px;
+  left: 0;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  min-width: 190px;
+  padding: $sp-xs;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-xs;
+  clip-path: inset(0 0 100% 0 round $radius);
+  animation: unfold 320ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  transform-origin: top;
+}
+
+@keyframes unfold {
+  0% { clip-path: inset(0 0 100% 0 round $radius); }
+  100% { clip-path: inset(0 0 0 0 round $radius); }
+}
+
+.socialLink {
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  font-weight: 650;
+  color: $text;
+  transition: $transition;
+}
+
+.socialLink:hover {
+  background: rgba($green, 0.1);
+  color: $green;
+}
+
+.mobileBar {
+  display: none;
+
+  @media (max-width: $mobile-break) {
+    @include flex-between;
+    width: 100%;
+  }
+}
+
+.mobileLogo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.mobileRight {
+  @include flex(row, center, center, $sp-sm);
+}
+
+.mobileLogin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  background: $green;
+  color: white;
+  font-weight: 800;
+  transition: $transition;
+  position: relative;
+  overflow: hidden;
+}
+
+.mobileLogin:hover {
+  background: color.adjust($green, $lightness: -6%);
+}
+
+.menuBtn {
+  background: none;
+  border: 1px solid $border;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius;
+  @include flex-center;
+  color: $text;
+  transition: $transition;
+}
+
+.menuBtn:hover {
+  background: rgba($green, 0.08);
+  border-color: rgba($green, 0.35);
+}
+
+.mobileMenu {
+  display: none;
+
+  @media (max-width: $mobile-break) {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-xs;
+    margin-top: $sp-md;
+    padding-top: $sp-md;
+    border-top: 1px solid $border;
+    clip-path: inset(0 0 100% 0 round $radius);
+    animation: unfold 360ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  }
+}
+
+.mobileLink {
+  text-align: center;
+  padding: $sp-md;
+  font-weight: 650;
+  border-radius: $radius;
+  color: $text;
+  transition: $transition;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.mobileLink:hover {
+  background: rgba($green, 0.1);
+  color: $green;
+}
+
+.mobileLink.activeMobile {
+  color: $green;
+  font-weight: 800;
+}
+
+.mobileSocialMenu {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-xs;
+  padding: 0 $sp-xs $sp-xs;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header::after,
+  .loginBtn::after {
+    animation: none;
+  }
+
+  .socialMenu,
+  .mobileMenu {
+    animation: none;
+    clip-path: inset(0 0 0 0 round $radius);
+  }
+
+  .navItem::before {
+    transition: none;
+  }
+}
+.iconWrapper {
+  position: relative;
+}
+
+.iconBtn {
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius;
+  color: $text-muted;
+  transition: $transition;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.iconBtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba($green, 0.1);
+  transform: scale(0);
+  border-radius: $radius;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.iconBtn:hover {
+  color: $green;
+  border-color: rgba($green, 0.3);
+}
+
+.iconBtn:hover::before {
+  transform: scale(1);
+}
+
+.notifMenu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  min-width: 240px;
+  padding: $sp-md;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  clip-path: inset(0 0 100% 0 round $radius);
+  animation: unfold 320ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+}
+
+.notifMessage {
+  color: $text-muted;
+  font-size: $font-sm;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.mobileIconBtn {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border-radius: $radius;
+  color: $text-muted;
+  transition: $transition;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid $border;
+}
+
+.mobileIconBtn:hover {
+  color: $green;
+  background: rgba($green, 0.08);
+  border-color: rgba($green, 0.3);
+}
+
+.mobileNotifMenu {
+  padding: $sp-md;
+  background: rgba($green, 0.05);
+  border-radius: $radius;
+  margin-top: $sp-sm;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $sp-xs;
+  padding: $sp-md;
+  font-weight: 650;
+  border-radius: $radius;
+  color: $red;
+  transition: $transition;
+  background: rgba($red, 0.1);
+  border: 1px solid rgba($red, 0.3);
+  cursor: pointer;
+  margin-top: $sp-sm;
+}
+
+.logoutBtn:hover {
+  background: rgba($red, 0.2);
+  border-color: $red;
+}

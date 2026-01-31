@@ -1,0 +1,68 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+  padding: $sp-md;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  transition: $transition;
+
+  &:hover {
+    border-color: $green;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $sp-sm;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+  flex: 1;
+}
+
+.description {
+  margin: 0;
+  font-size: $font-sm;
+  line-height: 1.5;
+  color: $text;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+  gap: $sp-xs;
+  font-size: $font-xs;
+  color: $text-muted;
+
+  svg {
+    color: $green;
+    flex-shrink: 0;
+  }
+}
+
+.footer {
+  padding-top: $sp-xs;
+  border-top: 1px solid $border;
+}
+
+.requested {
+  font-size: $font-xs;
+  color: $text-muted;
+}

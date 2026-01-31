@@ -1,0 +1,91 @@
+// src/presentation/styles/_admin-mixins.scss
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+// Page Header
+@mixin page-header {
+  @include flex-between;
+  margin-bottom: $sp-lg;
+
+  @media (max-width: 768px) {
+    @include flex-col;
+    gap: $sp-sm;
+  }
+}
+
+@mixin page-title {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $text;
+
+  @media (max-width: 640px) {
+    font-size: $font-lg;
+  }
+}
+
+@mixin header-actions {
+  @include flex(row, center, flex-start, $sp-sm);
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+// Grid
+@mixin cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $sp-md;
+  margin-bottom: $sp-lg;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: $sp-sm;
+  }
+}
+
+@mixin action-btn {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius;
+  border: 1px solid $border;
+  background: $bg;
+  transition: $transition;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin create-btn {
+  @include btn-primary;
+  gap: $sp-xs;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    font-size: $font-xs;
+    padding: $sp-xs $sp-sm;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+@mixin status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 700;
+}

@@ -1,0 +1,173 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.form {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: $sp-md;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  @include flex-col;
+  gap: $sp-xs;
+}
+
+.label {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+}
+
+.labelSmall {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+}
+
+.input,
+.textarea {
+  @include input;
+  width: 100%;
+
+  &:focus {
+    border-color: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.1);
+  }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.location {
+  @include flex-col;
+  gap: $sp-sm;
+  padding: $sp-md;
+  background: rgba($green, 0.03);
+  border-radius: $radius;
+  border: 1px solid rgba($green, 0.1);
+}
+
+.locationHeader {
+  @include flex(row, center, space-between, $sp-sm);
+  flex-wrap: wrap;
+  gap: $sp-sm;
+}
+
+.locationActions {
+  @include flex(row, center, flex-end, $sp-xs);
+  flex-wrap: wrap;
+  gap: $sp-xs;
+}
+
+.btnLocation,
+.btnToggle {
+  @include btn-secondary;
+  padding: $sp-xs $sp-sm;
+  font-size: $font-xs;
+  gap: $sp-xs;
+  white-space: nowrap;
+}
+
+.coords {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-sm;
+}
+
+.preview {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: $radius;
+  overflow: hidden;
+  border: 1px solid $border;
+  background: rgba($black, 0.02);
+  
+  @media (max-width: 640px) {
+    height: 160px;
+  }
+}
+
+.previewImg {
+  object-fit: cover;
+}
+
+.btnUpload {
+  @include btn-primary;
+  @include flex(row, center, center, $sp-xs);
+  cursor: pointer;
+  width: 100%;
+  padding: $sp-sm $sp-md;
+}
+
+.fileInput {
+  display: none;
+}
+
+.actions {
+  @include flex(row, center, flex-end, $sp-sm);
+  padding-top: $sp-md;
+  border-top: 1px solid $border;
+  margin-top: $sp-sm;
+  gap: $sp-sm;
+}
+
+.btnCancel,
+.btnSubmit {
+  padding: $sp-sm $sp-md;
+  font-size: $font-sm;
+  min-width: 90px;
+  
+  @media (max-width: 640px) {
+    flex: 1;
+    min-width: auto;
+  }
+}
+
+.btnCancel {
+  @include btn-secondary;
+}
+
+.btnSubmit {
+  @include btn-primary;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+.timeRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $sp-sm;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inputSmall {
+  @include input;
+  width: 100%;
+  
+  @media (max-width: 770px) {
+    max-width: 90%;
+  }
+
+  &:focus {
+    border-color: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.1);
+  }
+}

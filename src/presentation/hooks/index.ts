@@ -6,7 +6,7 @@ export * from "./featuredPosts/useFeaturedPosts";
 export * from "./activities/useActivities";
 
 export * from "./shared/useToast";
-export * from "./shared/useConfirmDialog/useConfirmDialog";
+export * from "../components/base/ConfirmDialog/ConfirmDialog";
 export * from "./useActivityParticipations";
 export * from "./shared/usePagination";
 

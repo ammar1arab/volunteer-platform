@@ -6,12 +6,10 @@ import {
   VolunteerProfileRepository,
 } from "@/infrastructure/persistence/repositories";
 
-import AuthService from "@/core/application/services/AuthService";
+import { AuthService } from "@/core/application/services";
 import { UserRole } from "@/core/domain/enums";
+import { ROUTES } from "@/lib";
 
-/* =========================
-   NextAuth Type Augmentation
-   ========================= */
 declare module "next-auth" {
   interface Session {
     user: DefaultSession["user"] & {
@@ -28,9 +26,6 @@ declare module "next-auth" {
   }
 }
 
-/* =========================
-   Auth Options
-   ========================= */
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
@@ -39,9 +34,8 @@ export const authOptions: NextAuthOptions = {
   },
 
   pages: {
-    signIn: "/signin",
+    signIn: ROUTES.LOGIN,
   },
-
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -58,7 +52,7 @@ export const authOptions: NextAuthOptions = {
 
         const authService = new AuthService(
           new UserRepository(),
-          new VolunteerProfileRepository()
+          new VolunteerProfileRepository(),
         );
 
         const result = await authService.signIn({ email, password });

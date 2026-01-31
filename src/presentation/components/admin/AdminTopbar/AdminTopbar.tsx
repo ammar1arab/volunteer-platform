@@ -1,41 +1,39 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
-import { LogOut, User } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import styles from "./AdminTopbar.module.scss";
-import { ROUTES } from "@/lib";
 
-type Props = { title?: string };
+type Props = {
+  onMenuClick: () => void;
+  isMenuOpen: boolean;
+};
 
-const AdminTopbar: React.FC<Props> = ({ title = "لوحة الإدارة" }) => {
+const AdminTopbar = ({ onMenuClick, isMenuOpen }: Props) => {
   const { data } = useSession();
-  const name = data?.user?.name ?? "المسؤول";
-  const role = data?.user?.role ?? "ADMIN";
+  const name = data?.user?.name || "Admin";
 
+  const handleSignOut = () => signOut({ callbackUrl: "/" });
   return (
     <header className={styles.bar}>
-      <div className={styles.left}>
-        <h2 className={styles.title}>{title}</h2>
+      <h1 className={styles.title}>لوحة التحكم</h1>
+
+      <div className={styles.icons}>
+        <button className={`${styles.menuBtn} ${isMenuOpen ? styles.open : ""}`} onClick={onMenuClick}>
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+        <button className={styles.logoutMobile} onClick={handleSignOut} title="تسجيل الخروج">
+          <LogOut size={20} />
+        </button>
       </div>
 
-      <div className={styles.right}>
-        <div className={styles.userInfo}>
-          <div className={styles.avatar}>
-            <User size={16} />
-          </div>
-          <div className={styles.userDetails}>
-            <span className={styles.userName}>{name}</span>
-          </div>
-        </div>
+      <span className={styles.mobileName}>{name}</span>
 
-        <button
-          type="button"
-          className={styles.logout}
-          onClick={() => signOut({ callbackUrl: ROUTES.LOGIN })}
-          aria-label="تسجيل الخروج"
-        >
-          <LogOut size={16} />
-          <span className={styles.logoutText}>خروج</span>
+      <div className={styles.right}>
+        <span className={styles.userName}>{name}</span>
+        <button className={styles.logout} onClick={handleSignOut}>
+          <LogOut size={18} />
+          <span>خروج</span>
         </button>
       </div>
     </header>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authApi } from "@/lib";
+import { authApi, ROUTES } from "@/lib";
 
 interface SignupFormData {
   fullName: string;
@@ -75,7 +75,7 @@ export const useSignup = (): UseSignupReturn => {
       });
 
       if (result.success) {
-        router.replace("/signin?signup=success");
+        router.replace(`${ROUTES.LOGIN}?signup=success`);
         return;
       }
 

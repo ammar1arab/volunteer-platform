@@ -1,6 +1,6 @@
+import { Gender, JordanianCity } from "@/core/domain/enums";
 import { apiClient } from "./client";
 import { API_ENDPOINTS } from "@/lib";
-import type { VolunteerProfile, UpdateVolunteerProfileData } from "@/lib/types";
 
 interface GetProfileResponse {
   success: boolean;
@@ -20,11 +20,34 @@ interface UploadPictureResponse {
   error?: string;
 }
 
+interface VolunteerProfile {
+  id: string;
+  userId: string;
+  city: JordanianCity;
+  dateOfBirth: string;
+  profilePictureUrl?: string | null;
+  gender?: Gender | null;
+  bio?: string | null;
+  skills: string[];
+  interests: string[];
+  hasVolunteerExperience: boolean;
+}
+
+interface UpdateVolunteerProfileData {
+  city?: JordanianCity;
+  dateOfBirth?: string;
+  gender?: Gender;
+  bio?: string;
+  skills?: string[];
+  interests?: string[];
+  hasVolunteerExperience?: boolean;
+}
+
 export const volunteerProfileApi = {
   getProfile: async (): Promise<GetProfileResponse> => {
     try {
       const response = await apiClient.get<GetProfileResponse>(
-        API_ENDPOINTS.VOLUNTEER_PROFILE.BASE
+        API_ENDPOINTS.VOLUNTEER_PROFILE.BASE,
       );
       return response;
     } catch (error) {
@@ -36,18 +59,19 @@ export const volunteerProfileApi = {
   },
 
   updateProfile: async (
-    data: UpdateVolunteerProfileData
+    data: UpdateVolunteerProfileData,
   ): Promise<UpdateProfileResponse> => {
     try {
       const response = await apiClient.patch<UpdateProfileResponse>(
         API_ENDPOINTS.VOLUNTEER_PROFILE.BASE,
-        data
+        data,
       );
       return response;
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "فشل تحديث الملف الشخصي",
+        error:
+          error instanceof Error ? error.message : "فشل تحديث الملف الشخصي",
       };
     }
   },
@@ -59,7 +83,7 @@ export const volunteerProfileApi = {
 
       const response = await apiClient.post<UploadPictureResponse>(
         API_ENDPOINTS.VOLUNTEER_PROFILE.PICTURE,
-        formData
+        formData,
       );
       return response;
     } catch (error) {

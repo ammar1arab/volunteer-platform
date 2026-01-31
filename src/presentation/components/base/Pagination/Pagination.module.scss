@@ -1,0 +1,104 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $sp-sm;
+  margin-top: $sp-lg;
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: $sp-xs;
+  }
+
+  &.sticky {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    padding: $sp-sm $sp-md;
+    background: rgba($bg, 0.95);
+    border-top: 1px solid rgba($border, 0.5);
+    box-shadow: 0 -1px 4px rgba($black, 0.04);
+    margin-top: 0;
+  }
+}
+
+.info {
+  font-size: $font-xs;
+  color: $text-muted;
+}
+
+.highlight {
+  color: $green;
+  font-weight: 600;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $bg;
+  color: $text;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover:not(:disabled) {
+    border-color: $green;
+    color: $green;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.pageBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $bg;
+  color: $text;
+  font-size: $font-xs;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover:not(.active) {
+    border-color: $green;
+    color: $green;
+  }
+
+  &.active {
+    background: $green;
+    border-color: $green;
+    color: $bg;
+  }
+}
+
+.ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 32px;
+  color: $text-muted;
+  font-size: $font-xs;
+}

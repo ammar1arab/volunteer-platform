@@ -73,13 +73,13 @@ class UserService {
         stats: {
           totalActivities: user.participations.length,
           pendingRequests: user.participations.filter(
-            (p) => p.status === "PENDING"
+            (p) => p.status === "PENDING",
           ).length,
           approvedActivities: user.participations.filter(
-            (p) => p.status === "APPROVED"
+            (p) => p.status === "APPROVED",
           ).length,
           rejectedRequests: user.participations.filter(
-            (p) => p.status === "REJECTED"
+            (p) => p.status === "REJECTED",
           ).length,
         },
       }));
@@ -90,7 +90,7 @@ class UserService {
         UserService.SCOPE,
         "getAllWithAnalytics",
         error,
-        "Failed to fetch users"
+        "Failed to fetch users",
       );
     }
   }
@@ -153,13 +153,13 @@ class UserService {
         stats: {
           totalActivities: user.participations.length,
           pendingRequests: user.participations.filter(
-            (p) => p.status === "PENDING"
+            (p) => p.status === "PENDING",
           ).length,
           approvedActivities: user.participations.filter(
-            (p) => p.status === "APPROVED"
+            (p) => p.status === "APPROVED",
           ).length,
           rejectedRequests: user.participations.filter(
-            (p) => p.status === "REJECTED"
+            (p) => p.status === "REJECTED",
           ).length,
         },
       };
@@ -170,7 +170,7 @@ class UserService {
         UserService.SCOPE,
         "getUserDetails",
         error,
-        "Failed to fetch user details"
+        "Failed to fetch user details",
       );
     }
   }
@@ -184,7 +184,11 @@ class UserService {
             select: {
               id: true,
               title: true,
+              description: true,
               date: true,
+              startTime: true,
+              endTime: true,
+              placeName: true,
             },
           },
         },
@@ -193,12 +197,18 @@ class UserService {
 
       const activities: UserActivityDto[] = participations.map((p) => ({
         id: p.id,
-        activityId: p.activityId,
-        activityTitle: p.activity.title,
-        activityDate: p.activity.date.toISOString(),
         status: p.status,
         requestedAt: p.requestedAt.toISOString(),
         respondedAt: p.respondedAt ? p.respondedAt.toISOString() : null,
+        activity: {
+          id: p.activity.id,
+          title: p.activity.title,
+          description: p.activity.description,
+          date: p.activity.date.toISOString(),
+          startTime: p.activity.startTime,
+          endTime: p.activity.endTime,
+          placeName: p.activity.placeName,
+        },
       }));
 
       return { success: true, activities };
@@ -207,13 +217,14 @@ class UserService {
         UserService.SCOPE,
         "getUserActivities",
         error,
-        "Failed to fetch user activities"
+        "Failed to fetch user activities",
       );
     }
   }
+
   async updateBasicInfo(
     userId: string,
-    data: UpdateUserRequest
+    data: UpdateUserRequest,
   ): Promise<UpdateUserResponse> {
     try {
       const user = await this.userRepository.findById(userId);
@@ -231,9 +242,8 @@ class UserService {
         }
 
         // Check if email already exists
-        const existingUser = await this.userRepository.findByEmail(
-          sanitizedEmail
-        );
+        const existingUser =
+          await this.userRepository.findByEmail(sanitizedEmail);
         if (existingUser && existingUser.id !== userId) {
           return { success: false, error: "البريد الإلكتروني مستخدم مسبقاً" };
         }
@@ -281,7 +291,7 @@ class UserService {
         UserService.SCOPE,
         "updateBasicInfo",
         error,
-        "حدث خطأ أثناء تحديث البيانات"
+        "حدث خطأ أثناء تحديث البيانات",
       );
     }
   }

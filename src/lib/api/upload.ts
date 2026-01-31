@@ -1,9 +1,15 @@
 import { apiClient, API_ENDPOINTS } from "@/lib";
-import type { ApiResponse } from "@/lib/types/api.types";
 
 export type UploadImageResponse = {
   imageUrl: string;
 };
+
+export type ApiResponse<T> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+};
+
 
 export const uploadApi = {
   upload: (
