@@ -1,6 +1,7 @@
 "use client";
 
 import { Users as UsersIcon } from "lucide-react";
+import { useMemo } from "react";
 import styles from "./UserManagementPage.module.scss";
 import { useUserManagementPage } from "./UserManagementPage.logic";
 import { 
@@ -14,6 +15,7 @@ import {
 } from "@/presentation/components";
 
 const SORT_OPTIONS = [
+  { key: "default", label: "الافتراضي"},
   { key: "most-active", label: "الأكثر نشاطاً"},
   { key: "oldest", label: "الأقدم"},
   { key: "newest", label: "الأحدث"},
@@ -27,7 +29,6 @@ const EXPORT_COLUMNS = [
   { key: 'email', label: 'البريد الإلكتروني' },
   { key: 'city', label: 'المدينة' },
   { key: 'skills', label: 'المهارات' },
-  // { key: 'interests', label: 'الاهتمامات' },
   { key: 'approvedActivities', label: 'عدد الأنشطة الموافق عليها' },
   { key: 'createdAt', label: 'تاريخ الانضمام' },
 ];
@@ -47,6 +48,11 @@ const UserManagementPage = () => {
     removeToast,
   } = useUserManagementPage();
 
+  const isEmpty = useMemo(
+    () => volunteers.length === 0 && admins.length === 0,
+    [volunteers.length, admins.length]
+  );
+
   if (status === "loading") return <LoadingState />;
 
   return (
@@ -55,7 +61,7 @@ const UserManagementPage = () => {
 
       {isLoading ? (
         <LoadingState />
-      ) : volunteers.length === 0 && admins.length === 0 ? (
+      ) : isEmpty ? (
         <EmptyState icon={UsersIcon} message="لا يوجد مستخدمين" />
       ) : (
         <>
@@ -79,7 +85,7 @@ const UserManagementPage = () => {
                   <ExportUsersButton
                     data={exportData}
                     columns={EXPORT_COLUMNS}
-                    buttonText="Export"
+                    buttonText="تصدير Excel"
                   />
                 </div>
               </div>

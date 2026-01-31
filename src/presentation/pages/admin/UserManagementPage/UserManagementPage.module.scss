@@ -10,11 +10,7 @@
 .sectionHeader {
   @include flex-between;
   gap: $sp-md;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  flex-wrap: wrap;
 }
 
 .headerLeft {
@@ -23,12 +19,6 @@
 
 .headerRight {
   @include flex(row, center, flex-end, $sp-sm);
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: $sp-xs;
-  }
 }
 
 .sectionTitle {

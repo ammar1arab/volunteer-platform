@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ROUTES } from "@/lib";
@@ -80,14 +80,14 @@ export const useUserManagementPage = () => {
     }
   }, [error, showToast]);
 
-  const volunteers = sortUsers(
-    users.filter((u) => u.role === "VOLUNTEER"),
-    sortBy
+  const volunteers = useMemo(
+    () => sortUsers(users.filter((u) => u.role === "VOLUNTEER"), sortBy),
+    [users, sortBy]
   );
   
-  const admins = sortUsers(
-    users.filter((u) => u.role === "ADMIN"),
-    sortBy
+  const admins = useMemo(
+    () => sortUsers(users.filter((u) => u.role === "ADMIN"), sortBy),
+    [users, sortBy]
   );
 
   const volunteerPagination = usePagination({
@@ -95,23 +95,29 @@ export const useUserManagementPage = () => {
     itemsPerPage: 20,
   });
 
-  const paginatedVolunteers = volunteerPagination.paginateItems(volunteers);
+  const paginatedVolunteers = useMemo(
+    () => volunteerPagination.paginateItems(volunteers),
+    [volunteers, volunteerPagination]
+  );
 
-  const exportData = volunteers.map(user => ({
-    fullName: user.fullName,
-    age: calculateAge(user.volunteerProfile?.dateOfBirth),
-    phone: user.phone,
-    email: user.email,
-    city: user.volunteerProfile?.city || '-',
-    skills: user.volunteerProfile?.skills?.join(', ') || '-',
-    interests: user.volunteerProfile?.interests?.join(', ') || '-',
-    approvedActivities: user.stats.approvedActivities,
-    createdAt: new Date(user.createdAt).toLocaleDateString('ar'),
-  }));
+  const exportData = useMemo(
+    () => volunteers.map(user => ({
+      fullName: user.fullName,
+      age: calculateAge(user.volunteerProfile?.dateOfBirth),
+      phone: user.phone,
+      email: user.email,
+      city: user.volunteerProfile?.city || '-',
+      skills: user.volunteerProfile?.skills?.join(', ') || '-',
+      interests: user.volunteerProfile?.interests?.join(', ') || '-',
+      approvedActivities: user.stats.approvedActivities,
+      createdAt: new Date(user.createdAt).toLocaleDateString('ar'),
+    })),
+    [volunteers]
+  );
 
-  const handleSortChange = (key: string) => {
+  const handleSortChange = useCallback((key: string) => {
     setSortBy(key as SortOption);
-  };
+  }, []);
 
   return {
     status,

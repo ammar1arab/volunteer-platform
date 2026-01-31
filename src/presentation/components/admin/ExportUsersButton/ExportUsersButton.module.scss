@@ -12,6 +12,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: $transition;
+  white-space: nowrap;
 
   &:hover {
     background: darken($green, 5%);
@@ -52,11 +53,7 @@
   max-height: 400px;
   overflow-y: auto;
   margin-bottom: $sp-lg;
-    -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  padding: 2px;
 }
 
 .checkbox {
@@ -76,6 +73,8 @@
     position: absolute;
     opacity: 0;
     cursor: pointer;
+    width: 0;
+    height: 0;
 
     &:checked ~ .checkmark {
       background: $green;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import * as XLSX from "xlsx";
 
 interface Column {
@@ -11,31 +11,29 @@ interface Column {
 export const useExportUsersButton = (data: any[], allColumns: Column[]) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    allColumns.map(col => col.key)
+    () => allColumns.map(col => col.key)
   );
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openModal = useCallback(() => setIsModalOpen(true), []);
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
 
-  const toggleColumn = (key: string) => {
+  const toggleColumn = useCallback((key: string) => {
     setSelectedColumns(prev =>
       prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
     );
-  };
+  }, []);
 
-  const selectAll = () => {
+  const selectAll = useCallback(() => {
     setSelectedColumns(allColumns.map(col => col.key));
-  };
+  }, [allColumns]);
 
-  const deselectAll = () => {
+  const deselectAll = useCallback(() => {
     setSelectedColumns([]);
-  };
+  }, []);
 
-  const exportToExcel = () => {
-    // 1. Get selected columns
+  const exportToExcel = useCallback(() => {
     const columns = allColumns.filter(col => selectedColumns.includes(col.key));
-
-    // 2. Map data to only selected columns
+    
     const exportData = data.map(item => {
       const row: any = {};
       columns.forEach(col => {
@@ -44,17 +42,15 @@ export const useExportUsersButton = (data: any[], allColumns: Column[]) => {
       return row;
     });
 
-    // 3. Create Excel file
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "المستخدمين");
 
-    // 4. Download
     const filename = `users-${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, filename);
 
     closeModal();
-  };
+  }, [data, allColumns, selectedColumns, closeModal]);
 
   return {
     isModalOpen,
