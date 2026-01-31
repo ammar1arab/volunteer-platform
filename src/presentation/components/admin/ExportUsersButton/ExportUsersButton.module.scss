@@ -15,7 +15,7 @@
   white-space: nowrap;
 
   &:hover {
-    background: darken($green, 5%);
+    background: $green;
   }
 
   @media (max-width: 640px) {
@@ -152,7 +152,7 @@
   color: $bg;
 
   &:hover:not(:disabled) {
-    background: darken($green, 5%);
+    background:$green;
   }
 
   &:disabled {
