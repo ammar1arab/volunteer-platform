@@ -39,3 +39,4 @@ export { default as ProfileHeader } from "./admin/ProfileHeader/ProfileHeader";
 export { default as InfoCard } from "./admin/InfoCard/InfoCard";
 export { default as EditableField } from "./admin/EditableField/EditableField";
 export { default as ActivityItem } from "./admin/ActivityItem/ActivityItem";
+export { default as ExportUsersButton } from "./admin/ExportUsersButton/ExportUsersButton";

@@ -1,0 +1,163 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.btn {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-sm $sp-md;
+  background: $green;
+  color: $bg;
+  border: none;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: darken($green, 5%);
+  }
+
+  @media (max-width: 640px) {
+    padding: $sp-xs $sp-sm;
+    font-size: $font-xs;
+  }
+}
+
+.actions {
+  @include flex(row, center, flex-start, $sp-sm);
+  margin-bottom: $sp-lg;
+}
+
+.selectBtn {
+  padding: $sp-xs $sp-md;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: rgba($green, 0.1);
+    border-color: $green;
+    color: $green;
+  }
+}
+
+.columns {
+  @include flex-col;
+  gap: $sp-sm;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: $sp-lg;
+    -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.checkbox {
+  @include flex(row, center, flex-start, $sp-md);
+  padding: $sp-sm $sp-md;
+  border: 1px solid $border;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: rgba($green, 0.05);
+    border-color: rgba($green, 0.3);
+  }
+
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+
+    &:checked ~ .checkmark {
+      background: $green;
+      border-color: $green;
+
+      &::after {
+        display: block;
+      }
+    }
+  }
+
+  .checkmark {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border: 2px solid $border;
+    border-radius: $sp-xs;
+    background: $bg;
+    transition: $transition;
+    flex-shrink: 0;
+
+    &::after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid $bg;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+
+  .label {
+    font-size: $font-sm;
+    font-weight: 500;
+    color: $text;
+  }
+}
+
+.footer {
+  @include flex(row, center, flex-end, $sp-sm);
+  padding-top: $sp-md;
+  border-top: 1px solid $border;
+}
+
+.cancelBtn,
+.exportBtn {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-sm $sp-lg;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+}
+
+.cancelBtn {
+  background: transparent;
+  border: 1px solid $border;
+  color: $text;
+
+  &:hover {
+    background: rgba($red, 0.1);
+    border-color: $red;
+    color: $red;
+  }
+}
+
+.exportBtn {
+  background: $green;
+  border: none;
+  color: $bg;
+
+  &:hover:not(:disabled) {
+    background: darken($green, 5%);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

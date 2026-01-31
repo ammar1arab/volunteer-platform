@@ -1,47 +1,60 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
+@use "@/presentation/styles/admin-mixins" as *;
 
 .section {
-  display: flex;
-  flex-direction: column;
+  @include flex-col;
   gap: $sp-lg;
-
-  &:not(:last-child) {
-    margin-bottom: $sp-xl;
-  }
 }
 
 .sectionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: $sp-md;
-  border-bottom: 1px solid $border;
+  @include flex-between;
+  gap: $sp-md;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.headerLeft {
+  @include flex(row, center, flex-start, $sp-sm);
+}
+
+.headerRight {
+  @include flex(row, center, flex-end, $sp-sm);
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $sp-xs;
+  }
 }
 
 .sectionTitle {
   margin: 0;
-  font-size: $font-xl;
+  font-size: $font-lg;
   font-weight: 700;
   color: $text;
 }
 
 .count {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   min-width: 32px;
   height: 32px;
   padding: 0 $sp-sm;
   background: rgba($green, 0.1);
-  border-radius: $radius;
+  border: 1px solid rgba($green, 0.3);
+  border-radius: $radius-full;
   font-size: $font-sm;
   font-weight: 700;
   color: $green;
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: $sp-md;
+  @include cards-grid;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 }

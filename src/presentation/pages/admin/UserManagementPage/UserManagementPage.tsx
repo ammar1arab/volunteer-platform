@@ -3,7 +3,34 @@
 import { Users as UsersIcon } from "lucide-react";
 import styles from "./UserManagementPage.module.scss";
 import { useUserManagementPage } from "./UserManagementPage.logic";
-import { UserCard, LoadingState, EmptyState, ToastContainer, Pagination } from "@/presentation/components";
+import { 
+  UserCard, 
+  LoadingState, 
+  EmptyState, 
+  ToastContainer, 
+  Pagination, 
+  Dropdown,
+  ExportUsersButton 
+} from "@/presentation/components";
+
+const SORT_OPTIONS = [
+  { key: "most-active", label: "الأكثر نشاطاً"},
+  { key: "oldest", label: "الأقدم"},
+  { key: "newest", label: "الأحدث"},
+  { key: "name", label: "الاسم"},
+];
+
+const EXPORT_COLUMNS = [
+  { key: 'fullName', label: 'الاسم' },
+  { key: 'age', label: 'العمر' },
+  { key: 'phone', label: 'رقم الهاتف' },
+  { key: 'email', label: 'البريد الإلكتروني' },
+  { key: 'city', label: 'المدينة' },
+  { key: 'skills', label: 'المهارات' },
+  // { key: 'interests', label: 'الاهتمامات' },
+  { key: 'approvedActivities', label: 'عدد الأنشطة الموافق عليها' },
+  { key: 'createdAt', label: 'تاريخ الانضمام' },
+];
 
 const UserManagementPage = () => {
   const {
@@ -13,6 +40,9 @@ const UserManagementPage = () => {
     admins,
     paginatedVolunteers,
     volunteerPagination,
+    sortBy,
+    setSortBy,
+    exportData,
     toasts,
     removeToast,
   } = useUserManagementPage();
@@ -32,14 +62,34 @@ const UserManagementPage = () => {
           {volunteers.length > 0 && (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>المتطوعين</h2>
-                <span className={styles.count}>{volunteers.length}</span>
+                <div className={styles.headerLeft}>
+                  <h2 className={styles.sectionTitle}>المتطوعين</h2>
+                  <span className={styles.count}>{volunteers.length}</span>
+                </div>
+                
+                <div className={styles.headerRight}>
+                  <Dropdown
+                    items={SORT_OPTIONS}
+                    active={sortBy}
+                    onChange={setSortBy}
+                    placeholder="ترتيب حسب"
+                    compact
+                  />
+                  
+                  <ExportUsersButton
+                    data={exportData}
+                    columns={EXPORT_COLUMNS}
+                    buttonText="Export"
+                  />
+                </div>
               </div>
+
               <div className={styles.grid}>
                 {paginatedVolunteers.map((user) => (
                   <UserCard key={user.id} user={user} />
                 ))}
               </div>
+
               {volunteerPagination.totalPages > 1 && (
                 <Pagination
                   currentPage={volunteerPagination.currentPage}
@@ -56,8 +106,10 @@ const UserManagementPage = () => {
           {admins.length > 0 && (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Admins</h2>
-                <span className={styles.count}>{admins.length}</span>
+                <div className={styles.headerLeft}>
+                  <h2 className={styles.sectionTitle}>Admins</h2>
+                  <span className={styles.count}>{admins.length}</span>
+                </div>
               </div>
               <div className={styles.grid}>
                 {admins.map((user) => (

@@ -3,9 +3,9 @@ import styles from "./AdminUserDetailsPage.module.scss";
 import { useAdminUserDetailsPage } from "./AdminUserDetailsPage.logic";
 
 import Link from "next/link";
-import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
 import { ROUTES, JORDANIAN_CITIES } from "@/lib";
 import { LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown, InfoCard, ActivityItem, ToastContainer, Pagination } from "@/presentation/components";
+import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
 
 const AdminUserDetailsPage = () => {
   const { 
