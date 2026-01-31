@@ -33,7 +33,6 @@ export { default as VolunteersModal } from "./admin/VolunteersModal/VolunteersMo
 export { default as FeaturedPostCard } from "./admin/FeaturedPostCard/FeaturedPostCard";
 export { default as UserCard } from "./admin/UserCard/UserCard";
 export { default as UserStatsCard } from "./admin/UserStatsCard/UserStatsCard";
-export { default as UserActivitiesList } from "./admin/UserActivitiesList/UserActivitiesList";
 export { default as ParticipationRequestItem } from "./admin/ParticipationRequestItem/ParticipationRequestItem";
 export { default as StatsCard } from "./admin/StatsCard/StatsCard";
 export { default as ProfileHeader } from "./admin/ProfileHeader/ProfileHeader";
