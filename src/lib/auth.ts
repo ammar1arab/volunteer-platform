@@ -36,6 +36,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: ROUTES.LOGIN,
   },
+
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -84,6 +85,12 @@ export const authOptions: NextAuthOptions = {
         session.user.role = (token as any).role as UserRole;
       }
       return session;
+    },
+
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
   },
 };

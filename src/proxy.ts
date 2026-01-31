@@ -21,9 +21,7 @@ export async function proxy(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   })) as TokenWithRole | null;
 
-  const isAuthPage =
-    pathname === ROUTES.LOGIN || pathname === ROUTES.SIGNUP;
-
+  const isAuthPage = pathname === ROUTES.LOGIN || pathname === ROUTES.SIGNUP;
   const isAdminRoute = pathname.startsWith(ROUTES.ADMIN.ROOT);
   const isVolunteerRoute = pathname.startsWith(ROUTES.VOLUNTEER.ROOT);
 
@@ -54,12 +52,6 @@ export async function proxy(req: NextRequest) {
   return NextResponse.next();
 }
 
-
 export const config = {
-  matcher: [
-    "/signin",
-    "/signup",
-    "/admin/:path*",
-    "/volunteer/:path*",
-  ],
+  matcher: ["/signin", "/signup", "/admin/:path*", "/volunteer/:path*"],
 };
