@@ -15,7 +15,7 @@ const FeaturedPosts = () => {
         <SectionHeader title="منشورات" subtitle="تجارب وإنجازات ملهمة" />
         <div className={styles.grid}>
           {isLoading ? (
-            <LoadingState variant="skeleton" count={8} />
+            <LoadingState />
           ) : (
             list.map((post) => <FeaturedPostCard key={post.id} imageUrl={post.imageUrl} title={post.title} description={post.description} variant="glass" />)
           )}
