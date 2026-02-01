@@ -1,9 +1,9 @@
 "use client";
-import { useCallback, useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { ROUTES } from "@/lib";
-import { useActivityParticipations, useToast } from "@/presentation/hooks";
+
+import { useCallback, useMemo, useState } from "react";
+
+import { UserRole } from "@/core/domain/enums";
+import { useActivityParticipations, useToast, useAuth } from "@/presentation/hooks";
 
 type ConfirmOptions = {
   title?: string;
@@ -14,8 +14,7 @@ type ConfirmOptions = {
 };
 
 export const useParticipationRequestsPage = () => {
-  const router = useRouter();
-  const { status, data: session } = useSession();
+  const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
   const { requests, loading, approve, reject } = useActivityParticipations({
     autoFetch: true,
@@ -26,14 +25,6 @@ export const useParticipationRequestsPage = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
-
-  const role = session?.user?.role ?? "VOLUNTEER";
-
-  useEffect(() => {
-    if (status === "loading") return;
-    if (status === "unauthenticated") router.replace(ROUTES.LOGIN);
-    if (role !== "ADMIN") router.replace(ROUTES.VOLUNTEER.PROFILE);
-  }, [status, role, router]);
 
   const confirm = useCallback((opts: ConfirmOptions) => {
     setConfirmOptions(opts);
@@ -93,7 +84,7 @@ export const useParticipationRequestsPage = () => {
         showToast("تمت الموافقة", "success");
       }
     },
-    [confirm, approve, showToast]
+    [confirm, approve, showToast],
   );
 
   const handleReject = useCallback(
@@ -113,7 +104,7 @@ export const useParticipationRequestsPage = () => {
         showToast("تم الرفض", "success");
       }
     },
-    [confirm, reject, showToast]
+    [confirm, reject, showToast],
   );
 
   const handleApproveAll = useCallback(async () => {

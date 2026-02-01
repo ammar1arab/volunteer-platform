@@ -2,6 +2,11 @@ import type { DefaultSession } from "next-auth";
 import type { UserRole } from "@/core/domain/enums";
 
 declare module "next-auth" {
+  interface User {
+    id: string;
+    role: UserRole;
+  }
+
   interface Session {
     user: {
       id: string;
@@ -12,6 +17,7 @@ declare module "next-auth" {
 
 declare module "next-auth/jwt" {
   interface JWT {
-    role?: UserRole;
+    id: string;
+    role: UserRole;
   }
 }

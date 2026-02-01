@@ -1,12 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 import { UserRole } from "@/core/domain/enums";
 import {
-  ROUTES,
   processImageForUpload,
   revokeImagePreview,
   type FeaturedPostDto,
@@ -15,6 +12,7 @@ import {
   useFeaturedPosts,
   useToast,
   usePagination,
+  useAuth,
 } from "@/presentation/hooks";
 
 type ConfirmOptions = {
@@ -42,8 +40,7 @@ const EMPTY_FORM: FormState = {
 };
 
 export const useFeaturedPostsPage = () => {
-  const router = useRouter();
-  const { status, data: session } = useSession();
+  const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
 
   const {
@@ -64,14 +61,10 @@ export const useFeaturedPostsPage = () => {
   const [showModal, setShowModal] = useState(false);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
-    message: "",
-  });
-  const [confirmResolver, setConfirmResolver] = useState<
-    ((value: boolean) => void) | null
-  >(null);
+  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({message: "",});
 
-  const role = session?.user?.role ?? UserRole.VOLUNTEER;
+
+  const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
 
   const pagination = usePagination({
     totalItems: list.length,
@@ -79,19 +72,6 @@ export const useFeaturedPostsPage = () => {
   });
 
   const paginatedList = pagination.paginateItems(list);
-
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (status === "unauthenticated") {
-      router.replace(ROUTES.LOGIN);
-      return;
-    }
-
-    if (role !== UserRole.ADMIN) {
-      router.replace(ROUTES.redirectByRole(role));
-    }
-  }, [status, role, router]);
 
   useEffect(() => {
     if (error && error.trim()) {

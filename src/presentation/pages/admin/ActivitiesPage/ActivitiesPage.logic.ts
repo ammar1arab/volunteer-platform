@@ -1,12 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 import { DayOfWeek, UserRole } from "@/core/domain/enums";
-import { ROUTES, processImageForUpload, type ActivityDto } from "@/lib";
-import { useActivities, useToast, usePagination } from "@/presentation/hooks";
+import { processImageForUpload, type ActivityDto } from "@/lib";
+import {
+  useActivities,
+  useToast,
+  usePagination,
+  useAuth,
+} from "@/presentation/hooks";
 import type {
   CreateActivityRequest,
   UpdateActivityRequest,
@@ -46,8 +49,7 @@ type ConfirmOptions = {
 };
 
 export const useActivitiesPage = () => {
-  const router = useRouter();
-  const { status, data: session } = useSession();
+  const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
 
   const {
@@ -78,21 +80,6 @@ export const useActivitiesPage = () => {
   const [confirmResolver, setConfirmResolver] = useState<
     ((value: boolean) => void) | null
   >(null);
-
-  const role = session?.user?.role ?? UserRole.VOLUNTEER;
-
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (status === "unauthenticated") {
-      router.replace(ROUTES.LOGIN);
-      return;
-    }
-
-    if (role !== UserRole.ADMIN) {
-      router.replace(ROUTES.redirectByRole(role));
-    }
-  }, [status, role, router]);
 
   const filtered = useMemo(() => {
     if (activeFilter === "all") return list;

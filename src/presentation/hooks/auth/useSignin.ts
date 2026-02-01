@@ -1,7 +1,7 @@
 "use client";
-
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
+import { ROUTES } from "@/lib";
 
 interface UseSigninReturn {
   formData: SigninFormData;
@@ -47,7 +47,8 @@ export const useSignin = (): UseSigninReturn => {
         return;
       }
 
-      window.location.href = "/";
+      const session = await getSession();
+      window.location.href = ROUTES.redirectByRole(session?.user?.role);
     } catch {
       setError("حدث خطأ في الاتصال");
       setLoading(false);
