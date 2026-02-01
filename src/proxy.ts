@@ -27,14 +27,6 @@ export async function proxy(req: NextRequest) {
 
   const url = req.nextUrl.clone();
 
-  // Root path handling
-  if (pathname === "/") {
-    url.pathname = token?.role
-      ? ROUTES.redirectByRole(token.role)
-      : ROUTES.LOGIN;
-    return NextResponse.redirect(url);
-  }
-
   if (isAuthPage && token?.role) {
     url.pathname = ROUTES.redirectByRole(token.role);
     return NextResponse.redirect(url);
@@ -61,5 +53,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/signin", "/signup", "/admin/:path*", "/volunteer/:path*"],
+  matcher: ["/signin", "/signup", "/admin/:path*", "/volunteer/:path*"],
 };
