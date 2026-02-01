@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authApi, ROUTES } from "@/lib";
+import { JordanianCity } from "@/core/domain/enums";
 
 interface SignupFormData {
   fullName: string;
@@ -70,8 +71,8 @@ export const useSignup = (): UseSignupReturn => {
         password: formData.password,
         fullName: formData.fullName,
         phone: formData.phone,
-        city: formData.city,
-        dateOfBirth: formData.dateOfBirth,
+        city: formData.city as JordanianCity,
+        dateOfBirth: new Date(formData.dateOfBirth),
       });
 
       if (result.success) {
