@@ -13,11 +13,14 @@ const AdminUserDetailsPage = () => {
     user, 
     activities, 
     allActivities, 
+    totalFilteredItems,
     isLoadingUser, 
     isLoadingActivities, 
     activeFilter, 
     setActiveFilter, 
-    pagination,
+    currentPage,
+    setCurrentPage,
+    itemsPerPage,
     toasts, 
     removeToast 
   } = useAdminUserDetailsPage();
@@ -147,11 +150,10 @@ const AdminUserDetailsPage = () => {
                 </div>
                 
                 <Pagination
-                  currentPage={pagination.currentPage}
-                  totalPages={pagination.totalPages}
-                  totalItems={allActivities.filter(a => activeFilter === "all" || a.status === activeFilter).length}
-                  itemsPerPage={5}
-                  onPageChange={pagination.goToPage}
+                  currentPage={currentPage}
+                  totalItems={totalFilteredItems}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
                   sticky
                 />
               </>

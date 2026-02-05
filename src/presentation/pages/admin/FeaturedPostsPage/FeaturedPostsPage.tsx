@@ -1,7 +1,6 @@
 "use client";
 import styles from "./FeaturedPostsPage.module.scss";
 import { useFeaturedPostsPage } from "./FeaturedPostsPage.logic";
-
 import Image from "next/image";
 import { FeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, FileImage } from "lucide-react";
@@ -16,12 +15,15 @@ const FeaturedPostsPage = () => {
     form,
     preview,
     showModal,
+    list,
     paginatedList,
-    pagination,
+    currentPage,
+    itemsPerPage,
     toasts,
     removeToast,
     confirmDialog,
     setForm,
+    setCurrentPage,
     resetForm,
     openCreate,
     openEdit,
@@ -39,7 +41,6 @@ const FeaturedPostsPage = () => {
 
       <header className={styles.header}>
         <h1 className={styles.title}>المنشورات</h1>
-        
         <div className={styles.actions}>
           <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
             <Plus size={18} />
@@ -50,7 +51,7 @@ const FeaturedPostsPage = () => {
 
       {isLoading ? (
         <LoadingState />
-      ) : paginatedList.length === 0 ? (
+      ) : list.length === 0 ? (
         <EmptyState icon={FileImage} message="لا توجد منشورات" action={{ label: "إضافة منشور", onClick: openCreate }} />
       ) : (
         <>
@@ -84,11 +85,10 @@ const FeaturedPostsPage = () => {
           </div>
 
           <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            totalItems={paginatedList.length}
-            itemsPerPage={20}
-            onPageChange={pagination.goToPage}
+            currentPage={currentPage}
+            totalItems={list.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
             sticky
           />
         </>

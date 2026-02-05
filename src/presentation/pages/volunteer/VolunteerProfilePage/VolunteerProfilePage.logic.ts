@@ -1,10 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { userApi, volunteerProfileApi, activityParticipationApi } from "@/lib/api";
+import { useState, useEffect, useMemo } from "react";
+import {
+  userApi,
+  volunteerProfileApi,
+  activityParticipationApi,
+} from "@/lib/api";
 import { signOut } from "next-auth/react";
-import { usePagination } from "@/presentation/hooks";
-import type { ActivityParticipationDto, UserProfileDto } from "@/core/application/dtos";
+import type {
+  ActivityParticipationDto,
+  UserProfileDto,
+} from "@/core/application/dtos";
 
 interface EditingField {
   field: string;
@@ -13,7 +19,9 @@ interface EditingField {
 
 export function useProfilePage() {
   const [user, setUser] = useState<UserProfileDto | null>(null);
-  const [participations, setParticipations] = useState<ActivityParticipationDto[]>([]);
+  const [participations, setParticipations] = useState<
+    ActivityParticipationDto[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -21,6 +29,12 @@ export function useProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [activityFilter, setActivityFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activityFilter]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -75,17 +89,23 @@ export function useProfilePage() {
     setSuccessMessage(null);
 
     try {
-      const userFields = ['email', 'phone', 'fullName'];
+      const userFields = ["email", "phone", "fullName"];
       const isUserField = userFields.includes(editingField.field);
 
       let result: any;
 
       if (isUserField) {
-        result = await userApi.updateBasicInfo({ [editingField.field]: editingField.value });
-      } else if (editingField.field === 'dateOfBirth') {
-        result = await volunteerProfileApi.updateProfile({ dateOfBirth: editingField.value } as any);
+        result = await userApi.updateBasicInfo({
+          [editingField.field]: editingField.value,
+        });
+      } else if (editingField.field === "dateOfBirth") {
+        result = await volunteerProfileApi.updateProfile({
+          dateOfBirth: editingField.value,
+        } as any);
       } else {
-        result = await volunteerProfileApi.updateProfile({ [editingField.field]: editingField.value });
+        result = await volunteerProfileApi.updateProfile({
+          [editingField.field]: editingField.value,
+        });
       }
 
       if (!result.success) {
@@ -138,7 +158,10 @@ export function useProfilePage() {
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
     return age;
@@ -146,21 +169,20 @@ export function useProfilePage() {
 
   const stats = {
     total: participations.length,
-    pending: participations.filter(p => p.status === "PENDING").length,
-    approved: participations.filter(p => p.status === "APPROVED").length,
-    rejected: participations.filter(p => p.status === "REJECTED").length,
+    pending: participations.filter((p) => p.status === "PENDING").length,
+    approved: participations.filter((p) => p.status === "APPROVED").length,
+    rejected: participations.filter((p) => p.status === "REJECTED").length,
   };
 
-  const filteredParticipations = activityFilter === "all"
-    ? participations
-    : participations.filter(p => p.status === activityFilter);
+  const filteredParticipations =
+    activityFilter === "all"
+      ? participations
+      : participations.filter((p) => p.status === activityFilter);
 
-  const pagination = usePagination({
-    totalItems: filteredParticipations.length,
-    itemsPerPage: 5,
-  });
-
-  const paginatedActivities = pagination.paginateItems(filteredParticipations);
+  const paginatedActivities = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredParticipations.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredParticipations, currentPage]);
 
   return {
     user,
@@ -172,9 +194,7 @@ export function useProfilePage() {
     isSaving,
     isUploadingImage,
     activityFilter,
-    paginatedActivities,
     filteredParticipations,
-    pagination,
     setActivityFilter,
     startEditing,
     cancelEditing,
@@ -183,5 +203,9 @@ export function useProfilePage() {
     handleProfilePictureUpload,
     handleSignOut,
     calculateAge,
+    currentPage,
+    setCurrentPage,
+    itemsPerPage: ITEMS_PER_PAGE,
+    paginatedActivities,
   };
 }

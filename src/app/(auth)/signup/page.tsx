@@ -1,10 +1,10 @@
 'use client';
+import styles from './page.module.scss';
+import { useSignup } from './page.logic';
 
 import Link from 'next/link';
 import { Input, Button, SelectInput, BirthDateInput } from '@/presentation/components';
-import { useSignup } from '@/presentation/hooks';
 import { JORDANIAN_CITIES } from '@/lib/constants';
-import styles from './page.module.scss';
 
 const SignupPage = () => {
   const { formData, error, loading, handleChange, handleSubmit } = useSignup();
@@ -13,9 +13,7 @@ const SignupPage = () => {
     <div className={styles.page}>
       <main className={styles.card} aria-labelledby="signup-title">
         <header className={styles.header}>
-          <h1 id="signup-title" className={styles.title}>
-            انضمامك لبصمات شبابية يشرفنا
-          </h1>
+          <h1 id="signup-title" className={styles.title}>  انضمامك لبصمات شبابية يشرفنا</h1>
         </header>
 
         {error && (
@@ -73,8 +71,6 @@ const SignupPage = () => {
             onChange={(value) => handleChange("dateOfBirth", value)}
             required
           />
-
-
 
           <Input
             label="كلمة المرور"

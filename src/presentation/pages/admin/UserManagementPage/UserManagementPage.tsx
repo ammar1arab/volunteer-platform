@@ -40,7 +40,9 @@ const UserManagementPage = () => {
     volunteers,
     admins,
     paginatedVolunteers,
-    volunteerPagination,
+    currentPage,
+    setCurrentPage,
+    itemsPerPage,
     sortBy,
     setSortBy,
     exportData,
@@ -96,16 +98,13 @@ const UserManagementPage = () => {
                 ))}
               </div>
 
-              {volunteerPagination.totalPages > 1 && (
-                <Pagination
-                  currentPage={volunteerPagination.currentPage}
-                  totalPages={volunteerPagination.totalPages}
-                  totalItems={volunteers.length}
-                  itemsPerPage={20}
-                  onPageChange={volunteerPagination.goToPage}
-                  sticky
-                />
-              )}
+              <Pagination
+                currentPage={currentPage}
+                totalItems={volunteers.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+                sticky
+              />
             </section>
           )}
 

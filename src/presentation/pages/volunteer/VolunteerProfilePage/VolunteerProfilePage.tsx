@@ -19,9 +19,11 @@ export default function VolunteerProfilePage() {
     isSaving,
     isUploadingImage,
     activityFilter,
-    paginatedActivities,
     filteredParticipations,
-    pagination,
+    currentPage,
+    setCurrentPage,
+    itemsPerPage,
+    paginatedActivities,
     setActivityFilter,
     startEditing,
     cancelEditing,
@@ -132,8 +134,13 @@ export default function VolunteerProfilePage() {
                       <ActivityCard key={p.id} participation={p} />
                     ))}
                   </div>
-                  <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} totalItems={filteredParticipations.length} itemsPerPage={5} onPageChange={pagination.goToPage} sticky />
-                </>
+                  <Pagination
+                    currentPage={currentPage}
+                    totalItems={filteredParticipations.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                    sticky
+                  />                </>
               )}
             </Card>
           </div>
@@ -162,7 +169,7 @@ const Card = ({ title, action, children }: any) => (
 
 const EditableCard = ({ title, field, value, editingField, isSaving, onStartEdit, onCancel, onUpdate, onSave }: any) => {
   const isEditing = editingField?.field === field;
-  
+
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>

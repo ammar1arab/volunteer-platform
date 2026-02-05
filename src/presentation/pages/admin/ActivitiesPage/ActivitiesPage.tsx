@@ -1,7 +1,6 @@
 "use client";
 import styles from "./ActivitiesPage.module.scss";
 import { useActivitiesPage, FILTERS, STATUS_MAP } from "./ActivitiesPage.logic";
-
 import { LoadingState, EmptyState, ToastContainer, ActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown } from "@/presentation/components";
 import { Plus, Edit2, Trash2, CalendarDays, Clock, MapPin, Users, Send, Ban, UsersIcon, RotateCcw } from "lucide-react";
 
@@ -11,6 +10,8 @@ const ActivitiesPage = () => {
     loading,
     submitting,
     activeFilter,
+    currentPage,
+    itemsPerPage,
     mode,
     showModal,
     showVolunteersModal,
@@ -18,11 +19,11 @@ const ActivitiesPage = () => {
     editData,
     filtered,
     paginatedActivities,
-    pagination,
     toasts,
     removeToast,
     confirmDialog,
     setActiveFilter,
+    setCurrentPage,
     setShowModal,
     setShowVolunteersModal,
     openCreateModal,
@@ -38,10 +39,7 @@ const ActivitiesPage = () => {
 
   if (status === "loading") return <LoadingState />;
 
-  const filterItems = FILTERS.map(f => ({
-    key: f.key,
-    label: f.label,
-  }));
+  const filterItems = FILTERS.map(f => ({ key: f.key, label: f.label }));
 
   return (
     <>
@@ -49,7 +47,6 @@ const ActivitiesPage = () => {
 
       <header className={styles.header}>
         <h1 className={styles.title}>الفرص التطوعية</h1>
-
         <div className={styles.actions}>
           <Dropdown
             items={filterItems}
@@ -58,14 +55,12 @@ const ActivitiesPage = () => {
             placeholder="الحالة"
             compact
           />
-
           <button className={styles.btnCreate} onClick={openCreateModal}>
             <Plus size={18} />
             فرصة جديدة
           </button>
         </div>
       </header>
-
 
       {loading ? (
         <LoadingState />
@@ -80,7 +75,6 @@ const ActivitiesPage = () => {
           <div className={styles.grid}>
             {paginatedActivities.map((activity) => {
               const statusInfo = STATUS_MAP[activity.status as keyof typeof STATUS_MAP];
-
               return (
                 <ActivityCard
                   key={activity.id}
@@ -124,12 +118,10 @@ const ActivitiesPage = () => {
                           </button>
                         </>
                       )}
-
                       <button className={styles.btnInfo} onClick={() => handleViewVolunteers(activity)}>
                         <UsersIcon size={14} />
                         <span className={styles.badgeCount}>{activity.currentVolunteers}</span>
                       </button>
-
                       {activity.status === "CANCELLED" ? (
                         <button className={styles.btnRestore} onClick={() => handleRestore(activity)}>
                           <RotateCcw size={14} />
@@ -139,7 +131,6 @@ const ActivitiesPage = () => {
                           <Ban size={14} />
                         </button>
                       )}
-
                       <button className={styles.btnDanger} onClick={() => handleDelete(activity)}>
                         <Trash2 size={14} />
                       </button>
@@ -151,11 +142,10 @@ const ActivitiesPage = () => {
           </div>
 
           <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
+            currentPage={currentPage}
             totalItems={filtered.length}
-            itemsPerPage={20}
-            onPageChange={pagination.goToPage}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
             sticky
           />
         </>

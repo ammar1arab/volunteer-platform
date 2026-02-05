@@ -1,16 +1,8 @@
-export * from "./auth/useSignin";
-export * from "./auth/useSignup";
-export * from "./auth/useAuth";
+export * from "./uiHooks/useToast";
 
-export * from "./featuredPosts/useFeaturedPosts";
-export * from "./activities/useActivities";
-
-export * from "./shared/useToast";
-export * from "../components/base/ConfirmDialog/ConfirmDialog";
-export * from "./useActivityParticipations";
-export * from "./shared/usePagination";
-
-export * from "./useUsers";
-export * from "./useUserDetails";
-
-// export * from './shared/useResourceCRUD';
+export * from "./apiHooks/useAuth";
+export * from "./apiHooks/useFeaturedPosts";
+export * from "./apiHooks/useActivities";
+export * from "./apiHooks/useActivityParticipations";
+export * from "./apiHooks/useUsers";
+export * from "./apiHooks/useUserDetails";

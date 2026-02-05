@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     const authService = new AuthService(
       new UserRepository(),
-      new VolunteerProfileRepository()
+      new VolunteerProfileRepository(),
     );
 
     const result = await authService.signUp({
@@ -29,19 +29,19 @@ export async function POST(req: NextRequest) {
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error || "Sign up failed" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       { success: true, user: result.user },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(
       { success: false, error: "Invalid request" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

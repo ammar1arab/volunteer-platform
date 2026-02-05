@@ -1,9 +1,9 @@
 'use client';
+import styles from './page.module.scss';
+import { useSignin } from './page.logic';
 
 import Link from 'next/link';
 import { Input, Button } from '@/presentation/components';
-import { useSignin } from '@/presentation/hooks';
-import styles from './page.module.scss';
 
 const SigninPage = () => {
   const { formData, error, loading, handleChange, handleSubmit } = useSignin();

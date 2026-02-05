@@ -142,7 +142,7 @@ const Header = () => {
               </Link>
             ))}
 
-            <button className={styles.mobileLink} onClick={() => setSocialOpen(!socialOpen)} aria-expanded={socialOpen}>
+            <button title='Our Sites' className={styles.mobileLink} onClick={() => setSocialOpen(!socialOpen)} aria-expanded={socialOpen}>
               مواقعنا
             </button>
 

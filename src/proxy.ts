@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+
 import { UserRole } from "@/core/domain/enums";
 import { ROUTES } from "@/lib";
 
@@ -25,7 +26,7 @@ export async function proxy(req: NextRequest) {
   const isAdminRoute = pathname.startsWith(ROUTES.ADMIN.ROOT);
   const isVolunteerRoute = pathname.startsWith(ROUTES.VOLUNTEER.ROOT);
 
-  const url = req.nextUrl.clone();
+  const url = req.nextUrl;
 
   if (isAuthPage && token?.role) {
     url.pathname = ROUTES.redirectByRole(token.role);

@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { UserRole } from "@/core/domain/enums";
 import {
   processImageForUpload,
@@ -11,7 +10,6 @@ import {
 import {
   useFeaturedPosts,
   useToast,
-  usePagination,
   useAuth,
 } from "@/presentation/hooks";
 
@@ -42,6 +40,7 @@ const EMPTY_FORM: FormState = {
 export const useFeaturedPostsPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
+  const ITEMS_PER_PAGE = 20;
 
   const {
     list,
@@ -59,19 +58,16 @@ export const useFeaturedPostsPage = () => {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [preview, setPreview] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({message: "",});
-
-
+  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
 
-  const pagination = usePagination({
-    totalItems: list.length,
-    itemsPerPage: 20,
-  });
-
-  const paginatedList = pagination.paginateItems(list);
+  const paginatedList = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return list.slice(start, start + ITEMS_PER_PAGE);
+  }, [list, currentPage]);
 
   useEffect(() => {
     if (error && error.trim()) {
@@ -126,25 +122,19 @@ export const useFeaturedPostsPage = () => {
       setPreview("");
       setShowModal(true);
     },
-    [preview],
+    [preview]
   );
 
   const handleFileChange = useCallback(
     async (file: File | null) => {
       if (!file) return;
-
-      const result = await processImageForUpload(file, {
-        maxSizeMB: 5,
-        quality: 0.85,
-      });
+      const result = await processImageForUpload(file, { maxSizeMB: 5, quality: 0.85 });
       if (result.error) {
         showToast(result.error, "error");
         return;
       }
-
       if (preview) revokeImagePreview(preview);
       setPreview(result.previewUrl);
-
       const uploaded = await uploadImage(result.file);
       if (uploaded) {
         setForm((prev) => ({ ...prev, imageUrl: uploaded }));
@@ -153,22 +143,12 @@ export const useFeaturedPostsPage = () => {
         showToast("فشل رفع الصورة", "error");
       }
     },
-    [uploadImage, showToast, preview],
+    [uploadImage, showToast, preview]
   );
 
   const handleSubmit = useCallback(async () => {
-    if (!form.title.trim()) {
-      showToast("يرجى إدخال العنوان", "warning");
-      return;
-    }
-
-    if (!form.description.trim()) {
-      showToast("يرجى إدخال الوصف", "warning");
-      return;
-    }
-
-    if (!form.imageUrl) {
-      showToast("يرجى رفع صورة", "warning");
+    if (!form.title.trim() || !form.description.trim() || !form.imageUrl) {
+      showToast("يرجى إكمال جميع الحقول المطلوبة", "warning");
       return;
     }
 
@@ -181,7 +161,6 @@ export const useFeaturedPostsPage = () => {
 
     try {
       let success = false;
-
       if (mode === "create") {
         success = await create(payload);
       } else if (form.id) {
@@ -199,15 +178,10 @@ export const useFeaturedPostsPage = () => {
 
   const handleToggle = useCallback(
     async (post: FeaturedPostDto) => {
-      const success = await update(post.id, {
-        ...post,
-        isActive: !post.isActive,
-      });
-      if (success) {
-        showToast(post.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
-      }
+      const success = await update(post.id, { ...post, isActive: !post.isActive });
+      if (success) showToast(post.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
     },
-    [update, showToast],
+    [update, showToast]
   );
 
   const handleDelete = useCallback(
@@ -219,16 +193,13 @@ export const useFeaturedPostsPage = () => {
         cancelText: "إلغاء",
         variant: "danger",
       });
-
       if (!ok) return;
-
-      const success = await remove(post.id);
-      if (success) {
+      if (await remove(post.id)) {
         showToast("تم الحذف", "success");
         if (form.id === post.id) resetForm();
       }
     },
-    [confirm, form.id, remove, resetForm, showToast],
+    [confirm, form.id, remove, resetForm, showToast]
   );
 
   return {
@@ -240,8 +211,10 @@ export const useFeaturedPostsPage = () => {
     form,
     preview,
     showModal,
+    list,
     paginatedList,
-    pagination,
+    currentPage,
+    itemsPerPage: ITEMS_PER_PAGE,
     toasts,
     removeToast,
     confirmDialog: {
@@ -251,7 +224,7 @@ export const useFeaturedPostsPage = () => {
       handleCancel: handleCancelDialog,
     },
     setForm,
-    setShowModal,
+    setCurrentPage,
     resetForm,
     openCreate,
     openEdit,

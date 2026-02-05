@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-
 import { UserRole } from "@/core/domain/enums";
-import { useUsers, useToast, usePagination, useAuth } from "@/presentation/hooks";
+import { useUsers, useToast, useAuth } from "@/presentation/hooks";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 
 type SortOption = "default" | "oldest" | "newest" | "name" | "age" | "most-active";
@@ -26,32 +25,25 @@ const sortUsers = (users: UserAnalyticsDto[], sortBy: SortOption): UserAnalytics
       case "default": {
         const aHasImage = !!a.volunteerProfile?.profilePictureUrl;
         const bHasImage = !!b.volunteerProfile?.profilePictureUrl;
-
         if (aHasImage !== bHasImage) return aHasImage ? -1 : 1;
         if (a.stats.approvedActivities !== b.stats.approvedActivities) {
           return b.stats.approvedActivities - a.stats.approvedActivities;
         }
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
-
       case "oldest":
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-
       case "newest":
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-
       case "name":
         return a.fullName.localeCompare(b.fullName, "ar");
-
       case "age": {
         const ageA = calculateAge(a.volunteerProfile?.dateOfBirth);
         const ageB = calculateAge(b.volunteerProfile?.dateOfBirth);
         return ageB - ageA;
       }
-
       case "most-active":
         return b.stats.approvedActivities - a.stats.approvedActivities;
-
       default:
         return 0;
     }
@@ -62,7 +54,10 @@ export const useUserManagementPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
   const { users, isLoading, error } = useUsers();
+  
   const [sortBy, setSortBy] = useState<SortOption>("default");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
     if (error && error.trim()) {
@@ -80,15 +75,16 @@ export const useUserManagementPage = () => {
     [users, sortBy],
   );
 
-  const volunteerPagination = usePagination({
-    totalItems: volunteers.length,
-    itemsPerPage: 20,
-  });
+  // Manual Pagination Logic
+  const paginatedVolunteers = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return volunteers.slice(start, start + ITEMS_PER_PAGE);
+  }, [volunteers, currentPage]);
 
-  const paginatedVolunteers = useMemo(
-    () => volunteerPagination.paginateItems(volunteers),
-    [volunteers, volunteerPagination],
-  );
+  // Reset page when sorting changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortBy]);
 
   const exportData = useMemo(
     () =>
@@ -116,7 +112,9 @@ export const useUserManagementPage = () => {
     volunteers,
     admins,
     paginatedVolunteers,
-    volunteerPagination,
+    currentPage,
+    setCurrentPage,
+    itemsPerPage: ITEMS_PER_PAGE,
     sortBy,
     setSortBy: handleSortChange,
     exportData,
