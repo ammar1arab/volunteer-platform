@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 import { MapPin, Calendar, Clock, Users, ChevronRight, ChevronLeft, Loader2, } from "lucide-react";
 import { Container, SectionHeader } from "@/presentation/components";
 import { useActivities, useActivityParticipations, useToast } from "@/presentation/hooks";
-import { ROUTES, type ActivityDto } from "@/lib";
 import styles from "./AvailableActivities.module.scss";
+import { ActivityDto } from "@/core/application/dtos";
+import { ROUTES } from "@/lib";
 
 const AvailableActivities = () => {
   const router = useRouter();

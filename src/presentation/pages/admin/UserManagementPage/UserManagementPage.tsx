@@ -4,22 +4,14 @@ import { Users as UsersIcon } from "lucide-react";
 import { useMemo } from "react";
 import styles from "./UserManagementPage.module.scss";
 import { useUserManagementPage } from "./UserManagementPage.logic";
-import { 
-  UserCard, 
-  LoadingState, 
-  EmptyState, 
-  ToastContainer, 
-  Pagination, 
-  Dropdown,
-  ExportUsersButton 
-} from "@/presentation/components";
+import { UserCard, LoadingState, EmptyState, ToastContainer, Pagination, Dropdown, ExportUsersButton } from "@/presentation/components";
 
 const SORT_OPTIONS = [
-  { key: "default", label: "الافتراضي"},
-  { key: "most-active", label: "الأكثر نشاطاً"},
-  { key: "oldest", label: "الأقدم"},
-  { key: "newest", label: "الأحدث"},
-  { key: "name", label: "الاسم"},
+  { key: "default", label: "الافتراضي" },
+  { key: "most-active", label: "الأكثر نشاطاً" },
+  { key: "oldest", label: "الأقدم" },
+  { key: "newest", label: "الأحدث" },
+  { key: "name", label: "الاسم" },
 ];
 
 const EXPORT_COLUMNS = [
@@ -74,7 +66,7 @@ const UserManagementPage = () => {
                   <h2 className={styles.sectionTitle}>المتطوعين</h2>
                   <span className={styles.count}>{volunteers.length}</span>
                 </div>
-                
+
                 <div className={styles.headerRight}>
                   <Dropdown
                     items={SORT_OPTIONS}
@@ -83,7 +75,7 @@ const UserManagementPage = () => {
                     placeholder="ترتيب حسب"
                     compact
                   />
-                  
+
                   <ExportUsersButton
                     data={exportData}
                     columns={EXPORT_COLUMNS}

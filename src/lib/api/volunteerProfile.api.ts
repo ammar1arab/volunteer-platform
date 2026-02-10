@@ -1,5 +1,5 @@
 import { Gender, JordanianCity } from "@/core/domain/enums";
-import { apiClient } from "./client";
+import { apiClient } from "./client.api";
 import { API_ENDPOINTS } from "@/lib";
 
 interface GetProfileResponse {

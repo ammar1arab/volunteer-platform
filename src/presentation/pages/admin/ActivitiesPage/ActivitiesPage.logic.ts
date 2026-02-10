@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DayOfWeek, UserRole } from "@/core/domain/enums";
-import { processImageForUpload, type ActivityDto } from "@/lib";
+import { processImageForUpload } from "@/lib";
 import {
   useActivities,
   useToast,
   useAuth,
 } from "@/presentation/hooks";
 import type {
+  ActivityDto,
   CreateActivityRequest,
   UpdateActivityRequest,
 } from "@/core/application/dtos";

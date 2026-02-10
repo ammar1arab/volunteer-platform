@@ -2,16 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { UserRole } from "@/core/domain/enums";
-import {
-  processImageForUpload,
-  revokeImagePreview,
-  type FeaturedPostDto,
-} from "@/lib";
-import {
-  useFeaturedPosts,
-  useToast,
-  useAuth,
-} from "@/presentation/hooks";
+import { processImageForUpload, revokeImagePreview } from "@/lib";
+import { useFeaturedPosts, useToast, useAuth } from "@/presentation/hooks";
+import { FeaturedPostDto } from "@/core/application/dtos";
 
 type ConfirmOptions = {
   title?: string;
@@ -61,8 +54,12 @@ export const useFeaturedPostsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
-  const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
+  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
+    message: "",
+  });
+  const [confirmResolver, setConfirmResolver] = useState<
+    ((value: boolean) => void) | null
+  >(null);
 
   const paginatedList = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -122,13 +119,16 @@ export const useFeaturedPostsPage = () => {
       setPreview("");
       setShowModal(true);
     },
-    [preview]
+    [preview],
   );
 
   const handleFileChange = useCallback(
     async (file: File | null) => {
       if (!file) return;
-      const result = await processImageForUpload(file, { maxSizeMB: 5, quality: 0.85 });
+      const result = await processImageForUpload(file, {
+        maxSizeMB: 5,
+        quality: 0.85,
+      });
       if (result.error) {
         showToast(result.error, "error");
         return;
@@ -143,7 +143,7 @@ export const useFeaturedPostsPage = () => {
         showToast("فشل رفع الصورة", "error");
       }
     },
-    [uploadImage, showToast, preview]
+    [uploadImage, showToast, preview],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -178,10 +178,14 @@ export const useFeaturedPostsPage = () => {
 
   const handleToggle = useCallback(
     async (post: FeaturedPostDto) => {
-      const success = await update(post.id, { ...post, isActive: !post.isActive });
-      if (success) showToast(post.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
+      const success = await update(post.id, {
+        ...post,
+        isActive: !post.isActive,
+      });
+      if (success)
+        showToast(post.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
     },
-    [update, showToast]
+    [update, showToast],
   );
 
   const handleDelete = useCallback(
@@ -199,7 +203,7 @@ export const useFeaturedPostsPage = () => {
         if (form.id === post.id) resetForm();
       }
     },
-    [confirm, form.id, remove, resetForm, showToast]
+    [confirm, form.id, remove, resetForm, showToast],
   );
 
   return {

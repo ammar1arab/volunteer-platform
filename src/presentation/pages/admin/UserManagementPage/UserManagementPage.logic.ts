@@ -75,13 +75,11 @@ export const useUserManagementPage = () => {
     [users, sortBy],
   );
 
-  // Manual Pagination Logic
   const paginatedVolunteers = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return volunteers.slice(start, start + ITEMS_PER_PAGE);
   }, [volunteers, currentPage]);
 
-  // Reset page when sorting changes
   useEffect(() => {
     setCurrentPage(1);
   }, [sortBy]);

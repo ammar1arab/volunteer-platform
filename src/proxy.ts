@@ -7,7 +7,6 @@ import { ROUTES } from "@/lib";
 
 interface TokenWithRole {
   role?: UserRole;
-  sub?: string;
 }
 
 export async function proxy(req: NextRequest) {

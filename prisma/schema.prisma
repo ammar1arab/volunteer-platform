@@ -30,6 +30,7 @@ enum JordanianCity {
   AJLOUN
   TAFILAH
   MAAN
+  OUTOFJORDAN
 }
 
 model User {

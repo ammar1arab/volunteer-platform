@@ -1,8 +1,6 @@
-// src/presentation/styles/_admin-mixins.scss
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-// Page Header
 @mixin page-header {
   @include flex-between;
   margin-bottom: $sp-lg;
@@ -32,7 +30,6 @@
   }
 }
 
-// Grid
 @mixin cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

@@ -86,7 +86,7 @@ class R2StorageService {
       }
 
       const urlObj = new URL(url);
-      const key = urlObj.pathname.substring(1); // Remove leading "/"
+      const key = urlObj.pathname.substring(1);
       return key || null;
     } catch {
       return null;

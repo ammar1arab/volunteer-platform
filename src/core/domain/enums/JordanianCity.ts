@@ -11,6 +11,7 @@ enum JordanianCity {
   AJLOUN = "AJLOUN",
   TAFILAH = "TAFILAH",
   MAAN = "MAAN",
+  OUTOFJORDAN = "OUTOFJORDAN",
 }
 
 export default JordanianCity;

@@ -13,6 +13,7 @@ export const JORDANIAN_CITIES = [
   { value: JordanianCity.AJLOUN, label: "عجلون" },
   { value: JordanianCity.TAFILAH, label: "الطفيلة" },
   { value: JordanianCity.MAAN, label: "معان" },
+  { value: JordanianCity.OUTOFJORDAN, label: "من خارج الأردن" },
 ];
 
 export const getCityLabel = (cityValue: JordanianCity): string => {

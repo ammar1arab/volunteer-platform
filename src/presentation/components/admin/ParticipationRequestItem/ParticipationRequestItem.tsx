@@ -1,6 +1,6 @@
 import styles from "./ParticipationRequestItem.module.scss";
+import { ActivityParticipationDto } from "@/core/application/dtos";
 import { User, Mail, Phone, Calendar, CheckCircle, XCircle } from "lucide-react";
-import type { ActivityParticipationDto } from "@/lib";
 
 type Props = {
   request: ActivityParticipationDto;

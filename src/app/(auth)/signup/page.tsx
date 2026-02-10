@@ -4,7 +4,7 @@ import { useSignup } from './page.logic';
 
 import Link from 'next/link';
 import { Input, Button, SelectInput, BirthDateInput } from '@/presentation/components';
-import { JORDANIAN_CITIES } from '@/lib/constants';
+import { JORDANIAN_CITIES } from '@/lib';
 
 const SignupPage = () => {
   const { formData, error, loading, handleChange, handleSubmit } = useSignup();

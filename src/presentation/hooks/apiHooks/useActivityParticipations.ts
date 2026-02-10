@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { activityParticipationApi } from "@/lib/api";
+import { activityParticipationApi } from "@/lib";
 import type { ActivityParticipationDto } from "@/core/application/dtos";
 
 interface UseActivityParticipationsOptions {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { activityApi } from "@/lib/api";
+import { activityApi } from "@/lib";
 import type { ActivityVolunteerDto } from "@/core/application/dtos";
 
 export const useVolunteersModal = (activityId: string, isOpen: boolean) => {

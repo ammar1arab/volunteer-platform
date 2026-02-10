@@ -5,7 +5,7 @@ import {
   userApi,
   volunteerProfileApi,
   activityParticipationApi,
-} from "@/lib/api";
+} from "@/lib";
 import { signOut } from "next-auth/react";
 import type {
   ActivityParticipationDto,

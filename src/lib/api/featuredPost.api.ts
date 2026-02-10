@@ -1,4 +1,4 @@
-import { apiClient } from "./client";
+import { apiClient } from "./client.api";
 import { API_ENDPOINTS } from "@/lib";
 import type {
   CreateFeaturedPostRequest,
