@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { activityApi, uploadApi } from "@/lib";
 import type {
   ActivityDto,
@@ -8,222 +8,247 @@ import type {
   UpdateActivityRequest,
 } from "@/core/application/dtos";
 
-const getErr = (e: unknown) =>
-  e instanceof Error ? e.message : "Unexpected error";
+type ListState = {
+  list: ActivityDto[];
+  loading: boolean;
+  submitting: boolean;
+  uploading: boolean;
+  error: string;
+};
+
+const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
+  if (err instanceof Error) return err.message;
+  return fallback;
+};
 
 export type ActivitiesFilter = "all" | "published";
 
 export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
-  const [items, setItems] = useState<ActivityDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
-
   const filter = opts?.filter ?? "all";
 
-  const list = useMemo(() => {
-    return [...items].sort((a, b) => {
-      const d1 = new Date(a.date).getTime();
-      const d2 = new Date(b.date).getTime();
-      if (d1 !== d2) return d1 - d2;
-      return (a.startTime || "").localeCompare(b.startTime || "", "en");
-    });
-  }, [items]);
+  const [state, setState] = useState<ListState>({
+    list: [],
+    loading: false,
+    submitting: false,
+    uploading: false,
+    error: "",
+  });
 
-  const fetchList = useCallback(
-    async (silent = false) => {
-      setError("");
-      if (!silent) setLoading(true);
+  const hasLoadedRef = useRef(false);
 
-      try {
-        const res =
-          filter === "published"
-            ? await activityApi.getPublished()
-            : await activityApi.getAll();
+  const setError = (msg: string) =>
+    setState((p) => ({ ...p, error: msg || "" }));
 
-        if (!res.success) {
-          if (!silent) setItems([]);
-          setError(res.error || "Failed to load activities");
-          return;
-        }
+  const refresh = useCallback(async () => {
+    setState((p) => ({ ...p, loading: true, error: "" }));
 
-        setItems(res.activities || []);
-      } catch (e) {
-        if (!silent) setItems([]);
-        setError(getErr(e));
-      } finally {
-        if (!silent) setLoading(false);
-      }
-    },
-    [filter]
-  );
+    try {
+      const res =
+        filter === "published"
+          ? await activityApi.getPublished()
+          : await activityApi.getAll();
+
+      const activities: ActivityDto[] =
+        (res as { data?: { activities?: ActivityDto[] } })?.data?.activities ?? [];
+
+      setState((p) => ({
+        ...p,
+        list: activities,
+        loading: false,
+      }));
+    } catch (err) {
+      setState((p) => ({
+        ...p,
+        loading: false,
+        error: getErrMsg(err, "فشل في جلب البيانات"),
+      }));
+    }
+  }, [filter]);
 
   useEffect(() => {
-    fetchList(false);
-  }, [fetchList]);
-
-  const refresh = useCallback(() => fetchList(false), [fetchList]);
+    if (!hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      refresh();
+    }
+  }, [refresh]);
 
   const uploadImage = useCallback(async (file: File) => {
-    setError("");
-    setUploading(true);
+    setState((p) => ({ ...p, uploading: true, error: "" }));
+
     try {
       const res = await uploadApi.uploadActivityImage(file);
-      if (!res.success || !res.data?.imageUrl)
-        throw new Error(res.error || "Upload failed");
-      return res.data.imageUrl;
-    } catch (e) {
-      setError(getErr(e));
+      const imageUrl = (res as { data?: { imageUrl?: string } })?.data?.imageUrl;
+      const success = (res as { success?: boolean })?.success;
+
+      if (!success || !imageUrl) {
+        throw new Error((res as { error?: string })?.error || "فشل رفع الصورة");
+      }
+
+      setState((p) => ({ ...p, uploading: false }));
+      return imageUrl;
+    } catch (err) {
+      setError(getErrMsg(err, "فشل رفع الصورة"));
+      setState((p) => ({ ...p, uploading: false }));
       return null;
-    } finally {
-      setUploading(false);
     }
   }, []);
 
   const create = useCallback(
     async (payload: CreateActivityRequest) => {
-      setError("");
-      setSubmitting(true);
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+
       try {
         const res = await activityApi.create(payload);
-        if (!res.success || !res.activity)
-          throw new Error(res.error || "Create failed");
 
-        setItems((prev) => [res.activity!, ...prev]);
-        await fetchList(true);
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في الإنشاء");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
+        }
 
-        return res.activity!;
-      } catch (e) {
-        setError(getErr(e));
-        return null;
-      } finally {
-        setSubmitting(false);
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
+      } catch (err) {
+        setError(getErrMsg(err, "فشل في الإنشاء"));
+        setState((p) => ({ ...p, submitting: false }));
+        return false;
       }
     },
-    [fetchList]
+    [refresh]
   );
 
   const update = useCallback(
     async (id: string, payload: UpdateActivityRequest) => {
-      setError("");
-      setSubmitting(true);
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+
       try {
         const res = await activityApi.update(id, payload);
-        if (!res.success || !res.activity)
-          throw new Error(res.error || "Update failed");
 
-        setItems((prev) => prev.map((x) => (x.id === id ? res.activity! : x)));
-        await fetchList(true);
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في التحديث");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
+        }
 
-        return res.activity!;
-      } catch (e) {
-        setError(getErr(e));
-        return null;
-      } finally {
-        setSubmitting(false);
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
+      } catch (err) {
+        setError(getErrMsg(err, "فشل في التحديث"));
+        setState((p) => ({ ...p, submitting: false }));
+        return false;
       }
     },
-    [fetchList]
+    [refresh]
   );
 
   const remove = useCallback(
     async (id: string) => {
-      setError("");
-      setSubmitting(true);
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+
       try {
         const res = await activityApi.delete(id);
-        if (!res.success) throw new Error(res.error || "Delete failed");
 
-        setItems((prev) => prev.filter((x) => x.id !== id));
-        await fetchList(true);
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في الحذف");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
+        }
 
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
         return true;
-      } catch (e) {
-        setError(getErr(e));
+      } catch (err) {
+        setError(getErrMsg(err, "فشل في الحذف"));
+        setState((p) => ({ ...p, submitting: false }));
         return false;
-      } finally {
-        setSubmitting(false);
       }
     },
-    [fetchList]
+    [refresh]
   );
 
   const publish = useCallback(
     async (id: string) => {
-      setError("");
-      setSubmitting(true);
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+
       try {
         const res = await activityApi.publish(id);
-        if (!res.success || !res.activity)
-          throw new Error(res.error || "Publish failed");
 
-        setItems((prev) => prev.map((x) => (x.id === id ? res.activity! : x)));
-        await fetchList(true);
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في النشر");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
+        }
 
-        return res.activity!;
-      } catch (e) {
-        setError(getErr(e));
-        return null;
-      } finally {
-        setSubmitting(false);
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
+      } catch (err) {
+        setError(getErrMsg(err, "فشل في النشر"));
+        setState((p) => ({ ...p, submitting: false }));
+        return false;
       }
     },
-    [fetchList]
+    [refresh]
   );
 
   const cancel = useCallback(
     async (id: string) => {
-      setError("");
-      setSubmitting(true);
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+
       try {
         const res = await activityApi.cancel(id);
-        if (!res.success || !res.activity)
-          throw new Error(res.error || "Cancel failed");
 
-        setItems((prev) => prev.map((x) => (x.id === id ? res.activity! : x)));
-        await fetchList(true);
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في الإلغاء");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
+        }
 
-        return res.activity!;
-      } catch (e) {
-        setError(getErr(e));
-        return null;
-      } finally {
-        setSubmitting(false);
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
+      } catch (err) {
+        setError(getErrMsg(err, "فشل في الإلغاء"));
+        setState((p) => ({ ...p, submitting: false }));
+        return false;
       }
     },
-    [fetchList]
+    [refresh]
   );
 
   const restore = useCallback(
-  async (id: string) => {
-    setError("");
-    setSubmitting(true);
-    try {
-      const res = await activityApi.restore(id);
-      if (!res.success || !res.activity)
-        throw new Error(res.error || "Restore failed");
+    async (id: string) => {
+      setState((p) => ({ ...p, submitting: true, error: "" }));
 
-      setItems((prev) => prev.map((x) => (x.id === id ? res.activity! : x)));
-      await fetchList(true);
+      try {
+        const res = await activityApi.restore(id);
 
-      return res.activity!;
-    } catch (e) {
-      setError(getErr(e));
-      return null;
-    } finally {
-      setSubmitting(false);
-    }
-  },
-  [fetchList]
-);
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في الاستعادة");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
+        }
+
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
+      } catch (err) {
+        setError(getErrMsg(err, "فشل في الاستعادة"));
+        setState((p) => ({ ...p, submitting: false }));
+        return false;
+      }
+    },
+    [refresh]
+  );
 
   return {
-    list,
-    loading,
-    submitting,
-    uploading,
-    error,
+    list: state.list,
+    loading: state.loading,
+    submitting: state.submitting,
+    uploading: state.uploading,
+    error: state.error,
     refresh,
     uploadImage,
     create,
@@ -231,6 +256,57 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
     remove,
     publish,
     cancel,
-    restore
+    restore,
   };
+};
+
+// ✅ ADD THIS - Activity Details Hook
+export const useActivityDetails = (id: string) => {
+  const [activity, setActivity] = useState<ActivityDto | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchActivity = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const res = await activityApi.getOne(id);
+        if (cancelled) return;
+
+        const activityData: ActivityDto | null =
+          (res as { data?: { activity?: ActivityDto } })?.data?.activity ?? null;
+
+        setActivity(activityData);
+
+        if (!activityData) {
+          setError("النشاط غير موجود");
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(getErrMsg(err, "فشل في جلب النشاط"));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchActivity();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  return { activity, loading, error };
 };

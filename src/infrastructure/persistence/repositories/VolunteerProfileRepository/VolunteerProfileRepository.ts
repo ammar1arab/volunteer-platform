@@ -4,6 +4,15 @@ import { prisma } from "@/infrastructure/persistence/prisma";
 import IVolunteerProfileRepository from "./IVolunteerProfileRepository";
 
 class VolunteerProfileRepository implements IVolunteerProfileRepository {
+  
+  private mapToEntity(data: VolunteerProfileProps): VolunteerProfile {
+    return new VolunteerProfile({
+      ...data,
+      skills: data.skills || [],
+      interests: data.interests || [],
+    });
+  }
+
   async findByUserId(userId: string): Promise<VolunteerProfile | null> {
     const profileData = await prisma.volunteerProfile.findUnique({
       where: { userId },
@@ -11,69 +20,62 @@ class VolunteerProfileRepository implements IVolunteerProfileRepository {
 
     if (!profileData) return null;
 
-    return new VolunteerProfile({
-      ...profileData,
-      skills: profileData.skills || [],
-      interests: profileData.interests || [],
-    } as VolunteerProfileProps);
+    return this.mapToEntity(profileData as VolunteerProfileProps);
   }
 
   async create(profile: VolunteerProfile): Promise<VolunteerProfile> {
-    const profileProps = profile.toObject();
+    const props = profile.toObject();
 
     const createdProfile = await prisma.volunteerProfile.create({
       data: {
-        id: profileProps.id,
-        userId: profileProps.userId,
-        city: profileProps.city,
-        dateOfBirth: profileProps.dateOfBirth,
-        profilePictureUrl: profileProps.profilePictureUrl,
-        gender: profileProps.gender,
-        bio: profileProps.bio,
-        skills: profileProps.skills || [],
-        interests: profileProps.interests || [],
-        hasVolunteerExperience: profileProps.hasVolunteerExperience || false,
-        isActive: profileProps.isActive,
+        id: props.id,
+        userId: props.userId,
+        city: props.city,
+        dateOfBirth: props.dateOfBirth,
+        profilePictureUrl: props.profilePictureUrl,
+        gender: props.gender,
+        bio: props.bio,
+        skills: props.skills || [],
+        interests: props.interests || [],
+        hasVolunteerExperience: props.hasVolunteerExperience || false,
+        isActive: props.isActive,
+        createdAt: props.createdAt,
+        updatedAt: props.updatedAt,
       },
     });
 
-    return new VolunteerProfile({
-      ...createdProfile,
-      skills: createdProfile.skills || [],
-      interests: createdProfile.interests || [],
-    } as VolunteerProfileProps);
+    return this.mapToEntity(createdProfile as VolunteerProfileProps);
   }
 
   async update(profile: VolunteerProfile): Promise<VolunteerProfile> {
-    const profileProps = profile.toObject();
+    const props = profile.toObject();
 
     const updatedProfile = await prisma.volunteerProfile.update({
-      where: { id: profile.id },
+      where: { id: props.id },
       data: {
-        city: profileProps.city,
-        dateOfBirth: profileProps.dateOfBirth,
-        profilePictureUrl: profileProps.profilePictureUrl,
-        gender: profileProps.gender,
-        bio: profileProps.bio,
-        skills: profileProps.skills || [],
-        interests: profileProps.interests || [],
-        hasVolunteerExperience: profileProps.hasVolunteerExperience,
-        isActive: profileProps.isActive,
+        city: props.city,
+        dateOfBirth: props.dateOfBirth,
+        profilePictureUrl: props.profilePictureUrl,
+        gender: props.gender,
+        bio: props.bio,
+        skills: props.skills || [],
+        interests: props.interests || [],
+        hasVolunteerExperience: props.hasVolunteerExperience,
+        isActive: props.isActive,
         updatedAt: new Date(),
       },
     });
 
-    return new VolunteerProfile({
-      ...updatedProfile,
-      skills: updatedProfile.skills || [],
-      interests: updatedProfile.interests || [],
-    } as VolunteerProfileProps);
+    return this.mapToEntity(updatedProfile as VolunteerProfileProps);
   }
 
-  async delete(id: string): Promise<void> {
-    await prisma.volunteerProfile.delete({
-      where: { id },
-    });
+  async delete(id: string): Promise<boolean> {
+    try {
+      await prisma.volunteerProfile.delete({ where: { id } });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 

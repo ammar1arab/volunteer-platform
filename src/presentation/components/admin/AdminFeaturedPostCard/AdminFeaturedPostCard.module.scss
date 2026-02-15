@@ -1,0 +1,76 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.card {
+  @include flex-col;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  transition: $transition;
+
+  &:hover {
+    border-color: rgba($green, 0.3);
+  }
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(135deg, rgba($green, 0.05), rgba($green, 0.02));
+
+  @include sm {
+    height: 150px;
+  }
+
+  img {
+    object-fit: contain;
+    padding: $sp-sm;
+  }
+}
+
+.content {
+  @include flex-col;
+  flex: 1;
+  padding: $sp-md;
+  gap: $sp-sm;
+}
+
+.header {
+  @include flex-between;
+  gap: $sp-xs;
+  align-items: flex-start;
+}
+
+.title {
+  flex: 1;
+  margin: 0;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+  line-height: 1.4;
+  @include line-clamp(2);
+
+  @include sm {
+    font-size: $font-xs;
+  }
+}
+
+.meta {
+  flex-shrink: 0;
+}
+
+.description {
+  margin: 0;
+  font-size: $font-xs;
+  color: $text-muted;
+  line-height: 1.6;
+  @include line-clamp(2);
+}
+
+.actions {
+  @include flex(row, center, flex-start, $sp-xs);
+  padding-top: $sp-sm;
+  border-top: 1px solid rgba($green, 0.1);
+  margin-top: auto;
+}

@@ -1,22 +1,19 @@
-import { NextResponse } from "next/server";
-import ActivityService from "@/core/application/services/ActivityService";
-import { ActivityRepository } from "@/infrastructure/persistence/repositories";
+import { UserRole } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
-const buildService = () => new ActivityService(new ActivityRepository());
+export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  try {
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
 
-export async function POST(
-  _: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  const { id } = await context.params;
-  
-  const service = buildService();
-  const result = await service.publish(id);
-
-  return NextResponse.json(result, {
-    status: result.success ? 200 : 400,
-  });
+    const { id } = await ctx.params;
+    logger.info("API", "POST /activities/[id]/publish", id);
+    return toResponse(await providers.activity().publish(id));
+  } catch (error) {
+    return apiError("API", "POST /activities/[id]/publish", error);
+  }
 }

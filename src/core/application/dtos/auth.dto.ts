@@ -1,20 +1,19 @@
 import { UserRole, JordanianCity } from "@/core/domain/enums";
+import type { Result } from "./base.dto";
 
 export interface SignInRequest {
   email: string;
   password: string;
 }
 
-export interface SignInResponse {
-  success: boolean;
-  user?: {
-    id: string;
-    email: string;
-    fullName: string;
-    role: UserRole;
-  };
-  error?: string;
+export interface SignInUserDto {
+  id: string;
+  email: string;
+  fullName: string;
+  role: UserRole;
 }
+
+export type SignInResponse = Result<{ user: SignInUserDto }>;
 
 export interface SignUpRequest {
   email: string;
@@ -25,12 +24,17 @@ export interface SignUpRequest {
   dateOfBirth: Date;
 }
 
-export interface SignUpResponse {
-  success: boolean;
-  user?: {
-    id: string;
-    email: string;
-    fullName: string;
-  };
-  error?: string;
+export interface SignUpUserDto {
+  id: string;
+  email: string;
+  fullName: string;
 }
+
+export type SignUpResponse = Result<{ user: SignUpUserDto }>;
+
+export interface SignInTokenDto {
+  token: string;
+  user: SignInUserDto;
+}
+
+export type SignInTokenResponse = Result<SignInTokenDto>;

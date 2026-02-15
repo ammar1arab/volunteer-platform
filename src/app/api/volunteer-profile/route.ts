@@ -1,65 +1,35 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import VolunteerProfileService from "@/core/application/services/VolunteerProfileService";
-import { VolunteerProfileRepository } from "@/infrastructure/persistence/repositories";
-import { R2StorageService } from "@/infrastructure/external";
+import { logger } from "@/core/application/helpers";
 import type { UpdateVolunteerProfileRequest } from "@/core/application/dtos";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, parseJson, badRequest, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 
-export async function PATCH(request: NextRequest) {
+export async function GET(req: Request) {  
   try {
-    // 1. Check authentication
-    const session = await getServerSession(authOptions);
+    const auth = await requireAuth(req); 
+    if ("error" in auth) return auth.error;
 
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "غير مصرح" },
-        { status: 401 }
-      );
-    }
-
-    // 2. Parse request body
-    const body = await request.json();
-
-    // 3. Prepare DTO for service
-    const updateDto: UpdateVolunteerProfileRequest = {
-      userId: session.user.id,
-      city: body.city,
-      dateOfBirth: body.dateOfBirth ? new Date(body.dateOfBirth) : undefined,
-      gender: body.gender,
-      bio: body.bio,
-      skills: body.skills,
-      interests: body.interests,
-      hasVolunteerExperience: body.hasVolunteerExperience,
-    };
-
-    // 4. Initialize service with dependencies
-    const volunteerProfileRepository = new VolunteerProfileRepository();
-    const storageService = new R2StorageService();
-    const volunteerProfileService = new VolunteerProfileService(
-      volunteerProfileRepository,
-      storageService
-    );
-
-    // 5. Call service method
-    const result = await volunteerProfileService.updateProfile(updateDto);
-
-    // 6. Return response
-    if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(result);
+    logger.info("API", "GET /volunteer-profile", `user=${auth.session.user.id}`);
+    return toResponse(await providers.volunteerProfile().getProfile(auth.session.user.id));
   } catch (error) {
-    console.error("Error in PATCH /api/volunteer-profiles:", error);
-    return NextResponse.json(
-      { success: false, error: "حدث خطأ في الخادم" },
-      { status: 500 }
-    );
+    return apiError("API", "GET /volunteer-profile", error);
+  }
+}
+
+export async function PATCH(req: Request) {
+  try {
+    const auth = await requireAuth(req);
+    if ("error" in auth) return auth.error;
+
+    const body = await parseJson<Omit<UpdateVolunteerProfileRequest, "userId">>(req);
+    if (!body) return badRequest("Invalid JSON body");
+
+    const dto: UpdateVolunteerProfileRequest = { ...body, userId: auth.session.user.id };
+
+    logger.info("API", "PATCH /volunteer-profile", `user=${auth.session.user.id}`);
+    return toResponse(await providers.volunteerProfile().updateProfile(dto));
+  } catch (error) {
+    return apiError("API", "PATCH /volunteer-profile", error);
   }
 }

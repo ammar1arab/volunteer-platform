@@ -1,28 +1,25 @@
 import { JordanianCity, Gender } from "@/core/domain/enums";
+import type { Result } from "./base.dto";
 
-// ========== GET PROFILE ==========
-export interface GetVolunteerProfileRequest {
+// ─── Volunteer Profile ────────────────────────────────────────
+
+export interface VolunteerProfileDto {
+  id: string;
   userId: string;
+  city: string;
+  dateOfBirth: string;
+  profilePictureUrl?: string | null;
+  gender?: string | null;
+  bio?: string | null;
+  skills: string[];
+  interests: string[];
+  hasVolunteerExperience: boolean;
 }
 
-export interface GetVolunteerProfileResponse {
-  success: boolean;
-  profile?: {
-    id: string;
-    userId: string;
-    city: string;
-    dateOfBirth: string;
-    profilePictureUrl?: string | null;
-    gender?: string | null;
-    bio?: string | null;
-    skills: string[];
-    interests: string[];
-    hasVolunteerExperience: boolean;
-  };
-  error?: string;
-}
+export type GetVolunteerProfileResponse = Result<{ profile: VolunteerProfileDto }>;
 
-// ========== UPDATE PROFILE ==========
+// ─── Update Profile ───────────────────────────────────────────
+
 export interface UpdateVolunteerProfileRequest {
   userId: string;
   city?: JordanianCity;
@@ -35,31 +32,13 @@ export interface UpdateVolunteerProfileRequest {
   hasVolunteerExperience?: boolean;
 }
 
-export interface UpdateVolunteerProfileResponse {
-  success: boolean;
-  profile?: {
-    id: string;
-    userId: string;
-    city: string;
-    dateOfBirth: string;
-    profilePictureUrl?: string | null;
-    gender?: string | null;
-    bio?: string | null;
-    skills: string[];
-    interests: string[];
-    hasVolunteerExperience: boolean;
-  };
-  error?: string;
-}
+export type UpdateVolunteerProfileResponse = Result<{ profile: VolunteerProfileDto }>;
 
-// ========== UPLOAD PROFILE PICTURE ==========
+// ─── Upload Picture ───────────────────────────────────────────
+
 export interface UploadProfilePictureRequest {
   userId: string;
   file: File;
 }
 
-export interface UploadProfilePictureResponse {
-  success: boolean;
-  imageUrl?: string;
-  error?: string;
-}
+export type UploadProfilePictureResponse = Result<{ imageUrl: string }>;

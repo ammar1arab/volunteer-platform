@@ -1,29 +1,52 @@
-import { FeaturedPost } from "@/core/domain/entities";
-import { FeaturedPostProps } from "@/core/domain/interfaces";
-import { prisma } from "@/infrastructure/persistence/prisma";
 import IFeaturedPostRepository from "./IFeaturedPostRepository";
 
-class FeaturedPostRepository implements IFeaturedPostRepository {
-  async findById(id: string): Promise<FeaturedPost | null> {
-    const data = await prisma.featuredPost.findUnique({
-      where: { id },
-    });
+import { FeaturedPostCategory } from "@prisma/client";
+import { prisma } from "@/infrastructure/persistence/prisma";
+import { FeaturedPost } from "@/core/domain/entities";
+import DomainFeaturedPostCategory from "@/core/domain/enums/FeaturedPostCategory";
 
-    if (!data) return null;
-    return new FeaturedPost(data as FeaturedPostProps);
+class FeaturedPostRepository implements IFeaturedPostRepository {
+  private mapToEntity(data: {
+    id: string;
+    imageUrl: string;
+    title: string;
+    description: string;
+    categories: string[];
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }): FeaturedPost {
+    return new FeaturedPost({
+      id: data.id,
+      imageUrl: data.imageUrl,
+      title: data.title,
+      description: data.description,
+      categories: data.categories.map(
+        (cat) =>
+          DomainFeaturedPostCategory[
+            cat as keyof typeof DomainFeaturedPostCategory
+          ],
+      ),
+      isActive: data.isActive,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    });
+  }
+
+  async findById(id: string): Promise<FeaturedPost | null> {
+    const data = await prisma.featuredPost.findUnique({ where: { id } });
+    return data ? this.mapToEntity(data) : null;
   }
 
   async findAll(): Promise<FeaturedPost[]> {
     const rows = await prisma.featuredPost.findMany({
       orderBy: { title: "asc" },
     });
-
-    return rows.map((x) => new FeaturedPost(x as FeaturedPostProps));
+    return rows.map((row) => this.mapToEntity(row));
   }
 
   async create(featuredPost: FeaturedPost): Promise<FeaturedPost> {
     const props = featuredPost.toObject();
-
     const created = await prisma.featuredPost.create({
       data: {
         id: props.id,
@@ -31,26 +54,30 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
         title: props.title,
         description: props.description,
         isActive: props.isActive,
+        categories: props.categories as FeaturedPostCategory[],
+        createdAt: props.createdAt,
+        updatedAt: props.updatedAt,
       },
     });
 
-    return new FeaturedPost(created as FeaturedPostProps);
+    return this.mapToEntity(created);
   }
 
   async update(featuredPost: FeaturedPost): Promise<FeaturedPost> {
     const props = featuredPost.toObject();
-
     const updated = await prisma.featuredPost.update({
-      where: { id: featuredPost.id },
+      where: { id: props.id },
       data: {
         imageUrl: props.imageUrl,
         title: props.title,
         description: props.description,
         isActive: props.isActive,
+        categories: props.categories as FeaturedPostCategory[],
+        updatedAt: new Date(),
       },
     });
 
-    return new FeaturedPost(updated as FeaturedPostProps);
+    return this.mapToEntity(updated);
   }
 
   async delete(id: string): Promise<boolean> {

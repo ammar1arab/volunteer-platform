@@ -1,105 +1,33 @@
-import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/infrastructure/persistence/prisma";
-import UserService from "@/core/application/services/UserService"; 
-import { UserRepository } from "@/infrastructure/persistence/repositories"; 
+import { logger } from "@/core/application/helpers";
+import type { UpdateUserRequest } from "@/core/application/dtos";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, parseJson, badRequest, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const auth = await requireAuth(req);
+    if ("error" in auth) return auth.error;
 
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        volunteerProfile: true,
-        participations: {
-          select: {
-            id: true,
-            status: true,
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        phone: user.phone,
-        role: user.role,
-        isActive: user.isActive,
-        createdAt: user.createdAt.toISOString(),
-        volunteerProfile: user.volunteerProfile ? {
-          id: user.volunteerProfile.id,
-          city: user.volunteerProfile.city,
-          dateOfBirth: user.volunteerProfile.dateOfBirth.toISOString(),
-          gender: user.volunteerProfile.gender,
-          bio: user.volunteerProfile.bio,
-          skills: user.volunteerProfile.skills,
-          interests: user.volunteerProfile.interests,
-          profilePictureUrl: user.volunteerProfile.profilePictureUrl,
-        } : undefined,
-        participations: user.participations,
-      },
-    });
+    logger.info("API", "GET /users/me", `user=${auth.session.user.id}`);
+    return toResponse(await providers.user().getUserDetails(auth.session.user.id));
   } catch (error) {
-    console.error("Get profile error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch profile" },
-      { status: 500 }
-    );
+    return apiError("API", "GET /users/me", error);
   }
 }
-export async function PATCH(request: NextRequest) {
+
+export async function PATCH(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const auth = await requireAuth(req);
+    if ("error" in auth) return auth.error;
 
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "غير مصرح" },
-        { status: 401 }
-      );
-    }
+    const body = await parseJson<UpdateUserRequest>(req);
+    if (!body) return badRequest("Invalid JSON body");
 
-    const body = await request.json();
-
-    const userRepository = new UserRepository();
-    const userService = new UserService(userRepository);
-
-    const result = await userService.updateBasicInfo(session.user.id, body);
-
-    if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(result);
+    logger.info("API", "PATCH /users/me", `user=${auth.session.user.id}`);
+    return toResponse(await providers.user().updateBasicInfo(auth.session.user.id, body));
   } catch (error) {
-    console.error("Error in PATCH /api/users/me:", error);
-    return NextResponse.json(
-      { success: false, error: "حدث خطأ في الخادم" },
-      { status: 500 }
-    );
+    return apiError("API", "PATCH /users/me", error);
   }
 }

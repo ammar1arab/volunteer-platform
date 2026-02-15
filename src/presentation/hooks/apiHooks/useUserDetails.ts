@@ -7,90 +7,86 @@ import type { UserAnalyticsDto, UserActivityDto } from "@/core/application/dtos"
 interface UserDetailsState {
   user: UserAnalyticsDto | null;
   activities: UserActivityDto[];
-  isLoadingUser: boolean;
-  isLoadingActivities: boolean;
+  loadingUser: boolean;
+  loadingActivities: boolean;
   error: string;
 }
+
+const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
+  if (err instanceof Error) return err.message;
+  return fallback;
+};
 
 export const useUserDetails = (userId: string) => {
   const [state, setState] = useState<UserDetailsState>({
     user: null,
     activities: [],
-    isLoadingUser: false,
-    isLoadingActivities: false,
+    loadingUser: false,
+    loadingActivities: false,
     error: "",
   });
 
   const loadUser = useCallback(async () => {
-    setState((p) => ({ ...p, isLoadingUser: true, error: "" }));
+    setState((p) => ({ ...p, loadingUser: true, error: "" }));
 
     try {
-      const result = await userApi.getById(userId);
+      const res = await userApi.getById(userId);
 
-      if (!result.success || !result.user) {
-        setState((p) => ({
-          ...p,
-          isLoadingUser: false,
-          error: result.error || "فشل في جلب بيانات المستخدم",
-        }));
-        return;
-      }
+      const user: UserAnalyticsDto | null =
+        (res as { data?: { user?: UserAnalyticsDto } })?.data?.user ?? null;
 
       setState((p) => ({
         ...p,
-        user: result.user || null,
-        isLoadingUser: false,
+        user,
+        loadingUser: false,
       }));
-    } catch (error) {
+    } catch (err) {
       setState((p) => ({
         ...p,
-        isLoadingUser: false,
-        error: error instanceof Error ? error.message : "حدث خطأ غير متوقع",
+        loadingUser: false,
+        error: getErrMsg(err, "فشل في جلب بيانات المستخدم"),
       }));
     }
   }, [userId]);
 
   const loadActivities = useCallback(async () => {
-    setState((p) => ({ ...p, isLoadingActivities: true }));
+    setState((p) => ({ ...p, loadingActivities: true }));
 
     try {
-      const result = await userApi.getActivities(userId);
+      const res = await userApi.getActivities(userId);
 
-      if (!result.success || !result.activities) {
-        setState((p) => ({
-          ...p,
-          isLoadingActivities: false,
-        }));
-        return;
-      }
+      const activities: UserActivityDto[] =
+        (res as { data?: { activities?: UserActivityDto[] } })?.data?.activities ?? [];
 
       setState((p) => ({
         ...p,
-        activities: result.activities || [],
-        isLoadingActivities: false,
+        activities,
+        loadingActivities: false,
       }));
-    } catch {
+    } catch (err) {
       setState((p) => ({
         ...p,
-        isLoadingActivities: false,
+        loadingActivities: false,
+        error: getErrMsg(err, "فشل في جلب الفرص"),
       }));
     }
   }, [userId]);
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
     loadUser();
     loadActivities();
   }, [loadUser, loadActivities]);
 
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
   return {
     user: state.user,
     activities: state.activities,
-    isLoadingUser: state.isLoadingUser,
-    isLoadingActivities: state.isLoadingActivities,
+    loadingUser: state.loadingUser,
+    loadingActivities: state.loadingActivities,
     error: state.error,
-    refresh: () => {
-      loadUser();
-      loadActivities();
-    },
+    refresh,
   };
 };

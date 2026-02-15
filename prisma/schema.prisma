@@ -7,32 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  VOLUNTEER
-}
-
-enum Gender {
-  MALE
-  FEMALE
-}
-
-enum JordanianCity {
-  AMMAN
-  ZARQA
-  IRBID
-  AQABA
-  SALT
-  MAFRAQ
-  KARAK
-  MADABA
-  JERASH
-  AJLOUN
-  TAFILAH
-  MAAN
-  OUTOFJORDAN
-}
-
 model User {
   id                String                  @id @default(uuid())
   email             String                  @unique
@@ -45,7 +19,7 @@ model User {
   updatedAt         DateTime                @updatedAt
   createdActivities Activity[]              @relation("ActivityCreator")
   participations    ActivityParticipation[] @relation("VolunteerParticipations")
-  volunteerProfile  VolunteerProfile? 
+  volunteerProfile  VolunteerProfile?
 
   @@map("users")
 }
@@ -120,14 +94,56 @@ model ActivityParticipation {
 }
 
 model FeaturedPost {
-  id          String   @id @default(uuid())
+  id          String                 @id @default(uuid())
   imageUrl    String
   title       String
   description String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean                @default(true)
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  categories  FeaturedPostCategory[] @default([])
 
   @@index([title])
   @@map("featured_posts")
+}
+
+enum UserRole {
+  ADMIN
+  VOLUNTEER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum JordanianCity {
+  AMMAN
+  ZARQA
+  IRBID
+  AQABA
+  SALT
+  MAFRAQ
+  KARAK
+  MADABA
+  JERASH
+  AJLOUN
+  TAFILAH
+  MAAN
+  OUTOFJORDAN
+}
+
+enum FeaturedPostCategory {
+  HEALTH
+  EDUCATION
+  TECHNOLOGY
+  ENVIRONMENT
+  ENTREPRENEURSHIP
+  SELF_DEVELOPMENT
+  ARTS
+  SPORTS
+  ENTERTAINMENT
+  DISABILITY
+  ECONOMY
+  LAW
 }

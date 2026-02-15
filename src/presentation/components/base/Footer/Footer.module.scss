@@ -2,7 +2,6 @@
 @use "@/presentation/styles/mixins" as *;
 
 .footer {
-  background: $bg;
   border-top: 1px solid $border;
   padding: $sp-lg 0 $sp-md;
   margin-top: auto;

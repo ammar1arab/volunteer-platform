@@ -1,53 +1,35 @@
+import { FeaturedPostCategory } from "@/core/domain/enums";
+import type { Result } from "./base.dto";
+
+// ─── Featured Post ────────────────────────────────────────────
+
 export interface FeaturedPostDto {
   id: string;
   imageUrl: string;
   title: string;
   description: string;
+  categories: FeaturedPostCategory[];
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
+// ─── Create / Update ──────────────────────────────────────────
+
 export interface CreateFeaturedPostRequest {
   imageUrl: string;
   title: string;
   description: string;
+  categories: FeaturedPostCategory[];
   isActive?: boolean;
 }
 
-export interface CreateFeaturedPostResponse {
-  success: boolean;
-  post?: FeaturedPostDto;
-  error?: string;
-}
+export type UpdateFeaturedPostRequest = Partial<CreateFeaturedPostRequest>;
 
-export interface UpdateFeaturedPostRequest {
-  imageUrl: string;
-  title: string;
-  description: string;
-  isActive?: boolean;
-}
+// ─── Responses ────────────────────────────────────────────────
 
-export interface UpdateFeaturedPostResponse {
-  success: boolean;
-  post?: FeaturedPostDto;
-  error?: string;
-}
-
-export interface GetFeaturedPostResponse {
-  success: boolean;
-  post?: FeaturedPostDto;
-  error?: string;
-}
-
-export interface GetAllFeaturedPostsResponse {
-  success: boolean;
-  posts?: FeaturedPostDto[];
-  error?: string;
-}
-
-export interface DeleteFeaturedPostResponse {
-  success: boolean;
-  deleted?: boolean;
-  error?: string;
-}
+export type CreateFeaturedPostResponse = Result<{ post: FeaturedPostDto }>;
+export type UpdateFeaturedPostResponse = Result<{ post: FeaturedPostDto }>;
+export type GetFeaturedPostResponse = Result<{ post: FeaturedPostDto }>;
+export type GetAllFeaturedPostsResponse = Result<{ posts: FeaturedPostDto[] }>;
+export type DeleteFeaturedPostResponse = Result<{ deleted: boolean }>;

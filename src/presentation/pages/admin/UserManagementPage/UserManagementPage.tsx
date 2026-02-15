@@ -21,14 +21,14 @@ const EXPORT_COLUMNS = [
   { key: 'email', label: 'البريد الإلكتروني' },
   { key: 'city', label: 'المدينة' },
   { key: 'skills', label: 'المهارات' },
-  { key: 'approvedActivities', label: 'عدد الأنشطة الموافق عليها' },
+  { key: 'approvedActivities', label: 'عدد الفرص الموافق عليها' },
   { key: 'createdAt', label: 'تاريخ الانضمام' },
 ];
 
 const UserManagementPage = () => {
   const {
     status,
-    isLoading,
+    loading,
     volunteers,
     admins,
     paginatedVolunteers,
@@ -53,7 +53,7 @@ const UserManagementPage = () => {
     <>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
-      {isLoading ? (
+      {loading ? (
         <LoadingState />
       ) : isEmpty ? (
         <EmptyState icon={UsersIcon} message="لا يوجد مستخدمين" />

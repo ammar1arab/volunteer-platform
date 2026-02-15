@@ -1,31 +1,22 @@
-import { apiClient, API_ENDPOINTS } from "@/lib";
+import { apiClient } from "./client.api";
+import { API_ENDPOINTS } from "@/lib";
+import type { Result } from "@/core/application/dtos";
 
-export type UploadImageResponse = {
-  imageUrl: string;
+type UploadScope = "featured-posts" | "activities" | "profiles";
+type UploadResponse = Result<{ imageUrl: string }>;
+
+const upload = (scope: UploadScope, file: File): Promise<UploadResponse> => {
+  const form = new FormData();
+  form.append("file", file);
+  return apiClient.post<UploadResponse>(
+    API_ENDPOINTS.UPLOADS.BY_SCOPE(scope),
+    form,
+  );
 };
-
-export type ApiResponse<T> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
-
 
 export const uploadApi = {
-  upload: (
-    scope: "featured-posts" | "activities" | "profiles",
-    file: File
-  ): Promise<ApiResponse<UploadImageResponse>> => {
-    const form = new FormData();
-    form.append("file", file);
-
-    return apiClient.post<ApiResponse<UploadImageResponse>>(
-      API_ENDPOINTS.UPLOADS.BY_SCOPE(scope),
-      form
-    );
-  },
-
-  uploadFeaturedImage: (file: File) => uploadApi.upload("featured-posts", file),
-  uploadActivityImage: (file: File) => uploadApi.upload("activities", file),
-  uploadProfilePicture: (file: File) => uploadApi.upload("profiles", file),
+  upload,
+  uploadFeaturedImage: (file: File) => upload("featured-posts", file), 
+  uploadActivityImage: (file: File) => upload("activities", file), 
+  uploadProfilePicture: (file: File) => upload("profiles", file), 
 };

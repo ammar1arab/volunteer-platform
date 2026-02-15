@@ -1,73 +1,187 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-.section {
-  padding: 50px 0;
-}
-
 .wrapper {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: $sp-xl;
+  padding: 100px 0;
+  position: relative;
+  overflow: hidden;
+}
 
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
+.mainContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  text-align: center;
+  max-width: 850px;
+  margin: 0 auto $sp-xl;
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: $green;
+    padding: 6px 14px;
+    border-radius: $radius-full;
+    font-weight: 900;
+    font-size: 11px;
+    margin-bottom: $sp-md;
+    border: 1px solid rgba($green, 0.2);
+  }
+
+  .title {
+    font-size: clamp(2.2rem, 5.5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: $sp-md;
+    color: $black;
+
+    .greenText {
+      color: $green;
+    }
+
+    .redText {
+      color: $red;
+    }
+  }
+
+  .leadText {
+    font-size: 17px;
+    color: $text-muted;
+    line-height: 1.6;
+    max-width: 650px;
+    margin: 0 auto;
   }
 }
 
-.textBox {
-  padding: $sp-lg;
-  background: #fafafa;
-  border-radius: $radius-lg;
-  border-right: 5px solid $green;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.07);
-}
+.visualSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px;
+  margin: $sp-lg auto;
+  position: relative;
 
-.heading {
-  font-size: $font-xl;
-  font-weight: 700;
-  margin-bottom: $sp-md;
-}
-
-.text {
-  color: $text-muted;
-  line-height: 1.8;
-  margin-bottom: $sp-md;
-  font-size: $font-base;
-}
-
-.readMore {
-  @include btn-secondary;
-  font-weight: 700;
-}
- 
-.features {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $sp-lg;
-
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
+  @include md {
+    flex-direction: column;
+    gap: $sp-xl;
   }
 }
 
-.feature {
-  padding: $sp-lg;
-  background: white;
-  border-radius: $radius-lg;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.07);
-  border-top: 4px solid $red;
-  transition: 0.25s;
+.leftBasma {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+
+  .basmaCircle {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: $radius-2xl;
+    @include flex-center;
+    color: $green;
+    transition: all 0.4s ease;
+
+    &:hover {
+      transform: scale(1.05);
+
+      .rippleEffect {
+        animation: ripple 1.5s infinite;
+      }
+    }
+  }
+}
+
+.rightStats {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+  position: relative;
+  right: -40px;
+
+  @include md {
+    right: 0;
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.statCard {
+  padding: 10px 20px;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 200px;
+  box-shadow: 6px 6px 0 $black;
+  transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    border-top-color: $green;
+    transform: translateX(-8px);
+    box-shadow: 10px 10px 0 $red;
+    border-color: $red;
+  }
+
+  .iconCircle {
+    width: 40px;
+    height: 40px;
+    background: $black;
+    color: white;
+    border-radius: $radius-full;
+    @include flex-center;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 900;
+    margin: 0;
+  }
+
+  p {
+    font-size: 11px;
+    color: $text-muted;
+    margin: 0;
+    font-weight: 700;
   }
 }
 
-.icon {
-  font-size: 28px;
-  margin-bottom: $sp-sm;
-  color: $green;
+.greenVariant:hover {
+  box-shadow: 10px 10px 0 $green;
+  border-color: $green;
+}
+
+.actionArea {
+  text-align: center;
+  margin-top: $sp-xl;
+  display: flex;
+  justify-content: center;
+}
+
+@keyframes ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba($green, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba($green, 0);
+  }
+}
+
+@include sm {
+  .leftBasma .basmaCircle {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+  }
+
+  .rightStats {
+    right: 0;
+    gap: 10px;
+  }
+
+  .statCard {
+    min-width: 100%;
+    padding: 8px 15px;
+  }
 }

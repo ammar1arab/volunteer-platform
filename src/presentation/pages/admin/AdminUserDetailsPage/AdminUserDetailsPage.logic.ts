@@ -11,7 +11,7 @@ export const useAdminUserDetailsPage = () => {
   const { toasts, showToast, removeToast } = useToast();
 
   const userId = params.id as string;
-  const { user, activities, isLoadingUser, isLoadingActivities, error } =
+  const { user, activities, loadingUser, loadingActivities, error } =
     useUserDetails(userId);
 
   const [activeFilter, setActiveFilter] = useState("all");
@@ -45,8 +45,8 @@ export const useAdminUserDetailsPage = () => {
     activities: paginatedActivities,
     allActivities: activities,
     totalFilteredItems: filteredActivities.length,
-    isLoadingUser,
-    isLoadingActivities,
+    loadingUser,
+    loadingActivities,
     activeFilter,
     setActiveFilter,
     currentPage,

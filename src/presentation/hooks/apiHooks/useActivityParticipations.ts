@@ -1,138 +1,166 @@
-import { useState, useCallback, useEffect } from "react";
-import { activityParticipationApi } from "@/lib";
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { participationApi } from "@/lib";
 import type { ActivityParticipationDto } from "@/core/application/dtos";
+
+type RequestType = "my-requests" | "pending";
+
+interface ParticipationsState {
+  requests: ActivityParticipationDto[];
+  loading: boolean;
+  submitting: boolean;
+  error: string;
+}
 
 interface UseActivityParticipationsOptions {
   autoFetch?: boolean;
-  type?: "my-requests" | "pending";
+  type?: RequestType;
 }
 
+const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
+  if (err instanceof Error) return err.message;
+  return fallback;
+};
+
 export const useActivityParticipations = (
-  options: UseActivityParticipationsOptions = {}
+  options: UseActivityParticipationsOptions = {},
 ) => {
   const { autoFetch = false, type = "my-requests" } = options;
 
-  const [requests, setRequests] = useState<ActivityParticipationDto[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [state, setState] = useState<ParticipationsState>({
+    requests: [],
+    loading: false,
+    submitting: false,
+    error: "",
+  });
 
-  const fetchRequests = useCallback(async () => {
+  const hasLoadedRef = useRef(false);
+
+  const setError = (msg: string) =>
+    setState((p) => ({ ...p, error: msg || "" }));
+
+  const refresh = useCallback(async () => {
+    setState((p) => ({ ...p, loading: true, error: "" }));
+
     try {
-      setLoading(true);
-      setError("");
-
-      const response =
+      const res =
         type === "pending"
-          ? await activityParticipationApi.getPending()
-          : await activityParticipationApi.getMyRequests();
+          ? await participationApi.getPending()
+          : await participationApi.getMyRequests();
 
-      if (response.success && response.requests) {
-        setRequests(response.requests);
-      } else {
-        setError(response.error || "Failed to fetch requests");
-      }
+      const requests: ActivityParticipationDto[] =
+        (res as { data?: { requests?: ActivityParticipationDto[] } })?.data
+          ?.requests ?? [];
+
+      setState((p) => ({
+        ...p,
+        requests,
+        loading: false,
+      }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
+      setState((p) => ({
+        ...p,
+        loading: false,
+        error: getErrMsg(err, "فشل في جلب البيانات"),
+      }));
     }
   }, [type]);
 
+  useEffect(() => {
+    if (autoFetch && !hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      refresh();
+    }
+  }, [autoFetch, refresh]);
+
   const createRequest = useCallback(
-    async (activityId: string): Promise<boolean> => {
+    async (activityId: string) => {
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+
       try {
-        setSubmitting(true);
-        setError("");
+        const res = await participationApi.create(activityId);
 
-        const response = await activityParticipationApi.createRequest(activityId);
-
-        if (response.success) {
-          await fetchRequests();
-          return true;
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في إنشاء الطلب");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
         }
 
-        setError(response.error || "Failed to create request");
-        return false;
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        setError(getErrMsg(err, "فشل في إنشاء الطلب"));
+        setState((p) => ({ ...p, submitting: false }));
         return false;
-      } finally {
-        setSubmitting(false);
       }
     },
-    [fetchRequests]
+    [refresh],
   );
 
   const approve = useCallback(
-    async (id: string): Promise<boolean> => {
+    async (id: string) => {
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+
       try {
-        setSubmitting(true);
-        setError("");
+        const res = await participationApi.approve(id);
 
-        const response = await activityParticipationApi.approve(id);
-
-        if (response.success) {
-          await fetchRequests();
-          return true;
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في الموافقة");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
         }
 
-        setError(response.error || "Failed to approve request");
-        return false;
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        setError(getErrMsg(err, "فشل في الموافقة"));
+        setState((p) => ({ ...p, submitting: false }));
         return false;
-      } finally {
-        setSubmitting(false);
       }
     },
-    [fetchRequests]
+    [refresh],
   );
 
   const reject = useCallback(
-    async (id: string): Promise<boolean> => {
+    async (id: string) => {
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+
       try {
-        setSubmitting(true);
-        setError("");
+        const res = await participationApi.reject(id);
 
-        const response = await activityParticipationApi.reject(id);
-
-        if (response.success) {
-          await fetchRequests();
-          return true;
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في الرفض");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
         }
 
-        setError(response.error || "Failed to reject request");
-        return false;
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        setError(getErrMsg(err, "فشل في الرفض"));
+        setState((p) => ({ ...p, submitting: false }));
         return false;
-      } finally {
-        setSubmitting(false);
       }
     },
-    [fetchRequests]
+    [refresh],
   );
 
   const getRequestForActivity = useCallback(
-    (activityId: string): ActivityParticipationDto | undefined => {
-      return requests.find((r) => r.activityId === activityId);
-    },
-    [requests]
+    (activityId: string) =>
+      state.requests.find((r) => r.activityId === activityId),
+    [state.requests],
   );
 
-  useEffect(() => {
-    if (autoFetch) {
-      fetchRequests();
-    }
-  }, [autoFetch, fetchRequests]);
-
   return {
-    requests,
-    loading,
-    submitting,
-    error,
-    fetchRequests,
+    requests: state.requests,
+    loading: state.loading,
+    submitting: state.submitting,
+    error: state.error,
+    refresh,
     createRequest,
     approve,
     reject,

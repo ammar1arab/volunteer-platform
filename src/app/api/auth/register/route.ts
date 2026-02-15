@@ -1,47 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
-import { AuthService } from "@/core/application/services";
-import {
-  UserRepository,
-  VolunteerProfileRepository,
-} from "@/infrastructure/persistence/repositories";
-import { JordanianCity } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
+import type { SignUpRequest } from "@/core/application/dtos";
+import { providers } from "@/lib/providers";
+import { toResponse, parseJson, badRequest, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await parseJson<SignUpRequest>(req);
+    if (!body) return badRequest("Invalid JSON body");
 
-    const authService = new AuthService(
-      new UserRepository(),
-      new VolunteerProfileRepository(),
-    );
-
-    const result = await authService.signUp({
-      email: body.email,
-      password: body.password,
-      fullName: body.fullName,
-      phone: body.phone,
-      city: body.city as JordanianCity,
-      dateOfBirth: new Date(body.dateOfBirth),
-    });
-
-    if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error || "Sign up failed" },
-        { status: 400 },
-      );
-    }
-
-    return NextResponse.json(
-      { success: true, user: result.user },
-      { status: 201 },
-    );
+    logger.info("API", "POST /auth/register", `email=${body.email}`);
+    return toResponse(await providers.auth().signUp(body), 201);
   } catch (error) {
-    console.error("Signup error:", error);
-    return NextResponse.json(
-      { success: false, error: "Invalid request" },
-      { status: 400 },
-    );
+    return apiError("API", "POST /auth/register", error);
   }
 }

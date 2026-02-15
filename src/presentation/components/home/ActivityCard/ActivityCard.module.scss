@@ -1,0 +1,125 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.card {
+  @include flex-col;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  transition: $transition;
+  cursor: pointer;
+  @include hover-lift;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 240px;
+
+  @include sm {
+    height: 200px;
+  }
+
+  img {
+    object-fit: contain;
+    padding: $sp-sm;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: $sp-sm;
+  right: $sp-sm;
+  padding: $sp-xs $sp-md;
+  background: rgba(107, 114, 128, 0.95);
+  color: $bg;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 600;
+  z-index: 2;
+}
+
+.content {
+  @include flex-col;
+  flex: 1;
+  padding: $sp-lg;
+  gap: $sp-sm;
+
+  @include sm {
+    padding: $sp-md;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+  line-height: 1.3;
+  @include line-clamp(2);
+
+  @include sm {
+    font-size: $font-sm;
+  }
+}
+
+.description {
+  margin: 0;
+  font-size: $font-sm;
+  color: $text-muted;
+  line-height: 1.5;
+  @include line-clamp(2);
+}
+
+.meta {
+  @include grid(2, $sp-sm);
+  padding: $sp-sm $sp-md;
+  background: rgba($green, 0.03);
+  border-radius: $radius;
+  margin-top: auto;
+}
+
+.metaItem {
+  @include flex(row, center, flex-start, 6px);
+  font-size: $font-xs;
+  color: $text-muted;
+  font-weight: 500;
+
+  svg {
+    color: $green;
+    flex-shrink: 0;
+  }
+}
+
+.footer {
+  @include flex(row, center, space-between, $sp-sm);
+  padding-top: $sp-md;
+  border-top: 1px solid rgba($border, 0.5);
+}
+
+.readMore {
+  @include flex-center;
+  gap: $sp-xs;
+  padding: $sp-sm $sp-md;
+  background: transparent;
+  color: $green;
+  border: 1px solid $green;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: $green;
+    color: $bg;
+    transform: translateX(-4px);
+  }
+
+  svg {
+    transition: transform 0.3s;
+  }
+
+  &:hover svg {
+    transform: translateX(-4px);
+  }
+}

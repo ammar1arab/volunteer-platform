@@ -1,45 +1,19 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import ActivityParticipationService from "@/core/application/services/ActivityParticipationService";
-import {
-  ActivityParticipationRepository,
-  ActivityRepository,
-  UserRepository,
-} from "@/infrastructure/persistence/repositories";
+import { UserRole } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const buildService = () =>
-  new ActivityParticipationService(
-    new ActivityParticipationRepository(),
-    new ActivityRepository(),
-    new UserRepository()
-  );
+export async function GET(req: Request) {
+  try {
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return NextResponse.json(
-      { success: false, error: "Unauthorized" },
-      { status: 401 }
-    );
+    logger.info("API", "GET /activity-participations/pending", `admin=${auth.session.user.id}`);
+    return toResponse(await providers.participation().getAllPending());
+  } catch (error) {
+    return apiError("API", "GET /activity-participations/pending", error);
   }
-
-  const role = session.user.role as string;
-  if (role !== "ADMIN") {
-    return NextResponse.json(
-      { success: false, error: "Only admins can access pending requests" },
-      { status: 403 }
-    );
-  }
-
-  const service = buildService();
-  const result = await service.getAllPending();
-
-  return NextResponse.json(result, {
-    status: result.success ? 200 : 500,
-  });
 }

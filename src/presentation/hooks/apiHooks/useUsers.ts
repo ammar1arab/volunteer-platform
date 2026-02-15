@@ -6,46 +6,45 @@ import type { UserAnalyticsDto } from "@/core/application/dtos";
 
 interface UsersState {
   users: UserAnalyticsDto[];
-  isLoading: boolean;
+  loading: boolean;
   error: string;
 }
+
+const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
+  if (err instanceof Error) return err.message;
+  return fallback;
+};
 
 export const useUsers = (options: { autoLoad?: boolean } = {}) => {
   const { autoLoad = true } = options;
 
   const [state, setState] = useState<UsersState>({
     users: [],
-    isLoading: false,
+    loading: false,
     error: "",
   });
 
   const hasLoadedRef = useRef(false);
 
   const refresh = useCallback(async () => {
-    setState((p) => ({ ...p, isLoading: true, error: "" }));
+    setState((p) => ({ ...p, loading: true, error: "" }));
 
     try {
-      const result = await userApi.getAll();
+      const res = await userApi.getAll();
 
-      if (!result.success || !result.users) {
-        setState((p) => ({
-          ...p,
-          isLoading: false,
-          error: result.error || "فشل في جلب المستخدمين",
-        }));
-        return;
-      }
+      const users: UserAnalyticsDto[] =
+        (res as { data?: { users?: UserAnalyticsDto[] } })?.data?.users ?? [];
 
       setState((p) => ({
         ...p,
-        users: result.users || [],
-        isLoading: false,
+        users,
+        loading: false,
       }));
-    } catch (error) {
+    } catch (err) {
       setState((p) => ({
         ...p,
-        isLoading: false,
-        error: error instanceof Error ? error.message : "حدث خطأ غير متوقع",
+        loading: false,
+        error: getErrMsg(err, "فشل في جلب المستخدمين"),
       }));
     }
   }, []);
@@ -59,7 +58,7 @@ export const useUsers = (options: { autoLoad?: boolean } = {}) => {
 
   return {
     users: state.users,
-    isLoading: state.isLoading,
+    loading: state.loading,
     error: state.error,
     refresh,
   };

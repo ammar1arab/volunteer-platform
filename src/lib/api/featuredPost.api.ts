@@ -13,28 +13,24 @@ import type {
 export const featuredPostApi = {
   getAll: () =>
     apiClient.get<GetAllFeaturedPostsResponse>(
-      API_ENDPOINTS.FEATURED_POSTS.BASE
+      API_ENDPOINTS.FEATURED_POSTS.BASE,
     ),
-
   getOne: (id: string) =>
     apiClient.get<GetFeaturedPostResponse>(
-      API_ENDPOINTS.FEATURED_POSTS.BY_ID(id)
+      API_ENDPOINTS.FEATURED_POSTS.BY_ID(id),
     ),
-
-  create: (payload: CreateFeaturedPostRequest) =>
+  create: (data: CreateFeaturedPostRequest) =>
     apiClient.post<CreateFeaturedPostResponse>(
       API_ENDPOINTS.FEATURED_POSTS.BASE,
-      payload
+      data,
     ),
-
-  update: (id: string, payload: UpdateFeaturedPostRequest) =>
+  update: (id: string, data: UpdateFeaturedPostRequest) =>
     apiClient.put<UpdateFeaturedPostResponse>(
       API_ENDPOINTS.FEATURED_POSTS.BY_ID(id),
-      payload
+      data,
     ),
-
   delete: (id: string) =>
     apiClient.delete<DeleteFeaturedPostResponse>(
-      API_ENDPOINTS.FEATURED_POSTS.BY_ID(id)
+      API_ENDPOINTS.FEATURED_POSTS.BY_ID(id),
     ),
 };

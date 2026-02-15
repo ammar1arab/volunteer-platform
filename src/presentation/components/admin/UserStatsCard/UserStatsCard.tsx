@@ -26,7 +26,7 @@ const UserStatsCard = ({ stats }: UserStatsCardProps) => {
 
   const statItems: StatItem[] = [
     {
-      label: "إجمالي الأنشطة",
+      label: "إجمالي الفرص",
       value: stats.totalActivities,
       icon: <Activity size={24} />,
       variant: "primary",

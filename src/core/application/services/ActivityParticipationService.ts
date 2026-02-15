@@ -4,13 +4,23 @@ import {
   UserRepository,
 } from "@/infrastructure/persistence/repositories";
 import { ActivityParticipation } from "@/core/domain/entities";
-import { serviceError } from "@/core/application/helpers";
+import {
+  ok,
+  fail,
+  serviceError,
+  logger,
+  guard,
+} from "@/core/application/helpers";
+import {
+  toParticipationDto,
+  toUserSummaryDto,
+  toActivitySummaryDto,
+} from "@/core/application/mappers";
 import type {
   CreateJoinRequestResponse,
   GetJoinRequestsResponse,
   ApproveJoinRequestResponse,
   RejectJoinRequestResponse,
-  ActivityParticipationDto,
 } from "@/core/application/dtos";
 
 class ActivityParticipationService {
@@ -19,114 +29,134 @@ class ActivityParticipationService {
   constructor(
     private participationRepository: ActivityParticipationRepository,
     private activityRepository: ActivityRepository,
-    private userRepository: UserRepository
+    private userRepository: UserRepository,
   ) {}
 
-  private async toDto(
-    entity: ActivityParticipation,
-    includeRelations = false
-  ): Promise<ActivityParticipationDto> {
+  private async findOrFail(id: string) {
+    guard(id, "معرّف الطلب مطلوب");
+    const participation = await this.participationRepository.findById(id);
+    if (!participation)
+      throw Object.assign(new Error(), {
+        result: fail("NOT_FOUND", "الطلب غير موجود"),
+      });
+    return participation;
+  }
+
+  private async mapWithRelations(entity: ActivityParticipation) {
     const props = entity.toObject();
+    const [volunteer, activity] = await Promise.all([
+      this.userRepository.findById(props.volunteerId),
+      this.activityRepository.findById(props.activityId),
+    ]);
 
-    const dto: ActivityParticipationDto = {
-      id: props.id,
-      activityId: props.activityId,
-      volunteerId: props.volunteerId,
-      status: props.status,
-      requestedAt: props.requestedAt.toISOString(),
-      respondedAt: props.respondedAt?.toISOString(),
-    };
+    return toParticipationDto(entity, {
+      volunteer: volunteer ? toUserSummaryDto(volunteer) : undefined,
+      activity: activity ? toActivitySummaryDto(activity) : undefined,
+    });
+  }
 
-    if (includeRelations) {
-      const volunteer = await this.userRepository.findById(props.volunteerId);
-      const activity = await this.activityRepository.findById(props.activityId);
-
-      if (volunteer) {
-        dto.volunteer = {
-          id: volunteer.id,
-          fullName: volunteer.fullName,
-          email: volunteer.email,
-          phone: volunteer.phone,
-        };
-      }
-
-      if (activity) {
-        const activityProps = activity.toObject();
-        dto.activity = {
-          id: activityProps.id,
-          title: activityProps.title,
-          description: activityProps.description,
-          date: activityProps.date.toISOString(),
-          startTime: activityProps.startTime,
-          endTime: activityProps.endTime,
-          placeName: activityProps.placeName,
-          address: activityProps.location.address,
-          targetAudience: activityProps.targetAudience,
-          maxVolunteers: activityProps.maxVolunteers,
-          currentVolunteers: activityProps.currentVolunteers,
-          status: activityProps.status,
-        };
-      }
-    }
-
-    return dto;
+  private async mapListWithRelations(entities: ActivityParticipation[]) {
+    return Promise.all(entities.map((e) => this.mapWithRelations(e)));
   }
 
   async createJoinRequest(
     activityId: string,
-    volunteerId: string
+    volunteerId: string,
   ): Promise<CreateJoinRequestResponse> {
     try {
-      if (!activityId?.trim()) {
-        return { success: false, error: "Activity ID is required" };
-      }
+      guard(activityId, "معرّف النشاط مطلوب");
 
       const activity = await this.activityRepository.findById(activityId);
-      if (!activity) {
-        return { success: false, error: "Activity not found" };
-      }
-
-      if (activity.status !== "PUBLISHED") {
-        return { success: false, error: "Activity is not published" };
-      }
-
-      if (activity.isFull()) {
-        return { success: false, error: "Activity is full" };
-      }
+      if (!activity) return fail("NOT_FOUND", "النشاط غير موجود");
+      if (activity.status !== "PUBLISHED")
+        return fail("INVALID_STATE", "النشاط غير منشور");
+      if (activity.isFull()) return fail("INVALID_STATE", "النشاط مكتمل");
 
       const existing =
         await this.participationRepository.findByActivityAndVolunteer(
           activityId,
-          volunteerId
+          volunteerId,
         );
-
       if (existing) {
-        if (existing.status === "PENDING") {
-          return {
-            success: false,
-            error: "You already have a pending request",
-          };
-        }
-        if (existing.status === "APPROVED") {
-          return { success: false, error: "You are already a participant" };
-        }
+        if (existing.status === "PENDING")
+          return fail("CONFLICT", "لديك طلب قيد المراجعة بالفعل");
+        if (existing.status === "APPROVED")
+          return fail("CONFLICT", "أنت مشارك بالفعل في هذا النشاط");
       }
 
       const participation = ActivityParticipation.create({
         activityId,
         volunteerId,
       });
-
       const created = await this.participationRepository.create(participation);
-      const dtoResult = await this.toDto(created, true);
 
-      return { success: true, participation: dtoResult };
+      logger.info(
+        ActivityParticipationService.SCOPE,
+        "createJoinRequest",
+        `Created for activity: ${activityId}`,
+      );
+      return ok({ participation: await this.mapWithRelations(created) });
     } catch (error) {
-      return serviceError<CreateJoinRequestResponse>(
+      return serviceError(
         ActivityParticipationService.SCOPE,
         "createJoinRequest",
         error,
-        error instanceof Error ? error.message : "An error occurred"
+        "حدث خطأ أثناء إنشاء طلب الانضمام",
+      );
+    }
+  }
+
+  async approve(id: string): Promise<ApproveJoinRequestResponse> {
+    try {
+      const participation = await this.findOrFail(id);
+
+      const activity = await this.activityRepository.findById(
+        participation.activityId,
+      );
+      if (!activity) return fail("NOT_FOUND", "النشاط غير موجود");
+      if (activity.isFull()) return fail("INVALID_STATE", "النشاط مكتمل");
+
+      participation.approve();
+      activity.addVolunteer();
+
+      await this.participationRepository.update(participation);
+      await this.activityRepository.update(activity);
+
+      logger.info(
+        ActivityParticipationService.SCOPE,
+        "approve",
+        `Approved: ${id}`,
+      );
+      return ok({ participation: await this.mapWithRelations(participation) });
+    } catch (error) {
+      return serviceError(
+        ActivityParticipationService.SCOPE,
+        "approve",
+        error,
+        "حدث خطأ أثناء الموافقة على الطلب",
+      );
+    }
+  }
+
+  async reject(id: string): Promise<RejectJoinRequestResponse> {
+    try {
+      const participation = await this.findOrFail(id);
+
+      participation.reject();
+      await this.participationRepository.update(participation);
+
+      logger.info(
+        ActivityParticipationService.SCOPE,
+        "reject",
+        `Rejected: ${id}`,
+      );
+      return ok({ participation: await this.mapWithRelations(participation) });
+    } catch (error) {
+      return serviceError(
+        ActivityParticipationService.SCOPE,
+        "reject",
+        error,
+        "حدث خطأ أثناء رفض الطلب",
       );
     }
   }
@@ -135,107 +165,39 @@ class ActivityParticipationService {
     try {
       const participations =
         await this.participationRepository.findAllPending();
-      const requests = await Promise.all(
-        participations.map((p) => this.toDto(p, true))
+      logger.info(
+        ActivityParticipationService.SCOPE,
+        "getAllPending",
+        `Found ${participations.length} pending`,
       );
-
-      return { success: true, requests };
+      return ok({ requests: await this.mapListWithRelations(participations) });
     } catch (error) {
-      return serviceError<GetJoinRequestsResponse>(
+      return serviceError(
         ActivityParticipationService.SCOPE,
         "getAllPending",
         error,
-        "An error occurred"
+        "حدث خطأ أثناء جلب الطلبات المعلقة",
       );
     }
   }
 
   async getByVolunteer(volunteerId: string): Promise<GetJoinRequestsResponse> {
     try {
-      if (!volunteerId?.trim()) {
-        return { success: false, error: "Volunteer ID is required" };
-      }
-
-      const participations = await this.participationRepository.findByVolunteer(
-        volunteerId
+      guard(volunteerId, "معرّف المتطوع مطلوب");
+      const participations =
+        await this.participationRepository.findByVolunteer(volunteerId);
+      logger.info(
+        ActivityParticipationService.SCOPE,
+        "getByVolunteer",
+        `Found ${participations.length} for: ${volunteerId}`,
       );
-      const requests = await Promise.all(
-        participations.map((p) => this.toDto(p, true))
-      );
-
-      return { success: true, requests };
+      return ok({ requests: await this.mapListWithRelations(participations) });
     } catch (error) {
-      return serviceError<GetJoinRequestsResponse>(
+      return serviceError(
         ActivityParticipationService.SCOPE,
         "getByVolunteer",
         error,
-        "An error occurred"
-      );
-    }
-  }
-
-  async approve(id: string): Promise<ApproveJoinRequestResponse> {
-    try {
-      if (!id?.trim()) {
-        return { success: false, error: "Request ID is required" };
-      }
-
-      const participation = await this.participationRepository.findById(id);
-      if (!participation) {
-        return { success: false, error: "Request not found" };
-      }
-
-      const activity = await this.activityRepository.findById(
-        participation.activityId
-      );
-      if (!activity) {
-        return { success: false, error: "Activity not found" };
-      }
-
-      if (activity.isFull()) {
-        return { success: false, error: "Activity is full" };
-      }
-
-      participation.approve();
-      activity.addVolunteer();
-
-      await this.participationRepository.update(participation);
-      await this.activityRepository.update(activity);
-
-      const dtoResult = await this.toDto(participation, true);
-      return { success: true, participation: dtoResult };
-    } catch (error) {
-      return serviceError<ApproveJoinRequestResponse>(
-        ActivityParticipationService.SCOPE,
-        "approve",
-        error,
-        error instanceof Error ? error.message : "An error occurred"
-      );
-    }
-  }
-
-  async reject(id: string): Promise<RejectJoinRequestResponse> {
-    try {
-      if (!id?.trim()) {
-        return { success: false, error: "Request ID is required" };
-      }
-
-      const participation = await this.participationRepository.findById(id);
-      if (!participation) {
-        return { success: false, error: "Request not found" };
-      }
-
-      participation.reject();
-      await this.participationRepository.update(participation);
-
-      const dtoResult = await this.toDto(participation, true);
-      return { success: true, participation: dtoResult };
-    } catch (error) {
-      return serviceError<RejectJoinRequestResponse>(
-        ActivityParticipationService.SCOPE,
-        "reject",
-        error,
-        error instanceof Error ? error.message : "An error occurred"
+        "حدث خطأ أثناء جلب طلبات المتطوع",
       );
     }
   }

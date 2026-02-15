@@ -1,0 +1,161 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrapper {
+  @include flex-col;
+  gap: $sp-sm;
+  width: 100%;
+}
+
+.label {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text;
+}
+.required {
+  color: $red;
+  margin-right: $sp-xs;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  &.error {
+    .trigger {
+      border-color: $red;
+    }
+  }
+}
+
+.trigger {
+  @include flex-between;
+  @include focus-ring($green);
+  width: 100%;
+  min-height: 44px;
+  padding: $sp-sm $sp-md;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: $transition;
+  text-align: right;
+  &:hover:not(:disabled) {
+    border-color: $green;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba($black, 0.02);
+  }
+}
+
+.content {
+  @include flex(row, center, flex-start);
+  flex: 1;
+  min-width: 0;
+}
+.placeholder {
+  color: $text-muted;
+  font-size: $font-sm;
+}
+
+.tags {
+  @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
+}
+.tag {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-xs $sp-sm;
+  background: $green;
+  color: $bg;
+  border-radius: $radius;
+  font-size: $font-xs;
+  font-weight: 600;
+  white-space: nowrap;
+  .tagRemove {
+    cursor: pointer;
+    margin-left: $sp-xs;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.icon {
+  flex-shrink: 0;
+  color: $text-muted;
+  transition: $transition;
+}
+.iconOpen {
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + $sp-xs);
+  left: 0;
+  right: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  z-index: $z-fixed;
+  list-style: none;
+  padding: $sp-xs;
+  margin: 0;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.option {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: $sp-sm;
+  cursor: pointer;
+  border-radius: $radius;
+  font-size: $font-sm;
+  color: $text;
+  &:hover:not(.disabled) {
+    background: rgba($green, 0.1);
+  }
+  &.selected {
+    background: rgba($green, 0.1);
+    color: $green;
+    font-weight: 600;
+  }
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: $green;
+}
+.errorText {
+  font-size: $font-xs;
+  color: $red;
+}
+
+@include sm {
+  .trigger {
+    min-height: 40px;
+    padding: $sp-xs $sp-sm;
+  }
+  .menu {
+    max-height: 200px;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 3px $sp-xs;
+  }
+}

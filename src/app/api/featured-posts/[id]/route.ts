@@ -1,73 +1,66 @@
-import { NextResponse } from "next/server";
-
-import FeaturedPostService from "@/core/application/services/FeaturedPostService";
+import { UserRole } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
 import type { UpdateFeaturedPostRequest } from "@/core/application/dtos";
-import { FeaturedPostRepository } from "@/infrastructure/persistence/repositories";
+import { providers } from "@/lib/providers";
+import {
+  toResponse,
+  requireAuth,
+  parseJson,
+  badRequest,
+  apiError,
+} from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const buildService = () => new FeaturedPostService(new FeaturedPostRepository());
+type Ctx = { params: Promise<{ id: string }> };
 
-const statusFromError = (error?: string) => {
-  const msg = (error || "").toLowerCase();
-  if (!msg) return 400;
-  if (msg.includes("not found")) return 404;
-  if (msg.includes("id is required")) return 400;
-  if (msg.includes("invalid") || msg.includes("required")) return 400;
-  if (msg.includes("an error occurred")) return 500;
-  return 400;
-};
-
-export async function GET(
-  _: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  const { id } = await context.params;
-  
-  const service = buildService();
-  const result = await service.getOne(id);
-
-  return NextResponse.json(result, {
-    status: result.success ? 200 : statusFromError(result.error),
-  });
-}
-
-export async function PUT(
-  req: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  const { id } = await context.params;
-  
-  let body: UpdateFeaturedPostRequest;
-
+// ✅ Public - No auth required
+export async function GET(_: Request, ctx: Ctx) {
   try {
-    body = (await req.json()) as UpdateFeaturedPostRequest;
-  } catch {
-    return NextResponse.json(
-      { success: false, error: "Invalid JSON body" },
-      { status: 400 }
-    );
+    const { id } = await ctx.params;
+    logger.info("API", "GET /featured-posts/[id]", id);
+    return toResponse(await providers.featuredPost().getOne(id));
+  } catch (error) {
+    return apiError("API", "GET /featured-posts/[id]", error);
   }
-
-  const service = buildService();
-  const result = await service.update(id, body);
-
-  return NextResponse.json(result, {
-    status: result.success ? 200 : statusFromError(result.error),
-  });
 }
 
-export async function DELETE(
-  _: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  const { id } = await context.params;
-  
-  const service = buildService();
-  const result = await service.delete(id);
+// ✅ Admin only
+export async function PUT(req: Request, ctx: Ctx) {
+  try {
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
 
-  return NextResponse.json(result, {
-    status: result.success ? 200 : statusFromError(result.error),
-  });
+    const { id } = await ctx.params;
+    const body = await parseJson<UpdateFeaturedPostRequest>(req);
+    if (!body) return badRequest("Invalid JSON body");
+
+    logger.info(
+      "API",
+      "PUT /featured-posts/[id]",
+      `admin=${auth.session.user.id} id=${id}`,
+    );
+    return toResponse(await providers.featuredPost().update(id, body));
+  } catch (error) {
+    return apiError("API", "PUT /featured-posts/[id]", error);
+  }
+}
+
+// ✅ Admin only
+export async function DELETE(req: Request, ctx: Ctx) {
+  try {
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
+
+    const { id } = await ctx.params;
+    logger.info(
+      "API",
+      "DELETE /featured-posts/[id]",
+      `admin=${auth.session.user.id} id=${id}`,
+    );
+    return toResponse(await providers.featuredPost().delete(id));
+  } catch (error) {
+    return apiError("API", "DELETE /featured-posts/[id]", error);
+  }
 }

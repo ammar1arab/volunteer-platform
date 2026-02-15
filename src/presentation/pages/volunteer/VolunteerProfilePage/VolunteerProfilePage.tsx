@@ -107,8 +107,7 @@ export default function VolunteerProfilePage() {
                 {volunteerProfile && (
                   <>
                     <EditableField icon={<MapPin />} label="المدينة" value={volunteerProfile.city} displayValue={JORDANIAN_CITIES.find(c => c.value === volunteerProfile.city)?.label} field="city" type="select" options={JORDANIAN_CITIES} editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />
-                    <EditableField icon={<Calendar />} label="العمر" value={volunteerProfile.dateOfBirth.split('T')[0]} displayValue={`${calculateAge(volunteerProfile.dateOfBirth)} سنة`} field="dateOfBirth" type="date" editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />
-                    <EditableField icon={<User />} label="الجنس" value={volunteerProfile.gender || ""} displayValue={volunteerProfile.gender === "MALE" ? "ذكر" : volunteerProfile.gender === "FEMALE" ? "أنثى" : "غير محدد"} field="gender" type="select" options={[{ value: "", label: "غير محدد" }, { value: "MALE", label: "ذكر" }, { value: "FEMALE", label: "أنثى" }]} editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />
+                    <EditableField icon={<Calendar />} label="العمر" value={volunteerProfile.dateOfBirth?.split('T')[0] ?? ""} displayValue={volunteerProfile.dateOfBirth ? `${calculateAge(volunteerProfile.dateOfBirth)} سنة` : "غير محدد"} field="dateOfBirth" type="date" editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />                    <EditableField icon={<User />} label="الجنس" value={volunteerProfile.gender || ""} displayValue={volunteerProfile.gender === "MALE" ? "ذكر" : volunteerProfile.gender === "FEMALE" ? "أنثى" : "غير محدد"} field="gender" type="select" options={[{ value: "", label: "غير محدد" }, { value: "MALE", label: "ذكر" }, { value: "FEMALE", label: "أنثى" }]} editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />
                   </>
                 )}
               </div>
@@ -124,9 +123,9 @@ export default function VolunteerProfilePage() {
           </div>
 
           <div className={styles.col}>
-            <Card title="سجل الأنشطة" action={<Dropdown items={filterItems} active={activityFilter} onChange={setActivityFilter} placeholder="الحالة" compact />}>
+            <Card title="سجل الفرص" action={<Dropdown items={filterItems} active={activityFilter} onChange={setActivityFilter} placeholder="الحالة" compact />}>
               {paginatedActivities.length === 0 ? (
-                <EmptyState icon={Award} message="لا توجد أنشطة" />
+                <EmptyState icon={Award} message="لا توجد فرص" />
               ) : (
                 <>
                   <div className={styles.list}>

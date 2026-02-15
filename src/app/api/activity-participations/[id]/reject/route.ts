@@ -1,59 +1,19 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import ActivityParticipationService from "@/core/application/services/ActivityParticipationService";
-import {
-  ActivityParticipationRepository,
-  ActivityRepository,
-  UserRepository,
-} from "@/infrastructure/persistence/repositories";
+import { UserRole } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
-const buildService = () =>
-  new ActivityParticipationService(
-    new ActivityParticipationRepository(),
-    new ActivityRepository(),
-    new UserRepository()
-  );
+export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  try {
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
 
-const statusFromError = (error?: string) => {
-  const msg = (error || "").toLowerCase();
-  if (!msg) return 400;
-  if (msg.includes("not found")) return 404;
-  if (msg.includes("required")) return 400;
-  if (msg.includes("only pending")) return 400;
-  return 400;
-};
-
-export async function POST(
-  _: Request,
-  context: { params: Promise<{ id: string }> }
-) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return NextResponse.json(
-      { success: false, error: "Unauthorized" },
-      { status: 401 }
-    );
+    const { id } = await ctx.params;
+    logger.info("API", "POST /activity-participations/[id]/reject", `admin=${auth.session.user.id} request=${id}`);
+    return toResponse(await providers.participation().reject(id));
+  } catch (error) {
+    return apiError("API", "POST /activity-participations/[id]/reject", error);
   }
-
-  const role = session.user.role as string;
-  if (role !== "ADMIN") {
-    return NextResponse.json(
-      { success: false, error: "Only admins can reject requests" },
-      { status: 403 }
-    );
-  }
-
-  const { id } = await context.params;
-
-  const service = buildService();
-  const result = await service.reject(id);
-
-  return NextResponse.json(result, {
-    status: result.success ? 200 : statusFromError(result.error),
-  });
 }

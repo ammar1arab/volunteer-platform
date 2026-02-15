@@ -1,24 +1,46 @@
+import { ButtonHTMLAttributes, ReactNode } from 'react';
 import styles from './Button.module.scss';
 
-import { ButtonHTMLAttributes } from 'react';
-
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode;
-  variant?: "primary" | "secondary";
-  loading?: boolean;
+    children: ReactNode;
+    variant?: "primary" | "secondary" | "ghost" | "danger";
+    size?: "sm" | "md" | "lg";
+    loading?: boolean;
+    fullWidth?: boolean;
+    icon?: ReactNode;
+    iconPosition?: "left" | "right";
 }
 
-const Button: React.FC<ButtonProps> = ({ children, variant = 'primary', loading = false, disabled, className = '', ...rest }) => {
+const Button = ({
+    children,
+    variant = 'primary',
+    size = 'md',
+    loading = false,
+    fullWidth = false,
+    icon,
+    iconPosition = 'left',
+    disabled,
+    className = '',
+    ...rest
+}: ButtonProps) => {
+    const classes = [
+        styles.button,
+        styles[variant],
+        styles[size],
+        fullWidth && styles.fullWidth,
+        className
+    ].filter(Boolean).join(' ');
+
     return (
-        <button
-            className={`${styles.button} ${styles[variant]} ${className}`}
-            disabled={disabled || loading}
-            {...rest}
-        >
+        <button className={classes} disabled={disabled || loading} {...rest}>
             {loading ? (
-                <span className={styles.spinner}></span>
+                <span className={styles.spinner} />
             ) : (
-                children
+                <>
+                    {icon && iconPosition === 'left' && <span className={styles.icon}>{icon}</span>}
+                    {children}
+                    {icon && iconPosition === 'right' && <span className={styles.icon}>{icon}</span>}
+                </>
             )}
         </button>
     );

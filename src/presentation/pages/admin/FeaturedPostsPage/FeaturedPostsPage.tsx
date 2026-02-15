@@ -1,9 +1,21 @@
 "use client";
-import styles from "./FeaturedPostsPage.module.scss";
-import { useFeaturedPostsPage } from "./FeaturedPostsPage.logic";
+
 import Image from "next/image";
-import { FeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog } from "@/presentation/components";
+import { useFeaturedPostsPage } from "./FeaturedPostsPage.logic";
+import {
+  AdminFeaturedPostCard,
+  ToastContainer,
+  Modal,
+  LoadingState,
+  EmptyState,
+  Pagination,
+  ConfirmDialog,
+  MultiSelectInput,
+  Dropdown,
+} from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, FileImage } from "lucide-react";
+import { FeaturedPostCategory } from "@/core/domain/enums";
+import styles from "./FeaturedPostsPage.module.scss";
 
 const FeaturedPostsPage = () => {
   const {
@@ -15,10 +27,13 @@ const FeaturedPostsPage = () => {
     form,
     preview,
     showModal,
-    list,
+    filteredList,
     paginatedList,
     currentPage,
     itemsPerPage,
+    activeCategory,
+    setActiveCategory,
+    categoryOptions,
     toasts,
     removeToast,
     confirmDialog,
@@ -42,6 +57,16 @@ const FeaturedPostsPage = () => {
       <header className={styles.header}>
         <h1 className={styles.title}>المنشورات</h1>
         <div className={styles.actions}>
+          <Dropdown
+            items={[
+              { key: "all", label: "جميع التصنيفات" },
+              ...categoryOptions.map((cat) => ({ key: cat.value, label: cat.label })),
+            ]}
+            active={activeCategory}
+            onChange={setActiveCategory}
+            placeholder="التصنيف"
+            compact
+          />
           <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
             <Plus size={18} />
             إضافة منشور جديد
@@ -51,13 +76,17 @@ const FeaturedPostsPage = () => {
 
       {isLoading ? (
         <LoadingState />
-      ) : list.length === 0 ? (
-        <EmptyState icon={FileImage} message="لا توجد منشورات" action={{ label: "إضافة منشور", onClick: openCreate }} />
+      ) : filteredList.length === 0 ? (
+        <EmptyState
+          icon={FileImage}
+          message={activeCategory !== "all" ? "لا توجد منشورات بهذا التصنيف" : "لا توجد منشورات"}
+          action={{ label: "إضافة منشور", onClick: openCreate }}
+        />
       ) : (
         <>
           <div className={styles.grid}>
             {paginatedList.map((post) => (
-              <FeaturedPostCard
+              <AdminFeaturedPostCard
                 key={post.id}
                 imageUrl={post.imageUrl}
                 title={post.title}
@@ -86,7 +115,7 @@ const FeaturedPostsPage = () => {
 
           <Pagination
             currentPage={currentPage}
-            totalItems={list.length}
+            totalItems={filteredList.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             sticky
@@ -108,6 +137,18 @@ const FeaturedPostsPage = () => {
           </div>
 
           <div className={styles.field}>
+            <label className={styles.label}>التصنيفات *</label>
+            <MultiSelectInput
+              values={form.categories || []}
+              options={categoryOptions}
+              onChange={(values) => setForm((p) => ({ ...p, categories: values as FeaturedPostCategory[] }))}
+              placeholder="اختر التصنيفات (حتى 3)"
+              disabled={isSubmitting || isUploading}
+              maxSelections={3}
+            />
+          </div>
+
+          <div className={styles.field}>
             <label className={styles.label}>الوصف *</label>
             <textarea
               className={styles.textarea}
@@ -123,7 +164,7 @@ const FeaturedPostsPage = () => {
             <label className={styles.label}>الصورة *</label>
             {(preview || form.imageUrl) && (
               <div className={styles.preview}>
-                <Image src={preview || form.imageUrl} alt="Preview" fill className={styles.previewImg} />
+                <Image src={preview || form.imageUrl} alt="Preview" fill className={styles.previewImg} loading="eager" />
               </div>
             )}
             <label className={styles.btnUpload}>
@@ -150,15 +191,11 @@ const FeaturedPostsPage = () => {
             <span>نشط</span>
           </label>
 
-          <div className={styles.actions}>
+          <div className={styles.modalActions}>
             <button className={styles.btnCancel} onClick={resetForm} disabled={isSubmitting || isUploading}>
               إلغاء
             </button>
-            <button
-              className={styles.btnSubmit}
-              onClick={handleSubmit}
-              disabled={isSubmitting || isUploading || !form.imageUrl}
-            >
+            <button className={styles.btnSubmit} onClick={handleSubmit} disabled={isSubmitting || isUploading || !form.imageUrl}>
               {isSubmitting ? "جاري الحفظ..." : mode === "create" ? "إنشاء" : "حفظ التعديلات"}
             </button>
           </div>

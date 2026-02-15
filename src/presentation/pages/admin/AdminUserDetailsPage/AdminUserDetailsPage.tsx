@@ -8,24 +8,24 @@ import { LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown, InfoCard,
 import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
 
 const AdminUserDetailsPage = () => {
-  const { 
-    status, 
-    user, 
-    activities, 
-    allActivities, 
+  const {
+    status,
+    user,
+    activities,
+    allActivities,
     totalFilteredItems,
-    isLoadingUser, 
-    isLoadingActivities, 
-    activeFilter, 
-    setActiveFilter, 
+    loadingUser,
+    loadingActivities,
+    activeFilter,
+    setActiveFilter,
     currentPage,
     setCurrentPage,
     itemsPerPage,
-    toasts, 
-    removeToast 
+    toasts,
+    removeToast
   } = useAdminUserDetailsPage();
 
-  if (status === "loading" || isLoadingUser) return <LoadingState />;
+  if (status === "loading" || loadingUser) return <LoadingState />;
 
   if (!user) {
     return (
@@ -72,7 +72,7 @@ const AdminUserDetailsPage = () => {
       />
 
       <div className={styles.statsGrid}>
-        <StatsCard icon={Activity} value={user.stats.totalActivities} label="إجمالي الأنشطة" variant="blue" />
+        <StatsCard icon={Activity} value={user.stats.totalActivities} label="إجمالي الفرص" variant="blue" />
         <StatsCard icon={CheckCircle} value={user.stats.approvedActivities} label="موافق عليه" variant="green" />
         <StatsCard icon={Clock} value={user.stats.pendingRequests} label="قيد الانتظار" variant="yellow" />
         <StatsCard icon={XCircle} value={user.stats.rejectedRequests} label="مرفوض" variant="red" />
@@ -123,14 +123,14 @@ const AdminUserDetailsPage = () => {
         <div className={styles.rightColumn}>
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>سجل الأنشطة</h2>
+              <h2 className={styles.sectionTitle}>سجل الفرص</h2>
               <Dropdown items={filterItems} active={activeFilter} onChange={setActiveFilter} placeholder="اختر الحالة" compact />
             </div>
 
-            {isLoadingActivities ? (
+            {loadingActivities ? (
               <LoadingState />
             ) : activities.length === 0 ? (
-              <EmptyState icon={Activity} message="لا توجد أنشطة" />
+              <EmptyState icon={Activity} message="لا توجد فرص" />
             ) : (
               <>
                 <div className={styles.list}>
@@ -148,7 +148,7 @@ const AdminUserDetailsPage = () => {
                     />
                   ))}
                 </div>
-                
+
                 <Pagination
                   currentPage={currentPage}
                   totalItems={totalFilteredItems}

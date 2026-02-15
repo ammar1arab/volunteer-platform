@@ -1,43 +1,19 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import UserService from "@/core/application/services/UserService";
-import { UserRepository } from "@/infrastructure/persistence/repositories";
+import { UserRole } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const buildService = () => new UserService(new UserRepository());
-
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
 
-    if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    if (session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, error: "Forbidden" },
-        { status: 403 }
-      );
-    }
-
-    const service = buildService();
-    const result = await service.getAllWithAnalytics();
-
-    return NextResponse.json(result, {
-      status: result.success ? 200 : 500,
-    });
+    logger.info("API", "GET /users", `admin=${auth.session.user.id}`);
+    return toResponse(await providers.user().getAllWithAnalytics());
   } catch (error) {
-    console.error("Users API error:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+    return apiError("API", "GET /users", error);
   }
 }

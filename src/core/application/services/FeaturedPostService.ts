@@ -1,9 +1,18 @@
 import { FeaturedPostRepository } from "@/infrastructure/persistence/repositories";
-import { InputSanitizer } from "@/infrastructure/security";
-import { FeaturedPost } from "@/core/domain/entities";
-import { serviceError } from "@/core/application/helpers";
 import { R2StorageService } from "@/infrastructure/external";
-
+import { InputSanitizer } from "@/infrastructure/security";
+import FeaturedPost from "@/core/domain/entities/FeaturedPost";
+import {
+  ok,
+  fail,
+  serviceError,
+  logger,
+  guard,
+} from "@/core/application/helpers";
+import {
+  toFeaturedPostDto,
+  toFeaturedPostDtoList,
+} from "@/core/application/mappers";
 import type {
   CreateFeaturedPostRequest,
   CreateFeaturedPostResponse,
@@ -12,7 +21,6 @@ import type {
   GetFeaturedPostResponse,
   GetAllFeaturedPostsResponse,
   DeleteFeaturedPostResponse,
-  FeaturedPostDto,
 } from "@/core/application/dtos";
 
 class FeaturedPostService {
@@ -23,140 +31,134 @@ class FeaturedPostService {
     this.storageService = new R2StorageService();
   }
 
-  private toDto(entity: FeaturedPost): FeaturedPostDto {
-    const props = entity.toObject();
+  private sanitize(input: Partial<CreateFeaturedPostRequest>) {
     return {
-      id: props.id,
-      imageUrl: props.imageUrl,
-      title: props.title,
-      description: props.description,
-      isActive: props.isActive,
-      createdAt: props.createdAt.toISOString(),
-      updatedAt: props.updatedAt.toISOString(),
+      imageUrl: input.imageUrl
+        ? InputSanitizer.sanitizeString(input.imageUrl)
+        : undefined,
+      title: input.title
+        ? InputSanitizer.sanitizeString(input.title)
+        : undefined,
+      description: input.description
+        ? InputSanitizer.sanitizeString(input.description)
+        : undefined,
+      categories: input.categories,
+      isActive: input.isActive,
     };
   }
 
-  private sanitize(dto: { imageUrl: string; title: string; description: string }) {
-    return {
-      imageUrl: InputSanitizer.sanitizeString(dto.imageUrl),
-      title: InputSanitizer.sanitizeString(dto.title),
-      description: InputSanitizer.sanitizeString(dto.description),
-    };
-  }
-
-  private validateRequiredStrings(payload: {
-    imageUrl: string;
-    title: string;
-    description: string;
-  }): string | null {
-    if (!payload.imageUrl?.trim()) return "Image is required";
-    if (!payload.title?.trim()) return "Title is required";
-    if (!payload.description?.trim()) return "Description is required";
-    return null;
-  }
-
-  async create(dto: CreateFeaturedPostRequest): Promise<CreateFeaturedPostResponse> {
+  private async tryDeleteImage(imageUrl: string): Promise<void> {
     try {
-      const payload = this.sanitize(dto);
-      const err = this.validateRequiredStrings(payload);
-      if (err) return { success: false, error: err };
-
-      const post = FeaturedPost.create({
-        ...payload,
-        isActive: dto.isActive ?? true,
-      });
-
-      const created = await this.featuredPostRepository.create(post);
-      return { success: true, post: this.toDto(created) };
-    } catch (error) {
-      return serviceError<CreateFeaturedPostResponse>(
+      await this.storageService.delete(imageUrl);
+    } catch {
+      logger.warn(
         FeaturedPostService.SCOPE,
-        "create",
-        error,
-        error instanceof Error ? error.message : "An error occurred while creating featured post"
+        "tryDeleteImage",
+        `Failed to delete: ${imageUrl}`,
       );
     }
   }
 
-  async update(id: string, dto: UpdateFeaturedPostRequest): Promise<UpdateFeaturedPostResponse> {
+  private async findOrFail(id: string): Promise<FeaturedPost> {
+    guard(id, "المعرف مطلوب");
+    const post = await this.featuredPostRepository.findById(id);
+    if (!post)
+      throw Object.assign(new Error(), {
+        result: fail("NOT_FOUND", "المنشور المميز غير موجود"),
+      });
+    return post;
+  }
+
+  async create(
+    dto: CreateFeaturedPostRequest,
+  ): Promise<CreateFeaturedPostResponse> {
     try {
-      if (!id?.trim()) return { success: false, error: "Id is required" };
-
-      const existing = await this.featuredPostRepository.findById(id);
-      if (!existing) return { success: false, error: "Featured post not found" };
-
-      // Delete old image if URL changed
-      if (dto.imageUrl && dto.imageUrl !== existing.imageUrl) {
-        try {
-          await this.storageService.delete(existing.imageUrl);
-        } catch (error) {
-          console.warn('Failed to delete old image:', error);
-        }
-      }
-
       const payload = this.sanitize(dto);
-      const err = this.validateRequiredStrings(payload);
-      if (err) return { success: false, error: err };
 
-      existing.update({
-        ...payload,
-        isActive: dto.isActive ?? existing.isActive,
+      const post = FeaturedPost.create({
+        imageUrl: payload.imageUrl!,
+        title: payload.title!,
+        description: payload.description!,
+        categories: payload.categories!,
+        isActive: payload.isActive ?? true,
       });
 
-      const updated = await this.featuredPostRepository.update(existing);
-      return { success: true, post: this.toDto(updated) };
+      const created = await this.featuredPostRepository.create(post);
+      logger.info(
+        FeaturedPostService.SCOPE,
+        "create",
+        `Post created: ${created.toObject().id}`,
+      );
+
+      return ok({ post: toFeaturedPostDto(created) });
     } catch (error) {
-      return serviceError<UpdateFeaturedPostResponse>(
+      return serviceError(
+        FeaturedPostService.SCOPE,
+        "create",
+        error,
+        "حدث خطأ أثناء إنشاء المنشور المميز",
+      );
+    }
+  }
+
+  async update(
+    id: string,
+    dto: Partial<UpdateFeaturedPostRequest>,
+  ): Promise<UpdateFeaturedPostResponse> {
+    try {
+      const existing = await this.findOrFail(id);
+      const payload = this.sanitize(dto);
+
+      if (payload.imageUrl && payload.imageUrl !== existing.imageUrl) {
+        await this.tryDeleteImage(existing.imageUrl);
+      }
+
+      existing.update(payload);
+      const updated = await this.featuredPostRepository.update(existing);
+
+      return ok({ post: toFeaturedPostDto(updated) });
+    } catch (error) {
+      return serviceError(
         FeaturedPostService.SCOPE,
         "update",
         error,
-        error instanceof Error ? error.message : "An error occurred while updating featured post"
+        "حدث خطأ أثناء تحديث المنشور المميز",
       );
     }
   }
 
   async delete(id: string): Promise<DeleteFeaturedPostResponse> {
     try {
-      if (!id?.trim()) return { success: false, error: "Id is required" };
+      guard(id, "المعرف مطلوب");
 
-      // Get post to delete its image
       const existing = await this.featuredPostRepository.findById(id);
-      if (existing) {
-        try {
-          await this.storageService.delete(existing.imageUrl);
-        } catch (error) {
-          console.warn('Failed to delete image:', error);
-        }
-      }
+      if (existing) await this.tryDeleteImage(existing.imageUrl);
 
       const deleted = await this.featuredPostRepository.delete(id);
-      if (!deleted) return { success: false, error: "Featured post not found", deleted: false };
+      if (!deleted) return fail("NOT_FOUND", "المنشور المميز غير موجود");
 
-      return { success: true, deleted: true };
+      logger.info(FeaturedPostService.SCOPE, "delete", `Post deleted: ${id}`);
+      return ok({ deleted: true });
     } catch (error) {
-      return serviceError<DeleteFeaturedPostResponse>(
+      return serviceError(
         FeaturedPostService.SCOPE,
         "delete",
         error,
-        "An error occurred while deleting featured post"
+        "حدث خطأ أثناء حذف المنشور المميز",
       );
     }
   }
 
   async getOne(id: string): Promise<GetFeaturedPostResponse> {
     try {
-      if (!id?.trim()) return { success: false, error: "Id is required" };
-
-      const post = await this.featuredPostRepository.findById(id);
-      if (!post) return { success: false, error: "Featured post not found" };
-
-      return { success: true, post: this.toDto(post) };
+      const post = await this.findOrFail(id);
+      return ok({ post: toFeaturedPostDto(post) });
     } catch (error) {
-      return serviceError<GetFeaturedPostResponse>(
+      return serviceError(
         FeaturedPostService.SCOPE,
         "getOne",
         error,
-        "An error occurred while fetching featured post"
+        "حدث خطأ أثناء جلب المنشور المميز",
       );
     }
   }
@@ -164,18 +166,18 @@ class FeaturedPostService {
   async getAll(): Promise<GetAllFeaturedPostsResponse> {
     try {
       const posts = await this.featuredPostRepository.findAll();
-      const items = posts.map((x) => this.toDto(x));
-
-      const collator = new Intl.Collator("en", { sensitivity: "base" });
-      items.sort((a, b) => collator.compare(a.title, b.title));
-
-      return { success: true, posts: items };
+      const items = toFeaturedPostDtoList(posts);
+      items.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+      return ok({ posts: items });
     } catch (error) {
-      return serviceError<GetAllFeaturedPostsResponse>(
+      return serviceError(
         FeaturedPostService.SCOPE,
         "getAll",
         error,
-        "An error occurred while fetching featured posts"
+        "حدث خطأ أثناء جلب المنشورات المميزة",
       );
     }
   }

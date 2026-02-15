@@ -1,138 +1,75 @@
-import { ActivityRepository } from "@/infrastructure/persistence/repositories";
+import { ActivityRepository, ActivityParticipationRepository } from "@/infrastructure/persistence/repositories";
 import { InputSanitizer } from "@/infrastructure/security";
 import { Activity } from "@/core/domain/entities";
-import { DayOfWeek } from "@/core/domain/enums";
-import { serviceError, logger } from "@/core/application/helpers";
 import { R2StorageService } from "@/infrastructure/external";
-
+import { ok, fail, serviceError, logger, guard, guardAll } from "@/core/application/helpers";
+import { toActivityDto, toActivityDtoList } from "@/core/application/mappers";
 import type {
-  CreateActivityRequest,
-  CreateActivityResponse,
-  UpdateActivityRequest,
-  UpdateActivityResponse,
-  GetActivityResponse,
-  GetAllActivitiesResponse,
-  DeleteActivityResponse,
-  PublishActivityResponse,
-  CancelActivityResponse,
-  ActivityDto,
-  ActivityVolunteerDto,
-  GetActivityVolunteersResponse,
-  RestoreActivityResponse,
+  CreateActivityRequest, CreateActivityResponse,
+  UpdateActivityRequest, UpdateActivityResponse,
+  GetActivityResponse, GetAllActivitiesResponse,
+  DeleteActivityResponse, PublishActivityResponse,
+  CancelActivityResponse, RestoreActivityResponse,
+  GetActivityVolunteersResponse, ActivityVolunteerDto,
 } from "@/core/application/dtos";
-import { prisma } from "@/infrastructure/persistence/prisma";
 
 class ActivityService {
   private static readonly SCOPE = "ActivityService";
   private storageService: R2StorageService;
 
-  constructor(private activityRepository: ActivityRepository) {
+  constructor(
+    private activityRepository: ActivityRepository,
+    private participationRepository: ActivityParticipationRepository,
+  ) {
     this.storageService = new R2StorageService();
   }
 
-  private toDto(entity: Activity): ActivityDto {
-    const props = entity.toObject();
-    return {
-      id: props.id,
-      title: props.title,
-      description: props.description,
-      imageUrl: props.imageUrl,
-      dayOfWeek: props.dayOfWeek,
-      date: props.date.toISOString(),
-      startTime: props.startTime,
-      endTime: props.endTime,
-      placeName: props.placeName,
-      location: props.location,
-      targetAudience: props.targetAudience,
-      maxVolunteers: props.maxVolunteers,
-      currentVolunteers: props.currentVolunteers,
-      status: props.status,
-      isFull: entity.isFull(),
-      createdBy: props.createdBy,
-      isActive: props.isActive,
-      createdAt: props.createdAt.toISOString(),
-      updatedAt: props.updatedAt.toISOString(),
-    };
-  }
-
-  private sanitizeTextFields(dto: {
-    title?: string;
-    description?: string;
-    placeName?: string;
-  }) {
+  private sanitize(dto: { title?: string; description?: string; placeName?: string }) {
     return {
       title: dto.title ? InputSanitizer.sanitizeString(dto.title) : undefined,
-      description: dto.description
-        ? InputSanitizer.sanitizeString(dto.description)
-        : undefined,
-      placeName: dto.placeName
-        ? InputSanitizer.sanitizeString(dto.placeName)
-        : undefined,
+      description: dto.description ? InputSanitizer.sanitizeString(dto.description) : undefined,
+      placeName: dto.placeName ? InputSanitizer.sanitizeString(dto.placeName) : undefined,
     };
   }
 
-  private validateRequiredFields(payload: {
-    title: string;
-    description: string;
-    imageUrl: string;
-    placeName: string;
-    startTime: string;
-    endTime: string;
-  }): string | null {
-    if (!payload.title?.trim()) return "Title is required";
-    if (!payload.description?.trim()) return "Description is required";
-    if (!payload.imageUrl?.trim()) return "Image is required";
-    if (!payload.placeName?.trim()) return "Place name is required";
-    if (!payload.startTime?.trim()) return "Start time is required";
-    if (!payload.endTime?.trim()) return "End time is required";
-    return null;
+  private async tryDeleteImage(imageUrl: string): Promise<void> {
+    try {
+      await this.storageService.delete(imageUrl);
+      logger.info(ActivityService.SCOPE, "tryDeleteImage", `Deleted: ${imageUrl}`);
+    } catch {
+      logger.warn(ActivityService.SCOPE, "tryDeleteImage", `Failed to delete: ${imageUrl}`);
+    }
   }
 
-  async create(
-    dto: CreateActivityRequest,
-    userId: string
-  ): Promise<CreateActivityResponse> {
+  private async findOrFail(id: string): Promise<Activity> {
+    guard(id, "المعرف مطلوب");
+    const activity = await this.activityRepository.findById(id);
+    if (!activity) throw Object.assign(new Error(), { result: fail("NOT_FOUND", "النشاط غير موجود") });
+    return activity;
+  }
+
+  async create(dto: CreateActivityRequest, userId: string): Promise<CreateActivityResponse> {
     try {
-      logger.info(
-        ActivityService.SCOPE,
-        "create",
-        `Creating activity for user: ${userId}`
-      );
+      const sanitized = this.sanitize(dto);
 
-      const sanitized = this.sanitizeTextFields({
-        title: dto.title,
-        description: dto.description,
-        placeName: dto.placeName,
-      });
+      guardAll([
+        [sanitized.title, "العنوان مطلوب"],
+        [sanitized.description, "الوصف مطلوب"],
+        [dto.imageUrl, "الصورة مطلوبة"],
+        [sanitized.placeName, "اسم المكان مطلوب"],
+        [dto.startTime, "وقت البدء مطلوب"],
+        [dto.endTime, "وقت الانتهاء مطلوب"],
+      ]);
 
-      const payload = {
+      const activity = Activity.create({
         title: sanitized.title!,
         description: sanitized.description!,
         imageUrl: dto.imageUrl,
-        placeName: sanitized.placeName!,
-        startTime: dto.startTime,
-        endTime: dto.endTime,
-      };
-
-      const err = this.validateRequiredFields(payload);
-      if (err) {
-        logger.warn(
-          ActivityService.SCOPE,
-          "create",
-          `Validation failed: ${err}`
-        );
-        return { success: false, error: err };
-      }
-
-      const activity = Activity.create({
-        title: payload.title,
-        description: payload.description,
-        imageUrl: payload.imageUrl,
         dayOfWeek: dto.dayOfWeek,
         date: new Date(dto.date),
         startTime: dto.startTime,
         endTime: dto.endTime,
-        placeName: payload.placeName,
+        placeName: sanitized.placeName!,
         location: dto.location,
         targetAudience: dto.targetAudience,
         maxVolunteers: dto.maxVolunteers,
@@ -141,492 +78,158 @@ class ActivityService {
       });
 
       const created = await this.activityRepository.create(activity);
-      logger.info(
-        ActivityService.SCOPE,
-        "create",
-        `Activity created: ${created.id}`
-      );
+      logger.info(ActivityService.SCOPE, "create", `Activity created: ${created.id}`);
 
-      return { success: true, activity: this.toDto(created) };
+      return ok({ activity: toActivityDto(created) });
     } catch (error) {
-      return serviceError<CreateActivityResponse>(
-        ActivityService.SCOPE,
-        "create",
-        error,
-        error instanceof Error
-          ? error.message
-          : "An error occurred while creating activity"
-      );
+      return serviceError(ActivityService.SCOPE, "create", error, "حدث خطأ أثناء إنشاء الفرصة");
     }
   }
 
-  async update(
-    id: string,
-    dto: UpdateActivityRequest
-  ): Promise<UpdateActivityResponse> {
+  async update(id: string, dto: UpdateActivityRequest): Promise<UpdateActivityResponse> {
     try {
-      if (!id?.trim()) {
-        logger.warn(ActivityService.SCOPE, "update", "Id is required");
-        return { success: false, error: "Id is required" };
-      }
+      const existing = await this.findOrFail(id);
 
-      logger.info(ActivityService.SCOPE, "update", `Updating activity: ${id}`);
-
-      const existing = await this.activityRepository.findById(id);
-      if (!existing) {
-        logger.warn(
-          ActivityService.SCOPE,
-          "update",
-          `Activity not found: ${id}`
-        );
-        return { success: false, error: "Activity not found" };
-      }
-
-      // Delete old image if URL changed
       if (dto.imageUrl && dto.imageUrl !== existing.imageUrl) {
-        try {
-          await this.storageService.delete(existing.imageUrl);
-          logger.info(
-            ActivityService.SCOPE,
-            "update",
-            `Old image deleted: ${existing.imageUrl}`
-          );
-        } catch (error) {
-          logger.warn(
-            ActivityService.SCOPE,
-            "update",
-            `Failed to delete old image: ${error}`
-          );
-        }
+        await this.tryDeleteImage(existing.imageUrl);
       }
 
-      const sanitized = this.sanitizeTextFields({
-        title: dto.title,
-        description: dto.description,
-        placeName: dto.placeName,
+      const sanitized = this.sanitize(dto);
+
+      existing.update({
+        ...(sanitized.title !== undefined && { title: sanitized.title }),
+        ...(sanitized.description !== undefined && { description: sanitized.description }),
+        ...(sanitized.placeName !== undefined && { placeName: sanitized.placeName }),
+        ...(dto.imageUrl !== undefined && { imageUrl: dto.imageUrl }),
+        ...(dto.dayOfWeek !== undefined && { dayOfWeek: dto.dayOfWeek }),
+        ...(dto.date !== undefined && { date: new Date(dto.date) }),
+        ...(dto.startTime !== undefined && { startTime: dto.startTime }),
+        ...(dto.endTime !== undefined && { endTime: dto.endTime }),
+        ...(dto.location !== undefined && { location: dto.location }),
+        ...(dto.targetAudience !== undefined && { targetAudience: dto.targetAudience }),
+        ...(dto.maxVolunteers !== undefined && { maxVolunteers: dto.maxVolunteers }),
       });
-
-      const updateData: {
-        title?: string;
-        description?: string;
-        placeName?: string;
-        imageUrl?: string;
-        dayOfWeek?: DayOfWeek;
-        date?: Date;
-        startTime?: string;
-        endTime?: string;
-        location?: { latitude: number; longitude: number; address: string };
-        targetAudience?: string;
-        maxVolunteers?: number;
-      } = {};
-
-      if (sanitized.title !== undefined) updateData.title = sanitized.title;
-      if (sanitized.description !== undefined)
-        updateData.description = sanitized.description;
-      if (sanitized.placeName !== undefined)
-        updateData.placeName = sanitized.placeName;
-
-      if (dto.imageUrl !== undefined) updateData.imageUrl = dto.imageUrl;
-      if (dto.dayOfWeek !== undefined) updateData.dayOfWeek = dto.dayOfWeek;
-      if (dto.date !== undefined) updateData.date = new Date(dto.date);
-      if (dto.startTime !== undefined) updateData.startTime = dto.startTime;
-      if (dto.endTime !== undefined) updateData.endTime = dto.endTime;
-      if (dto.location !== undefined) updateData.location = dto.location;
-      if (dto.targetAudience !== undefined)
-        updateData.targetAudience = dto.targetAudience;
-      if (dto.maxVolunteers !== undefined)
-        updateData.maxVolunteers = dto.maxVolunteers;
-
-      existing.update(updateData);
 
       const updated = await this.activityRepository.update(existing);
       logger.info(ActivityService.SCOPE, "update", `Activity updated: ${id}`);
 
-      return { success: true, activity: this.toDto(updated) };
+      return ok({ activity: toActivityDto(updated) });
     } catch (error) {
-      return serviceError<UpdateActivityResponse>(
-        ActivityService.SCOPE,
-        "update",
-        error,
-        error instanceof Error
-          ? error.message
-          : "An error occurred while updating activity"
-      );
+      return serviceError(ActivityService.SCOPE, "update", error, "حدث خطأ أثناء تحديث الفرصة");
     }
   }
 
   async delete(id: string): Promise<DeleteActivityResponse> {
     try {
-      if (!id?.trim()) {
-        logger.warn(ActivityService.SCOPE, "delete", "Id is required");
-        return { success: false, error: "Id is required" };
-      }
+      guard(id, "المعرف مطلوب");
 
-      logger.info(ActivityService.SCOPE, "delete", `Deleting activity: ${id}`);
-
-      // Get activity to delete its image
       const existing = await this.activityRepository.findById(id);
-      if (existing) {
-        try {
-          await this.storageService.delete(existing.imageUrl);
-          logger.info(
-            ActivityService.SCOPE,
-            "delete",
-            `Image deleted: ${existing.imageUrl}`
-          );
-        } catch (error) {
-          logger.warn(
-            ActivityService.SCOPE,
-            "delete",
-            `Failed to delete image: ${error}`
-          );
-        }
-      }
+      if (existing) await this.tryDeleteImage(existing.imageUrl);
 
       const deleted = await this.activityRepository.delete(id);
-      if (!deleted) {
-        logger.warn(
-          ActivityService.SCOPE,
-          "delete",
-          `Activity not found: ${id}`
-        );
-        return { success: false, error: "Activity not found", deleted: false };
-      }
+      if (!deleted) return fail("NOT_FOUND", "الفرصة غير موجود");
 
       logger.info(ActivityService.SCOPE, "delete", `Activity deleted: ${id}`);
-      return { success: true, deleted: true };
+      return ok({ deleted: true });
     } catch (error) {
-      return serviceError<DeleteActivityResponse>(
-        ActivityService.SCOPE,
-        "delete",
-        error,
-        "An error occurred while deleting activity"
-      );
+      return serviceError(ActivityService.SCOPE, "delete", error, "حدث خطأ أثناء حذف الفرصة");
     }
   }
 
   async getOne(id: string): Promise<GetActivityResponse> {
     try {
-      if (!id?.trim()) {
-        logger.warn(ActivityService.SCOPE, "getOne", "Id is required");
-        return { success: false, error: "Id is required" };
-      }
-
-      const activity = await this.activityRepository.findById(id);
-      if (!activity) {
-        logger.warn(
-          ActivityService.SCOPE,
-          "getOne",
-          `Activity not found: ${id}`
-        );
-        return { success: false, error: "Activity not found" };
-      }
-
-      return { success: true, activity: this.toDto(activity) };
+      const activity = await this.findOrFail(id);
+      return ok({ activity: toActivityDto(activity) });
     } catch (error) {
-      return serviceError<GetActivityResponse>(
-        ActivityService.SCOPE,
-        "getOne",
-        error,
-        "An error occurred while fetching activity"
-      );
+      return serviceError(ActivityService.SCOPE, "getOne", error, "حدث خطأ أثناء جلب الفرصة");
     }
   }
 
   async getAll(): Promise<GetAllActivitiesResponse> {
     try {
-      logger.info(ActivityService.SCOPE, "getAll", "Fetching all activities");
-
       const activities = await this.activityRepository.findAll();
-      const items = activities.map((x) => this.toDto(x));
-
-      logger.info(
-        ActivityService.SCOPE,
-        "getAll",
-        `Found ${items.length} activities`
-      );
-      return { success: true, activities: items };
+      return ok({ activities: toActivityDtoList(activities) });
     } catch (error) {
-      return serviceError<GetAllActivitiesResponse>(
-        ActivityService.SCOPE,
-        "getAll",
-        error,
-        "An error occurred while fetching activities"
-      );
+      return serviceError(ActivityService.SCOPE, "getAll", error, "حدث خطأ أثناء جلب الفرص");
     }
   }
 
   async getPublished(): Promise<GetAllActivitiesResponse> {
     try {
-      logger.info(
-        ActivityService.SCOPE,
-        "getPublished",
-        "Fetching published activities"
-      );
-
       const activities = await this.activityRepository.findPublished();
-      const items = activities.map((x) => this.toDto(x));
-
-      logger.info(
-        ActivityService.SCOPE,
-        "getPublished",
-        `Found ${items.length} published activities`
-      );
-      return { success: true, activities: items };
+      return ok({ activities: toActivityDtoList(activities) });
     } catch (error) {
-      return serviceError<GetAllActivitiesResponse>(
-        ActivityService.SCOPE,
-        "getPublished",
-        error,
-        "An error occurred while fetching published activities"
-      );
+      return serviceError(ActivityService.SCOPE, "getPublished", error, "حدث خطأ أثناء جلب الفرص المنشورة");
     }
   }
 
   async getByCreator(creatorId: string): Promise<GetAllActivitiesResponse> {
     try {
-      if (!creatorId?.trim()) {
-        logger.warn(
-          ActivityService.SCOPE,
-          "getByCreator",
-          "Creator id is required"
-        );
-        return { success: false, error: "Creator id is required" };
-      }
-
-      logger.info(
-        ActivityService.SCOPE,
-        "getByCreator",
-        `Fetching activities by creator: ${creatorId}`
-      );
-
+      guard(creatorId, "معرف المنشئ مطلوب");
       const activities = await this.activityRepository.findByCreator(creatorId);
-      const items = activities.map((x) => this.toDto(x));
-
-      logger.info(
-        ActivityService.SCOPE,
-        "getByCreator",
-        `Found ${items.length} activities`
-      );
-      return { success: true, activities: items };
+      return ok({ activities: toActivityDtoList(activities) });
     } catch (error) {
-      return serviceError<GetAllActivitiesResponse>(
-        ActivityService.SCOPE,
-        "getByCreator",
-        error,
-        "An error occurred while fetching creator activities"
-      );
+      return serviceError(ActivityService.SCOPE, "getByCreator", error, "حدث خطأ أثناء جلب فرص المنشئ");
     }
   }
 
   async publish(id: string): Promise<PublishActivityResponse> {
     try {
-      if (!id?.trim()) {
-        logger.warn(ActivityService.SCOPE, "publish", "Id is required");
-        return { success: false, error: "Id is required" };
-      }
-
-      logger.info(
-        ActivityService.SCOPE,
-        "publish",
-        `Publishing activity: ${id}`
-      );
-
-      const activity = await this.activityRepository.findById(id);
-      if (!activity) {
-        logger.warn(
-          ActivityService.SCOPE,
-          "publish",
-          `Activity not found: ${id}`
-        );
-        return { success: false, error: "Activity not found" };
-      }
-
+      const activity = await this.findOrFail(id);
       activity.publish();
-
       const updated = await this.activityRepository.update(activity);
-      logger.info(
-        ActivityService.SCOPE,
-        "publish",
-        `Activity published: ${id}`
-      );
-
-      return { success: true, activity: this.toDto(updated) };
+      logger.info(ActivityService.SCOPE, "publish", `Activity published: ${id}`);
+      return ok({ activity: toActivityDto(updated) });
     } catch (error) {
-      return serviceError<PublishActivityResponse>(
-        ActivityService.SCOPE,
-        "publish",
-        error,
-        error instanceof Error
-          ? error.message
-          : "An error occurred while publishing activity"
-      );
+      return serviceError(ActivityService.SCOPE, "publish", error, "حدث خطأ أثناء نشر الفرصة");
     }
   }
 
   async cancel(id: string): Promise<CancelActivityResponse> {
     try {
-      if (!id?.trim()) {
-        logger.warn(ActivityService.SCOPE, "cancel", "Id is required");
-        return { success: false, error: "Id is required" };
-      }
-
-      logger.info(
-        ActivityService.SCOPE,
-        "cancel",
-        `Cancelling activity: ${id}`
-      );
-
-      const activity = await this.activityRepository.findById(id);
-      if (!activity) {
-        logger.warn(
-          ActivityService.SCOPE,
-          "cancel",
-          `Activity not found: ${id}`
-        );
-        return { success: false, error: "Activity not found" };
-      }
-
+      const activity = await this.findOrFail(id);
       activity.cancel();
-
       const updated = await this.activityRepository.update(activity);
       logger.info(ActivityService.SCOPE, "cancel", `Activity cancelled: ${id}`);
-
-      return { success: true, activity: this.toDto(updated) };
+      return ok({ activity: toActivityDto(updated) });
     } catch (error) {
-      return serviceError<CancelActivityResponse>(
-        ActivityService.SCOPE,
-        "cancel",
-        error,
-        error instanceof Error
-          ? error.message
-          : "An error occurred while cancelling activity"
-      );
+      return serviceError(ActivityService.SCOPE, "cancel", error, "حدث خطأ أثناء إلغاء الفرصة");
     }
   }
+
   async restore(id: string): Promise<RestoreActivityResponse> {
     try {
-      if (!id?.trim()) {
-        logger.warn(ActivityService.SCOPE, "restore", "Id is required");
-        return { success: false, error: "Id is required" };
-      }
-
-      logger.info(
-        ActivityService.SCOPE,
-        "restore",
-        `Restoring activity: ${id}`
-      );
-
-      const activity = await this.activityRepository.findById(id);
-      if (!activity) {
-        logger.warn(
-          ActivityService.SCOPE,
-          "restore",
-          `Activity not found: ${id}`
-        );
-        return { success: false, error: "Activity not found" };
-      }
-
-      if (activity.status !== "CANCELLED") {
-        logger.warn(
-          ActivityService.SCOPE,
-          "restore",
-          `Activity is not cancelled: ${id}`
-        );
-        return {
-          success: false,
-          error: "Only cancelled activities can be restored",
-        };
-      }
-
+      const activity = await this.findOrFail(id);
+      if (activity.status !== "CANCELLED") return fail("INVALID_STATE", "يمكن استعادة الفرص الملغاة فقط");
       activity.restore();
-
       const updated = await this.activityRepository.update(activity);
-      logger.info(
-        ActivityService.SCOPE,
-        "restore",
-        `Activity restored to draft: ${id}`
-      );
-
-      return { success: true, activity: this.toDto(updated) };
+      logger.info(ActivityService.SCOPE, "restore", `Activity restored: ${id}`);
+      return ok({ activity: toActivityDto(updated) });
     } catch (error) {
-      return serviceError<RestoreActivityResponse>(
-        ActivityService.SCOPE,
-        "restore",
-        error,
-        error instanceof Error
-          ? error.message
-          : "An error occurred while restoring activity"
-      );
+      return serviceError(ActivityService.SCOPE, "restore", error, "حدث خطأ أثناء استعادة النشاط");
     }
   }
 
-  async getVolunteers(
-    activityId: string
-  ): Promise<GetActivityVolunteersResponse> {
+  async getVolunteers(activityId: string): Promise<GetActivityVolunteersResponse> {
     try {
-      if (!activityId?.trim()) {
-        logger.warn(
-          ActivityService.SCOPE,
-          "getVolunteers",
-          "Activity ID is required"
-        );
-        return { success: false, error: "Activity ID is required" };
-      }
+      guard(activityId, "معرّف النشاط مطلوب");
+      const volunteers = await this.participationRepository.findApprovedVolunteers(activityId);
 
-      logger.info(
-        ActivityService.SCOPE,
-        "getVolunteers",
-        `Fetching volunteers for activity: ${activityId}`
-      );
-
-      // Get approved participations with volunteer details
-      const participations = await prisma.activityParticipation.findMany({
-        where: {
-          activityId,
-          status: "APPROVED",
-        },
-        include: {
-          volunteer: {
-            include: {
-              volunteerProfile: {
-                select: {
-                  profilePictureUrl: true,
-                  city: true,
-                  dateOfBirth: true,
-                  gender: true,
-                },
-              },
-            },
-          },
-        },
-      });
-
-      const volunteers: ActivityVolunteerDto[] = participations.map((p) => ({
-        id: p.volunteer.id,
-        fullName: p.volunteer.fullName,
-        email: p.volunteer.email,
-        phone: p.volunteer.phone,
-        profilePictureUrl:
-          p.volunteer.volunteerProfile?.profilePictureUrl ?? undefined,
-        city: p.volunteer.volunteerProfile?.city ?? undefined,
-        dateOfBirth: p.volunteer.volunteerProfile?.dateOfBirth?.toISOString(),
-        gender: p.volunteer.volunteerProfile?.gender ?? undefined,
+      const items: ActivityVolunteerDto[] = volunteers.map((v) => ({
+        id: v.id,
+        fullName: v.fullName,
+        email: v.email,
+        phone: v.phone,
+        profilePictureUrl: v.profilePictureUrl ?? undefined,
+        city: v.city ?? undefined,
+        dateOfBirth: v.dateOfBirth?.toISOString(),
+        gender: v.gender ?? undefined,
       }));
 
-      logger.info(
-        ActivityService.SCOPE,
-        "getVolunteers",
-        `Found ${volunteers.length} volunteers`
-      );
-      return { success: true, volunteers };
+      logger.info(ActivityService.SCOPE, "getVolunteers", `Found ${items.length} for: ${activityId}`);
+      return ok({ volunteers: items });
     } catch (error) {
-      return serviceError<GetActivityVolunteersResponse>(
-        ActivityService.SCOPE,
-        "getVolunteers",
-        error,
-        "An error occurred while fetching volunteers"
-      );
+      return serviceError(ActivityService.SCOPE, "getVolunteers", error, "حدث خطأ أثناء جلب المتطوعين");
     }
   }
 }

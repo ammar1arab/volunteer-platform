@@ -1,7 +1,7 @@
 export * from "./api/client.api";
 export * from "./api/auth.api";
 export * from "./api/activities.api";
-export * from "./api/activityParticipation.api";
+export * from "./api/participation.api";
 export * from "./api/featuredPost.api";
 export * from "./api/user.api";
 export * from "./api/volunteerProfile.api";
@@ -15,5 +15,4 @@ export type * from "./constants/next-auth";
 
 export * from "./utils/date";
 export * from "./utils/imageUtils";
-
-
+export * from "./utils/text.utils";

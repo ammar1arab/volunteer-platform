@@ -58,13 +58,15 @@ export const authOptions: NextAuthOptions = {
 
         const result = await authService.signIn({ email, password });
 
-        if (!result.success || !result.user) return null;
+        if (!result.success || !result.data?.user) return null;
+
+        const user = result.data.user;
 
         return {
-          id: result.user.id,
-          email: result.user.email,
-          name: result.user.fullName,
-          role: result.user.role as UserRole,
+          id: user.id,
+          email: user.email,
+          name: user.fullName,
+          role: user.role as UserRole,
         };
       },
     }),

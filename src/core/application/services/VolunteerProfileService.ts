@@ -1,8 +1,14 @@
 import { VolunteerProfileRepository } from "@/infrastructure/persistence/repositories";
-import { serviceError, logger } from "@/core/application/helpers";
 import { R2StorageService } from "@/infrastructure/external";
+import {
+  ok,
+  fail,
+  serviceError,
+  logger,
+  guard,
+} from "@/core/application/helpers";
+import { toVolunteerProfileDto } from "@/core/application/mappers";
 import type {
-  GetVolunteerProfileRequest,
   GetVolunteerProfileResponse,
   UpdateVolunteerProfileRequest,
   UpdateVolunteerProfileResponse,
@@ -15,51 +21,56 @@ class VolunteerProfileService {
 
   constructor(
     private volunteerProfileRepository: VolunteerProfileRepository,
-    private storageService: R2StorageService
+    private storageService: R2StorageService,
   ) {}
 
-  async getProfile(dto: GetVolunteerProfileRequest): Promise<GetVolunteerProfileResponse> {
+  private async findOrFail(userId: string) {
+    guard(userId, "معرّف المستخدم مطلوب");
+    const profile = await this.volunteerProfileRepository.findByUserId(userId);
+    if (!profile)
+      throw Object.assign(new Error(), {
+        result: fail("NOT_FOUND", "الملف الشخصي غير موجود"),
+      });
+    return profile;
+  }
+
+  private async tryDeleteImage(imageUrl: string): Promise<void> {
     try {
-      const profile = await this.volunteerProfileRepository.findByUserId(dto.userId);
-
-      if (!profile) {
-        return { success: false, error: "الملف الشخصي غير موجود" };
-      }
-
-      return {
-        success: true,
-        profile: {
-          id: profile.id,
-          userId: profile.userId,
-          city: profile.city,
-          dateOfBirth: profile.dateOfBirth.toISOString(),
-          profilePictureUrl: profile.profilePictureUrl,
-          gender: profile.gender,
-          bio: profile.bio,
-          skills: profile.skills,
-          interests: profile.interests,
-          hasVolunteerExperience: profile.hasVolunteerExperience,
-        },
-      };
-    } catch (error) {
-      return serviceError<GetVolunteerProfileResponse>(
+      await this.storageService.delete(imageUrl);
+      logger.info(
         VolunteerProfileService.SCOPE,
-        "getProfile",
-        error,
-        "حدث خطأ أثناء جلب الملف الشخصي"
+        "tryDeleteImage",
+        `Deleted: ${imageUrl}`,
+      );
+    } catch {
+      logger.warn(
+        VolunteerProfileService.SCOPE,
+        "tryDeleteImage",
+        `Failed to delete: ${imageUrl}`,
       );
     }
   }
 
-  async updateProfile(dto: UpdateVolunteerProfileRequest): Promise<UpdateVolunteerProfileResponse> {
+  async getProfile(userId: string): Promise<GetVolunteerProfileResponse> {
     try {
-      const profile = await this.volunteerProfileRepository.findByUserId(dto.userId);
+      const profile = await this.findOrFail(userId);
+      return ok({ profile: toVolunteerProfileDto(profile) });
+    } catch (error) {
+      return serviceError(
+        VolunteerProfileService.SCOPE,
+        "getProfile",
+        error,
+        "حدث خطأ أثناء جلب الملف الشخصي",
+      );
+    }
+  }
 
-      if (!profile) {
-        return { success: false, error: "الملف الشخصي غير موجود" };
-      }
+  async updateProfile(
+    dto: UpdateVolunteerProfileRequest,
+  ): Promise<UpdateVolunteerProfileResponse> {
+    try {
+      const profile = await this.findOrFail(dto.userId);
 
-      // Update fields if provided
       if (dto.city) profile.updateCity(dto.city);
       if (dto.dateOfBirth) profile.updateDateOfBirth(dto.dateOfBirth);
       if (dto.gender) profile.updateGender(dto.gender);
@@ -70,67 +81,45 @@ class VolunteerProfileService {
         profile.updateVolunteerExperience(dto.hasVolunteerExperience);
       }
 
-      const updatedProfile = await this.volunteerProfileRepository.update(profile);
+      const updated = await this.volunteerProfileRepository.update(profile);
 
       logger.info(VolunteerProfileService.SCOPE, "updateProfile", {
         userId: dto.userId,
-        updatedFields: Object.keys(dto).filter(key => key !== 'userId'),
+        fields: Object.keys(dto).filter((k) => k !== "userId"),
       });
 
-      return {
-        success: true,
-        profile: {
-          id: updatedProfile.id,
-          userId: updatedProfile.userId,
-          city: updatedProfile.city,
-          dateOfBirth: updatedProfile.dateOfBirth.toISOString(),
-          profilePictureUrl: updatedProfile.profilePictureUrl,
-          gender: updatedProfile.gender,
-          bio: updatedProfile.bio,
-          skills: updatedProfile.skills,
-          interests: updatedProfile.interests,
-          hasVolunteerExperience: updatedProfile.hasVolunteerExperience,
-        },
-      };
+      return ok({ profile: toVolunteerProfileDto(updated) });
     } catch (error) {
-      return serviceError<UpdateVolunteerProfileResponse>(
+      return serviceError(
         VolunteerProfileService.SCOPE,
         "updateProfile",
         error,
-        "حدث خطأ أثناء تحديث الملف الشخصي"
+        "حدث خطأ أثناء تحديث الملف الشخصي",
       );
     }
   }
 
-  async uploadProfilePicture(dto: UploadProfilePictureRequest): Promise<UploadProfilePictureResponse> {
+  async uploadProfilePicture(
+    dto: UploadProfilePictureRequest,
+  ): Promise<UploadProfilePictureResponse> {
     try {
-      const profile = await this.volunteerProfileRepository.findByUserId(dto.userId);
+      const profile = await this.findOrFail(dto.userId);
 
-      if (!profile) {
-        return { success: false, error: "الملف الشخصي غير موجود" };
-      }
-
-      // Convert File to Buffer
-      const arrayBuffer = await dto.file.arrayBuffer();
-      const fileBuffer = Buffer.from(arrayBuffer);
-
-      // Upload image to R2 Storage
+      const buffer = Buffer.from(await dto.file.arrayBuffer());
       const uploadResult = await this.storageService.upload(
-        fileBuffer,
+        buffer,
         "profiles",
-        dto.file.name
+        dto.file.name,
       );
 
       if (!uploadResult.success || !uploadResult.url) {
-        return { success: false, error: uploadResult.error || "فشل رفع الصورة" };
+        return fail("STORAGE_ERROR", uploadResult.error || "فشل رفع الصورة");
       }
 
-      // Delete old profile picture if exists
       if (profile.profilePictureUrl) {
-        await this.storageService.delete(profile.profilePictureUrl);
+        await this.tryDeleteImage(profile.profilePictureUrl);
       }
 
-      // Update profile with new picture URL
       profile.updateProfilePicture(uploadResult.url);
       await this.volunteerProfileRepository.update(profile);
 
@@ -139,16 +128,13 @@ class VolunteerProfileService {
         imageUrl: uploadResult.url,
       });
 
-      return {
-        success: true,
-        imageUrl: uploadResult.url,
-      };
+      return ok({ imageUrl: uploadResult.url });
     } catch (error) {
-      return serviceError<UploadProfilePictureResponse>(
+      return serviceError(
         VolunteerProfileService.SCOPE,
         "uploadProfilePicture",
         error,
-        "حدث خطأ أثناء رفع الصورة"
+        "حدث خطأ أثناء رفع الصورة",
       );
     }
   }

@@ -1,48 +1,23 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import UserService from "@/core/application/services/UserService";
-import { UserRepository } from "@/infrastructure/persistence/repositories";
+import { logger } from "@/core/application/helpers";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, forbidden, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const buildService = () => new UserService(new UserRepository());
-
-export async function GET(
-  _: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-
+export async function GET(req : Request, ctx: { params: Promise<{ id: string }> }) {
   try {
-    const session = await getServerSession(authOptions);
+    const auth = await requireAuth(req);
+    if ("error" in auth) return auth.error;
 
-    if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+    const { id } = await ctx.params;
+    if (auth.session.user.role !== "ADMIN" && auth.session.user.id !== id) {
+      return forbidden();
     }
 
-    if (session.user.role !== "ADMIN" && session.user.id !== id) {
-      return NextResponse.json(
-        { success: false, error: "Forbidden" },
-        { status: 403 }
-      );
-    }
-
-    const service = buildService();
-    const result = await service.getUserActivities(id);
-
-    return NextResponse.json(result, {
-      status: result.success ? 200 : 500,
-    });
+    logger.info("API", "GET /users/[id]/activities", `requester=${auth.session.user.id} target=${id}`);
+    return toResponse(await providers.user().getUserActivities(id));
   } catch (error) {
-    console.error("User activities API error:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+    return apiError("API", "GET /users/[id]/activities", error);
   }
 }

@@ -10,18 +10,20 @@ class FeaturedPost extends BaseEntity {
     if (!props.imageUrl?.trim()) throw new Error("imageUrl is required");
     if (!props.title?.trim()) throw new Error("title is required");
     if (!props.description?.trim()) throw new Error("description is required");
+    if (!props.categories || props.categories.length === 0)
+      throw new Error("Add at least one category");
 
     this.props = {
       ...props,
-      imageUrl: props.imageUrl.trim(),
-      title: props.title.trim(),
-      description: props.description.trim(),
-      isActive: props.isActive ?? true,
+      categories: [...(props.categories ?? [])],
+      imageUrl: props.imageUrl?.trim() || "",
+      title: props.title?.trim() || "",
+      description: props.description?.trim() || "",
     };
   }
 
   static create(
-    input: Omit<FeaturedPostProps, "id" | "createdAt" | "updatedAt">
+    input: Omit<FeaturedPostProps, "id" | "createdAt" | "updatedAt">,
   ): FeaturedPost {
     return new FeaturedPost({
       ...input,
@@ -34,20 +36,23 @@ class FeaturedPost extends BaseEntity {
 
   update(
     input: Partial<
-      Pick<FeaturedPostProps, "imageUrl" | "title" | "description" | "isActive">
-    >
+      Pick<
+        FeaturedPostProps,
+        "imageUrl" | "title" | "description" | "isActive" | "categories"
+      >
+    >,
   ): void {
     let changed = false;
-
-    if (input.imageUrl !== undefined) {
-      if (!input.imageUrl.trim()) throw new Error("imageUrl is required");
-      this.props.imageUrl = input.imageUrl.trim();
-      changed = true;
-    }
 
     if (input.title !== undefined) {
       if (!input.title.trim()) throw new Error("title is required");
       this.props.title = input.title.trim();
+      changed = true;
+    }
+
+    if (input.imageUrl !== undefined) {
+      if (!input.imageUrl.trim()) throw new Error("imageUrl is required");
+      this.props.imageUrl = input.imageUrl.trim();
       changed = true;
     }
 
@@ -57,10 +62,18 @@ class FeaturedPost extends BaseEntity {
       changed = true;
     }
 
+    if (input.categories !== undefined) {
+      if (!input.categories || input.categories.length === 0) {
+        throw new Error("Add at least one category");
+      }
+      this.props.categories = [...input.categories];
+      changed = true;
+    }
+
     if (input.isActive !== undefined) {
-      this.setActive(input.isActive); 
+      this.setActive(input.isActive);
       this.props.isActive = this.isActive;
-      return; 
+      changed = true;
     }
 
     if (changed) {
@@ -77,7 +90,11 @@ class FeaturedPost extends BaseEntity {
   }
 
   get description(): string {
-    return this.props.description;
+  return this.props.description;
+  }
+
+  get categories() {
+    return this.props.categories;
   }
 
   toObject(): FeaturedPostProps {

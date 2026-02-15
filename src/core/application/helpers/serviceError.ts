@@ -1,20 +1,24 @@
+import { fail } from "@/core/application/dtos";
 import { logger } from "./logger";
+import { GuardError } from "./validation";
 
-type ServiceResponseShape = { success: boolean; error?: string };
-
-export const serviceError = <T extends ServiceResponseShape>(
+export const serviceError = (
   scope: string,
   action: string,
   error: unknown,
-  message: string
-): T => {
-  logger.error(scope, action, normalizeError(error));
-  return { success: false, error: message } as T;
-};
+  userMessage: string,
+) => {
+  if (error instanceof GuardError) return error.result;
 
-const normalizeError = (err: unknown) => {
-  if (err instanceof Error) {
-    return { name: err.name, message: err.message, stack: err.stack };
+  if (error && typeof error === "object" && "result" in error) {
+    return (error as { result: ReturnType<typeof fail> }).result;
   }
-  return { message: String(err) };
+
+  const normalized =
+    error instanceof Error
+      ? { name: error.name, message: error.message, stack: error.stack }
+      : { message: String(error) };
+
+  logger.error(scope, action, normalized);
+  return fail("INTERNAL_ERROR", userMessage, normalized);
 };

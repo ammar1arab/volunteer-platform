@@ -1,9 +1,10 @@
 import "@/presentation/styles/globals.scss";
-import { Footer, Header } from "@/presentation/components";
+import { Footer, Header, AnimatedBackground } from "@/presentation/components";
 
-const PublicLayout = ({ children }: { children: React.ReactNode; }) => {
+const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
+      <AnimatedBackground />
       <Header />
       <main className="main-content">
         {children}
@@ -11,5 +12,6 @@ const PublicLayout = ({ children }: { children: React.ReactNode; }) => {
       <Footer />
     </>
   );
-}
-export default PublicLayout
+};
+
+export default PublicLayout;

@@ -80,7 +80,11 @@ export const useSignup = (): UseSignupReturn => {
         return;
       }
 
-      setError(result.error || "حدث خطأ أثناء إنشاء الحساب");
+      setError(
+        typeof result.error === "string"
+          ? result.error
+          : result.error?.message || "حدث خطأ أثناء إنشاء الحساب",
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "حدث خطأ في الاتصال");
     } finally {

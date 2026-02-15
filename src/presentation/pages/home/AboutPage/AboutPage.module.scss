@@ -1,0 +1,387 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.page {
+  min-height: 100vh;
+  padding-top: 100px;
+
+  @include sm {
+    padding-top: 80px;
+  }
+}
+
+.hero {
+  padding: 40px 0 60px;
+
+  @include sm {
+    padding: 30px 0 40px;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  color: $green;
+  font-weight: 800;
+  font-size: $font-xs;
+  border: 1px solid $green;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 0 0 24px;
+  color: $text;
+
+  .green {
+    color: $green;
+  }
+  .red {
+    color: $red;
+  }
+}
+
+.desc {
+  font-size: $font-xl;
+  line-height: 1.6;
+  color: $text-muted;
+  max-width: 600px;
+
+  @include sm {
+    font-size: $font-md;
+  }
+
+  strong {
+    color: $text;
+    font-weight: 700;
+  }
+}
+
+.story {
+  padding: 60px 0;
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+
+    @include md {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+  }
+
+  h2 {
+    font-size: $font-2xl;
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: $text;
+  }
+
+  p {
+    font-size: $font-lg;
+    line-height: 1.7;
+    color: $text-muted;
+    margin-bottom: 16px;
+
+    @include sm {
+      font-size: $font-md;
+    }
+  }
+
+  strong {
+    color: $green;
+    font-weight: 700;
+  }
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @include sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat {
+  padding: 24px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+
+  &:last-child {
+    @media (min-width: 992px) {
+      grid-column: span 2;
+      align-items: center;
+    }
+  }
+}
+
+.statNum {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: $green;
+  margin-bottom: 4px;
+  line-height: 1;
+
+  .stat:nth-child(2) & {
+    color: $red;
+  }
+}
+
+.statLabel {
+  font-size: $font-sm;
+  color: $text-muted;
+  font-weight: 600;
+}
+
+.vision {
+  padding: 60px 0;
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card {
+    padding: 32px;
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+
+    svg {
+      color: $green;
+      margin-bottom: 16px;
+    }
+
+    &:last-child svg {
+      color: $red;
+    }
+
+    h3 {
+      font-size: $font-2xl;
+      font-weight: 800;
+      margin: 0 0 12px;
+      color: $text;
+    }
+
+    p {
+      font-size: $font-md;
+      line-height: 1.6;
+      color: $text-muted;
+      margin: 0;
+    }
+  }
+}
+
+.goals {
+  padding: 60px 0;
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+
+    h2 {
+      font-size: $font-2xl;
+      font-weight: 900;
+      color: $text;
+    }
+  }
+
+  .goalsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+
+    @include lg {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include sm {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .goalCard {
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    svg {
+      color: $green;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    p {
+      margin: 0;
+      font-size: $font-md;
+      font-weight: 500;
+      color: $text;
+      line-height: 1.5;
+    }
+  }
+}
+
+.activities {
+  padding: 60px 0;
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+
+    h2 {
+      font-size: $font-2xl;
+      font-weight: 900;
+      color: $text;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: $text-muted;
+      font-size: $font-md;
+    }
+  }
+
+  .activitiesGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+
+    @include lg {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include sm {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .activityCard {
+    text-align: center;
+    padding: 28px 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+
+    svg {
+      color: $green;
+      margin: 0 auto 16px;
+    }
+
+    h3 {
+      font-size: $font-lg;
+      font-weight: 800;
+      margin: 0 0 8px;
+      color: $text;
+    }
+
+    p {
+      font-size: $font-sm;
+      color: $text-muted;
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+}
+
+.programs {
+  padding: 60px 0;
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+
+    h2 {
+      font-size: $font-2xl;
+      font-weight: 900;
+      color: $text;
+    }
+  }
+
+  .programsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+
+    @include md {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .programCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+
+    svg {
+      color: $text;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    h4 {
+      margin: 0 0 6px;
+      font-size: $font-lg;
+      font-weight: 700;
+      color: $text;
+    }
+
+    p {
+      margin: 0;
+      font-size: $font-sm;
+      color: $text-muted;
+      line-height: 1.5;
+    }
+  }
+}
+
+.cta {
+  padding: 80px 0;
+  text-align: center;
+
+  h2 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    margin-bottom: 16px;
+    color: $text;
+  }
+
+  p {
+    font-size: $font-lg;
+    margin-bottom: 32px;
+    color: $text-muted;
+    font-weight: 500;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  a {
+    display: inline-block;
+    padding: 14px 32px;
+    color: $green;
+    font-weight: 800;
+    border: 2px solid $green;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: $font-lg;
+
+    &:hover {
+      color: #fff;
+      background: $green;
+    }
+  }
+}

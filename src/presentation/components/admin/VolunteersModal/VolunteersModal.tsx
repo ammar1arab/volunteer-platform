@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { User, X, MapPin, Calendar, Users as UsersIcon } from "lucide-react";
+import {  X, MapPin, Calendar, Users as UsersIcon } from "lucide-react";
 import { useVolunteersModal } from "./VolunteersModal.logic";
 import styles from "./VolunteersModal.module.scss";
 

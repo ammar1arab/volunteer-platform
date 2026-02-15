@@ -13,8 +13,12 @@ export const useVolunteersModal = (activityId: string, isOpen: boolean) => {
       setLoading(true);
       try {
         const result = await activityApi.getVolunteers(activityId);
-        if (result.success && result.volunteers) {
-          setVolunteers(result.volunteers);
+        
+        // ✅ Fix: Access volunteers from result.data
+        if (result.success && result.data?.volunteers) {
+          setVolunteers(result.data.volunteers);
+        } else {
+          setVolunteers([]);
         }
       } catch (error) {
         setVolunteers([]);

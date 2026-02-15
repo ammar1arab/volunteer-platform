@@ -1,142 +1,125 @@
-import { ActivityParticipation } from "@/core/domain/entities";
-import { ActivityParticipationProps } from "@/core/domain/interfaces";
-import { prisma } from "@/infrastructure/persistence/prisma";
 import IActivityParticipationRepository from "./IActivityParticipationRepository";
+import { prisma } from "@/infrastructure/persistence/prisma";
+import { ActivityParticipation } from "@/core/domain/entities";
+import { ApprovedVolunteerRow } from "@/core/application/dtos";
 
-class ActivityParticipationRepository
-  implements IActivityParticipationRepository
-{
+class ActivityParticipationRepository implements IActivityParticipationRepository {
+  private mapToEntity(data: any): ActivityParticipation {
+    return new ActivityParticipation({
+      id: data.id,
+      activityId: data.activityId,
+      volunteerId: data.volunteerId,
+      status: data.status,
+      requestedAt: data.requestedAt,
+      respondedAt: data.respondedAt,
+      isActive: data.isActive,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    });
+  }
+
   async findById(id: string): Promise<ActivityParticipation | null> {
-    const participation = await prisma.activityParticipation.findUnique({
+    const data = await prisma.activityParticipation.findUnique({
       where: { id },
     });
-
-    if (!participation) return null;
-    return this.toDomain(participation);
+    return data ? this.mapToEntity(data) : null;
   }
 
   async findByActivityAndVolunteer(
     activityId: string,
-    volunteerId: string
+    volunteerId: string,
   ): Promise<ActivityParticipation | null> {
-    const participation = await prisma.activityParticipation.findUnique({
-      where: {
-        activityId_volunteerId: {
-          activityId,
-          volunteerId,
-        },
-      },
+    const data = await prisma.activityParticipation.findUnique({
+      where: { activityId_volunteerId: { activityId, volunteerId } },
     });
-
-    if (!participation) return null;
-    return this.toDomain(participation);
+    return data ? this.mapToEntity(data) : null;
   }
 
   async findPendingByActivity(
-    activityId: string
+    activityId: string,
   ): Promise<ActivityParticipation[]> {
-    const participations = await prisma.activityParticipation.findMany({
-      where: {
-        activityId,
-        status: "PENDING",
-      },
+    const rows = await prisma.activityParticipation.findMany({
+      where: { activityId, status: "PENDING" },
       orderBy: { requestedAt: "desc" },
     });
-
-    return participations.map((p) => this.toDomain(p));
+    return rows.map(this.mapToEntity);
   }
 
   async findAllPending(): Promise<ActivityParticipation[]> {
-    const participations = await prisma.activityParticipation.findMany({
+    const rows = await prisma.activityParticipation.findMany({
       where: { status: "PENDING" },
       orderBy: { requestedAt: "desc" },
     });
-
-    return participations.map((p) => this.toDomain(p));
+    return rows.map(this.mapToEntity);
   }
 
   async findByVolunteer(volunteerId: string): Promise<ActivityParticipation[]> {
-    const participations = await prisma.activityParticipation.findMany({
+    const rows = await prisma.activityParticipation.findMany({
       where: { volunteerId },
       orderBy: { requestedAt: "desc" },
     });
-
-    return participations.map((p) => this.toDomain(p));
+    return rows.map(this.mapToEntity);
   }
 
   async create(
-    participation: ActivityParticipation
+    participation: ActivityParticipation,
   ): Promise<ActivityParticipation> {
     const props = participation.toObject();
-
-    const created = await prisma.activityParticipation.create({
-      data: {
-        id: props.id,
-        activityId: props.activityId,
-        volunteerId: props.volunteerId,
-        status: props.status,
-        requestedAt: props.requestedAt,
-        respondedAt: props.respondedAt,
-        isActive: props.isActive,
-        createdAt: props.createdAt,
-        updatedAt: props.updatedAt,
-      },
-    });
-
-    return this.toDomain(created);
+    const created = await prisma.activityParticipation.create({ data: props });
+    return this.mapToEntity(created);
   }
 
   async update(
-    participation: ActivityParticipation
+    participation: ActivityParticipation,
   ): Promise<ActivityParticipation> {
     const props = participation.toObject();
-
     const updated = await prisma.activityParticipation.update({
-      where: { id: participation.id },
-      data: {
-        status: props.status,
-        respondedAt: props.respondedAt,
-        isActive: props.isActive,
-        updatedAt: props.updatedAt,
-      },
+      where: { id: props.id },
+      data: { ...props, updatedAt: new Date() },
     });
-
-    return this.toDomain(updated);
+    return this.mapToEntity(updated);
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await prisma.activityParticipation.delete({
-        where: { id },
-      });
+      await prisma.activityParticipation.delete({ where: { id } });
       return true;
     } catch {
       return false;
     }
   }
+  async findApprovedVolunteers(
+    activityId: string,
+  ): Promise<ApprovedVolunteerRow[]> {
+    const rows = await prisma.activityParticipation.findMany({
+      where: { activityId, status: "APPROVED" },
+      include: {
+        volunteer: {
+          include: {
+            volunteerProfile: {
+              select: {
+                profilePictureUrl: true,
+                city: true,
+                dateOfBirth: true,
+                gender: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
-  private toDomain(raw: {
-    id: string;
-    activityId: string;
-    volunteerId: string;
-    status: string;
-    requestedAt: Date;
-    respondedAt: Date | null;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-  }): ActivityParticipation {
-    return new ActivityParticipation({
-      id: raw.id,
-      activityId: raw.activityId,
-      volunteerId: raw.volunteerId,
-      status: raw.status,
-      requestedAt: raw.requestedAt,
-      respondedAt: raw.respondedAt,
-      isActive: raw.isActive,
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
-    } as ActivityParticipationProps);
+    return rows.map((r) => ({
+      id: r.volunteer.id,
+      fullName: r.volunteer.fullName,
+      email: r.volunteer.email,
+      phone: r.volunteer.phone,
+      profilePictureUrl:
+        r.volunteer.volunteerProfile?.profilePictureUrl ?? null,
+      city: r.volunteer.volunteerProfile?.city ?? null,
+      dateOfBirth: r.volunteer.volunteerProfile?.dateOfBirth ?? null,
+      gender: r.volunteer.volunteerProfile?.gender ?? null,
+    }));
   }
 }
 

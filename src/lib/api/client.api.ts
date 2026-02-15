@@ -1,70 +1,50 @@
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
-interface FetchOptions {
-  method?: HttpMethod;
-  body?: unknown;
-  headers?: HeadersInit;
-}
-
 class ApiClient {
-  private async request<T>(url: string, options?: FetchOptions): Promise<T> {
-    const body = options?.body;
-    const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+  private async request<T>(
+    url: string,
+    method: HttpMethod = "GET",
+    body?: unknown,
+  ): Promise<T> {
+    const isFormData =
+      typeof FormData !== "undefined" && body instanceof FormData;
 
-    const headers: HeadersInit = {
-      ...(isFormData ? {} : { "Content-Type": "application/json" }),
-      ...options?.headers,
-    };
-
-    const config: RequestInit = {
-      method: options?.method || "GET",
-      headers,
+    const res = await fetch(url, {
+      method,
       credentials: "include",
+      headers: isFormData ? undefined : { "Content-Type": "application/json" },
       body:
         body === undefined
           ? undefined
           : isFormData
-          ? (body as FormData)
-          : JSON.stringify(body),
-    };
+            ? (body as FormData)
+            : JSON.stringify(body),
+    });
 
-    const res = await fetch(url, config);
-    const contentType = res.headers.get("content-type") || "";
-    const isJson = contentType.includes("application/json");
-
-    const data = isJson
-      ? await res.json().catch(() => null)
-      : await res.text().catch(() => "");
+    const data = await res.json().catch(() => null);
 
     if (!res.ok) {
-      let msg = "Request failed";
-      if (data && typeof data === "object" && data !== null && "error" in data) {
-        msg = String((data as { error: unknown }).error);
-      }
-      throw new Error(msg);
+      const msg = data?.error?.message ?? data?.error ?? "Request failed";
+      throw new Error(typeof msg === "string" ? msg : "Request failed");
     }
 
     return data as T;
   }
 
   get<T>(url: string) {
-    return this.request<T>(url, { method: "GET" });
+    return this.request<T>(url);
   }
-
   post<T>(url: string, body?: unknown) {
-    return this.request<T>(url, { method: "POST", body });
+    return this.request<T>(url, "POST", body);
   }
-
   put<T>(url: string, body?: unknown) {
-    return this.request<T>(url, { method: "PUT", body });
+    return this.request<T>(url, "PUT", body);
   }
-
   patch<T>(url: string, body?: unknown) {
-    return this.request<T>(url, { method: "PATCH", body });
+    return this.request<T>(url, "PATCH", body);
   }
-
   delete<T>(url: string) {
-    return this.request<T>(url, { method: "DELETE" });
+    return this.request<T>(url, "DELETE");
   }
 }
 

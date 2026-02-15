@@ -1,6 +1,8 @@
 @use "@/presentation/styles/_variables" as *;
 @use "@/presentation/styles/_mixins" as *;
 
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+
 *,
 *::before,
 *::after {
@@ -13,8 +15,15 @@ html {
   scroll-behavior: smooth;
 }
 
+header,
+footer,
+section {
+  position: relative;
+  z-index: 1;
+}
+
 body {
-  font-family: var(--font-heebo), sans-serif;
+  font-family: 'Cairo', sans-serif;
   font-size: $font-base;
   line-height: 1.6;
   color: $text;

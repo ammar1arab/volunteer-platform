@@ -1,23 +1,7 @@
-import { HeroSection, FeaturedPosts, AvailableActivities, AboutSection, ContactSection } from '@/presentation/components';
+import { MainPage } from '@/presentation/pages';
 
 const HomePage = () => {
-  return (
-    <>
-      <HeroSection />
-      <section id="opportunities">
-        <AvailableActivities />
-      </section>
-
-      <FeaturedPosts />
-
-      <section id="about">
-        <AboutSection />
-      </section>
-      <section id="contact">
-        <ContactSection />
-      </section>
-    </>
-  );
+  return <MainPage />;
 };
 
 export default HomePage;

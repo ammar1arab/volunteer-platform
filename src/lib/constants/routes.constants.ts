@@ -4,10 +4,17 @@ export const ROUTES = {
   HOME: "/",
   LOGIN: "/signin",
   SIGNUP: "/signup",
+  ABOUT: "/about",
+  POSTS: "/posts",
+  POST_DETAILS: (id: string) => `/posts/${id}`,
+  ACTIVITIES: "/activities",
+  ACTIVITY_DETAILS: (id: string) => `/activities/${id}`,
 
   ADMIN: {
     ROOT: "/admin/dashboard",
     FEATURED_POSTS: "/admin/dashboard/featured-posts",
+    MAGAZINE: "/admin/dashboard/magazine",
+    SUCCESS_STORIES: "/admin/dashboard/success-stories",
     ACTIVITIES: "/admin/dashboard/activities",
     REQUESTS: "/admin/dashboard/requests",
     USERS: "/admin/dashboard/users",

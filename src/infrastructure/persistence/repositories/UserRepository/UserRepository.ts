@@ -4,6 +4,11 @@ import { prisma } from "@/infrastructure/persistence/prisma";
 import IUserRepository from "./IUserRespository";
 
 class UserRepository implements IUserRepository {
+  
+  private mapToEntity(data: UserProps): User {
+    return new User(data);
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const userData = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
@@ -11,7 +16,7 @@ class UserRepository implements IUserRepository {
 
     if (!userData) return null;
 
-    return new User(userData as UserProps);
+    return this.mapToEntity(userData as UserProps);
   }
 
   async findById(id: string): Promise<User | null> {
@@ -21,41 +26,53 @@ class UserRepository implements IUserRepository {
 
     if (!userData) return null;
 
-    return new User(userData as UserProps);
+    return this.mapToEntity(userData as UserProps);
   }
 
   async create(user: User): Promise<User> {
-    const userProps = user.toObject();
+    const props = user.toObject();
 
-    const createdUser = await prisma.user.create({
+    const created = await prisma.user.create({
       data: {
-        id: userProps.id,
-        email: userProps.email,
-        password: userProps.password,
-        fullName: userProps.fullName,
-        phone: userProps.phone,
-        role: userProps.role,
-        isActive: userProps.isActive,
+        id: props.id,
+        email: props.email,
+        password: props.password,
+        fullName: props.fullName,
+        phone: props.phone,
+        role: props.role,
+        isActive: props.isActive,
+        createdAt: props.createdAt,
+        updatedAt: props.updatedAt,
       },
     });
 
-    return new User(createdUser as UserProps);
+    return this.mapToEntity(created as UserProps);
   }
 
   async update(user: User): Promise<User> {
-    const userProps = user.toObject();
+    const props = user.toObject();
 
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
+    const updated = await prisma.user.update({
+      where: { id: props.id },
       data: {
-        email: userProps.email,
-        fullName: userProps.fullName,
-        phone: userProps.phone,
-        isActive: userProps.isActive,
+        email: props.email,
+        fullName: props.fullName,
+        phone: props.phone,
+        isActive: props.isActive,
+        updatedAt: new Date(),
       },
     });
 
-    return new User(updatedUser as UserProps);
+    return this.mapToEntity(updated as UserProps);
+  }
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      await prisma.user.delete({ where: { id } });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 

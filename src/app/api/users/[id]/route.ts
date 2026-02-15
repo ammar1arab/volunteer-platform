@@ -1,48 +1,34 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { UserService } from "@/core/application/services";
-import { UserRepository } from "@/infrastructure/persistence/repositories";
+import { logger } from "@/core/application/helpers";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, forbidden, apiError } from "@/lib/api-utils";
+import { UserRole } from "@prisma/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const buildService = () => new UserService(new UserRepository());
-
 export async function GET(
-  _: Request,
-  { params }: { params: Promise<{ id: string }> }
+  req: Request,
+  ctx: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-
   try {
-    const session = await getServerSession(authOptions);
+    const auth = await requireAuth(req);
+    if ("error" in auth) return auth.error;
 
-    if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+    const { id } = await ctx.params;
+    if (
+      auth.session.user.role !== UserRole.ADMIN &&
+      auth.session.user.id !== id
+    ) {
+      return forbidden();
     }
 
-    if (session.user.role !== "ADMIN" && session.user.id !== id) {
-      return NextResponse.json(
-        { success: false, error: "Forbidden" },
-        { status: 403 }
-      );
-    }
-
-    const service = buildService();
-    const result = await service.getUserDetails(id);
-
-    return NextResponse.json(result, {
-      status: result.success ? 200 : 404,
-    });
-  } catch (error) {
-    console.error("User details API error:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
+    logger.info(
+      "API",
+      "GET /users/[id]",
+      `requester=${auth.session.user.id} target=${id}`,
     );
+    return toResponse(await providers.user().getUserDetails(id));
+  } catch (error) {
+    return apiError("API", "GET /users/[id]", error);
   }
 }

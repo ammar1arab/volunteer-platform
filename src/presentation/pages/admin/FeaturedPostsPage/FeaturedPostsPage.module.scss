@@ -12,6 +12,21 @@
 
 .actions {
   @include header-actions;
+
+  > div {
+    min-width: 200px;
+    max-width: 350px;
+  }
+
+  @include sm {
+    flex-direction: row;
+    width: 100%;
+
+    > div {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
 }
 
 .btnCreate {
@@ -37,9 +52,7 @@
 }
 
 .cardActions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  @include flex(row, center, flex-end, 4px);
 }
 
 .btn {
@@ -58,14 +71,12 @@
 
 // Modal Form
 .form {
-  display: flex;
-  flex-direction: column;
+  @include flex-col;
   gap: $sp-md;
 }
 
 .field {
-  display: flex;
-  flex-direction: column;
+  @include flex-col;
   gap: 4px;
 }
 
@@ -110,9 +121,7 @@
 
 .btnUpload {
   @include btn-primary;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   gap: $sp-xs;
   padding: $sp-sm $sp-md;
   font-size: $font-sm;
@@ -121,13 +130,11 @@
 }
 
 .fileInput {
-  display: none;
+  @include hidden;
 }
 
 .toggle {
-  display: flex;
-  align-items: center;
-  gap: $sp-sm;
+  @include flex(row, center, flex-start, $sp-sm);
   font-size: $font-sm;
   cursor: pointer;
 
@@ -151,7 +158,7 @@
   background: $border;
   border-radius: $radius-full;
   position: relative;
-  transition: all 0.2s ease;
+  transition: $transition;
 
   &::before {
     content: "";
@@ -162,16 +169,13 @@
     border-radius: 50%;
     top: 3px;
     left: 3px;
-    transition: all 0.2s ease;
+    transition: $transition;
     box-shadow: 0 1px 3px rgba($black, 0.2);
   }
 }
 
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: $sp-sm;
+.modalActions {
+  @include flex(row, center, flex-end, $sp-sm);
 }
 
 .btnCancel {

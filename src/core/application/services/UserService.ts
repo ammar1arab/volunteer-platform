@@ -1,16 +1,101 @@
 import { UserRepository } from "@/infrastructure/persistence/repositories";
 import { prisma } from "@/infrastructure/persistence/prisma";
-import { serviceError } from "@/core/application/helpers";
+import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
+import {
+  ok,
+  fail,
+  serviceError,
+  logger,
+  guard,
+} from "@/core/application/helpers";
 import type {
   GetAllUsersResponse,
   GetUserDetailsResponse,
   GetUserActivitiesResponse,
   UserAnalyticsDto,
   UserActivityDto,
-  UpdateUserResponse,
   UpdateUserRequest,
+  UpdateUserResponse,
+  VolunteerProfileSummaryDto,
 } from "@/core/application/dtos";
-import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
+
+const USER_WITH_ANALYTICS_INCLUDE = {
+  volunteerProfile: {
+    select: {
+      profilePictureUrl: true,
+      city: true,
+      dateOfBirth: true,
+      gender: true,
+      bio: true,
+      skills: true,
+      interests: true,
+    },
+  },
+  participations: {
+    include: { activity: { select: { id: true, title: true, date: true } } },
+  },
+} as const;
+
+function mapVolunteerProfile(
+  vp: {
+    profilePictureUrl: string | null;
+    city: string | null;
+    dateOfBirth: Date | null;
+    gender: string | null;
+    bio: string | null;
+    skills: string[];
+    interests: string[];
+  } | null,
+): VolunteerProfileSummaryDto | undefined {
+  if (!vp) return undefined;
+  return {
+    profilePictureUrl: vp.profilePictureUrl ?? undefined,
+    city: vp.city ?? undefined,
+    dateOfBirth: vp.dateOfBirth?.toISOString(),
+    gender: vp.gender ?? undefined,
+    bio: vp.bio ?? undefined,
+    skills: vp.skills ?? [],
+    interests: vp.interests ?? [],
+  };
+}
+
+function computeStats(participations: Array<{ status: string }>) {
+  return {
+    totalActivities: participations.length,
+    pendingRequests: participations.filter((p) => p.status === "PENDING")
+      .length,
+    approvedActivities: participations.filter((p) => p.status === "APPROVED")
+      .length,
+    rejectedRequests: participations.filter((p) => p.status === "REJECTED")
+      .length,
+  };
+}
+
+function toUserAnalyticsDto(u: {
+  id: string;
+  email: string;
+  fullName: string;
+  phone: string;
+  role: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  volunteerProfile: Parameters<typeof mapVolunteerProfile>[0];
+  participations: Array<{ status: string }>;
+}): UserAnalyticsDto {
+  return {
+    id: u.id,
+    email: u.email,
+    fullName: u.fullName,
+    phone: u.phone,
+    role: u.role,
+    isActive: u.isActive,
+    createdAt: u.createdAt.toISOString(),
+    updatedAt: u.updatedAt.toISOString(),
+    volunteerProfile: mapVolunteerProfile(u.volunteerProfile),
+    stats: computeStats(u.participations),
+  };
+}
 
 class UserService {
   private static readonly SCOPE = "UserService";
@@ -20,163 +105,54 @@ class UserService {
   async getAllWithAnalytics(): Promise<GetAllUsersResponse> {
     try {
       const users = await prisma.user.findMany({
-        include: {
-          volunteerProfile: {
-            select: {
-              profilePictureUrl: true,
-              city: true,
-              dateOfBirth: true,
-              gender: true,
-              bio: true,
-              skills: true,
-              interests: true,
-            },
-          },
-          participations: {
-            include: {
-              activity: {
-                select: {
-                  id: true,
-                  title: true,
-                  date: true,
-                },
-              },
-            },
-          },
-        },
+        include: USER_WITH_ANALYTICS_INCLUDE,
         orderBy: { createdAt: "desc" },
       });
 
-      const usersWithStats: UserAnalyticsDto[] = users.map((user) => ({
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        phone: user.phone,
-        role: user.role,
-        isActive: user.isActive,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
-        volunteerProfile: user.volunteerProfile
-          ? {
-              profilePictureUrl:
-                user.volunteerProfile.profilePictureUrl ?? undefined,
-              city: user.volunteerProfile.city ?? undefined,
-              dateOfBirth: user.volunteerProfile.dateOfBirth?.toISOString(),
-              gender: user.volunteerProfile.gender ?? undefined,
+      const result = users.map(toUserAnalyticsDto);
+      logger.info(
+        UserService.SCOPE,
+        "getAllWithAnalytics",
+        `Found ${result.length} users`,
+      );
 
-              bio: user.volunteerProfile.bio ?? undefined,
-              skills: user.volunteerProfile.skills ?? [],
-              interests: user.volunteerProfile.interests ?? [],
-            }
-          : undefined,
-
-        stats: {
-          totalActivities: user.participations.length,
-          pendingRequests: user.participations.filter(
-            (p) => p.status === "PENDING",
-          ).length,
-          approvedActivities: user.participations.filter(
-            (p) => p.status === "APPROVED",
-          ).length,
-          rejectedRequests: user.participations.filter(
-            (p) => p.status === "REJECTED",
-          ).length,
-        },
-      }));
-
-      return { success: true, users: usersWithStats };
+      return ok({ users: result });
     } catch (error) {
-      return serviceError<GetAllUsersResponse>(
+      return serviceError(
         UserService.SCOPE,
         "getAllWithAnalytics",
         error,
-        "Failed to fetch users",
+        "حدث خطأ أثناء جلب المستخدمين",
       );
     }
   }
 
   async getUserDetails(userId: string): Promise<GetUserDetailsResponse> {
     try {
+      guard(userId, "معرّف المستخدم مطلوب");
+
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        include: {
-          volunteerProfile: {
-            select: {
-              profilePictureUrl: true,
-              city: true,
-              dateOfBirth: true,
-              gender: true,
-              bio: true,
-              skills: true,
-              interests: true,
-            },
-          },
-          participations: {
-            include: {
-              activity: {
-                select: {
-                  id: true,
-                  title: true,
-                  date: true,
-                },
-              },
-            },
-          },
-        },
+        include: USER_WITH_ANALYTICS_INCLUDE,
       });
 
-      if (!user) {
-        return { success: false, error: "User not found" };
-      }
+      if (!user) return fail("NOT_FOUND", "المستخدم غير موجود");
 
-      const userWithStats: UserAnalyticsDto = {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        phone: user.phone,
-        role: user.role,
-        isActive: user.isActive,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
-        volunteerProfile: user.volunteerProfile
-          ? {
-              profilePictureUrl:
-                user.volunteerProfile.profilePictureUrl ?? undefined,
-              city: user.volunteerProfile.city ?? undefined,
-              dateOfBirth: user.volunteerProfile.dateOfBirth?.toISOString(),
-              gender: user.volunteerProfile.gender ?? undefined,
-              bio: user.volunteerProfile.bio ?? undefined,
-              skills: user.volunteerProfile.skills ?? [],
-              interests: user.volunteerProfile.interests ?? [],
-            }
-          : undefined,
-        stats: {
-          totalActivities: user.participations.length,
-          pendingRequests: user.participations.filter(
-            (p) => p.status === "PENDING",
-          ).length,
-          approvedActivities: user.participations.filter(
-            (p) => p.status === "APPROVED",
-          ).length,
-          rejectedRequests: user.participations.filter(
-            (p) => p.status === "REJECTED",
-          ).length,
-        },
-      };
-
-      return { success: true, user: userWithStats };
+      return ok({ user: toUserAnalyticsDto(user) });
     } catch (error) {
-      return serviceError<GetUserDetailsResponse>(
+      return serviceError(
         UserService.SCOPE,
         "getUserDetails",
         error,
-        "Failed to fetch user details",
+        "حدث خطأ أثناء جلب تفاصيل المستخدم",
       );
     }
   }
 
   async getUserActivities(userId: string): Promise<GetUserActivitiesResponse> {
     try {
+      guard(userId, "معرّف المستخدم مطلوب");
+
       const participations = await prisma.activityParticipation.findMany({
         where: { volunteerId: userId },
         include: {
@@ -199,7 +175,7 @@ class UserService {
         id: p.id,
         status: p.status,
         requestedAt: p.requestedAt.toISOString(),
-        respondedAt: p.respondedAt ? p.respondedAt.toISOString() : null,
+        respondedAt: p.respondedAt?.toISOString() ?? null,
         activity: {
           id: p.activity.id,
           title: p.activity.title,
@@ -211,13 +187,18 @@ class UserService {
         },
       }));
 
-      return { success: true, activities };
+      logger.info(
+        UserService.SCOPE,
+        "getUserActivities",
+        `Found ${activities.length} for: ${userId}`,
+      );
+      return ok({ activities });
     } catch (error) {
-      return serviceError<GetUserActivitiesResponse>(
+      return serviceError(
         UserService.SCOPE,
         "getUserActivities",
         error,
-        "Failed to fetch user activities",
+        "حدث خطأ أثناء جلب فرص المستخدم",
       );
     }
   }
@@ -228,66 +209,53 @@ class UserService {
   ): Promise<UpdateUserResponse> {
     try {
       const user = await this.userRepository.findById(userId);
+      if (!user) return fail("NOT_FOUND", "المستخدم غير موجود");
 
-      if (!user) {
-        return { success: false, error: "المستخدم غير موجود" };
-      }
-
-      // Validate and update email
       if (data.email && data.email !== user.email) {
-        const sanitizedEmail = InputSanitizer.sanitizeEmail(data.email);
+        const sanitized = InputSanitizer.sanitizeEmail(data.email);
+        if (!SecurityValidator.isValidEmail(sanitized))
+          return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
 
-        if (!SecurityValidator.isValidEmail(sanitizedEmail)) {
-          return { success: false, error: "البريد الإلكتروني غير صحيح" };
-        }
+        const existing = await this.userRepository.findByEmail(sanitized);
+        if (existing && existing.id !== userId)
+          return fail("CONFLICT", "البريد الإلكتروني مستخدم مسبقاً");
 
-        // Check if email already exists
-        const existingUser =
-          await this.userRepository.findByEmail(sanitizedEmail);
-        if (existingUser && existingUser.id !== userId) {
-          return { success: false, error: "البريد الإلكتروني مستخدم مسبقاً" };
-        }
-
-        user.email = sanitizedEmail;
+        user.email = sanitized;
       }
 
-      // Validate and update phone
       if (data.phone && data.phone !== user.phone) {
-        const sanitizedPhone = InputSanitizer.sanitizePhone(data.phone);
-
-        const phoneValidation = SecurityValidator.isValidPhone(sanitizedPhone);
-        if (!phoneValidation.valid) {
-          return { success: false, error: phoneValidation.message };
-        }
-
-        user.phone = sanitizedPhone;
+        const sanitized = InputSanitizer.sanitizePhone(data.phone);
+        const v = SecurityValidator.isValidPhone(sanitized);
+        if (!v.valid)
+          return fail("VALIDATION_ERROR", v.message ?? "خطأ في التحقق");
+        user.phone = sanitized;
       }
 
-      // Validate and update fullName
       if (data.fullName && data.fullName !== user.fullName) {
-        const sanitizedName = InputSanitizer.sanitizeString(data.fullName);
-
-        const nameValidation = SecurityValidator.isValidName(sanitizedName);
-        if (!nameValidation.valid) {
-          return { success: false, error: nameValidation.message };
-        }
-
-        user.fullName = sanitizedName;
+        const sanitized = InputSanitizer.sanitizeString(data.fullName);
+        const v = SecurityValidator.isValidName(sanitized);
+        if (!v.valid)
+          return fail("VALIDATION_ERROR", v.message ?? "خطأ في التحقق");
+        user.fullName = sanitized;
       }
 
       const updated = await this.userRepository.update(user);
+      logger.info(
+        UserService.SCOPE,
+        "updateBasicInfo",
+        `User updated: ${userId}`,
+      );
 
-      return {
-        success: true,
+      return ok({
         user: {
           id: updated.id,
           email: updated.email,
           fullName: updated.fullName,
           phone: updated.phone,
         },
-      };
+      });
     } catch (error) {
-      return serviceError<UpdateUserResponse>(
+      return serviceError(
         UserService.SCOPE,
         "updateBasicInfo",
         error,

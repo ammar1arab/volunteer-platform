@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     BY_ID: (id: string) => `/api/activities/${id}`,
     PUBLISH: (id: string) => `/api/activities/${id}/publish`,
     CANCEL: (id: string) => `/api/activities/${id}/cancel`,
+    RESTORE: (id: string) => `/api/activities/${id}/restore`,
+    VOLUNTEERS: (id: string) => `/api/activities/${id}/volunteers`,
     PUBLISHED: "/api/activities?filter=published",
   },
 

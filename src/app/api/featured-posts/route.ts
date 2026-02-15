@@ -1,45 +1,32 @@
-import { NextResponse } from "next/server";
-import FeaturedPostService from "@/core/application/services/FeaturedPostService";
+import { UserRole } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
 import type { CreateFeaturedPostRequest } from "@/core/application/dtos";
-import { FeaturedPostRepository } from "@/infrastructure/persistence/repositories";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, parseJson, badRequest, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const buildService = () => new FeaturedPostService(new FeaturedPostRepository());
-
-const statusFromError = (error?: string) => {
-  const msg = (error || "").toLowerCase();
-  if (!msg) return 400;
-  if (msg.includes("not found")) return 404;
-  if (msg.includes("id is required")) return 400;
-  if (msg.includes("invalid") || msg.includes("required")) return 400;
-  if (msg.includes("an error occurred")) return 500;
-  return 400;
-};
-
 export async function GET() {
-  const service = buildService();
-  const result = await service.getAll();
-  return NextResponse.json(result, { 
-    status: result.success ? 200 : statusFromError(result.error) 
-  });
+  try {
+    logger.info("API", "GET /featured-posts", "Fetching all");
+    return toResponse(await providers.featuredPost().getAll());
+  } catch (error) {
+    return apiError("API", "GET /featured-posts", error);
+  }
 }
 
 export async function POST(req: Request) {
-  let body: CreateFeaturedPostRequest;
   try {
-    body = (await req.json()) as CreateFeaturedPostRequest;
-  } catch {
-    return NextResponse.json(
-      { success: false, error: "Invalid JSON body" },
-      { status: 400 }
-    );
-  }
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
 
-  const service = buildService();
-  const result = await service.create(body);
-  return NextResponse.json(result, {
-    status: result.success ? 201 : statusFromError(result.error),
-  });
+    const body = await parseJson<CreateFeaturedPostRequest>(req);
+    if (!body) return badRequest("Invalid JSON body");
+
+    logger.info("API", "POST /featured-posts", `admin=${auth.session.user.id}`);
+    return toResponse(await providers.featuredPost().create(body), 201);
+  } catch (error) {
+    return apiError("API", "POST /featured-posts", error);
+  }
 }

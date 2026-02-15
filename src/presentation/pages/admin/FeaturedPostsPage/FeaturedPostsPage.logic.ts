@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { UserRole } from "@/core/domain/enums";
+import { FeaturedPostCategory, UserRole } from "@/core/domain/enums";
 import { processImageForUpload, revokeImagePreview } from "@/lib";
 import { useFeaturedPosts, useToast, useAuth } from "@/presentation/hooks";
 import { FeaturedPostDto } from "@/core/application/dtos";
+import { FEATURED_POST_CATEGORIES } from "@/lib/constants/categories.constants";
 
 type ConfirmOptions = {
   title?: string;
@@ -20,6 +21,7 @@ interface FormState {
   title: string;
   description: string;
   isActive: boolean;
+  categories: FeaturedPostCategory[];
 }
 
 const EMPTY_FORM: FormState = {
@@ -28,6 +30,7 @@ const EMPTY_FORM: FormState = {
   title: "",
   description: "",
   isActive: true,
+  categories: [FeaturedPostCategory.EDUCATION],
 };
 
 export const useFeaturedPostsPage = () => {
@@ -37,9 +40,9 @@ export const useFeaturedPostsPage = () => {
 
   const {
     list,
-    isLoading,
-    isSubmitting,
-    isUploading,
+    loading, // ✅ Changed from isLoading
+    submitting, // ✅ Changed from isSubmitting
+    uploading,
     error,
     uploadImage,
     create,
@@ -52,7 +55,7 @@ export const useFeaturedPostsPage = () => {
   const [preview, setPreview] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [activeCategory, setActiveCategory] = useState("all");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
     message: "",
@@ -61,10 +64,25 @@ export const useFeaturedPostsPage = () => {
     ((value: boolean) => void) | null
   >(null);
 
+  const filteredList = useMemo(() => {
+    if (activeCategory === "all") return list;
+    return list.filter((post) =>
+      post.categories.includes(activeCategory as FeaturedPostCategory),
+    );
+  }, [list, activeCategory]);
+
   const paginatedList = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return list.slice(start, start + ITEMS_PER_PAGE);
-  }, [list, currentPage]);
+    if (!Array.isArray(filteredList)) return [];
+    return filteredList
+      .map((post) => ({
+        ...post,
+        categories:
+          Array.isArray(post.categories) && post.categories.length
+            ? post.categories
+            : [FeaturedPostCategory.EDUCATION],
+      }))
+      .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  }, [filteredList, currentPage]);
 
   useEffect(() => {
     if (error && error.trim()) {
@@ -77,6 +95,10 @@ export const useFeaturedPostsPage = () => {
       if (preview) revokeImagePreview(preview);
     };
   }, [preview]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory]);
 
   const confirm = useCallback((opts: ConfirmOptions) => {
     setConfirmOptions(opts);
@@ -147,16 +169,12 @@ export const useFeaturedPostsPage = () => {
   );
 
   const handleSubmit = useCallback(async () => {
-    if (!form.title.trim() || !form.description.trim() || !form.imageUrl) {
-      showToast("يرجى إكمال جميع الحقول المطلوبة", "warning");
-      return;
-    }
-
     const payload = {
       imageUrl: form.imageUrl,
       title: form.title,
       description: form.description,
       isActive: form.isActive,
+      categories: form.categories,
     };
 
     try {
@@ -178,12 +196,18 @@ export const useFeaturedPostsPage = () => {
 
   const handleToggle = useCallback(
     async (post: FeaturedPostDto) => {
-      const success = await update(post.id, {
-        ...post,
+      const payload = {
+        imageUrl: post.imageUrl,
+        title: post.title,
+        description: post.description,
+        categories: post.categories,
         isActive: !post.isActive,
-      });
-      if (success)
+      };
+
+      const success = await update(post.id, payload);
+      if (success) {
         showToast(post.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
+      }
     },
     [update, showToast],
   );
@@ -208,17 +232,21 @@ export const useFeaturedPostsPage = () => {
 
   return {
     status,
-    isLoading,
-    isSubmitting,
-    isUploading,
+    isLoading: loading, // ✅ Map to isLoading for component
+    isSubmitting: submitting, // ✅ Map to isSubmitting for component
+    isUploading: uploading,
     mode,
     form,
     preview,
     showModal,
     list,
+    filteredList,
     paginatedList,
     currentPage,
     itemsPerPage: ITEMS_PER_PAGE,
+    activeCategory,
+    setActiveCategory,
+    categoryOptions: FEATURED_POST_CATEGORIES,
     toasts,
     removeToast,
     confirmDialog: {

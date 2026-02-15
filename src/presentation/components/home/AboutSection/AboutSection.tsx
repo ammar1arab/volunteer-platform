@@ -1,84 +1,69 @@
-'use client';
+"use client";
 
-import styles from './AboutSection.module.scss';
-import { Container, SectionHeader } from '@/presentation/components';
-import { FiTarget, FiUsers, FiHeart, FiCheckCircle } from 'react-icons/fi';
+import styles from "./AboutSection.module.scss";
+import { Container, Button } from "@/presentation/components";
+import { Fingerprint, Zap, Award, Star } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib";
 
 const AboutSection = () => {
+  const router = useRouter();
+
   return (
-    <section className={styles.section}>
+    <section className={styles.wrapper}>
       <Container>
-        <SectionHeader
-          title="من نحن"
-          subtitle="مبادرة شبابية تطوعية تصنع أثراً حقيقياً"
-        />
-
-        <div className={styles.wrapper}>
-
-          <div className={styles.textBox}>
-            <h3 className={styles.heading}>نبذة مختصرة</h3>
-
-            <p className={styles.text}>
-              مبادرة <strong>بصمات شبابية</strong> هي مبادرة تطوعية شبابية تهدف إلى تمكين
-              جيل الشباب وإشراكهم في خدمة المجتمع من خلال العمل التطوعي المنظّم.
-              نؤمن بأن كل شاب قادر على ترك بصمة حقيقية وصناعة تأثير إيجابي مهما كان حجمه،
-              ولذلك نعمل على توفير بيئة تطوعية آمنة، احترافية، وملهمة تُساعدهم على
-              تطوير مهاراتهم وصقل شخصياتهم.
+        <div className={styles.mainContent}>
+          <div className={styles.header}>
+            <div className={styles.badge}>
+              <Star size={14} fill="currentColor" />
+              <span>منذ عام 2012 وبصمتنا تكبر</span>
+            </div>
+            <h2 className={styles.title}>
+              نحن لا نتطوع فقط، نحن <span className={styles.greenText}>نصنع أثراً</span> <br />
+              يخلد في <span className={styles.redText}>بصمة الأردن</span>
+            </h2>
+            <p className={styles.leadText}>
+              مبادرة بدأت بحلم شبابي بسيط، واليوم نصل لكل محافظات المملكة لنرسم خارطة جديدة من العطاء المستدام والتمكين الحقيقي.
             </p>
+          </div>
 
-            <p className={styles.text}>
-              منذ انطلاق المبادرة، ركّزنا على نشر ثقافة التطوع وتعزيز روح التعاون والعطاء
-              من خلال تنظيم فعاليات، حملات مجتمعية، ورش عمل تدريبية، وتجارب ميدانية
-              تساهم في الارتقاء بالمجتمع المحلي. كما نحرص على تنفيذ مشاريع تنموية
-              مستدامة تُعزّز قيم الانتماء، المسؤولية، والروح الإنسانية لدى الشباب
-              في مختلف المحافظات.
-            </p>
+          <div className={styles.visualSection}>
+            <div className={styles.leftBasma}>
+              <div className={styles.basmaCircle}>
+                <Fingerprint size={160} strokeWidth={1} />
+                <div className={styles.rippleEffect}></div>
+              </div>
+            </div>
 
-            <p className={styles.text}>
-              نسعى دائماً إلى بناء شبكة من المتطوعين القادرين على قيادة التغيير،
-              وتمثيل صورة مشرّفة للشباب الأردني الطموح. وتعمل المبادرة باستمرار
-              على تطوير منصتها الإلكترونية لتسهيل الوصول إلى الفرص التطوعية،
-              والتواصل مع المؤسسات، وإبراز قصص النجاح الملهمة للشباب.
-            </p>
+            <div className={styles.rightStats}>
+              <div className={styles.statCard}>
+                <div className={styles.iconCircle}><Zap size={24} /></div>
+                <div className={styles.info}>
+                  <h3>3700+</h3>
+                  <p>متطوع فاعل</p>
+                </div>
+              </div>
 
-            <button
-              className={styles.readMore}
-              type="button"
-              aria-label="اقرأ المزيد عن المبادرة"
+              <div className={`${styles.statCard} ${styles.greenVariant}`}>
+                <div className={styles.iconCircle}><Award size={24} /></div>
+                <div className={styles.info}>
+                  <h3>#1</h3>
+                  <p>أفضل مبادرة 2022</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.actionArea}>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => router.push(ROUTES.ABOUT)}
             >
-              اقرأ المزيد
-            </button>
+              تعرف على رحلتنا الكاملة
+            </Button>
           </div>
-
-
-          <div className={styles.features}>
-            <div className={styles.feature}>
-              <FiHeart className={styles.icon} />
-              <h4>رسالتنا</h4>
-              <p>تمكين الشباب وإتاحة الفرص لهم لصنع أثر إيجابي مستدام داخل المجتمع.</p>
-            </div>
-
-            <div className={styles.feature}>
-              <FiTarget className={styles.icon} />
-              <h4>رؤيتنا</h4>
-              <p>مجتمع شبابي واعٍ قادر على المشاركة الفاعلة في التنمية والتغيير.</p>
-            </div>
-
-            <div className={styles.feature}>
-              <FiUsers className={styles.icon} />
-              <h4>قيمنا</h4>
-              <p>العمل الجماعي – الاحترام – العطاء – الإبداع – المسؤولية.</p>
-            </div>
-
-            <div className={styles.feature}>
-              <FiCheckCircle className={styles.icon} />
-              <h4>أهدافنا</h4>
-              <p>إحداث أثر ملموس عبر أنشطة هادفة تُعزّز روح الانتماء والعمل التطوعي.</p>
-            </div>
-          </div>
-
         </div>
-
       </Container>
     </section>
   );

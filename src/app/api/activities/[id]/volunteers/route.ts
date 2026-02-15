@@ -1,41 +1,23 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import ActivityService from "@/core/application/services/ActivityService";
-import { ActivityRepository } from "@/infrastructure/persistence/repositories";
+import { UserRole } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const buildService = () => new ActivityService(new ActivityRepository());
-
 export async function GET(
-  _: Request,
-  context: { params: Promise<{ id: string }> }
+  req: Request,
+  ctx: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions);
+  try {
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
 
-  if (!session?.user) {
-    return NextResponse.json(
-      { success: false, error: "Unauthorized" },
-      { status: 401 }
-    );
+    const { id } = await ctx.params;
+    logger.info("API", "GET /activities/[id]/volunteers", id);
+    return toResponse(await providers.activity().getVolunteers(id));
+  } catch (error) {
+    return apiError("API", "GET /activities/[id]/volunteers", error);
   }
-
-  const role = session.user.role as string;
-  if (role !== "ADMIN") {
-    return NextResponse.json(
-      { success: false, error: "Only admins can view volunteers" },
-      { status: 403 }
-    );
-  }
-
-  const { id } = await context.params;
-
-  const service = buildService();
-  const result = await service.getVolunteers(id);
-
-  return NextResponse.json(result, {
-    status: result.success ? 200 : 400,
-  });
 }

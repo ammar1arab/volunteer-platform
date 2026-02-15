@@ -1,88 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { R2StorageService, type StorageFolder } from '@/infrastructure/external';
+import { UserRole } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
+import { ok } from "@/core/application/dtos";
+import { providers } from "@/lib/providers";
+import { toResponse, requireAuth, badRequest, apiError, validateFile } from "@/lib/api-utils";
+import type { StorageFolder } from "@/infrastructure/external";
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ scope: string }> }
-) {
-  const { scope } = await params;
-  
+export const runtime = "nodejs";
+
+const VALID_SCOPES: StorageFolder[] = ["activities", "featured-posts", "profiles"];
+
+export async function POST(req: Request, ctx: { params: Promise<{ scope: string }> }) {
   try {
-    const session = await getServerSession(authOptions);
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
 
-    if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (session.user.role !== 'ADMIN') {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden - Admin access required' },
-        { status: 403 }
-      );
-    }
-
-    const validScopes: StorageFolder[] = ['activities', 'featured-posts'];
-
-    if (!validScopes.includes(scope as StorageFolder)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid scope. Must be "activities" or "featured-posts"' },
-        { status: 400 }
-      );
+    const { scope } = await ctx.params;
+    if (!VALID_SCOPES.includes(scope as StorageFolder)) {
+      return badRequest("Invalid scope");
     }
 
     const formData = await req.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get("file") as File | null;
+    const fileError = validateFile(file);
+    if (fileError) return badRequest(fileError);
 
-    if (!file) {
-      return NextResponse.json(
-        { success: false, error: 'No file provided' },
-        { status: 400 }
-      );
-    }
+    const buffer = Buffer.from(await file!.arrayBuffer());
+    const result = await providers.storage().upload(buffer, scope as StorageFolder, file!.name);
 
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid file type. Only JPEG, PNG, WEBP, and GIF allowed' },
-        { status: 400 }
-      );
-    }
-
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        { success: false, error: 'File too large. Maximum size is 10MB' },
-        { status: 400 }
-      );
-    }
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const storageService = new R2StorageService();
-    const result = await storageService.upload(buffer, scope as StorageFolder, file.name);
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        imageUrl: result.url,
-      }
-    });
-
+    logger.info("API", "POST /uploads/[scope]", `scope=${scope} admin=${auth.session.user.id}`);
+    return toResponse(ok({ imageUrl: result.url }), 201);
   } catch (error) {
-    console.error('Upload error:', error);
-    
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Upload failed' 
-      },
-      { status: 500 }
-    );
+    return apiError("API", "POST /uploads/[scope]", error);
   }
 }

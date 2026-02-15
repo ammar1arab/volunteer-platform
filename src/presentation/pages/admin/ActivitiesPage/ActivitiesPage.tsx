@@ -1,7 +1,7 @@
 "use client";
 import styles from "./ActivitiesPage.module.scss";
 import { useActivitiesPage, FILTERS, STATUS_MAP } from "./ActivitiesPage.logic";
-import { LoadingState, EmptyState, ToastContainer, ActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown } from "@/presentation/components";
+import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown } from "@/presentation/components";
 import { Plus, Edit2, Trash2, CalendarDays, Clock, MapPin, Users, Send, Ban, UsersIcon, RotateCcw } from "lucide-react";
 
 const ActivitiesPage = () => {
@@ -76,7 +76,7 @@ const ActivitiesPage = () => {
             {paginatedActivities.map((activity) => {
               const statusInfo = STATUS_MAP[activity.status as keyof typeof STATUS_MAP];
               return (
-                <ActivityCard
+                <AdminActivityCard
                   key={activity.id}
                   imageUrl={activity.imageUrl}
                   title={activity.title}

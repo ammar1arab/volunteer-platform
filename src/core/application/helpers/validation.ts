@@ -1,43 +1,41 @@
-export class ValidationHelper {
-  static validateId(id: string, fieldName: string = "Id"): string | null {
-    if (!id?.trim()) return `${fieldName} is required`;
-    return null;
-  }
+import { fail } from "@/core/application/dtos";
+import type { Result } from "@/core/application/dtos";
 
-  static validateStringLength(
-    value: string,
-    min: number,
-    max: number,
-    fieldName: string
-  ): string | null {
-    if (!value?.trim()) return `${fieldName} is required`;
-    if (value.length < min || value.length > max) {
-      return `${fieldName} must be ${min}-${max} characters`;
-    }
-    return null;
-  }
+export function guard<T>(
+  value: string | undefined | null,
+  message: string,
+): asserts value is string {
+  if (!value?.trim()) throw new GuardError(fail("VALIDATION_ERROR", message));
+}
 
-  static validateNumber(
-    value: number,
-    min: number,
-    max: number,
-    fieldName: string
-  ): string | null {
-    if (value < min || value > max) {
-      return `${fieldName} must be ${min}-${max}`;
-    }
-    return null;
+export function guardAll(
+  checks: Array<[string | undefined | null, string]>,
+): void {
+  for (const [value, message] of checks) {
+    if (!value?.trim()) throw new GuardError(fail("VALIDATION_ERROR", message));
   }
+}
 
-  static validateRequired(value: unknown, fieldName: string): string | null {
-    if (value === null || value === undefined) {
-      return `${fieldName} is required`;
-    }
-    
-    if (typeof value === 'string' && !value.trim()) {
-      return `${fieldName} is required`;
-    }
-    
-    return null;
-  }
+export function guardLength(
+  value: string,
+  min: number,
+  max: number,
+  message: string,
+): void {
+  if (value.length < min || value.length > max)
+    throw new GuardError(fail("VALIDATION_ERROR", message));
+}
+
+export function guardRange(
+  value: number,
+  min: number,
+  max: number,
+  message: string,
+): void {
+  if (value < min || value > max)
+    throw new GuardError(fail("VALIDATION_ERROR", message));
+}
+
+export class GuardError {
+  constructor(public readonly result: Result<never>) {}
 }

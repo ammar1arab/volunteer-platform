@@ -5,7 +5,13 @@ import { UserRole } from "@/core/domain/enums";
 import { useUsers, useToast, useAuth } from "@/presentation/hooks";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 
-type SortOption = "default" | "oldest" | "newest" | "name" | "age" | "most-active";
+type SortOption =
+  | "default"
+  | "oldest"
+  | "newest"
+  | "name"
+  | "age"
+  | "most-active";
 
 const calculateAge = (dateOfBirth?: string): number => {
   if (!dateOfBirth) return 0;
@@ -13,13 +19,19 @@ const calculateAge = (dateOfBirth?: string): number => {
   const birthDate = new Date(dateOfBirth);
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
     age--;
   }
   return age;
 };
 
-const sortUsers = (users: UserAnalyticsDto[], sortBy: SortOption): UserAnalyticsDto[] => {
+const sortUsers = (
+  users: UserAnalyticsDto[],
+  sortBy: SortOption,
+): UserAnalyticsDto[] => {
   return [...users].sort((a, b) => {
     switch (sortBy) {
       case "default": {
@@ -29,12 +41,18 @@ const sortUsers = (users: UserAnalyticsDto[], sortBy: SortOption): UserAnalytics
         if (a.stats.approvedActivities !== b.stats.approvedActivities) {
           return b.stats.approvedActivities - a.stats.approvedActivities;
         }
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       }
       case "oldest":
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        return (
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
       case "newest":
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       case "name":
         return a.fullName.localeCompare(b.fullName, "ar");
       case "age": {
@@ -53,11 +71,10 @@ const sortUsers = (users: UserAnalyticsDto[], sortBy: SortOption): UserAnalytics
 export const useUserManagementPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
-  const { users, isLoading, error } = useUsers();
-  
+  const { users, loading, error } = useUsers();
   const [sortBy, setSortBy] = useState<SortOption>("default");
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 32;
 
   useEffect(() => {
     if (error && error.trim()) {
@@ -66,12 +83,20 @@ export const useUserManagementPage = () => {
   }, [error, showToast]);
 
   const volunteers = useMemo(
-    () => sortUsers(users.filter((u) => u.role === "VOLUNTEER"), sortBy),
+    () =>
+      sortUsers(
+        users.filter((u) => u.role === "VOLUNTEER"),
+        sortBy,
+      ),
     [users, sortBy],
   );
 
   const admins = useMemo(
-    () => sortUsers(users.filter((u) => u.role === "ADMIN"), sortBy),
+    () =>
+      sortUsers(
+        users.filter((u) => u.role === "ADMIN"),
+        sortBy,
+      ),
     [users, sortBy],
   );
 
@@ -106,7 +131,7 @@ export const useUserManagementPage = () => {
 
   return {
     status,
-    isLoading,
+    loading,
     volunteers,
     admins,
     paginatedVolunteers,

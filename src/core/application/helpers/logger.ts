@@ -1,34 +1,30 @@
 export type LogLevel = "info" | "warn" | "error";
 
 export interface Logger {
-  info(scope: string, message: string, meta?: unknown): void;
-  warn(scope: string, message: string, meta?: unknown): void;
-  error(scope: string, message: string, meta?: unknown): void;
+  info(scope: string, action: string, meta?: unknown): void;
+  warn(scope: string, action: string, meta?: unknown): void;
+  error(scope: string, action: string, meta?: unknown): void;
 }
 
-const format = (level: LogLevel, scope: string, message: string, meta?: unknown) => {
-  const ts = new Date().toISOString();
-  const base = `[${ts}] [${level.toUpperCase()}] [${scope}] ${message}`;
-  if (!meta) return base;
-  return `${base} | ${safeStringify(meta)}`;
-};
-
-const safeStringify = (value: unknown) => {
+const stringify = (value: unknown): string => {
   try {
-    return JSON.stringify(value);
+    return typeof value === "string" ? value : JSON.stringify(value);
   } catch {
-    return "[Unserializable meta]";
+    return "[unserializable]";
   }
 };
 
+const log = (level: LogLevel, scope: string, action: string, meta?: unknown): void => {
+  const ts = new Date().toISOString();
+  const msg = `[${ts}] [${level.toUpperCase()}] [${scope}.${action}]`;
+  const out = meta ? `${msg} ${stringify(meta)}` : msg;
+
+  const fn = level === "error" ? console.error : level === "warn" ? console.warn : console.log;
+  fn(out);
+};
+
 export const logger: Logger = {
-  info(scope, message, meta) {
-    console.log(format("info", scope, message, meta));
-  },
-  warn(scope, message, meta) {
-    console.warn(format("warn", scope, message, meta));
-  },
-  error(scope, message, meta) {
-    console.error(format("error", scope, message, meta));
-  },
+  info: (scope, action, meta) => log("info", scope, action, meta),
+  warn: (scope, action, meta) => log("warn", scope, action, meta),
+  error: (scope, action, meta) => log("error", scope, action, meta),
 };

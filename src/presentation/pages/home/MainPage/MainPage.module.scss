@@ -1,0 +1,37 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.section {
+  padding: 60px 0;
+
+  @include sm {
+    padding: 40px 0;
+  }
+}
+
+// Activities: 1 column (mobile), 2 columns (desktop)
+.activitiesGrid {
+  @include grid(1);
+  
+  @include md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// Posts: 2 columns (mobile), 4 columns (desktop)
+.postsGrid {
+  @include grid(2);
+  gap: 20px;
+  @include lg {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.viewAll {
+  @include flex-center;
+  padding: $sp-xl 0 $sp-md;
+
+  @include sm {
+    padding: $sp-lg 0 $sp-sm;
+  }
+}

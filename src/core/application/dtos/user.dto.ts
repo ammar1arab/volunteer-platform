@@ -1,53 +1,27 @@
 import { UserRole } from "@/core/domain/enums";
+import type { Result } from "./base.dto";
+import type { UserSummaryDto, VolunteerProfileSummaryDto } from "./shared.dto";
 
-export interface UserProfileDto {
-  id: string;
-  email: string;
-  fullName: string;
-  phone: string;
+// ─── User Profile (self-view) ─────────────────────────────────
+
+export interface UserProfileDto extends UserSummaryDto {
   role: UserRole;
   isActive: boolean;
   createdAt: string;
-  volunteerProfile?: {
-    id: string;
-    city: string;
-    dateOfBirth: string;
-    gender?: string;
-    bio?: string;
-    skills: string[];
-    interests: string[];
-    profilePictureUrl?: string;
-  };
-  participations?: Array<{
-    id: string;
-    status: string;
-  }>;
+  volunteerProfile?: VolunteerProfileSummaryDto & { id: string };
+  participations?: Array<{ id: string; status: string }>;
 }
 
-export interface GetUserProfileResponse {
-  success: boolean;
-  user?: UserProfileDto;
-  error?: string;
-}
+export type GetUserProfileResponse = Result<{ user: UserProfileDto }>;
 
-export interface UserDto {
-  id: string;
-  email: string;
-  fullName: string;
-  phone: string;
+// ─── User Management (admin view) ────────────────────────────
+
+export interface UserDto extends UserSummaryDto {
   role: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  volunteerProfile?: {
-    profilePictureUrl?: string;
-    city?: string;
-    dateOfBirth?: string;
-    gender?: string;
-    bio?: string;
-    skills?: string[];
-    interests?: string[];
-  };
+  volunteerProfile?: VolunteerProfileSummaryDto;
 }
 
 export interface UserAnalyticsDto extends UserDto {
@@ -75,23 +49,11 @@ export interface UserActivityDto {
   };
 }
 
-export interface GetAllUsersResponse {
-  success: boolean;
-  users?: UserAnalyticsDto[];
-  error?: string;
-}
+export type GetAllUsersResponse = Result<{ users: UserAnalyticsDto[] }>;
+export type GetUserDetailsResponse = Result<{ user: UserAnalyticsDto }>;
+export type GetUserActivitiesResponse = Result<{ activities: UserActivityDto[] }>;
 
-export interface GetUserDetailsResponse {
-  success: boolean;
-  user?: UserAnalyticsDto;
-  error?: string;
-}
-
-export interface GetUserActivitiesResponse {
-  success: boolean;
-  activities?: UserActivityDto[];
-  error?: string;
-}
+// ─── Update User ──────────────────────────────────────────────
 
 export interface UpdateUserRequest {
   email?: string;
@@ -99,13 +61,6 @@ export interface UpdateUserRequest {
   fullName?: string;
 }
 
-export interface UpdateUserResponse {
-  success: boolean;
-  user?: {
-    id: string;
-    email: string;
-    fullName: string;
-    phone: string;
-  };
-  error?: string;
-}
+export type UpdateUserResponse = Result<{
+  user: Pick<UserSummaryDto, "id" | "email" | "fullName" | "phone">;
+}>;

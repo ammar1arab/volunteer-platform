@@ -1,85 +1,130 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-.overlay {
-  display: none;
-  
-  @media (max-width: 1024px) {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 998;
-  }
-}
-
 .sidebar {
-  @include flex-col;
-  width: 200px;
-  padding: $sp-lg;
-  border-left: 2px solid $border;
-  gap: $sp-lg;
+  position: sticky;
+  top: 0;
+  width: 250px;
+  height: 100vh;
   background: $bg;
-  transition: width 0.3s ease;
+  border-left: 1px solid $border;
+  transition: width $transition;
+  z-index: 100;
+
+  &.collapsed {
+    width: 75px;
+
+    .brand span,
+    .link span {
+      display: none;
+    }
+
+    .brand,
+    .link {
+      justify-content: center;
+    }
+  }
 
   @media (max-width: 1024px) {
     position: fixed;
     inset: 0;
-    z-index: 999;
-    background: rgba(0, 0, 0, 0.55);
-    justify-content: center;
-    align-items: center;
+    background: rgba($black, 0.8);
     transform: translateX(100%);
-    transition: transform 0.3s ease;
-    
+    transition: transform $transition;
+    z-index: $z-fixed;
+
     &.open {
       transform: translateX(0);
     }
-  }
-}
 
-.collapsed {
-  width: 80px;
-  padding: $sp-md;
+    &.collapsed {
+      width: 100%;
+
+      .brand span,
+      .link span {
+        display: inline;
+      }
+
+      .brand,
+      .link {
+        justify-content: flex-start;
+      }
+    }
+  }
 }
 
 .closeBtn {
   display: none;
-  
+
   @media (max-width: 1024px) {
-    display: flex;
+    @include flex-center;
     position: absolute;
     top: $sp-lg;
-    right: $sp-lg;
+    left: $sp-lg;
+    width: 36px;
+    height: 36px;
     background: $red;
     color: $bg;
     border: none;
     border-radius: $radius;
-    padding: $sp-sm;
     cursor: pointer;
-    
+    transition: $transition;
+    z-index: 10;
+
+    &:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
     &:active {
-      transform: scale(0.9);
+      transform: scale(0.95);
     }
   }
 }
 
+.content {
+  @include flex-col;
+  height: 100%;
+  padding: $sp-lg;
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (max-width: 1024px) {
+    padding: $sp-xl;
+    max-width: 400px;
+    margin: 0 auto;
+    padding-top: calc($sp-xl + 50px);
+  }
+}
+
 .brand {
-  @include flex(row, center, center, $sp-sm);
-  padding: $sp-sm;
+  @include flex-center;
+  gap: $sp-sm;
+  width: 100%;
+  padding: $sp-md $sp-lg;
   background: $green;
-  border: none;
-  border-radius: $radius;
   color: $bg;
+  border: none;
+  border-radius: $radius-md;
   font-weight: 700;
+  font-size: $font-md;
   cursor: pointer;
   transition: $transition;
+  white-space: nowrap;
 
   &:hover {
+    opacity: 0.9;
     transform: translateY(-2px);
-    box-shadow: $shadow;
   }
-  
+
+  &:active {
+    transform: translateY(0);
+  }
+
   @media (max-width: 1024px) {
     display: none;
   }
@@ -87,67 +132,73 @@
 
 .nav {
   @include flex-col;
-  gap: $sp-sm;
-  width: 100%;
-  
-  @media (max-width: 1024px) {
-    width: 90%;
-    max-width: 300px;
-  }
+  gap: $sp-xs;
+  margin-top: $sp-lg;
 }
 
 .link {
-  @include flex(row, center, flex-start, $sp-sm);
-  padding: $sp-sm;
-  border-radius: $radius;
+  @include flex(row, center, flex-start, $sp-md);
+  padding:  $sp-md;
   color: $text;
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: $radius;
   font-weight: 600;
   font-size: $font-sm;
+  text-decoration: none;
   transition: $transition;
-  border: 2px solid transparent;
+  white-space: nowrap;
+  cursor: pointer;
+  width: 100%;
 
   &:hover {
-    background: rgba($green, 0.1);
-    border-color: $border;
+    background: rgba($green, 0.08);
+    border-color: rgba($green, 0.2);
   }
 
   &.active {
     color: $green;
-    background: rgba($green, 0.1);
-    border-color: $green;
+    background: rgba($green, 0.12);
+    border-color: rgba($green, 0.4);
   }
-  
-  @media (max-width: 1024px) {
-    justify-content: center;
-    color: $bg;
-    
+
+  &.logout {
+    color: $red;
+    margin-top: $sp-lg;
+    border-top: 1.5px solid $border;
+    padding-top: calc($sp-lg + $sp-md);
+
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba($red, 0.1);
+      border-color: rgba($red, 0.2);
     }
-    
+
+    @media (max-width: 1024px) {
+      border-top-color: rgba($bg, 0.1);
+      color: rgba($bg, 0.9);
+
+      &:hover {
+        background: rgba($bg, 0.1);
+        color: $red;
+      }
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: 1024px) {
+    color: rgba($bg, 0.9);
+
+    &:hover {
+      background: rgba($bg, 0.15);
+    }
+
     &.active {
       color: $green;
-      background: rgba($green, 0.2);
+      background: rgba($green, 0.25);
       border-color: $green;
-    }
-  }
-}
-
-.sidebar.collapsed {
-  .brand {
-    padding: $sp-sm;
-    
-    span {
-      display: none;
-    }
-  }
-  
-  .link {
-    justify-content: center;
-    padding: $sp-sm;
-    
-    span {
-      display: none;
     }
   }
 }

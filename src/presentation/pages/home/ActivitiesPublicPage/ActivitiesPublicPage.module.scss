@@ -1,0 +1,67 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.container {
+  @include container;
+  padding-top: 120px;
+  padding-bottom: 60px;
+  min-height: 100vh;
+
+  @include sm {
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+}
+
+.loadingContainer {
+  @include flex-center;
+  min-height: 100vh;
+}
+
+.header {
+  @include flex-col;
+  gap: $sp-xs;
+  margin-bottom: $sp-2xl;
+  text-align: center;
+
+  @include sm {
+    margin-bottom: $sp-xl;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: $text;
+
+  @include sm {
+    font-size: $font-xl;
+  }
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-md;
+  color: $text-muted;
+
+  @include sm {
+    font-size: $font-sm;
+  }
+}
+
+// Grid: 1 column (mobile), 2 columns (desktop)
+.grid {
+  @include grid(1);
+
+  @include md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.empty {
+  @include flex-center;
+  min-height: 400px;
+  color: $text-muted;
+  font-size: $font-lg;
+}

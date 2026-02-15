@@ -1,68 +1,57 @@
-import { NextResponse } from "next/server";
-import ActivityService from "@/core/application/services/ActivityService";
+import { UserRole } from "@/core/domain/enums";
+import { logger } from "@/core/application/helpers";
 import type { CreateActivityRequest } from "@/core/application/dtos";
-import { ActivityRepository } from "@/infrastructure/persistence/repositories";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { providers } from "@/lib/providers";
+import {
+  toResponse,
+  requireAuth,
+  parseJson,
+  badRequest,
+  apiError,
+} from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const buildService = () => new ActivityService(new ActivityRepository());
-
-const statusFromError = (error?: string) => {
-  const msg = (error || "").toLowerCase();
-  if (!msg) return 400;
-  if (msg.includes("not found")) return 404;
-  if (msg.includes("id is required")) return 400;
-  if (msg.includes("invalid") || msg.includes("required")) return 400;
-  if (msg.includes("an error occurred")) return 500;
-  return 400;
-};
-
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const filter = searchParams.get("filter");
+  try {
+    const filter = new URL(req.url).searchParams.get("filter");
+    const service = providers.activity();
 
-  const service = buildService();
+    let result;
+    if (filter === "published") {
+      result = await service.getPublished();
+    } else {
+      const auth = await requireAuth(req, UserRole.ADMIN); 
+      if ("error" in auth) return auth.error;
+      result = await service.getAll();
+    }
 
-  let result;
-  if (filter === "published") {
-    result = await service.getPublished();
-  } else {
-    result = await service.getAll();
+    logger.info(
+      "API",
+      "GET /activities",
+      `filter=${filter ?? "all"} count=${result.success ? result.data.activities.length : 0}`,
+    );
+    return toResponse(result);
+  } catch (error) {
+    return apiError("API", "GET /activities", error);
   }
-
-  return NextResponse.json(result, {
-    status: result.success ? 200 : 500,
-  });
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return NextResponse.json(
-      { success: false, error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
-  let body: CreateActivityRequest;
-
   try {
-    body = (await req.json()) as CreateActivityRequest;
-  } catch {
-    return NextResponse.json(
-      { success: false, error: "Invalid JSON body" },
-      { status: 400 }
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
+
+    const body = await parseJson<CreateActivityRequest>(req);
+    if (!body) return badRequest("Invalid JSON body");
+
+    logger.info("API", "POST /activities", `admin=${auth.session.user.id}`);
+    return toResponse(
+      await providers.activity().create(body, auth.session.user.id),
+      201,
     );
+  } catch (error) {
+    return apiError("API", "POST /activities", error);
   }
-
-  const service = buildService();
-  const result = await service.create(body, session.user.id);
-
-  return NextResponse.json(result, {
-    status: result.success ? 201 : statusFromError(result.error),
-  });
 }
