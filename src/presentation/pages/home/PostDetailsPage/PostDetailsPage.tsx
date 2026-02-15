@@ -1,17 +1,18 @@
 "use client";
 import styles from "./PostDetailsPage.module.scss";
-
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowRight, Calendar } from "lucide-react";
 import { LoadingState, Button } from "@/presentation/components";
 import { usePostDetails } from "@/presentation/hooks";
-import { formatForDisplay, ROUTES } from "@/lib";
+import { ROUTES } from "@/lib";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 
 const PostDetailsPage = () => {
   const params = useParams();
   const router = useRouter();
-
   const id = params?.id as string;
   const { post, loading, error } = usePostDetails(id);
 
@@ -81,8 +82,21 @@ const PostDetailsPage = () => {
             )}
           </header>
 
-          <div className={styles.body}>
-            <p className={styles.description}>{formatForDisplay(post.description)}</p>
+          {/* استخدام المكتبة هنا هو الحل الجذري */}
+          <div className={styles.markdownBody}>
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm, remarkBreaks]}
+              components={{
+                // تخصيص كيفية عرض الصور داخل النص إذا وجدت
+                img: ({node, ...props}) => (
+                  <span className={styles.inlineImageWrapper}>
+                    <img {...props} className={styles.inlineImage} alt={props.alt || ''} />
+                  </span>
+                )
+              }}
+            >
+              {post.description}
+            </ReactMarkdown>
           </div>
         </div>
       </article>

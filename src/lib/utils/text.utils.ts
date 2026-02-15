@@ -1,40 +1,18 @@
-/**
- * Comprehensive text formatting utilities
- * Handles RTL, line breaks, sanitization, and professional text presentation
- */
-
-/**
- * Normalize whitespace and line breaks
- * Removes excessive spaces while preserving intentional formatting
- */
 export const normalizeWhitespace = (text: string): string => {
   return text
-    .replace(/\r\n/g, "\n") // Normalize line endings
-    .replace(/\r/g, "\n") // Handle old Mac line endings
-    .replace(/[ \t]+/g, " ") // Multiple spaces/tabs to single space
-    .replace(/\n{3,}/g, "\n\n") // Max 2 consecutive line breaks
-    .replace(/^\s+|\s+$/g, "") // Trim start/end
-    .replace(/\n /g, "\n") // Remove spaces after line breaks
-    .replace(/ \n/g, "\n"); // Remove spaces before line breaks
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/[ \t]+/g, " ")
+    .replace(/^\s+|\s+$/g, "")
+    .replace(/\n /g, "\n")
+    .replace(/ \n/g, "\n");
 };
 
-/**
- * Format text for display with proper line breaks
- * Preserves paragraph structure while cleaning excessive breaks
- */
 export const formatForDisplay = (text: string): string => {
   if (!text) return "";
-
-  return normalizeWhitespace(text)
-    .split("\n")
-    .filter((line) => line.trim().length > 0) // Remove empty lines
-    .join("\n");
+  return normalizeWhitespace(text);
 };
 
-/**
- * Format text for HTML display
- * Converts line breaks to <br> tags safely
- */
 export const formatForHTML = (text: string): string => {
   if (!text) return "";
 
@@ -47,10 +25,6 @@ export const formatForHTML = (text: string): string => {
     .replace(/\n/g, "<br>");
 };
 
-/**
- * Truncate text intelligently
- * Breaks at word boundaries and adds ellipsis
- */
 export const truncate = (
   text: string,
   maxLength: number,
@@ -65,7 +39,6 @@ export const truncate = (
     return addEllipsis ? `${truncated}...` : truncated;
   }
 
-  // Break at word boundary
   const truncated = text.slice(0, maxLength);
   const lastSpace = truncated.lastIndexOf(" ");
   const result = lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated;
@@ -73,17 +46,13 @@ export const truncate = (
   return addEllipsis ? `${result}...` : result;
 };
 
-/**
- * Remove all HTML tags from text
- * Useful for extracting plain text from rich content
- */
 export const stripHTML = (html: string): string => {
   if (!html) return "";
 
   return html
-    .replace(/<[^>]*>/g, "") // Remove tags
-    .replace(/&nbsp;/g, " ") // Convert &nbsp; to space
-    .replace(/&amp;/g, "&") // Decode entities
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
@@ -91,23 +60,15 @@ export const stripHTML = (html: string): string => {
     .trim();
 };
 
-/**
- * Count words in text (supports Arabic and English)
- */
 export const countWords = (text: string): number => {
   if (!text) return 0;
 
   const cleaned = stripHTML(text).trim();
   if (!cleaned) return 0;
 
-  // Split by spaces and filter empty strings
   return cleaned.split(/\s+/).filter((word) => word.length > 0).length;
 };
 
-/**
- * Estimate reading time in minutes
- * Average: 200 words per minute for English, 180 for Arabic
- */
 export const estimateReadingTime = (
   text: string,
   lang: "ar" | "en" = "ar",
@@ -116,13 +77,9 @@ export const estimateReadingTime = (
   const wordsPerMinute = lang === "ar" ? 180 : 200;
 
   const minutes = Math.ceil(wordCount / wordsPerMinute);
-  return Math.max(1, minutes); // Minimum 1 minute
+  return Math.max(1, minutes);
 };
 
-/**
- * Capitalize first letter of each word
- * Works with Arabic and English
- */
 export const titleCase = (text: string): string => {
   if (!text) return "";
 
@@ -135,10 +92,6 @@ export const titleCase = (text: string): string => {
     .join(" ");
 };
 
-/**
- * Format text as paragraphs for better readability
- * Wraps text blocks in paragraph tags
- */
 export const formatParagraphs = (text: string): string => {
   if (!text) return "";
 
@@ -149,10 +102,6 @@ export const formatParagraphs = (text: string): string => {
     .join("");
 };
 
-/**
- * Highlight search terms in text
- * Returns HTML with highlighted matches
- */
 export const highlightText = (
   text: string,
   searchTerm: string,
@@ -166,10 +115,6 @@ export const highlightText = (
   return text.replace(regex, `<span class="${className}">$1</span>`);
 };
 
-/**
- * Extract preview text from longer content
- * Intelligently selects first meaningful sentences
- */
 export const extractPreview = (
   text: string,
   maxLength: number = 150,
@@ -179,7 +124,6 @@ export const extractPreview = (
 
   const cleaned = normalizeWhitespace(stripHTML(text));
 
-  // Try to get complete sentences
   const sentenceEndings = /[.!?؟]/g;
   const matches = [...cleaned.matchAll(sentenceEndings)];
 
@@ -188,29 +132,19 @@ export const extractPreview = (
     if (preview.length <= maxLength) return preview.trim();
   }
 
-  // Fallback to truncate
   return truncate(cleaned, maxLength);
 };
 
-/**
- * Check if text contains Arabic characters
- */
 export const hasArabic = (text: string): boolean => {
   return /[\u0600-\u06FF]/.test(text);
 };
 
-/**
- * Check if text contains English characters
- */
 export const hasEnglish = (text: string): boolean => {
   return /[a-zA-Z]/.test(text);
 };
 
-/**
- * Detect primary language direction
- */
 export const detectDirection = (text: string): "rtl" | "ltr" => {
-  if (!text) return "rtl"; // Default for Arabic app
+  if (!text) return "rtl";
 
   const arabicChars = (text.match(/[\u0600-\u06FF]/g) || []).length;
   const englishChars = (text.match(/[a-zA-Z]/g) || []).length;
@@ -218,21 +152,15 @@ export const detectDirection = (text: string): "rtl" | "ltr" => {
   return arabicChars > englishChars ? "rtl" : "ltr";
 };
 
-/**
- * Format phone number for display
- * Handles Jordanian format: 07XXXXXXXX
- */
 export const formatPhoneNumber = (phone: string): string => {
   if (!phone) return "";
 
   const cleaned = phone.replace(/\D/g, "");
 
-  // Jordanian format: 07X XXX XXXX
   if (cleaned.startsWith("07") && cleaned.length === 10) {
     return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6)}`;
   }
 
-  // International format: +962 7X XXX XXXX
   if (cleaned.startsWith("9627") && cleaned.length === 12) {
     return `+${cleaned.slice(0, 3)} ${cleaned.slice(3, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`;
   }
@@ -240,10 +168,6 @@ export const formatPhoneNumber = (phone: string): string => {
   return phone;
 };
 
-/**
- * Format date relative to now (Arabic)
- * Returns "منذ 5 دقائق", "منذ ساعتين", etc.
- */
 export const formatRelativeTime = (date: string | Date): string => {
   const now = new Date();
   const past = new Date(date);
@@ -263,23 +187,16 @@ export const formatRelativeTime = (date: string | Date): string => {
   return past.toLocaleDateString("ar-JO");
 };
 
-/**
- * Clean user input text
- * Removes dangerous characters while preserving Arabic/English/numbers
- */
 export const cleanUserInput = (text: string): string => {
   if (!text) return "";
 
   return text
-    .replace(/[<>]/g, "") // Remove potential HTML tags
-    .replace(/javascript:/gi, "") // Remove javascript: protocol
-    .replace(/on\w+=/gi, "") // Remove event handlers
+    .replace(/[<>]/g, "")
+    .replace(/javascript:/gi, "")
+    .replace(/on\w+=/gi, "")
     .trim();
 };
 
-/**
- * Format list items with bullets
- */
 export const formatList = (
   items: string[],
   ordered: boolean = false,

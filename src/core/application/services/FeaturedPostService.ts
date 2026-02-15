@@ -31,21 +31,21 @@ class FeaturedPostService {
     this.storageService = new R2StorageService();
   }
 
-  private sanitize(input: Partial<CreateFeaturedPostRequest>) {
-    return {
-      imageUrl: input.imageUrl
-        ? InputSanitizer.sanitizeString(input.imageUrl)
-        : undefined,
-      title: input.title
-        ? InputSanitizer.sanitizeString(input.title)
-        : undefined,
-      description: input.description
-        ? InputSanitizer.sanitizeString(input.description)
-        : undefined,
-      categories: input.categories,
-      isActive: input.isActive,
-    };
-  }
+private sanitize(input: Partial<CreateFeaturedPostRequest>) {
+  return {
+    imageUrl: input.imageUrl
+      ? InputSanitizer.sanitizeString(input.imageUrl)
+      : undefined,
+    title: input.title
+      ? InputSanitizer.sanitizeString(input.title)
+      : undefined,
+    description: input.description
+      ? input.description.trim()
+      : undefined,
+    categories: input.categories,
+    isActive: input.isActive,
+  };
+}
 
   private async tryDeleteImage(imageUrl: string): Promise<void> {
     try {

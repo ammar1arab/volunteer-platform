@@ -57,10 +57,10 @@ class FeaturedPost extends BaseEntity {
     }
 
     if (input.description !== undefined) {
-      if (!input.description.trim()) throw new Error("description is required");
-      this.props.description = input.description.trim();
-      changed = true;
-    }
+    if (!input.description.trim()) throw new Error("description is required");
+    this.props.description = input.description.trim();
+    changed = true;
+  }
 
     if (input.categories !== undefined) {
       if (!input.categories || input.categories.length === 0) {

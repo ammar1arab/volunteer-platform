@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FeaturedPostCategory, UserRole } from "@/core/domain/enums";
 import {
+  normalizeWhitespace, // سنستخدمها للعنوان فقط
   processImageForUpload,
   revokeImagePreview,
-  normalizeWhitespace,
-  formatForDisplay,
 } from "@/lib";
 import { useFeaturedPosts, useToast, useAuth } from "@/presentation/hooks";
 import { FeaturedPostDto } from "@/core/application/dtos";
@@ -176,8 +175,8 @@ export const useFeaturedPostsPage = () => {
   const handleSubmit = useCallback(async () => {
     const payload = {
       imageUrl: form.imageUrl,
-      title: normalizeWhitespace(form.title),
-      description: normalizeWhitespace(form.description),
+      title: normalizeWhitespace(form.title), // فقط للعنوان
+      description: form.description.trim(), // للوصف: فقط trim
       isActive: form.isActive,
       categories: form.categories,
     };
@@ -204,7 +203,7 @@ export const useFeaturedPostsPage = () => {
       const payload = {
         imageUrl: post.imageUrl,
         title: post.title,
-        description: post.description,
+        description: post.description, // يبقى كما هو مخزن بأسطره
         categories: post.categories,
         isActive: !post.isActive,
       };

@@ -93,14 +93,106 @@
   font-weight: 600;
 }
 
-.description {
-  font-size: $font-md;
-  color: $text;
-  white-space: pre-wrap;
-  word-break: break-word;
+// --- تنسيق المكتبة ---
+.markdownBody {
+  margin-top: $sp-lg;
+  text-align: right;
+  direction: rtl;
+  color: #333;
   line-height: 1.8;
-  margin: 0;
-  @include sm {
-    font-size: $font-sm;
+  font-size: 1.1rem;
+
+  // الفقرات
+  p {
+    margin-bottom: $sp-lg;
+    white-space: pre-wrap; // يحترم المسافات والأسطر
+    word-wrap: break-word;
+  }
+
+  // العناوين الداخلية
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: $text;
+    margin-top: $sp-xl;
+    margin-bottom: $sp-md;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.3rem;
+  }
+
+  // القوائم النقطية والرقمية
+  ul,
+  ol {
+    margin-bottom: $sp-lg;
+    padding-right: $sp-xl;
+    list-style-position: outside;
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  li {
+    margin-bottom: $sp-xs;
+    padding-left: $sp-sm;
+
+    // تنسيق النقاط
+    &::marker {
+      color: $green;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+  }
+
+  // الخط العريض
+  strong,
+  b {
+    font-weight: 700;
+    color: #000;
+  }
+
+  // الروابط
+  a {
+    color: $green;
+    text-decoration: underline;
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  // الاقتباسات
+  blockquote {
+    border-right: 4px solid $green;
+    padding-right: $sp-md;
+    margin: $sp-lg 0;
+    font-style: italic;
+    color: #666;
+    background: rgba($green, 0.05);
+    padding: $sp-md;
+  }
+
+  // الصور داخل النص
+  .inlineImageWrapper {
+    display: block;
+    margin: $sp-lg 0;
+    width: 100%;
+    position: relative;
+  }
+
+  .inlineImage {
+    max-width: 100%;
+    height: auto;
+    border-radius: $radius-md;
   }
 }

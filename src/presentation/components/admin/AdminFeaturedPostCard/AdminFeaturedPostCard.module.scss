@@ -65,7 +65,13 @@
   font-size: $font-xs;
   color: $text-muted;
   line-height: 1.6;
-  @include line-clamp(2);
+  white-space: pre-line; // يحترم الأسطر الجديدة فقط
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; // يعرض 3 أسطر فقط
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .actions {
