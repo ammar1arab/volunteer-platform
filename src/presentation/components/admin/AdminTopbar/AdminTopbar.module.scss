@@ -7,30 +7,11 @@
   border-bottom: 2px solid $border;
   background: $bg;
   position: sticky;
-     z-index: 10;
-     top: 0;
+  top: 0;
+  z-index: 10;
   
   @media (max-width: 1024px) {
     padding: $sp-sm $sp-md;
-  }
-}
-
-.title {
-  font-size: $font-xl;
-  font-weight: 700;
-  color: $text;
-  
-  @media (max-width: 1024px) {
-    display: none;
-  }
-}
-
-.icons {
-  display: none;
-  
-  @media (max-width: 1024px) {
-    @include flex(row, center, flex-start, $sp-xs);
-    order: 1;
   }
 }
 
@@ -45,30 +26,6 @@
     border-radius: $radius;
     padding: $sp-xs;
     cursor: pointer;
-    transition: all 0.3s ease;
-    
-    &:active {
-      transform: scale(0.95);
-    }
-    
-    &.open {
-      background: $red;
-      transform: rotate(90deg);
-    }
-  }
-}
-
-.logoutMobile {
-  display: none;
-  
-  @media (max-width: 1024px) {
-    @include flex-center;
-    background: $red;
-    color: $bg;
-    border: none;
-    border-radius: $radius;
-    padding: $sp-xs;
-    cursor: pointer;
     transition: $transition;
     
     &:active {
@@ -77,27 +34,17 @@
   }
 }
 
-.mobileName {
-  display: none;
-  
-  @media (max-width: 1024px) {
-    display: block;
-    font-size: $font-sm;
-    font-weight: 700;
-    color: $green;
-    order: 2;
-  }
-}
-
-.right {
-  @include flex(row, center, flex-end, $sp-sm);
+.title {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $text;
   
   @media (max-width: 1024px) {
     display: none;
   }
 }
 
-.userInfo {
+.userBadge {
   @include flex(row, center, flex-start, $sp-sm);
   padding: $sp-xs $sp-md;
   background: rgba($green, 0.1);
@@ -108,27 +55,4 @@
   font-size: $font-sm;
   font-weight: 600;
   color: $green;
-}
-
-.logout {
-  @include flex-center;
-  gap: $sp-xs;
-  padding: $sp-xs $sp-md;
-  background: $red;
-  border: none;
-  border-radius: $radius-full;
-  color: $bg;
-  font-weight: 600;
-  font-size: $font-sm;
-  cursor: pointer;
-  transition: $transition;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow;
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
 }

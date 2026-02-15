@@ -10,28 +10,20 @@
   border-left: 1px solid $border;
   transition: width $transition;
   z-index: 100;
+  overflow: hidden; // مهم لمنع ظهور النص أثناء الحركة
 
   &.collapsed {
     width: 75px;
-
-    .brand span,
-    .link span {
-      display: none;
-    }
-
-    .brand,
-    .link {
-      justify-content: center;
-    }
   }
 
   @media (max-width: 1024px) {
     position: fixed;
     inset: 0;
-    background: rgba($black, 0.8);
+    background: rgba($black, 0.93);
     transform: translateX(100%);
     transition: transform $transition;
     z-index: $z-fixed;
+    width: 100%;
 
     &.open {
       transform: translateX(0);
@@ -39,23 +31,13 @@
 
     &.collapsed {
       width: 100%;
-
-      .brand span,
-      .link span {
-        display: inline;
-      }
-
-      .brand,
-      .link {
-        justify-content: flex-start;
-      }
     }
   }
 }
 
 .closeBtn {
   display: none;
-
+  
   @media (max-width: 1024px) {
     @include flex-center;
     position: absolute;
@@ -70,12 +52,7 @@
     cursor: pointer;
     transition: $transition;
     z-index: 10;
-
-    &:hover {
-      opacity: 0.9;
-      transform: scale(1.05);
-    }
-
+    
     &:active {
       transform: scale(0.95);
     }
@@ -87,6 +64,7 @@
   height: 100%;
   padding: $sp-lg;
   overflow-y: auto;
+  overflow-x: hidden; // منع السكرول الجانبي
   scrollbar-width: none;
 
   &::-webkit-scrollbar {
@@ -101,11 +79,13 @@
   }
 }
 
+// --------------------------------------------------------
+// تعديلات البراند (الشعار)
+// --------------------------------------------------------
 .brand {
-  @include flex-center;
-  gap: $sp-sm;
+  @include flex(row, center, flex-start, $sp-sm); // flex-start هو الأساس
   width: 100%;
-  padding: $sp-md $sp-lg;
+  padding: $sp-sm $sp-lg;
   background: $green;
   color: $bg;
   border: none;
@@ -115,6 +95,11 @@
   cursor: pointer;
   transition: $transition;
   white-space: nowrap;
+
+  // ضمان عدم انكماش الأيقونة
+  svg {
+    flex-shrink: 0;
+  }
 
   &:hover {
     opacity: 0.9;
@@ -130,14 +115,27 @@
   }
 }
 
+// ستايل البراند عند التصغير
+.sidebar.collapsed .brand {
+  justify-content: center; // توسيط الأيقونة
+  padding: $sp-md;         // تقليل الحشوة لتتناسب مع العرض الصغير
+  
+  span {
+    display: none; // إخفاء النص كلياً
+  }
+}
+
 .nav {
   @include flex-col;
   gap: $sp-xs;
   margin-top: $sp-lg;
 }
 
+// --------------------------------------------------------
+// تعديلات الروابط (Links)
+// --------------------------------------------------------
 .link {
-  @include flex(row, center, flex-start, $sp-md);
+  @include flex(row, center, flex-start, $sp-md); // المحاذاة لليسار افتراضياً
   padding:  $sp-md;
   color: $text;
   background: transparent;
@@ -151,6 +149,11 @@
   cursor: pointer;
   width: 100%;
 
+  // حماية الأيقونة من التشوه
+  svg {
+    flex-shrink: 0;
+  }
+
   &:hover {
     background: rgba($green, 0.08);
     border-color: rgba($green, 0.2);
@@ -162,35 +165,13 @@
     border-color: rgba($green, 0.4);
   }
 
-  &.logout {
-    color: $red;
-    margin-top: $sp-lg;
-    border-top: 1.5px solid $border;
-    padding-top: calc($sp-lg + $sp-md);
-
-    &:hover {
-      background: rgba($red, 0.1);
-      border-color: rgba($red, 0.2);
-    }
-
-    @media (max-width: 1024px) {
-      border-top-color: rgba($bg, 0.1);
-      color: rgba($bg, 0.9);
-
-      &:hover {
-        background: rgba($bg, 0.1);
-        color: $red;
-      }
-    }
-  }
-
   &:active {
     transform: scale(0.98);
   }
 
   @media (max-width: 1024px) {
     color: rgba($bg, 0.9);
-
+    
     &:hover {
       background: rgba($bg, 0.15);
     }
@@ -199,6 +180,36 @@
       color: $green;
       background: rgba($green, 0.25);
       border-color: $green;
+    }
+  }
+}
+
+.sidebar.collapsed .link {
+  justify-content: center; // توسيط الأيقونة في المنتصف تماماً
+  padding-left: 0;
+  padding-right: 0;
+  
+  span {
+    display: none; // إخفاء النص
+  }
+}
+
+.logout {
+  color: $red;
+  border-top: 1.5px solid $border;
+
+  &:hover {
+    background: rgba($red, 0.1);
+    border-color: rgba($red, 0.2);
+  }
+
+  @media (max-width: 1024px) {
+    border-top-color: rgba($bg, 0.1);
+    color: rgba($bg, 0.9);
+
+    &:hover {
+      background: rgba($bg, 0.1);
+      color: $red;
     }
   }
 }

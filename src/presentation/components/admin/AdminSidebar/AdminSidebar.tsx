@@ -44,6 +44,9 @@ const AdminSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }: Props)
     }
   };
 
+  // ملاحظة: قمنا بإزالة الشروط (!isCollapsed &&) من جميع العناصر النصية
+  // CSS هو المسؤول الآن عن إخفائها وتوسيط الأيقونات
+  
   return (
     <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""} ${isOpen ? styles.open : ""}`}>
       <button className={styles.closeBtn} onClick={onClose}>
@@ -53,7 +56,7 @@ const AdminSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }: Props)
       <div className={styles.content}>
         <button className={styles.brand} onClick={onToggleCollapse}>
           <LayoutDashboard size={20} />
-          {!isCollapsed && <span>لوحة التحكم</span>}
+          <span>لوحة التحكم</span>
         </button>
 
         <nav className={styles.nav}>
@@ -65,7 +68,7 @@ const AdminSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }: Props)
               return (
                 <button key={item.label} className={`${styles.link} ${styles.logout}`} onClick={() => handleItemClick(item)}>
                   <Icon size={20} />
-                  {!isCollapsed && <span>{item.label}</span>}
+                  <span>{item.label}</span>
                 </button>
               );
             }
@@ -73,7 +76,7 @@ const AdminSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }: Props)
             return (
               <Link key={item.href} href={item.href} className={`${styles.link} ${isActive ? styles.active : ""}`} onClick={() => handleItemClick(item)}>
                 <Icon size={20} />
-                {!isCollapsed && <span>{item.label}</span>}
+                <span>{item.label}</span>
               </Link>
             );
           })}
@@ -83,4 +86,4 @@ const AdminSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }: Props)
   );
 };
 
-export default AdminSidebar; 
+export default AdminSidebar;
