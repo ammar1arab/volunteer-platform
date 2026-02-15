@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FeaturedPostCategory, UserRole } from "@/core/domain/enums";
-import { processImageForUpload, revokeImagePreview } from "@/lib";
+import {
+  processImageForUpload,
+  revokeImagePreview,
+  normalizeWhitespace,
+  formatForDisplay,
+} from "@/lib";
 import { useFeaturedPosts, useToast, useAuth } from "@/presentation/hooks";
 import { FeaturedPostDto } from "@/core/application/dtos";
 import { FEATURED_POST_CATEGORIES } from "@/lib/constants/categories.constants";
@@ -40,8 +45,8 @@ export const useFeaturedPostsPage = () => {
 
   const {
     list,
-    loading, // ✅ Changed from isLoading
-    submitting, // ✅ Changed from isSubmitting
+    loading,
+    submitting,
     uploading,
     error,
     uploadImage,
@@ -171,8 +176,8 @@ export const useFeaturedPostsPage = () => {
   const handleSubmit = useCallback(async () => {
     const payload = {
       imageUrl: form.imageUrl,
-      title: form.title,
-      description: form.description,
+      title: normalizeWhitespace(form.title),
+      description: normalizeWhitespace(form.description),
       isActive: form.isActive,
       categories: form.categories,
     };
@@ -232,8 +237,8 @@ export const useFeaturedPostsPage = () => {
 
   return {
     status,
-    isLoading: loading, // ✅ Map to isLoading for component
-    isSubmitting: submitting, // ✅ Map to isSubmitting for component
+    isLoading: loading,
+    isSubmitting: submitting,
     isUploading: uploading,
     mode,
     form,
