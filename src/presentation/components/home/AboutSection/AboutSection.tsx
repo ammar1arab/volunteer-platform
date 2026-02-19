@@ -2,9 +2,9 @@
 
 import styles from "./AboutSection.module.scss";
 import { Container, Button } from "@/presentation/components";
+import { ROUTES } from "@/presentation/constants";
 import { Fingerprint, Zap, Award, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ROUTES } from "@/lib";
 
 const AboutSection = () => {
   const router = useRouter();

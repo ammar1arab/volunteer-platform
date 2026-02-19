@@ -1,10 +1,10 @@
 "use client";
+import styles from "./HeroSection.module.scss";
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { Button } from "@/presentation/components";
-import styles from "./HeroSection.module.scss";
-import { ROUTES } from "@/lib";
+import { ArrowLeft } from "lucide-react";
+import { ROUTES } from "@/presentation/constants";
 
 const HeroSection = () => {
   const scrollToOpportunities = () => {

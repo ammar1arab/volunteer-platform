@@ -1,4 +1,4 @@
-enum JordanianCity {
+export enum JordanianCity {
   AMMAN = "AMMAN",
   ZARQA = "ZARQA",
   IRBID = "IRBID",
@@ -13,5 +13,3 @@ enum JordanianCity {
   MAAN = "MAAN",
   OUTOFJORDAN = "OUTOFJORDAN",
 }
-
-export default JordanianCity;

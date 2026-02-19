@@ -3,9 +3,11 @@ import styles from "./AdminUserDetailsPage.module.scss";
 import { useAdminUserDetailsPage } from "./AdminUserDetailsPage.logic";
 
 import Link from "next/link";
-import { ROUTES, JORDANIAN_CITIES } from "@/lib";
 import { LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown, InfoCard, ActivityItem, ToastContainer, Pagination } from "@/presentation/components";
 import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
+import { ROUTES } from "@/presentation/constants";
+import { getCityLabel } from "@/presentation/constants/labels"; // ✅ Add this import
+import { JordanianCity } from "@/core/domain/enums"; // ✅ Add this import
 
 const AdminUserDetailsPage = () => {
   const {
@@ -41,8 +43,9 @@ const AdminUserDetailsPage = () => {
   }
 
   const volunteerProfile = user.volunteerProfile;
+  // ✅ Use getCityLabel helper instead
   const cityLabel = volunteerProfile?.city
-    ? JORDANIAN_CITIES.find((c) => c.value === volunteerProfile.city)?.label
+    ? getCityLabel(volunteerProfile.city as JordanianCity)
     : undefined;
 
   const filterItems = [

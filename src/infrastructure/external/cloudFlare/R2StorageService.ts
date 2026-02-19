@@ -9,7 +9,7 @@ export interface UploadResult {
   error?: string;
 }
 
-export type StorageFolder = 'activities' | 'featured-posts' | 'profiles';
+export type StorageFolder = 'activities' | 'featured-posts' | 'profiles' | 'volunteer-spotlight';
 
 class R2StorageService {
   private bucketName: string;

@@ -1,8 +1,9 @@
 import Image from "next/image";
 import { Upload, MapPinned } from "lucide-react";
-import { useActivityModal, DAYS } from "./ActivityModal.logic";
+import { useActivityModal } from "./ActivityModal.logic";
 import styles from "./ActivityModal.module.scss";
-import { Modal } from '@/presentation/components'
+import { Modal } from '@/presentation/components';
+import { DAY_OPTIONS } from '@/presentation/constants/labels'; // ✅ Add this import
 
 type Props = {
     isOpen: boolean;
@@ -15,7 +16,7 @@ type Props = {
 };
 
 const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUpload, isSubmitting }: Props) => {
-    const { form, preview, uploading, useCustomLocation, setForm, setUseCustomLocation, handleImage, detectLocation, handleSubmit, } = useActivityModal({ initialData, onSubmit, onImageUpload, onClose });
+    const { form, preview, uploading, useCustomLocation, setForm, setUseCustomLocation, handleImage, detectLocation, handleSubmit } = useActivityModal({ initialData, onSubmit, onImageUpload, onClose });
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={mode === "create" ? "فرصة جديدة" : "تعديل الفرصة"} size="lg">
@@ -46,59 +47,59 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
                 </div>
 
                 <div className={styles.row}>
-    <div className={styles.field}>
-        <label className={styles.label}>اليوم</label>
-        <select
-            className={styles.input}
-            value={form.dayOfWeek}
-            onChange={(e) => setForm((p) => ({ ...p, dayOfWeek: e.target.value }))}
-        >
-            {DAYS.map((d) => (
-                <option key={d.value} value={d.value}>{d.label}</option>
-            ))}
-        </select>
-    </div>
-    <div className={styles.field}>
-        <label className={styles.label}>العدد الأقصى</label>
-        <input
-            className={styles.input}
-            type="number"
-            min={1}
-            value={form.maxVolunteers}
-            onChange={(e) => setForm((p) => ({ ...p, maxVolunteers: parseInt(e.target.value) || 1 }))}
-        />
-    </div>
-</div>
+                    <div className={styles.field}>
+                        <label className={styles.label}>اليوم</label>
+                        <select
+                            className={styles.input}
+                            value={form.dayOfWeek}
+                            onChange={(e) => setForm((p) => ({ ...p, dayOfWeek: e.target.value }))}
+                        >
+                            {DAY_OPTIONS.map((d) => (  // ✅ Changed DAYS to DAY_OPTIONS
+                                <option key={d.value} value={d.value}>{d.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className={styles.field}>
+                        <label className={styles.label}>العدد الأقصى</label>
+                        <input
+                            className={styles.input}
+                            type="number"
+                            min={1}
+                            value={form.maxVolunteers}
+                            onChange={(e) => setForm((p) => ({ ...p, maxVolunteers: parseInt(e.target.value) || 1 }))}
+                        />
+                    </div>
+                </div>
 
-<div className={styles.timeRow}>
-    <div className={styles.field}>
-        <label className={styles.label}>التاريخ</label>
-        <input
-            className={styles.inputSmall}
-            type="date"
-            value={form.date}
-            onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))}
-        />
-    </div>
-    <div className={styles.field}>
-        <label className={styles.label}>وقت البداية</label>
-        <input
-            className={styles.inputSmall}
-            type="time"
-            value={form.startTime}
-            onChange={(e) => setForm((p) => ({ ...p, startTime: e.target.value }))}
-        />
-    </div>
-    <div className={styles.field}>
-        <label className={styles.label}>وقت النهاية</label>
-        <input
-            className={styles.inputSmall}
-            type="time"
-            value={form.endTime}
-            onChange={(e) => setForm((p) => ({ ...p, endTime: e.target.value }))}
-        />
-    </div>
-</div>
+                <div className={styles.timeRow}>
+                    <div className={styles.field}>
+                        <label className={styles.label}>التاريخ</label>
+                        <input
+                            className={styles.inputSmall}
+                            type="date"
+                            value={form.date}
+                            onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))}
+                        />
+                    </div>
+                    <div className={styles.field}>
+                        <label className={styles.label}>وقت البداية</label>
+                        <input
+                            className={styles.inputSmall}
+                            type="time"
+                            value={form.startTime}
+                            onChange={(e) => setForm((p) => ({ ...p, startTime: e.target.value }))}
+                        />
+                    </div>
+                    <div className={styles.field}>
+                        <label className={styles.label}>وقت النهاية</label>
+                        <input
+                            className={styles.inputSmall}
+                            type="time"
+                            value={form.endTime}
+                            onChange={(e) => setForm((p) => ({ ...p, endTime: e.target.value }))}
+                        />
+                    </div>
+                </div>
 
                 <div className={styles.row}>
                     <div className={styles.field}>

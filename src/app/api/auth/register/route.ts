@@ -1,5 +1,5 @@
-import { logger } from "@/core/application/helpers";
-import type { SignUpRequest } from "@/core/application/dtos";
+import { logger } from "@/lib/utils";
+import { SignUpRequest } from "@/core/application/dtos";
 import { providers } from "@/lib/providers";
 import { toResponse, parseJson, badRequest, apiError } from "@/lib/api-utils";
 

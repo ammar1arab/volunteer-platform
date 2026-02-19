@@ -1,4 +1,4 @@
-import { logger } from "@/core/application/helpers";
+import { logger } from "@/lib/utils";
 import { providers } from "@/lib/providers";
 import { toResponse, requireAuth, forbidden, apiError } from "@/lib/api-utils";
 import { UserRole } from "@prisma/client";

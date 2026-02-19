@@ -1,9 +1,9 @@
 import { UserRole } from "@/core/domain/enums";
-import { logger } from "@/core/application/helpers";
 import { ok } from "@/core/application/dtos";
 import { providers } from "@/lib/providers";
 import { toResponse, requireAuth, badRequest, apiError, validateFile } from "@/lib/api-utils";
 import type { StorageFolder } from "@/infrastructure/external";
+import { logger } from "@/lib/utils";
 
 export const runtime = "nodejs";
 

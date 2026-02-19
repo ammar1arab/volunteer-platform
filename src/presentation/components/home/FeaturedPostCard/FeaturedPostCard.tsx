@@ -1,10 +1,11 @@
 "use client";
+import styles from "./FeaturedPostCard.module.scss";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { formatForDisplay, ROUTES } from "@/lib";
-import styles from "./FeaturedPostCard.module.scss";
+import { ROUTES } from "@/presentation/constants";
+import { formatForDisplay } from "@/lib/utils";
 
 type FeaturedPostCardProps = {
   id: string;

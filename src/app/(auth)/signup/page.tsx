@@ -3,8 +3,8 @@ import styles from './page.module.scss';
 import { useSignup } from './page.logic';
 
 import Link from 'next/link';
+import { CITY_OPTIONS } from '@/presentation/constants';
 import { Input, Button, SelectInput, BirthDateInput } from '@/presentation/components';
-import { JORDANIAN_CITIES } from '@/lib';
 
 const SignupPage = () => {
   const { formData, error, loading, handleChange, handleSubmit } = useSignup();
@@ -59,7 +59,7 @@ const SignupPage = () => {
           <SelectInput
             label="المدينة"
             value={formData.city}
-            options={JORDANIAN_CITIES}
+            options={CITY_OPTIONS}
             onChange={(value) => handleChange('city', value)}
             placeholder="اختر مدينتك"
             required

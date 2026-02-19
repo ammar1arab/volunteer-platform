@@ -2,19 +2,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import {
-  LayoutDashboard,
-  FileText,
-  Activity,
-  Users,
-  UserCheck,
-  X,
-  LogOut,
-  Trophy,
-  BookOpen
-} from "lucide-react";
+import { LayoutDashboard, FileText, Activity, Users, UserCheck, X, LogOut, Trophy, BookOpen } from "lucide-react";
 import styles from "./AdminSidebar.module.scss";
-import { ROUTES } from "@/lib";
+import { ROUTES } from "@/presentation/constants";
 
 const navItems = [
   { href: ROUTES.ADMIN.FEATURED_POSTS, label: "المنشورات", icon: FileText },
@@ -46,7 +36,7 @@ const AdminSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }: Props)
 
   // ملاحظة: قمنا بإزالة الشروط (!isCollapsed &&) من جميع العناصر النصية
   // CSS هو المسؤول الآن عن إخفائها وتوسيط الأيقونات
-  
+
   return (
     <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""} ${isOpen ? styles.open : ""}`}>
       <button className={styles.closeBtn} onClick={onClose}>

@@ -40,15 +40,12 @@ class Activity extends BaseEntity {
       ...props,
       title: props.title.trim(),
       description: props.description.trim(),
-      placeName: props.placeName.trim(),
+      placeName: props.placeName.trim()
     };
   }
 
   static create(
-    input: Omit<
-      ActivityProps,
-      "id" | "createdAt" | "updatedAt" | "currentVolunteers" | "status"
-    >
+    input: Omit<ActivityProps, "id" | "createdAt" | "updatedAt" | "currentVolunteers" | "status">
   ): Activity {
     return new Activity({
       ...input,
@@ -57,7 +54,7 @@ class Activity extends BaseEntity {
       status: "DRAFT",
       createdAt: new Date(),
       updatedAt: new Date(),
-      isActive: true,
+      isActive: true
     });
   }
 
@@ -82,15 +79,15 @@ class Activity extends BaseEntity {
     this.props.status = "CANCELLED";
     this.touch();
   }
-  
-  restore(): void {
-  if (this.props.status !== "CANCELLED") {
-    throw new Error("Only cancelled activities can be restored");
-  }
 
-  this.props.status = "DRAFT";
-  this.touch();
-}
+  restore(): void {
+    if (this.props.status !== "CANCELLED") {
+      throw new Error("Only cancelled activities can be restored");
+    }
+
+    this.props.status = "DRAFT";
+    this.touch();
+  }
 
   addVolunteer(): void {
     if (this.props.status !== "PUBLISHED") {
@@ -122,27 +119,19 @@ class Activity extends BaseEntity {
     return this.props.status === "DRAFT";
   }
 
-  update(
-    input: Partial<
-      Omit<
-        ActivityProps,
-        "id" | "createdAt" | "currentVolunteers" | "status" | "createdBy"
-      >
-    >
-  ): void {
+  update(input: Partial<Omit<ActivityProps, "id" | "createdAt" | "currentVolunteers" | "status" | "createdBy">>): void {
     if (!this.canBeEdited()) {
       throw new Error("Only draft activities can be edited");
     }
 
+    let changed = false;
+
     if (input.title !== undefined) {
-      if (
-        !input.title?.trim() ||
-        input.title.length < 2 ||
-        input.title.length > 300
-      ) {
+      if (!input.title?.trim() || input.title.length < 2 || input.title.length > 300) {
         throw new Error("Title must be 2-300 characters");
       }
       this.props.title = input.title.trim();
+      changed = true;
     }
 
     if (input.description !== undefined) {
@@ -150,6 +139,7 @@ class Activity extends BaseEntity {
         throw new Error("Description must be at least 5 characters");
       }
       this.props.description = input.description.trim();
+      changed = true;
     }
 
     if (input.maxVolunteers !== undefined) {
@@ -157,6 +147,7 @@ class Activity extends BaseEntity {
         throw new Error("Cannot set max volunteers below current volunteers");
       }
       this.props.maxVolunteers = input.maxVolunteers;
+      changed = true;
     }
 
     if (input.startTime && input.endTime) {
@@ -167,52 +158,81 @@ class Activity extends BaseEntity {
       }
       this.props.startTime = input.startTime;
       this.props.endTime = input.endTime;
+      changed = true;
     }
 
-    if (input.imageUrl !== undefined) this.props.imageUrl = input.imageUrl;
+    if (input.imageUrl !== undefined) {
+      this.props.imageUrl = input.imageUrl;
+      changed = true;
+    }
+
     if (input.dayOfWeek !== undefined) {
       if (!Object.values(DayOfWeek).includes(input.dayOfWeek)) {
         throw new Error("Invalid day of week");
       }
       this.props.dayOfWeek = input.dayOfWeek;
+      changed = true;
     }
-    if (input.date !== undefined) this.props.date = input.date;
-    if (input.placeName !== undefined)
+
+    if (input.date !== undefined) {
+      this.props.date = input.date;
+      changed = true;
+    }
+
+    if (input.placeName !== undefined) {
       this.props.placeName = input.placeName.trim();
-    if (input.location !== undefined) this.props.location = input.location;
-    if (input.targetAudience !== undefined)
+      changed = true;
+    }
+
+    if (input.location !== undefined) {
+      this.props.location = input.location;
+      changed = true;
+    }
+
+    if (input.targetAudience !== undefined) {
       this.props.targetAudience = input.targetAudience;
+      changed = true;
+    }
 
     if (input.isActive !== undefined) {
       this.setActive(input.isActive);
       this.props.isActive = this.isActive;
-      return;
+      changed = true;
     }
 
-    this.touch();
+    if (changed) {
+      this.touch();
+    }
   }
 
   get title(): string {
     return this.props.title;
   }
+
   get description(): string {
     return this.props.description;
   }
+
   get imageUrl(): string {
     return this.props.imageUrl;
   }
+
   get date(): Date {
     return this.props.date;
   }
+
   get status(): string {
     return this.props.status;
   }
+
   get currentVolunteers(): number {
     return this.props.currentVolunteers;
   }
+
   get maxVolunteers(): number {
     return this.props.maxVolunteers;
   }
+
   get createdBy(): string {
     return this.props.createdBy;
   }
@@ -223,7 +243,7 @@ class Activity extends BaseEntity {
       id: this.id,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      isActive: this.isActive,
+      isActive: this.isActive
     };
   }
 }

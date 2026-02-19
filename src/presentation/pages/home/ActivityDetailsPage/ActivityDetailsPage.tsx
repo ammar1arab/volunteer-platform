@@ -1,13 +1,15 @@
 "use client";
+import styles from "./ActivityDetailsPage.module.scss";
 
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import { ArrowRight, MapPin, Calendar, Clock, Users } from "lucide-react";
 import { LoadingState, Button } from "@/presentation/components";
+
 import { useActivityDetails, useActivityParticipations, useToast } from "@/presentation/hooks";
-import { formatForDisplay, ROUTES } from "@/lib";
-import styles from "./ActivityDetailsPage.module.scss";
+import { ROUTES } from "@/presentation/constants";
+import { formatForDisplay } from "@/lib/utils";
 
 const ActivityDetailsPage = () => {
     const params = useParams();

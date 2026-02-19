@@ -3,8 +3,9 @@
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import type { UserRole } from "@/core/domain/enums";
-import { ROUTES } from "@/lib";
+
+import { UserRole } from "@/core/domain/enums";
+import { ROUTES } from "@/presentation/constants";
 
 interface UseAuthOptions {
   requireAuth?: boolean;

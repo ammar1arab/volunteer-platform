@@ -1,11 +1,11 @@
 "use client";
-
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Mail, Phone, CheckCircle } from "lucide-react";
 import styles from "./UserCard.module.scss";
-import type { UserAnalyticsDto } from "@/core/application/dtos";
-import { ROUTES } from "@/lib";
+
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { UserAnalyticsDto } from "@/core/application/dtos";
+import { Mail, Phone, CheckCircle } from "lucide-react";
+import { ROUTES } from "@/presentation/constants";
 
 interface UserCardProps {
   user: UserAnalyticsDto;

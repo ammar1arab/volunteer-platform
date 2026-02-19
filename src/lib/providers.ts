@@ -1,11 +1,13 @@
+import { R2StorageService } from "@/infrastructure/external";
+
 import {
   ActivityRepository,
   ActivityParticipationRepository,
   FeaturedPostRepository,
   UserRepository,
   VolunteerProfileRepository,
+  VolunteerSpotlightRepository
 } from "@/infrastructure/persistence/repositories";
-import { R2StorageService } from "@/infrastructure/external";
 import {
   ActivityService,
   ActivityParticipationService,
@@ -13,34 +15,28 @@ import {
   FeaturedPostService,
   UserService,
   VolunteerProfileService,
-} from "@/core/application/services";
+  VolunteerSpotlightService
+} from "@/core/application/useCases";
 
 export const providers = {
-  activity: () =>
-    new ActivityService(
-      new ActivityRepository(),
-      new ActivityParticipationRepository(),
-    ),
+  auth: () => new AuthService(new UserRepository(), new VolunteerProfileRepository()),
+
+  user: () => new UserService(new UserRepository()),
+
+  volunteerProfile: () => new VolunteerProfileService(new VolunteerProfileRepository(), new R2StorageService()),
+
+  activity: () => new ActivityService(new ActivityRepository(), new ActivityParticipationRepository()),
 
   participation: () =>
     new ActivityParticipationService(
       new ActivityParticipationRepository(),
       new ActivityRepository(),
-      new UserRepository(),
+      new UserRepository()
     ),
-
-  auth: () =>
-    new AuthService(new UserRepository(), new VolunteerProfileRepository()),
 
   featuredPost: () => new FeaturedPostService(new FeaturedPostRepository()),
 
-  user: () => new UserService(new UserRepository()),
+  volunteerSpotlight: () => new VolunteerSpotlightService(new VolunteerSpotlightRepository()),
 
-  volunteerProfile: () =>
-    new VolunteerProfileService(
-      new VolunteerProfileRepository(),
-      new R2StorageService(),
-    ),
-
-  storage: () => new R2StorageService(),
+  storage: () => new R2StorageService()
 };

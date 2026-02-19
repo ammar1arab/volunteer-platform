@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 import { UserRole } from "@/core/domain/enums";
-import { ROUTES } from "@/lib";
+import { ROUTES } from "./presentation/constants";
 
 interface TokenWithRole {
   role?: UserRole;

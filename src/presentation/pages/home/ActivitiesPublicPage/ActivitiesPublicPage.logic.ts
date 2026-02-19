@@ -10,7 +10,7 @@ import {
   useActivityParticipations,
   useToast,
 } from "@/presentation/hooks";
-import { ROUTES } from "@/lib";
+import { ROUTES } from "@/presentation/constants";
 
 export const useActivitiesPublicPage = () => {
   const router = useRouter();

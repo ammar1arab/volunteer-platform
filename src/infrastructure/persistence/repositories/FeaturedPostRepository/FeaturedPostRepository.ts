@@ -1,35 +1,16 @@
 import IFeaturedPostRepository from "./IFeaturedPostRepository";
 
+import type { FeaturedPost as PrismaFeaturedPost } from "@prisma/client";
 import { FeaturedPostCategory } from "@prisma/client";
 import { prisma } from "@/infrastructure/persistence/prisma";
 import { FeaturedPost } from "@/core/domain/entities";
-import DomainFeaturedPostCategory from "@/core/domain/enums/FeaturedPostCategory";
+import { DomainFeaturedPostCategory } from "@/core/domain/enums";
 
 class FeaturedPostRepository implements IFeaturedPostRepository {
-  private mapToEntity(data: {
-    id: string;
-    imageUrl: string;
-    title: string;
-    description: string;
-    categories: string[];
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-  }): FeaturedPost {
+  private mapToEntity(data: PrismaFeaturedPost): FeaturedPost {
     return new FeaturedPost({
-      id: data.id,
-      imageUrl: data.imageUrl,
-      title: data.title,
-      description: data.description,
-      categories: data.categories.map(
-        (cat) =>
-          DomainFeaturedPostCategory[
-            cat as keyof typeof DomainFeaturedPostCategory
-          ],
-      ),
-      isActive: data.isActive,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
+      ...data,
+      categories: data.categories as DomainFeaturedPostCategory[]
     });
   }
 
@@ -40,7 +21,7 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
 
   async findAll(): Promise<FeaturedPost[]> {
     const rows = await prisma.featuredPost.findMany({
-      orderBy: { title: "asc" },
+      orderBy: { title: "asc" }
     });
     return rows.map((row) => this.mapToEntity(row));
   }
@@ -56,8 +37,8 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
         isActive: props.isActive,
         categories: props.categories as FeaturedPostCategory[],
         createdAt: props.createdAt,
-        updatedAt: props.updatedAt,
-      },
+        updatedAt: props.updatedAt
+      }
     });
 
     return this.mapToEntity(created);
@@ -73,8 +54,8 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
         description: props.description,
         isActive: props.isActive,
         categories: props.categories as FeaturedPostCategory[],
-        updatedAt: new Date(),
-      },
+        updatedAt: new Date()
+      }
     });
 
     return this.mapToEntity(updated);

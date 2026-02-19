@@ -1,15 +1,16 @@
 'use client';
+import styles from './Header.module.scss';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
-import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
-import { Bell, User, LogOut } from 'lucide-react';
-import { ROUTES } from '@/lib';
+
+import { ROUTES } from '@/presentation/constants';
 import { Button } from '@/presentation/components';
-import styles from './Header.module.scss';
+import { Bell, User, LogOut } from 'lucide-react';
+import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
 
 const NAV_LINKS = [
   { href: ROUTES.ACTIVITIES, label: 'الفرص' },

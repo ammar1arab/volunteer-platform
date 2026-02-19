@@ -97,7 +97,7 @@ model FeaturedPost {
   id          String                 @id @default(uuid())
   imageUrl    String
   title       String
-  description String  @db.Text 
+  description String                 @db.Text 
   isActive    Boolean                @default(true)
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
@@ -105,6 +105,20 @@ model FeaturedPost {
 
   @@index([title])
   @@map("featured_posts")
+}
+
+model VolunteerSpotlight {
+  id            String              @id @default(uuid())
+  imageUrl      String
+  name          String
+  description   String              @db.Text
+  spotlightDate DateTime
+  city          JordanianCity
+  isActive      Boolean             @default(true)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([name])
 }
 
 enum UserRole {
@@ -147,3 +161,4 @@ enum FeaturedPostCategory {
   ECONOMY
   LAW
 }
+

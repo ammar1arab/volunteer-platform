@@ -7,20 +7,67 @@ class User extends BaseEntity {
 
   constructor(props: UserProps) {
     super(props.id, props.createdAt, props.updatedAt, props.isActive ?? true);
-    this.props = { ...props };
+
+    if (!props.email?.trim()) throw new Error("Email is required");
+    if (!props.password?.trim()) throw new Error("Password is required");
+    if (!props.fullName?.trim()) throw new Error("Full name is required");
+    if (props.fullName.length < 2 || props.fullName.length > 100) {
+      throw new Error("Full name must be 2-100 characters");
+    }
+    if (!props.phone?.trim()) throw new Error("Phone is required");
+
+    this.props = {
+      ...props,
+      email: props.email.trim(),
+      fullName: props.fullName.trim(),
+      phone: props.phone.trim()
+    };
   }
 
-  static create(
-    input: Omit<UserProps, "id" | "createdAt" | "updatedAt">
-  ): User {
+  static create(input: Omit<UserProps, "id" | "createdAt" | "updatedAt">): User {
     return new User({
       ...input,
       id: crypto.randomUUID(),
       createdAt: new Date(),
       updatedAt: new Date(),
       role: input.role ?? UserRole.VOLUNTEER,
-      isActive: input.isActive ?? true,
+      isActive: input.isActive ?? true
     });
+  }
+
+  update(input: Partial<Pick<UserProps, "email" | "fullName" | "phone" | "isActive">>): void {
+    let changed = false;
+
+    if (input.email !== undefined) {
+      if (!input.email.trim()) throw new Error("Email is required");
+      this.props.email = input.email.trim();
+      changed = true;
+    }
+
+    if (input.fullName !== undefined) {
+      if (!input.fullName.trim()) throw new Error("Full name is required");
+      if (input.fullName.length < 2 || input.fullName.length > 100) {
+        throw new Error("Full name must be 2-100 characters");
+      }
+      this.props.fullName = input.fullName.trim();
+      changed = true;
+    }
+
+    if (input.phone !== undefined) {
+      if (!input.phone.trim()) throw new Error("Phone is required");
+      this.props.phone = input.phone.trim();
+      changed = true;
+    }
+
+    if (input.isActive !== undefined) {
+      this.setActive(input.isActive);
+      this.props.isActive = this.isActive;
+      changed = true;
+    }
+
+    if (changed) {
+      this.touch();
+    }
   }
 
   get email(): string {
@@ -43,32 +90,6 @@ class User extends BaseEntity {
     return this.props.role;
   }
 
-  set email(value: string) {
-    if (!value?.trim()) {
-      throw new Error("Email is required");
-    }
-    this.props.email = value.trim();
-    this.touch();
-  }
-
-  set fullName(value: string) {
-    if (!value?.trim()) {
-      throw new Error("Full name is required");
-    }
-    if (value.length < 2 || value.length > 100) {
-      throw new Error("Full name must be 2-100 characters");
-    }
-    this.props.fullName = value.trim();
-    this.touch();
-  }
-
-  set phone(value: string) {
-    if (!value?.trim()) {
-      throw new Error("Phone is required");
-    }
-    this.props.phone = value.trim();
-    this.touch();
-  }
   isAdmin(): boolean {
     return this.props.role === UserRole.ADMIN;
   }
@@ -83,7 +104,7 @@ class User extends BaseEntity {
       id: this.id,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      isActive: this.isActive,
+      isActive: this.isActive
     };
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { signIn, getSession } from "next-auth/react";
-import { ROUTES } from "@/lib";
+import { ROUTES } from "@/presentation/constants";
 
 interface UseSigninReturn {
   formData: SigninFormData;

@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { activityApi, uploadApi } from "@/lib";
 import type {
   ActivityDto,
   CreateActivityRequest,
   UpdateActivityRequest,
 } from "@/core/application/dtos";
+import { activityApi, uploadApi } from "@/presentation/services";
 
 type ListState = {
   list: ActivityDto[];
@@ -260,7 +260,6 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
   };
 };
 
-// ✅ ADD THIS - Activity Details Hook
 export const useActivityDetails = (id: string) => {
   const [activity, setActivity] = useState<ActivityDto | null>(null);
   const [loading, setLoading] = useState(true);

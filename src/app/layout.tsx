@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import '@/presentation/styles/globals.scss';
 import { Providers } from './providers';
+import { AnimatedBackground } from '@/presentation/components';
 
 export const metadata: Metadata = {
   title: {
@@ -18,6 +18,8 @@ export default function RootLayout({ children, }: { children: React.ReactNode; }
   return (
     <html lang="ar" dir="rtl">
       <body>
+        <AnimatedBackground />
+
         <Providers>{children}</Providers>
       </body>
     </html>

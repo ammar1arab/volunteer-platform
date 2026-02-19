@@ -1,10 +1,10 @@
 "use client";
+import styles from "./MainPage.module.scss";
+import { useMainPage } from "./MainPage.logic";
 
 import { useRouter } from "next/navigation";
 import { HeroSection, Container, SectionHeader, ActivityCard, FeaturedPostCard, AboutSection, ContactSection, Button, LoadingState, } from "@/presentation/components";
-import { useMainPage } from "./MainPage.logic";
-import { ROUTES } from "@/lib";
-import styles from "./MainPage.module.scss";
+import { ROUTES } from "@/presentation/constants";
 
 const MainPage = () => {
   const router = useRouter();

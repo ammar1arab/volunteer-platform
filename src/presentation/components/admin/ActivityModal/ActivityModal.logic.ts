@@ -1,7 +1,7 @@
 "use client";
 
+import { revokeImagePreview } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
-import { revokeImagePreview } from "@/lib";
 
 export type ActivityFormData = {
   id: string;
@@ -34,18 +34,8 @@ const EMPTY_FORM: ActivityFormData = {
   latitude: 31.9454,
   longitude: 35.9284,
   targetAudience: "",
-  maxVolunteers: 20,
+  maxVolunteers: 20
 };
-
-export const DAYS = [
-  { value: "SUNDAY", label: "الأحد" },
-  { value: "MONDAY", label: "الإثنين" },
-  { value: "TUESDAY", label: "الثلاثاء" },
-  { value: "WEDNESDAY", label: "الأربعاء" },
-  { value: "THURSDAY", label: "الخميس" },
-  { value: "FRIDAY", label: "الجمعة" },
-  { value: "SATURDAY", label: "السبت" },
-];
 
 type Props = {
   initialData?: any;
@@ -54,7 +44,7 @@ type Props = {
   onClose: () => void;
 };
 
-export const useActivityModal = ({ initialData, onSubmit, onImageUpload, onClose }: Props) => {
+export const useActivityModal = ({ initialData, onSubmit, onImageUpload }: Props) => {
   const [form, setForm] = useState<ActivityFormData>(EMPTY_FORM);
   const [preview, setPreview] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -76,40 +66,44 @@ export const useActivityModal = ({ initialData, onSubmit, onImageUpload, onClose
     };
   }, [preview]);
 
-  const handleImage = useCallback(async (file: File | null) => {
-    if (!file) return;
+  const handleImage = useCallback(
+    async (file: File | null) => {
+      if (!file) return;
 
-    if (preview) revokeImagePreview(preview);
-    const previewUrl = URL.createObjectURL(file);
-    setPreview(previewUrl);
+      if (preview) revokeImagePreview(preview);
+      const previewUrl = URL.createObjectURL(file);
+      setPreview(previewUrl);
 
-    setUploading(true);
-    const url = await onImageUpload(file);
-    setUploading(false);
+      setUploading(true);
+      const url = await onImageUpload(file);
+      setUploading(false);
 
-    if (url) {
-      setForm((p) => ({ ...p, imageUrl: url }));
-    }
-  }, [preview, onImageUpload]);
+      if (url) {
+        setForm((p) => ({ ...p, imageUrl: url }));
+      }
+    },
+    [preview, onImageUpload]
+  );
 
   const detectLocation = useCallback(() => {
     if (!navigator.geolocation) return;
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setForm((p) => ({
-          ...p,
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
-        }));
-      }
-    );
+    navigator.geolocation.getCurrentPosition((pos) => {
+      setForm((p) => ({
+        ...p,
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude
+      }));
+    });
   }, []);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    await onSubmit(form);
-  }, [form, onSubmit]);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      await onSubmit(form);
+    },
+    [form, onSubmit]
+  );
 
   return {
     form,
@@ -120,6 +114,6 @@ export const useActivityModal = ({ initialData, onSubmit, onImageUpload, onClose
     setUseCustomLocation,
     handleImage,
     detectLocation,
-    handleSubmit,
+    handleSubmit
   };
 };

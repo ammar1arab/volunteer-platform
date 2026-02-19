@@ -1,13 +1,10 @@
 "use client";
+import styles from "./AboutPage.module.scss";
 
 import Link from "next/link";
-import {
-    ArrowRight, Target, Heart, Users, Briefcase, Radio, BookOpen,
-    Calendar, Sparkles, TrendingUp, TreePine
-} from "lucide-react";
 import { Container } from "@/presentation/components";
-import { ROUTES } from "@/lib";
-import styles from "./AboutPage.module.scss";
+import { Target, Heart, Users, Briefcase, Radio, BookOpen, Calendar, Sparkles, TrendingUp, TreePine } from "lucide-react";
+import { ROUTES } from "@/presentation/constants";
 
 const AboutPage = () => {
     const goals = [
@@ -31,12 +28,7 @@ const AboutPage = () => {
         { icon: TreePine, title: "مشاريع بيئية", desc: "حملات نظافة دورية وحماية المواقع التراثية" },
     ];
 
-    const programs = [
-        { icon: Radio, title: "البودكاست", desc: "برنامج دوري لمناقشة قضايا الشباب" },
-        { icon: BookOpen, title: "المجلة الشهرية", desc: "توثيق إنجازات المتطوعين وتجاربهم" },
-        { icon: Calendar, title: "المؤتمر السنوي", desc: "منصة تجمع المبادرات الشبابية لتبادل الخبرات" },
-        { icon: TrendingUp, title: "رواد التغيير", desc: "برنامج لدعم المبادرات الناشئة وتطويرها" },
-    ];
+
 
     return (
         <main className={styles.page}>
@@ -145,24 +137,6 @@ const AboutPage = () => {
                 </Container>
             </section>
 
-            <section className={styles.programs}>
-                <Container>
-                    <div className={styles.header}>
-                        <h2>برامج نوعية</h2>
-                    </div>
-                    <div className={styles.programsGrid}>
-                        {programs.map((program, i) => (
-                            <div key={i} className={styles.programCard}>
-                                <program.icon size={24} />
-                                <div>
-                                    <h4>{program.title}</h4>
-                                    <p>{program.desc}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </Container>
-            </section>
 
             <section className={styles.cta}>
                 <Container>

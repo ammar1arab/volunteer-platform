@@ -1,7 +1,7 @@
 import { UserRole } from "@/core/domain/enums";
-import { logger } from "@/core/application/helpers";
 import { providers } from "@/lib/providers";
 import { toResponse, requireAuth, apiError } from "@/lib/api-utils";
+import { logger } from "@/lib/utils";
 
 export const runtime = "nodejs";
 

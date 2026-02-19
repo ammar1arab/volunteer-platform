@@ -1,15 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FeaturedPostCategory, UserRole } from "@/core/domain/enums";
-import {
-  normalizeWhitespace, // سنستخدمها للعنوان فقط
-  processImageForUpload,
-  revokeImagePreview,
-} from "@/lib";
+import { DomainFeaturedPostCategory, UserRole } from "@/core/domain/enums";
+
 import { useFeaturedPosts, useToast, useAuth } from "@/presentation/hooks";
 import { FeaturedPostDto } from "@/core/application/dtos";
-import { FEATURED_POST_CATEGORIES } from "@/lib/constants/categories.constants";
+import { normalizeWhitespace, processImageForUpload, revokeImagePreview } from "@/lib/utils";
+import { CATEGORY_OPTIONS } from "@/presentation/constants";
 
 type ConfirmOptions = {
   title?: string;
@@ -25,7 +22,7 @@ interface FormState {
   title: string;
   description: string;
   isActive: boolean;
-  categories: FeaturedPostCategory[];
+  categories: DomainFeaturedPostCategory[];
 }
 
 const EMPTY_FORM: FormState = {
@@ -34,7 +31,7 @@ const EMPTY_FORM: FormState = {
   title: "",
   description: "",
   isActive: true,
-  categories: [FeaturedPostCategory.EDUCATION],
+  categories: [DomainFeaturedPostCategory.EDUCATION]
 };
 
 export const useFeaturedPostsPage = () => {
@@ -42,17 +39,7 @@ export const useFeaturedPostsPage = () => {
   const { toasts, showToast, removeToast } = useToast();
   const ITEMS_PER_PAGE = 20;
 
-  const {
-    list,
-    loading,
-    submitting,
-    uploading,
-    error,
-    uploadImage,
-    create,
-    update,
-    remove,
-  } = useFeaturedPosts();
+  const { list, loading, submitting, uploading, error, uploadImage, create, update, remove } = useFeaturedPosts();
 
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -62,17 +49,13 @@ export const useFeaturedPostsPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
-    message: "",
+    message: ""
   });
-  const [confirmResolver, setConfirmResolver] = useState<
-    ((value: boolean) => void) | null
-  >(null);
+  const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
 
   const filteredList = useMemo(() => {
     if (activeCategory === "all") return list;
-    return list.filter((post) =>
-      post.categories.includes(activeCategory as FeaturedPostCategory),
-    );
+    return list.filter((post) => post.categories.includes(activeCategory as DomainFeaturedPostCategory));
   }, [list, activeCategory]);
 
   const paginatedList = useMemo(() => {
@@ -83,7 +66,7 @@ export const useFeaturedPostsPage = () => {
         categories:
           Array.isArray(post.categories) && post.categories.length
             ? post.categories
-            : [FeaturedPostCategory.EDUCATION],
+            : [DomainFeaturedPostCategory.EDUCATION]
       }))
       .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
   }, [filteredList, currentPage]);
@@ -145,7 +128,7 @@ export const useFeaturedPostsPage = () => {
       setPreview("");
       setShowModal(true);
     },
-    [preview],
+    [preview]
   );
 
   const handleFileChange = useCallback(
@@ -153,7 +136,7 @@ export const useFeaturedPostsPage = () => {
       if (!file) return;
       const result = await processImageForUpload(file, {
         maxSizeMB: 5,
-        quality: 0.85,
+        quality: 0.85
       });
       if (result.error) {
         showToast(result.error, "error");
@@ -169,16 +152,16 @@ export const useFeaturedPostsPage = () => {
         showToast("فشل رفع الصورة", "error");
       }
     },
-    [uploadImage, showToast, preview],
+    [uploadImage, showToast, preview]
   );
 
   const handleSubmit = useCallback(async () => {
     const payload = {
       imageUrl: form.imageUrl,
-      title: normalizeWhitespace(form.title), // فقط للعنوان
-      description: form.description.trim(), // للوصف: فقط trim
+      title: normalizeWhitespace(form.title),
+      description: form.description.trim(),
       isActive: form.isActive,
-      categories: form.categories,
+      categories: form.categories
     };
 
     try {
@@ -203,9 +186,9 @@ export const useFeaturedPostsPage = () => {
       const payload = {
         imageUrl: post.imageUrl,
         title: post.title,
-        description: post.description, // يبقى كما هو مخزن بأسطره
+        description: post.description,
         categories: post.categories,
-        isActive: !post.isActive,
+        isActive: !post.isActive
       };
 
       const success = await update(post.id, payload);
@@ -213,7 +196,7 @@ export const useFeaturedPostsPage = () => {
         showToast(post.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
       }
     },
-    [update, showToast],
+    [update, showToast]
   );
 
   const handleDelete = useCallback(
@@ -223,7 +206,7 @@ export const useFeaturedPostsPage = () => {
         message: `هل تريد حذف "${post.title}"؟`,
         confirmText: "حذف",
         cancelText: "إلغاء",
-        variant: "danger",
+        variant: "danger"
       });
       if (!ok) return;
       if (await remove(post.id)) {
@@ -231,7 +214,7 @@ export const useFeaturedPostsPage = () => {
         if (form.id === post.id) resetForm();
       }
     },
-    [confirm, form.id, remove, resetForm, showToast],
+    [confirm, form.id, remove, resetForm, showToast]
   );
 
   return {
@@ -250,14 +233,14 @@ export const useFeaturedPostsPage = () => {
     itemsPerPage: ITEMS_PER_PAGE,
     activeCategory,
     setActiveCategory,
-    categoryOptions: FEATURED_POST_CATEGORIES,
+    categoryOptions: CATEGORY_OPTIONS,
     toasts,
     removeToast,
     confirmDialog: {
       isOpen: isConfirmOpen,
       options: confirmOptions,
       handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog,
+      handleCancel: handleCancelDialog
     },
     setForm,
     setCurrentPage,
@@ -267,6 +250,6 @@ export const useFeaturedPostsPage = () => {
     handleFileChange,
     handleSubmit,
     handleToggle,
-    handleDelete,
+    handleDelete
   };
 };

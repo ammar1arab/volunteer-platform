@@ -1,11 +1,13 @@
 "use client";
+import styles from "./ActivityCard.module.scss";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { MapPin, Calendar, Clock, Users, ArrowLeft } from "lucide-react";
-import { formatForDisplay, ROUTES } from "@/lib";
+
 import type { ActivityDto } from "@/core/application/dtos";
-import styles from "./ActivityCard.module.scss";
+import { MapPin, Calendar, Clock, Users, ArrowLeft } from "lucide-react";
+import { formatForDisplay } from "@/lib/utils";
+import { ROUTES } from "@/presentation/constants";
 
 type ActivityCardProps = {
   activity: ActivityDto;

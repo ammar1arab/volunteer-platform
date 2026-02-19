@@ -1,37 +1,16 @@
 "use client";
+import styles from "./VolunteerProfilePage.module.scss";
+import { useProfilePage } from "./VolunteerProfilePage.logic";
 
 import Image from "next/image";
-import { useProfilePage } from "./VolunteerProfilePage.logic";
-import { User, Mail, Phone, MapPin, Calendar, Award, Heart, Edit2, Check, X, Upload, Plus } from "lucide-react";
 import { useState } from "react";
-import styles from "./VolunteerProfilePage.module.scss";
-import { JORDANIAN_CITIES } from "@/lib";
+
+import { CITY_OPTIONS } from "@/presentation/constants";
 import { Dropdown, Pagination, LoadingState, EmptyState } from "@/presentation/components";
+import { User, Mail, Phone, MapPin, Calendar, Award, Heart, Edit2, Check, X, Upload, Plus } from "lucide-react";
 
 export default function VolunteerProfilePage() {
-  const {
-    user,
-    stats,
-    isLoading,
-    error,
-    successMessage,
-    editingField,
-    isSaving,
-    isUploadingImage,
-    activityFilter,
-    filteredParticipations,
-    currentPage,
-    setCurrentPage,
-    itemsPerPage,
-    paginatedActivities,
-    setActivityFilter,
-    startEditing,
-    cancelEditing,
-    updateFieldValue,
-    saveField,
-    handleProfilePictureUpload,
-    calculateAge,
-  } = useProfilePage();
+  const { user, stats, isLoading, error, successMessage, editingField, isSaving, isUploadingImage, activityFilter, filteredParticipations, currentPage, setCurrentPage, itemsPerPage, paginatedActivities, setActivityFilter, startEditing, cancelEditing, updateFieldValue, saveField, handleProfilePictureUpload, calculateAge, } = useProfilePage();
 
   if (isLoading) return <LoadingState />;
 
@@ -106,7 +85,7 @@ export default function VolunteerProfilePage() {
                 <EditableField icon={<Phone />} label="الهاتف" value={user.phone} field="phone" type="text" editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />
                 {volunteerProfile && (
                   <>
-                    <EditableField icon={<MapPin />} label="المدينة" value={volunteerProfile.city} displayValue={JORDANIAN_CITIES.find(c => c.value === volunteerProfile.city)?.label} field="city" type="select" options={JORDANIAN_CITIES} editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />
+                    <EditableField icon={<MapPin />} label="المدينة" value={volunteerProfile.city} displayValue={CITY_OPTIONS.find(c => c.value === volunteerProfile.city)?.label} field="city" type="select" options={CITY_OPTIONS} editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />
                     <EditableField icon={<Calendar />} label="العمر" value={volunteerProfile.dateOfBirth?.split('T')[0] ?? ""} displayValue={volunteerProfile.dateOfBirth ? `${calculateAge(volunteerProfile.dateOfBirth)} سنة` : "غير محدد"} field="dateOfBirth" type="date" editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />                    <EditableField icon={<User />} label="الجنس" value={volunteerProfile.gender || ""} displayValue={volunteerProfile.gender === "MALE" ? "ذكر" : volunteerProfile.gender === "FEMALE" ? "أنثى" : "غير محدد"} field="gender" type="select" options={[{ value: "", label: "غير محدد" }, { value: "MALE", label: "ذكر" }, { value: "FEMALE", label: "أنثى" }]} editingField={editingField} isSaving={isSaving} onStartEdit={startEditing} onCancel={cancelEditing} onUpdate={updateFieldValue} onSave={saveField} />
                   </>
                 )}
@@ -232,11 +211,12 @@ function EditableField({ icon, label, value, displayValue, field, type, options,
 function TagsCard({ icon, title, field, tags, editingField, isSaving, onStartEdit, onCancel, onUpdate, onSave, color }: any) {
   const [input, setInput] = useState("");
   const isEditing = editingField?.field === field;
+  const currentTags: string[] = isEditing ? editingField.value : tags;
 
   const handleAdd = () => {
     const trimmed = input.trim();
-    if (trimmed && !tags.includes(trimmed)) {
-      onUpdate([...tags, trimmed]);
+    if (trimmed && !currentTags.includes(trimmed)) {
+      onUpdate([...currentTags, trimmed]);
       setInput("");
     }
   };
@@ -254,12 +234,12 @@ function TagsCard({ icon, title, field, tags, editingField, isSaving, onStartEdi
             <input type="text" className={styles.input} value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAdd())} placeholder="أضف..." disabled={isSaving} />
             <button className={styles.btnAdd} onClick={handleAdd} disabled={isSaving || !input.trim()}><Plus size={16} /></button>
           </div>
-          {tags.length > 0 && (
+          {currentTags.length > 0 && (
             <div className={styles.tags}>
-              {tags.map((tag: string, i: number) => (
+              {currentTags.map((tag: string, i: number) => (
                 <span key={i} className={`${styles.tag} ${styles[color]}`}>
                   {tag}
-                  <button className={styles.btnRemove} onClick={() => onUpdate(tags.filter((t: string) => t !== tag))} disabled={isSaving}><X size={12} /></button>
+                  <button className={styles.btnRemove} onClick={() => onUpdate(currentTags.filter((t: string) => t !== tag))} disabled={isSaving}><X size={12} /></button>
                 </span>
               ))}
             </div>
@@ -269,9 +249,9 @@ function TagsCard({ icon, title, field, tags, editingField, isSaving, onStartEdi
             <button className={styles.btnSave} onClick={onSave} disabled={isSaving}>{isSaving ? "..." : <><Check size={14} /> حفظ</>}</button>
           </div>
         </div>
-      ) : tags.length > 0 ? (
+      ) : currentTags.length > 0 ? (
         <div className={styles.tags}>
-          {tags.map((tag: string, i: number) => (
+          {currentTags.map((tag: string, i: number) => (
             <span key={i} className={`${styles.tag} ${styles[color]}`}>{tag}</span>
           ))}
         </div>

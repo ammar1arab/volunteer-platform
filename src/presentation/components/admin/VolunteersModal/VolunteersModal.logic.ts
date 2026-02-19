@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { activityApi } from "@/lib";
 import type { ActivityVolunteerDto } from "@/core/application/dtos";
+import { activityApi } from "@/presentation/services";
 
 export const useVolunteersModal = (activityId: string, isOpen: boolean) => {
   const [volunteers, setVolunteers] = useState<ActivityVolunteerDto[]>([]);
@@ -14,7 +14,6 @@ export const useVolunteersModal = (activityId: string, isOpen: boolean) => {
       try {
         const result = await activityApi.getVolunteers(activityId);
         
-        // ✅ Fix: Access volunteers from result.data
         if (result.success && result.data?.volunteers) {
           setVolunteers(result.data.volunteers);
         } else {

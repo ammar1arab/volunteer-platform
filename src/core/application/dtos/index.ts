@@ -83,3 +83,15 @@ export type {
   GetAllFeaturedPostsResponse,
   DeleteFeaturedPostResponse,
 } from "./featuredPost.dto";
+
+// ─── Volunteer Spotlight ────────────────────────────────────────────
+export type {
+  VolunteerSpotlightDto,
+  CreateVolunteerSpotlightRequest,
+  CreateVolunteerSpotlightResponse,
+  UpdateVolunteerSpotlightRequest,
+  UpdateVolunteerSpotlightResponse,
+  GetVolunteerSpotlightResponse,
+  GetAllVolunteerSpotlightsResponse,
+  DeleteVolunteerSpotlightResponse,
+} from "./volunteerSpotlight.dto";

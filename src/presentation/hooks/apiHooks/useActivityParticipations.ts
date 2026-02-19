@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { participationApi } from "@/lib";
 import type { ActivityParticipationDto } from "@/core/application/dtos";
+import { participationApi } from "@/presentation/services";
 
 type RequestType = "my-requests" | "pending";
 
@@ -23,46 +23,39 @@ const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") =
   return fallback;
 };
 
-export const useActivityParticipations = (
-  options: UseActivityParticipationsOptions = {},
-) => {
+export const useActivityParticipations = (options: UseActivityParticipationsOptions = {}) => {
   const { autoFetch = false, type = "my-requests" } = options;
 
   const [state, setState] = useState<ParticipationsState>({
     requests: [],
     loading: false,
     submitting: false,
-    error: "",
+    error: ""
   });
 
   const hasLoadedRef = useRef(false);
 
-  const setError = (msg: string) =>
-    setState((p) => ({ ...p, error: msg || "" }));
+  const setError = (msg: string) => setState((p) => ({ ...p, error: msg || "" }));
 
   const refresh = useCallback(async () => {
     setState((p) => ({ ...p, loading: true, error: "" }));
 
     try {
-      const res =
-        type === "pending"
-          ? await participationApi.getPending()
-          : await participationApi.getMyRequests();
+      const res = type === "pending" ? await participationApi.getPending() : await participationApi.getMyRequests();
 
       const requests: ActivityParticipationDto[] =
-        (res as { data?: { requests?: ActivityParticipationDto[] } })?.data
-          ?.requests ?? [];
+        (res as { data?: { requests?: ActivityParticipationDto[] } })?.data?.requests ?? [];
 
       setState((p) => ({
         ...p,
         requests,
-        loading: false,
+        loading: false
       }));
     } catch (err) {
       setState((p) => ({
         ...p,
         loading: false,
-        error: getErrMsg(err, "فشل في جلب البيانات"),
+        error: getErrMsg(err, "فشل في جلب البيانات")
       }));
     }
   }, [type]);
@@ -96,7 +89,7 @@ export const useActivityParticipations = (
         return false;
       }
     },
-    [refresh],
+    [refresh]
   );
 
   const approve = useCallback(
@@ -121,7 +114,7 @@ export const useActivityParticipations = (
         return false;
       }
     },
-    [refresh],
+    [refresh]
   );
 
   const reject = useCallback(
@@ -146,13 +139,12 @@ export const useActivityParticipations = (
         return false;
       }
     },
-    [refresh],
+    [refresh]
   );
 
   const getRequestForActivity = useCallback(
-    (activityId: string) =>
-      state.requests.find((r) => r.activityId === activityId),
-    [state.requests],
+    (activityId: string) => state.requests.find((r) => r.activityId === activityId),
+    [state.requests]
   );
 
   return {
@@ -164,6 +156,6 @@ export const useActivityParticipations = (
     createRequest,
     approve,
     reject,
-    getRequestForActivity,
+    getRequestForActivity
   };
 };

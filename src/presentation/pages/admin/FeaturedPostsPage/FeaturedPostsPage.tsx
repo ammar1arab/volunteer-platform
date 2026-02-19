@@ -1,21 +1,11 @@
 "use client";
+import styles from "./FeaturedPostsPage.module.scss";
+import { useFeaturedPostsPage } from "./FeaturedPostsPage.logic";
 
 import Image from "next/image";
-import { useFeaturedPostsPage } from "./FeaturedPostsPage.logic";
-import {
-  AdminFeaturedPostCard,
-  ToastContainer,
-  Modal,
-  LoadingState,
-  EmptyState,
-  Pagination,
-  ConfirmDialog,
-  MultiSelectInput,
-  Dropdown,
-} from "@/presentation/components";
+import { DomainFeaturedPostCategory } from "@/core/domain/enums";
+import { AdminFeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, MultiSelectInput, Dropdown, } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, FileImage } from "lucide-react";
-import { FeaturedPostCategory } from "@/core/domain/enums";
-import styles from "./FeaturedPostsPage.module.scss";
 
 const FeaturedPostsPage = () => {
   const {
@@ -141,7 +131,7 @@ const FeaturedPostsPage = () => {
             <MultiSelectInput
               values={form.categories || []}
               options={categoryOptions}
-              onChange={(values) => setForm((p) => ({ ...p, categories: values as FeaturedPostCategory[] }))}
+              onChange={(values) => setForm((p) => ({ ...p, categories: values as DomainFeaturedPostCategory[] }))}
               placeholder="اختر التصنيفات (حتى 3)"
               disabled={isSubmitting || isUploading}
               maxSelections={3}

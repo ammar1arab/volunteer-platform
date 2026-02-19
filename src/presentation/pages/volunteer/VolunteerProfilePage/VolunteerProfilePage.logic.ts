@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { userApi, volunteerProfileApi, participationApi } from "@/lib";
 import { signOut } from "next-auth/react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+
 import type { ActivityParticipationDto, UserProfileDto, Result } from "@/core/application/dtos";
+import { participationApi, userApi, volunteerProfileApi } from "@/presentation/services";
 
 interface EditingField {
   field: string;
@@ -45,7 +46,7 @@ export function useProfilePage() {
     try {
       const [userResult, participationsResult] = await Promise.all([
         userApi.getProfile(),
-        participationApi.getMyRequests(),
+        participationApi.getMyRequests()
       ]);
 
       if (!userResult.success) {
@@ -92,8 +93,12 @@ export function useProfilePage() {
 
     try {
       const result: Result<unknown> = USER_FIELDS.includes(editingField.field)
-        ? await userApi.updateBasicInfo({ [editingField.field]: editingField.value })
-        : await volunteerProfileApi.update({ [editingField.field]: editingField.value });
+        ? await userApi.updateBasicInfo({
+            [editingField.field]: editingField.value
+          })
+        : await volunteerProfileApi.update({
+            [editingField.field]: editingField.value
+          });
 
       if (!result.success) {
         setError(extractError(result));
@@ -110,27 +115,30 @@ export function useProfilePage() {
     }
   }, [editingField, fetchData, showSuccess]);
 
-  const handleProfilePictureUpload = useCallback(async (file: File) => {
-    setIsUploadingImage(true);
-    setError(null);
-    setSuccessMessage(null);
+  const handleProfilePictureUpload = useCallback(
+    async (file: File) => {
+      setIsUploadingImage(true);
+      setError(null);
+      setSuccessMessage(null);
 
-    try {
-      const result = await volunteerProfileApi.uploadPicture(file);
+      try {
+        const result = await volunteerProfileApi.uploadPicture(file);
 
-      if (!result.success) {
-        setError(extractError(result));
-        return;
+        if (!result.success) {
+          setError(extractError(result));
+          return;
+        }
+
+        showSuccess("تم رفع الصورة بنجاح ✓");
+        await fetchData();
+      } catch {
+        setError("حدث خطأ أثناء رفع الصورة");
+      } finally {
+        setIsUploadingImage(false);
       }
-
-      showSuccess("تم رفع الصورة بنجاح ✓");
-      await fetchData();
-    } catch {
-      setError("حدث خطأ أثناء رفع الصورة");
-    } finally {
-      setIsUploadingImage(false);
-    }
-  }, [fetchData, showSuccess]);
+    },
+    [fetchData, showSuccess]
+  );
 
   const handleSignOut = useCallback(async () => {
     await signOut({ callbackUrl: "/" });
@@ -145,18 +153,19 @@ export function useProfilePage() {
     return age;
   }, []);
 
-  const stats = useMemo(() => ({
-    total: participations.length,
-    pending: participations.filter((p) => p.status === "PENDING").length,
-    approved: participations.filter((p) => p.status === "APPROVED").length,
-    rejected: participations.filter((p) => p.status === "REJECTED").length,
-  }), [participations]);
+  const stats = useMemo(
+    () => ({
+      total: participations.length,
+      pending: participations.filter((p) => p.status === "PENDING").length,
+      approved: participations.filter((p) => p.status === "APPROVED").length,
+      rejected: participations.filter((p) => p.status === "REJECTED").length
+    }),
+    [participations]
+  );
 
   const filteredParticipations = useMemo(
-    () => activityFilter === "all"
-      ? participations
-      : participations.filter((p) => p.status === activityFilter),
-    [participations, activityFilter],
+    () => (activityFilter === "all" ? participations : participations.filter((p) => p.status === activityFilter)),
+    [participations, activityFilter]
   );
 
   const paginatedActivities = useMemo(() => {
@@ -186,6 +195,6 @@ export function useProfilePage() {
     currentPage,
     setCurrentPage,
     itemsPerPage: ITEMS_PER_PAGE,
-    paginatedActivities,
+    paginatedActivities
   };
 }

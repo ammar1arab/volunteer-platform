@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { userApi } from "@/lib";
-import type { UserAnalyticsDto, UserActivityDto } from "@/core/application/dtos";
+import { UserAnalyticsDto, UserActivityDto } from "@/core/application/dtos";
+import { userApi } from "@/presentation/services";
 
 interface UserDetailsState {
   user: UserAnalyticsDto | null;

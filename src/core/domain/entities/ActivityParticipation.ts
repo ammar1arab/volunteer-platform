@@ -21,7 +21,7 @@ class ActivityParticipation extends BaseEntity {
       requestedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      isActive: true,
+      isActive: true
     });
   }
 
@@ -61,7 +61,7 @@ class ActivityParticipation extends BaseEntity {
       id: this.id,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      isActive: this.isActive,
+      isActive: this.isActive
     };
   }
 }

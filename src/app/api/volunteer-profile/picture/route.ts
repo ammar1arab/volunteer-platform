@@ -1,7 +1,7 @@
-import { logger } from "@/core/application/helpers";
-import type { UploadProfilePictureRequest } from "@/core/application/dtos";
+import { UploadProfilePictureRequest } from "@/core/application/dtos";
 import { providers } from "@/lib/providers";
 import { toResponse, requireAuth, badRequest, apiError, validateFile } from "@/lib/api-utils";
+import { logger } from "@/lib/utils";
 
 export const runtime = "nodejs";
 

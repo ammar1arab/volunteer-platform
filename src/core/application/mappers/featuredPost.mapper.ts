@@ -1,4 +1,4 @@
-import type FeaturedPost from "@/core/domain/entities/FeaturedPost";
+import type { FeaturedPost } from "@/core/domain/entities";
 import type { FeaturedPostDto } from "@/core/application/dtos";
 
 export const toFeaturedPostDto = (entity: FeaturedPost): FeaturedPostDto => {
@@ -11,9 +11,8 @@ export const toFeaturedPostDto = (entity: FeaturedPost): FeaturedPostDto => {
     categories: p.categories,
     isActive: p.isActive,
     createdAt: p.createdAt.toISOString(),
-    updatedAt: p.updatedAt.toISOString(),
+    updatedAt: p.updatedAt.toISOString()
   };
 };
 
-export const toFeaturedPostDtoList = (entities: FeaturedPost[]): FeaturedPostDto[] =>
-  entities.map(toFeaturedPostDto);
+export const toFeaturedPostDtoList = (entities: FeaturedPost[]): FeaturedPostDto[] => entities.map(toFeaturedPostDto);

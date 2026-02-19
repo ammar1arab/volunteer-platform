@@ -1,5 +1,5 @@
-import { logger } from "@/core/application/helpers";
-import type { UpdateUserRequest } from "@/core/application/dtos";
+import { logger } from "@/lib/utils";
+import { UpdateUserRequest } from "@/core/application/dtos";
 import { providers } from "@/lib/providers";
 import { toResponse, requireAuth, parseJson, badRequest, apiError } from "@/lib/api-utils";
 

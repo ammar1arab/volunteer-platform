@@ -1,6 +1,6 @@
 import { UserRole } from "@/core/domain/enums";
-import { logger } from "@/core/application/helpers";
-import type { UpdateActivityRequest } from "@/core/application/dtos";
+import { logger } from "@/lib/utils";
+import { UpdateActivityRequest } from "@/core/application/dtos";
 import { providers } from "@/lib/providers";
 import { toResponse, requireAuth, parseJson, badRequest, apiError } from "@/lib/api-utils";
 

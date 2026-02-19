@@ -12,4 +12,3 @@ export interface VolunteerProfileProps extends BaseEntityProps {
   interests?: string[];
   hasVolunteerExperience?: boolean;
 }
-

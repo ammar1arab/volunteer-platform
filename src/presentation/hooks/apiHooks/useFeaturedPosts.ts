@@ -1,13 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { featuredPostApi, uploadApi } from "@/lib";
-import type {
-  FeaturedPostDto,
-  CreateFeaturedPostRequest,
-  UpdateFeaturedPostRequest,
-} from "@/core/application/dtos";
-import { logger } from "@/core/application/helpers";
+import { FeaturedPostDto, CreateFeaturedPostRequest, UpdateFeaturedPostRequest } from "@/core/application/dtos";
+import { logger } from "@/lib/utils";
+import { featuredPostApi, uploadApi } from "@/presentation/services";
 
 type ListState = {
   list: FeaturedPostDto[];
@@ -22,9 +18,7 @@ const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") =
   return fallback;
 };
 
-export const useFeaturedPosts = (
-  options: { activeOnly?: boolean; autoLoad?: boolean } = {},
-) => {
+export const useFeaturedPosts = (options: { activeOnly?: boolean; autoLoad?: boolean } = {}) => {
   const { activeOnly = false, autoLoad = true } = options;
 
   const [state, setState] = useState<ListState>({
@@ -32,13 +26,12 @@ export const useFeaturedPosts = (
     loading: true,
     submitting: false,
     uploading: false,
-    error: "",
+    error: ""
   });
 
   const hasLoadedRef = useRef(false);
 
-  const setError = (msg: string) =>
-    setState((p) => ({ ...p, error: msg || "" }));
+  const setError = (msg: string) => setState((p) => ({ ...p, error: msg || "" }));
 
   const refresh = useCallback(async () => {
     logger.info("useFeaturedPosts", "refresh-start", { activeOnly });
@@ -46,34 +39,31 @@ export const useFeaturedPosts = (
 
     try {
       const res = await featuredPostApi.getAll();
-      const posts: FeaturedPostDto[] =
-        (res as { data?: { posts?: FeaturedPostDto[] } })?.data?.posts ?? [];
+      const posts: FeaturedPostDto[] = (res as { data?: { posts?: FeaturedPostDto[] } })?.data?.posts ?? [];
 
       logger.info("useFeaturedPosts", "api-response", {
         totalPosts: posts.length,
-        activeOnly,
+        activeOnly
       });
 
-      const filtered = activeOnly
-        ? posts.filter((x) => x.isActive !== false)
-        : posts;
+      const filtered = activeOnly ? posts.filter((x) => x.isActive !== false) : posts;
 
       logger.info("useFeaturedPosts", "filtered-result", {
         total: posts.length,
-        filtered: filtered.length,
+        filtered: filtered.length
       });
 
       setState((p) => ({
         ...p,
         list: filtered,
-        loading: false,
+        loading: false
       }));
     } catch (err) {
       logger.error("useFeaturedPosts", "refresh-failed", getErrMsg(err));
       setState((p) => ({
         ...p,
         loading: false,
-        error: getErrMsg(err, "فشل في جلب البيانات"),
+        error: getErrMsg(err, "فشل في جلب البيانات")
       }));
     }
   }, [activeOnly]);
@@ -81,7 +71,7 @@ export const useFeaturedPosts = (
   useEffect(() => {
     logger.info("useFeaturedPosts", "effect-triggered", {
       autoLoad,
-      hasLoaded: hasLoadedRef.current,
+      hasLoaded: hasLoadedRef.current
     });
 
     if (autoLoad && !hasLoadedRef.current) {
@@ -95,8 +85,7 @@ export const useFeaturedPosts = (
 
     try {
       const res = await uploadApi.uploadFeaturedImage(file);
-      const imageUrl = (res as { data?: { imageUrl?: string } })?.data
-        ?.imageUrl;
+      const imageUrl = (res as { data?: { imageUrl?: string } })?.data?.imageUrl;
       const success = (res as { success?: boolean })?.success;
 
       if (!success || !imageUrl) {
@@ -134,7 +123,7 @@ export const useFeaturedPosts = (
         return false;
       }
     },
-    [refresh],
+    [refresh]
   );
 
   const update = useCallback(
@@ -159,7 +148,7 @@ export const useFeaturedPosts = (
         return false;
       }
     },
-    [refresh],
+    [refresh]
   );
 
   const remove = useCallback(
@@ -184,7 +173,7 @@ export const useFeaturedPosts = (
         return false;
       }
     },
-    [refresh],
+    [refresh]
   );
 
   return {
@@ -197,11 +186,10 @@ export const useFeaturedPosts = (
     uploadImage,
     create,
     update,
-    remove,
+    remove
   };
 };
 
-// ✅ ADD THIS - Post Details Hook
 export const usePostDetails = (id: string) => {
   const [post, setPost] = useState<FeaturedPostDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -223,8 +211,7 @@ export const usePostDetails = (id: string) => {
         const res = await featuredPostApi.getOne(id);
         if (cancelled) return;
 
-        const postData: FeaturedPostDto | null =
-          (res as { data?: { post?: FeaturedPostDto } })?.data?.post ?? null;
+        const postData: FeaturedPostDto | null = (res as { data?: { post?: FeaturedPostDto } })?.data?.post ?? null;
 
         setPost(postData);
 

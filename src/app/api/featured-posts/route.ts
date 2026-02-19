@@ -1,8 +1,8 @@
 import { UserRole } from "@/core/domain/enums";
-import { logger } from "@/core/application/helpers";
-import type { CreateFeaturedPostRequest } from "@/core/application/dtos";
+import { CreateFeaturedPostRequest } from "@/core/application/dtos";
 import { providers } from "@/lib/providers";
 import { toResponse, requireAuth, parseJson, badRequest, apiError } from "@/lib/api-utils";
+import { logger } from "@/lib/utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

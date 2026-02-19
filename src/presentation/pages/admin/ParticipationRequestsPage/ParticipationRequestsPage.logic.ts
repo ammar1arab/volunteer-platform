@@ -18,7 +18,7 @@ export const useParticipationRequestsPage = () => {
   const { toasts, showToast, removeToast } = useToast();
   const { requests, loading, approve, reject } = useActivityParticipations({
     autoFetch: true,
-    type: "pending",
+    type: "pending"
   });
 
   const [filter, setFilter] = useState<string>("all");
@@ -57,14 +57,11 @@ export const useParticipationRequestsPage = () => {
       return {
         key: id,
         label: request?.activity?.title || "نشاط",
-        count: requests.filter((r) => r.activityId === id).length,
+        count: requests.filter((r) => r.activityId === id).length
       };
     });
 
-    return [
-      { key: "all", label: "الكل", count: requests.length },
-      ...activities,
-    ];
+    return [{ key: "all", label: "الكل", count: requests.length }, ...activities];
   }, [requests]);
 
   const handleApprove = useCallback(
@@ -74,7 +71,7 @@ export const useParticipationRequestsPage = () => {
         message: `هل تريد الموافقة على طلب ${volunteerName}؟`,
         confirmText: "موافقة",
         cancelText: "إلغاء",
-        variant: "primary",
+        variant: "primary"
       });
 
       if (!ok) return;
@@ -84,7 +81,7 @@ export const useParticipationRequestsPage = () => {
         showToast("تمت الموافقة", "success");
       }
     },
-    [confirm, approve, showToast],
+    [confirm, approve, showToast]
   );
 
   const handleReject = useCallback(
@@ -94,7 +91,7 @@ export const useParticipationRequestsPage = () => {
         message: `هل تريد رفض طلب ${volunteerName}؟`,
         confirmText: "رفض",
         cancelText: "إلغاء",
-        variant: "danger",
+        variant: "danger"
       });
 
       if (!ok) return;
@@ -104,7 +101,7 @@ export const useParticipationRequestsPage = () => {
         showToast("تم الرفض", "success");
       }
     },
-    [confirm, reject, showToast],
+    [confirm, reject, showToast]
   );
 
   const handleApproveAll = useCallback(async () => {
@@ -114,7 +111,7 @@ export const useParticipationRequestsPage = () => {
       message: `هل تريد قبول جميع الطلبات (${count} طلب)؟`,
       confirmText: "قبول الكل",
       cancelText: "إلغاء",
-      variant: "primary",
+      variant: "primary"
     });
 
     if (!ok) return;
@@ -142,11 +139,11 @@ export const useParticipationRequestsPage = () => {
       isOpen: isConfirmOpen,
       options: confirmOptions,
       handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog,
+      handleCancel: handleCancelDialog
     },
     setFilter,
     handleApprove,
     handleReject,
-    handleApproveAll,
+    handleApproveAll
   };
 };

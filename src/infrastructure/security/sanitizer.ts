@@ -17,12 +17,4 @@ export class InputSanitizer {
     return String(input).trim().replace(/\s+/g, ' ');
   }
 
-  static escapeHtml(input: string): string {
-    return String(input)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;');
-  }
 }

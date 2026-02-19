@@ -1,4 +1,4 @@
-import { FeaturedPostCategory } from "@/core/domain/enums";
+import { DomainFeaturedPostCategory } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 
 // ─── Featured Post ────────────────────────────────────────────
@@ -8,7 +8,7 @@ export interface FeaturedPostDto {
   imageUrl: string;
   title: string;
   description: string;
-  categories: FeaturedPostCategory[];
+  categories: DomainFeaturedPostCategory[];
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -20,7 +20,7 @@ export interface CreateFeaturedPostRequest {
   imageUrl: string;
   title: string;
   description: string;
-  categories: FeaturedPostCategory[];
+  categories: DomainFeaturedPostCategory[];
   isActive?: boolean;
 }
 

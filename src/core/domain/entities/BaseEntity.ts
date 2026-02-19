@@ -4,12 +4,7 @@ abstract class BaseEntity {
   public updatedAt: Date;
   public isActive: boolean;
 
-  protected constructor(
-    id?: string,
-    createdAt?: Date,
-    updatedAt?: Date,
-    isActive: boolean = true
-  ) {
+  protected constructor(id?: string, createdAt?: Date, updatedAt?: Date, isActive: boolean = true) {
     this.id = id ?? crypto.randomUUID();
     this.createdAt = createdAt ?? new Date();
     this.updatedAt = updatedAt ?? new Date();

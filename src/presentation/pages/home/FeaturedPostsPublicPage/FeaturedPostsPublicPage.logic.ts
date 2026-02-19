@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useFeaturedPosts } from "@/presentation/hooks";
-import { FEATURED_POST_CATEGORIES } from "@/lib/constants/categories.constants";
+import { CATEGORY_OPTIONS } from "@/presentation/constants/labels"; 
 
 const ITEMS_PER_PAGE = 20;
 
@@ -34,7 +34,7 @@ export const useFeaturedPostsPublicPage = () => {
   const categoryOptions = useMemo(
     () => [
       { key: "all", label: "جميع التصنيفات" },
-      ...FEATURED_POST_CATEGORIES.map((cat) => ({ key: cat.value, label: cat.label })),
+      ...CATEGORY_OPTIONS.map((cat) => ({ key: cat.value, label: cat.label })), 
     ],
     []
   );

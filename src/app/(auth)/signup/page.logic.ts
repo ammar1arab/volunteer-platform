@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authApi, ROUTES } from "@/lib";
+
 import { JordanianCity } from "@/core/domain/enums";
+import { ROUTES } from "@/presentation/constants";
+import { authApi } from "@/presentation/services";
 
 interface SignupFormData {
   fullName: string;
@@ -33,7 +35,7 @@ export const useSignup = (): UseSignupReturn => {
     city: "",
     dateOfBirth: "",
     password: "",
-    confirmPassword: "",
+    confirmPassword: ""
   });
 
   const [error, setError] = useState("");
@@ -72,7 +74,7 @@ export const useSignup = (): UseSignupReturn => {
         fullName: formData.fullName,
         phone: formData.phone,
         city: formData.city as JordanianCity,
-        dateOfBirth: new Date(formData.dateOfBirth),
+        dateOfBirth: new Date(formData.dateOfBirth)
       });
 
       if (result.success) {
@@ -80,11 +82,7 @@ export const useSignup = (): UseSignupReturn => {
         return;
       }
 
-      setError(
-        typeof result.error === "string"
-          ? result.error
-          : result.error?.message || "حدث خطأ أثناء إنشاء الحساب",
-      );
+      setError(typeof result.error === "string" ? result.error : result.error?.message || "حدث خطأ أثناء إنشاء الحساب");
     } catch (err) {
       setError(err instanceof Error ? err.message : "حدث خطأ في الاتصال");
     } finally {

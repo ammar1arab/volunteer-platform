@@ -31,15 +31,12 @@
   gap: $sp-sm;
 
   @media (max-width: $bp-sm) {
-    grid-template-columns: 1fr;
+    grid-template-columns: 2fr 2fr 1.5fr;
     gap: $sp-xs;
   }
 }
 
 .col {
-  // SelectInput inside handles its own styles
-  
-  // Remove margin-bottom from SelectInput when inside BirthDateInput
   :global(.SelectInput_wrapper) {
     margin-bottom: 0;
   }

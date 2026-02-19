@@ -7,26 +7,98 @@ class VolunteerProfile extends BaseEntity {
 
   constructor(props: VolunteerProfileProps) {
     super(props.id, props.createdAt, props.updatedAt, props.isActive ?? true);
+
+    if (!props.userId?.trim()) throw new Error("User ID is required");
+    if (!props.city) throw new Error("City is required");
+    if (!props.dateOfBirth) throw new Error("Date of birth is required");
+
     this.props = { ...props };
   }
 
-  static create(
-    input: Omit<VolunteerProfileProps, "id" | "createdAt" | "updatedAt">
-  ): VolunteerProfile {
+  static create(input: Omit<VolunteerProfileProps, "id" | "createdAt" | "updatedAt">): VolunteerProfile {
     return new VolunteerProfile({
       ...input,
       id: crypto.randomUUID(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      isActive: input.isActive ?? true,
+      isActive: input.isActive ?? true
     });
   }
 
- get userId(): string {
+  update(
+    input: Partial<
+      Pick<
+        VolunteerProfileProps,
+        | "city"
+        | "dateOfBirth"
+        | "profilePictureUrl"
+        | "gender"
+        | "bio"
+        | "skills"
+        | "interests"
+        | "hasVolunteerExperience"
+        | "isActive"
+      >
+    >
+  ): void {
+    let changed = false;
+
+    if (input.city !== undefined) {
+      this.props.city = input.city;
+      changed = true;
+    }
+
+    if (input.dateOfBirth !== undefined) {
+      this.props.dateOfBirth = input.dateOfBirth;
+      changed = true;
+    }
+
+    if (input.profilePictureUrl !== undefined) {
+      this.props.profilePictureUrl = input.profilePictureUrl;
+      changed = true;
+    }
+
+    if (input.gender !== undefined) {
+      this.props.gender = input.gender;
+      changed = true;
+    }
+
+    if (input.bio !== undefined) {
+      this.props.bio = input.bio?.trim() || null;
+      changed = true;
+    }
+
+    if (input.skills !== undefined) {
+      this.props.skills = input.skills;
+      changed = true;
+    }
+
+    if (input.interests !== undefined) {
+      this.props.interests = input.interests;
+      changed = true;
+    }
+
+    if (input.hasVolunteerExperience !== undefined) {
+      this.props.hasVolunteerExperience = input.hasVolunteerExperience;
+      changed = true;
+    }
+
+    if (input.isActive !== undefined) {
+      this.setActive(input.isActive);
+      this.props.isActive = this.isActive;
+      changed = true;
+    }
+
+    if (changed) {
+      this.touch();
+    }
+  }
+
+  get userId(): string {
     return this.props.userId;
   }
 
-  get city(): string {
+  get city(): JordanianCity {
     return this.props.city;
   }
 
@@ -38,7 +110,7 @@ class VolunteerProfile extends BaseEntity {
     return this.props.profilePictureUrl ?? null;
   }
 
-  get gender(): string | null {
+  get gender(): Gender | null {
     return this.props.gender ?? null;
   }
 
@@ -58,53 +130,13 @@ class VolunteerProfile extends BaseEntity {
     return this.props.hasVolunteerExperience ?? false;
   }
 
-  updateCity(city: JordanianCity): void {
-    this.props.city = city;
-    this.props.updatedAt = new Date();
-  }
-
-  updateDateOfBirth(dateOfBirth: Date): void {
-    this.props.dateOfBirth = dateOfBirth;
-    this.props.updatedAt = new Date();
-  }
-
-  updateProfilePicture(url: string): void {
-    this.props.profilePictureUrl = url;
-    this.props.updatedAt = new Date();
-  }
-
-  updateGender(gender: Gender): void {
-    this.props.gender = gender;
-    this.props.updatedAt = new Date();
-  }
-
-  updateBio(bio: string): void {
-    this.props.bio = bio;
-    this.props.updatedAt = new Date();
-  }
-
-  updateSkills(skills: string[]): void {
-    this.props.skills = skills;
-    this.props.updatedAt = new Date();
-  }
-
-  updateInterests(interests: string[]): void {
-    this.props.interests = interests;
-    this.props.updatedAt = new Date();
-  }
-
-  updateVolunteerExperience(hasExperience: boolean): void {
-    this.props.hasVolunteerExperience = hasExperience;
-    this.props.updatedAt = new Date();
-  }
-
   toObject(): VolunteerProfileProps {
     return {
       ...this.props,
       id: this.id,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      isActive: this.isActive,
+      isActive: this.isActive
     };
   }
 }

@@ -9,8 +9,8 @@ import {
   useActivityParticipations,
   useToast,
 } from "@/presentation/hooks";
-import { ROUTES } from "@/lib";
 import type { ActivityDto } from "@/core/application/dtos";
+import { ROUTES } from "@/presentation/constants";
 
 const ACTIVITIES_LIMIT = 4;
 const POSTS_LIMIT = 8;
