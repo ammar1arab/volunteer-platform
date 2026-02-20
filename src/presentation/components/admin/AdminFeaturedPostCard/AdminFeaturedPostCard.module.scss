@@ -7,9 +7,37 @@
   border-radius: $radius-lg;
   overflow: hidden;
   transition: $transition;
+  position: relative;
+  cursor: pointer;
+
+  // Sliding border effect
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba($green, 0.3);
+    border-radius: $radius-lg;
+    pointer-events: none;
+    transition: transform 0.5s ease;
+    transform: translateX(0);
+  }
+
+  &:hover::after {
+    transform: translateX(100%);
+  }
+
+  // Floating content effect
+  &:hover .content {
+    transform: translateY(-5px);
+    transition: transform 0.4s ease;
+  }
 
   &:hover {
     border-color: rgba($green, 0.3);
+    box-shadow: 0 12px 24px rgba($green, 0.15);
   }
 }
 
@@ -18,6 +46,7 @@
   width: 100%;
   height: 180px;
   background: linear-gradient(135deg, rgba($green, 0.05), rgba($green, 0.02));
+  overflow: hidden;
 
   @include sm {
     height: 150px;
@@ -26,6 +55,7 @@
   img {
     object-fit: contain;
     padding: $sp-sm;
+    transition: transform 0.4s ease;
   }
 }
 
@@ -34,6 +64,7 @@
   flex: 1;
   padding: $sp-md;
   gap: $sp-sm;
+  transition: transform 0.4s ease;
 }
 
 .header {
@@ -65,11 +96,11 @@
   font-size: $font-xs;
   color: $text-muted;
   line-height: 1.6;
-  white-space: pre-line; // يحترم الأسطر الجديدة فقط
+  white-space: pre-line;
   word-wrap: break-word;
   overflow-wrap: break-word;
   display: -webkit-box;
-  -webkit-line-clamp: 3; // يعرض 3 أسطر فقط
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

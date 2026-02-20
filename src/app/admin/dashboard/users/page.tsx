@@ -1,5 +1,5 @@
 import { UserManagementPage } from "@/presentation/pages";
 
-export default function Page() {
+export default function UserManagement() {
   return <UserManagementPage />;
 }

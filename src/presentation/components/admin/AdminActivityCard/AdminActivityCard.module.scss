@@ -2,21 +2,62 @@
 @use "@/presentation/styles/mixins" as *;
 
 .card {
+  display: flex;
+  flex-direction: column;
   border: 1px solid $border;
   border-radius: $radius-lg;
   overflow: hidden;
-  transition: $transition;
-  display: flex;
-  flex-direction: column;
-  @include hover-lift;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  position: relative;
+  cursor: pointer;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: $radius-lg;
+    padding: 2px;
+    background: linear-gradient(120deg, rgba($green, 0.2), rgba($green, 0.05), rgba($green, 0.2));
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  // Soft lift + shadow depth
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px rgba($green, 0.15);
+    border-color: rgba($green, 0.3);
+  }
+
+  // Floating content inside
+  &:hover .body {
+    transform: translateY(-4px);
+    transition: transform 0.4s ease;
+  }
 }
 
 .image {
   position: relative;
   width: 100%;
   height: 180px;
+  overflow: hidden;
+
   img {
     object-fit: contain;
+    transition: transform 0.4s ease;
   }
 }
 
@@ -24,6 +65,7 @@
   @include flex-col;
   padding: $sp-md;
   gap: $sp-sm;
+  transition: transform 0.4s ease;
 }
 
 .header {

@@ -1,7 +1,6 @@
 "use client";
 import styles from "./FeaturedPostsPage.module.scss";
 import { useFeaturedPostsPage } from "./FeaturedPostsPage.logic";
-
 import Image from "next/image";
 import { DomainFeaturedPostCategory } from "@/core/domain/enums";
 import { AdminFeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, MultiSelectInput, Dropdown, } from "@/presentation/components";
@@ -113,61 +112,64 @@ const FeaturedPostsPage = () => {
         </>
       )}
 
-      <Modal isOpen={showModal} onClose={resetForm} title={mode === "create" ? "إضافة منشور" : "تعديل المنشور"} size="lg">
+      <Modal isOpen={showModal} onClose={resetForm} title={mode === "create" ? "إنشاء منشور جديد" : "تعديل المنشور"} size="lg">
         <div className={styles.form}>
           <div className={styles.field}>
-            <label className={styles.label}>العنوان *</label>
+            <label className={styles.label}>العنوان</label>
             <input
               className={styles.input}
               value={form.title}
               onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-              placeholder="عنوان المنشور"
               disabled={isSubmitting || isUploading}
             />
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>التصنيفات *</label>
+            <label className={styles.label}>التصنيفات</label>
             <MultiSelectInput
               values={form.categories || []}
               options={categoryOptions}
               onChange={(values) => setForm((p) => ({ ...p, categories: values as DomainFeaturedPostCategory[] }))}
-              placeholder="اختر التصنيفات (حتى 3)"
               disabled={isSubmitting || isUploading}
               maxSelections={3}
             />
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>الوصف *</label>
+            <label className={styles.label}>الوصف</label>
             <textarea
               className={styles.textarea}
               value={form.description}
               onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-              placeholder="وصف المنشور"
-              rows={4}
               disabled={isSubmitting || isUploading}
             />
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>الصورة *</label>
-            {(preview || form.imageUrl) && (
-              <div className={styles.preview}>
-                <Image src={preview || form.imageUrl} alt="Preview" fill className={styles.previewImg} loading="eager" />
+            <label className={styles.label}>صورة الغلاف</label>
+            <div className={styles.uploadSection}>
+              {(preview || form.imageUrl) && (
+                <div className={styles.preview}>
+                  <Image src={preview || form.imageUrl} alt="Preview" fill className={styles.previewImg} loading="eager" />
+                </div>
+              )}
+              <div className={styles.uploadControls}>
+                <span className={styles.uploadHint}>
+                  {isUploading ? "جاري رفع الملف..." : "يفضل استخدام صور عالية الجودة بمقاس عريض"}
+                </span>
+                <label className={styles.btnUpload}>
+                  <Upload size={16} />
+                  {form.imageUrl ? "تغيير الصورة" : "رفع صورة"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className={styles.fileInput}
+                    onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                    disabled={isSubmitting || isUploading}
+                  />
+                </label>
               </div>
-            )}
-            <label className={styles.btnUpload}>
-              <Upload size={16} />
-              {isUploading ? "جاري الرفع..." : "رفع صورة"}
-              <input
-                type="file"
-                accept="image/*"
-                className={styles.fileInput}
-                onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
-                disabled={isSubmitting || isUploading}
-              />
-            </label>
+            </div>
           </div>
 
           <label className={styles.toggle}>
@@ -178,14 +180,14 @@ const FeaturedPostsPage = () => {
               disabled={isSubmitting || isUploading}
             />
             <span className={styles.slider} />
-            <span>نشط</span>
+            <span>تفعيل المنشور ليظهر في الموقع</span>
           </label>
 
           <div className={styles.modalActions}>
             <button className={styles.btnCancel} onClick={resetForm} disabled={isSubmitting || isUploading}>
               إلغاء
             </button>
-            <button className={styles.btnSubmit} onClick={handleSubmit} disabled={isSubmitting || isUploading || !form.imageUrl}>
+            <button className={styles.btnSubmit} onClick={handleSubmit} disabled={isSubmitting || isUploading || !form.imageUrl || !form.title.trim()}>
               {isSubmitting ? "جاري الحفظ..." : mode === "create" ? "إنشاء" : "حفظ التعديلات"}
             </button>
           </div>

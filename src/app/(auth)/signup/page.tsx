@@ -70,6 +70,7 @@ const SignupPage = () => {
             value={formData.dateOfBirth}
             onChange={(value) => handleChange("dateOfBirth", value)}
             required
+            minAge={10}
           />
 
           <Input

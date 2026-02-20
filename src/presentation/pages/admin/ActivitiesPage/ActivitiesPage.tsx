@@ -1,8 +1,21 @@
 "use client";
 import styles from "./ActivitiesPage.module.scss";
 import { useActivitiesPage, FILTERS, STATUS_MAP } from "./ActivitiesPage.logic";
-import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown } from "@/presentation/components";
-import { Plus, Edit2, Trash2, CalendarDays, Clock, MapPin, Users, Send, Ban, UsersIcon, RotateCcw } from "lucide-react";
+import { 
+  LoadingState, 
+  EmptyState, 
+  ToastContainer, 
+  AdminActivityCard, 
+  Pagination, 
+  ActivityModal, 
+  VolunteersModal, 
+  ConfirmDialog, 
+  Dropdown 
+} from "@/presentation/components";
+import { 
+  Plus, Edit2, Trash2, CalendarDays, Clock, 
+  MapPin, Users, Send, Ban, UsersIcon, RotateCcw 
+} from "lucide-react";
 
 const ActivitiesPage = () => {
   const {
@@ -52,12 +65,12 @@ const ActivitiesPage = () => {
             items={filterItems}
             active={activeFilter}
             onChange={setActiveFilter}
-            placeholder="الحالة"
+            placeholder="تصفية حسب الحالة"
             compact
           />
           <button className={styles.btnCreate} onClick={openCreateModal}>
             <Plus size={18} />
-            فرصة جديدة
+            إضافة فرصة جديدة
           </button>
         </div>
       </header>
@@ -67,8 +80,8 @@ const ActivitiesPage = () => {
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={CalendarDays}
-          message="لا توجد فرص"
-          action={{ label: "إضافة فرصة", onClick: openCreateModal }}
+          message="لم يتم العثور على أي فرص تطوعية"
+          action={{ label: "إضافة فرصة الآن", onClick: openCreateModal }}
         />
       ) : (
         <>
@@ -82,7 +95,7 @@ const ActivitiesPage = () => {
                   title={activity.title}
                   description={activity.description}
                   meta={
-                    <>
+                    <div className={styles.metaContainer}>
                       <div className={styles.metaRow}>
                         <span className={`${styles.status} ${styles[statusInfo.class]}`}>
                           {statusInfo.label}
@@ -90,7 +103,7 @@ const ActivitiesPage = () => {
                       </div>
                       <div className={styles.metaRow}>
                         <CalendarDays size={14} />
-                        <span>{new Date(activity.date).toISOString().slice(0, 10)}</span>
+                        <span>{new Date(activity.date).toLocaleDateString('ar-EG')}</span>
                       </div>
                       <div className={styles.metaRow}>
                         <Clock size={14} />
@@ -102,39 +115,42 @@ const ActivitiesPage = () => {
                       </div>
                       <div className={styles.metaRow}>
                         <Users size={14} />
-                        <span>{activity.currentVolunteers}/{activity.maxVolunteers}</span>
+                        <span>الحد الأقصى: {activity.maxVolunteers} متطوع</span>
                       </div>
-                    </>
+                    </div>
                   }
                   actions={
-                    <>
+                    <div className={styles.cardActions}>
                       {activity.status === "DRAFT" && (
                         <>
-                          <button className={styles.btn} onClick={() => handleEdit(activity)}>
+                          <button className={styles.btn} title="تعديل" onClick={() => handleEdit(activity)}>
                             <Edit2 size={14} />
                           </button>
-                          <button className={styles.btnSuccess} onClick={() => handlePublish(activity)}>
+                          <button className={styles.btnSuccess} title="نشر" onClick={() => handlePublish(activity)}>
                             <Send size={14} />
                           </button>
                         </>
                       )}
-                      <button className={styles.btnInfo} onClick={() => handleViewVolunteers(activity)}>
+                      
+                      <button className={styles.btnInfo} title="عرض المتطوعين" onClick={() => handleViewVolunteers(activity)}>
                         <UsersIcon size={14} />
                         <span className={styles.badgeCount}>{activity.currentVolunteers}</span>
                       </button>
+
                       {activity.status === "CANCELLED" ? (
-                        <button className={styles.btnRestore} onClick={() => handleRestore(activity)}>
+                        <button className={styles.btnRestore} title="استعادة" onClick={() => handleRestore(activity)}>
                           <RotateCcw size={14} />
                         </button>
                       ) : (
-                        <button className={styles.btnWarning} onClick={() => handleCancel(activity)}>
+                        <button className={styles.btnWarning} title="إلغاء الفرصة" onClick={() => handleCancel(activity)}>
                           <Ban size={14} />
                         </button>
                       )}
-                      <button className={styles.btnDanger} onClick={() => handleDelete(activity)}>
+                      
+                      <button className={styles.btnDanger} title="حذف" onClick={() => handleDelete(activity)}>
                         <Trash2 size={14} />
                       </button>
-                    </>
+                    </div>
                   }
                 />
               );

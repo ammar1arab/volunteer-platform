@@ -2,102 +2,145 @@
 @use "@/presentation/styles/mixins" as *;
 
 .form {
-  @include flex-col;
-  gap: $sp-md;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px;
 }
 
 .row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: $sp-md;
-  
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.timeRow {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 12px;
+
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
 }
 
 .field {
-  @include flex-col;
-  gap: $sp-xs;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .label {
-  font-size: $font-sm;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: $text;
 }
 
 .labelSmall {
-  font-size: $font-xs;
+  font-size: 12px;
   font-weight: 600;
   color: $text-muted;
 }
 
 .input,
-.textarea {
+.textarea,
+.select {
   @include input;
   width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  font-size: 14px;
+  background: #fcfcfc;
+  transition: all 0.2s ease;
 
   &:focus {
     border-color: $green;
-    box-shadow: 0 0 0 3px rgba($green, 0.1);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba($green, 0.05);
   }
 }
 
 .textarea {
   resize: vertical;
-  min-height: 100px;
-  font-family: inherit;
+  min-height: 90px;
+  line-height: 1.5;
 }
 
 .location {
   @include flex-col;
-  gap: $sp-sm;
-  padding: $sp-md;
-  background: rgba($green, 0.03);
+  gap: 12px;
+  padding: 16px;
+  background: rgba($green, 0.02);
   border-radius: $radius;
   border: 1px solid rgba($green, 0.1);
 }
 
 .locationHeader {
   @include flex(row, center, space-between, $sp-sm);
-  flex-wrap: wrap;
-  gap: $sp-sm;
 }
 
 .locationActions {
-  @include flex(row, center, flex-end, $sp-xs);
-  flex-wrap: wrap;
-  gap: $sp-xs;
+  @include flex(row, center, flex-end, 8px);
 }
 
 .btnLocation,
 .btnToggle {
-  @include btn-secondary;
-  padding: $sp-xs $sp-sm;
-  font-size: $font-xs;
-  gap: $sp-xs;
-  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid $border;
+  background: #fff;
+  color: $text;
+  transition: 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $green;
+    color: $green;
+  }
 }
 
 .coords {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $sp-sm;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba($green, 0.2);
+}
+
+.uploadSection {
+  @include flex-col;
+  gap: 12px;
+  border: 2px dashed $border;
+  padding: 16px;
+  border-radius: $radius;
+  background: rgba($black, 0.01);
+  transition: 0.2s;
+
+  &:hover {
+    border-color: rgba($green, 0.3);
+  }
 }
 
 .preview {
   position: relative;
   width: 100%;
-  height: 200px;
-  border-radius: $radius;
+  height: 180px;
+  border-radius: $radius-lg;
   overflow: hidden;
   border: 1px solid $border;
-  background: rgba($black, 0.02);
-  
-  @media (max-width: 640px) {
-    height: 160px;
-  }
 }
 
 .previewImg {
@@ -106,10 +149,11 @@
 
 .btnUpload {
   @include btn-primary;
-  @include flex(row, center, center, $sp-xs);
+  @include flex-center;
+  gap: 8px;
+  padding: 10px;
   cursor: pointer;
-  width: 100%;
-  padding: $sp-sm $sp-md;
+  font-size: 14px;
 }
 
 .fileInput {
@@ -117,57 +161,22 @@
 }
 
 .actions {
-  @include flex(row, center, flex-end, $sp-sm);
-  padding-top: $sp-md;
+  @include flex(row, center, flex-end, 12px);
+  padding-top: 20px;
   border-top: 1px solid $border;
-  margin-top: $sp-sm;
-  gap: $sp-sm;
-}
-
-.btnCancel,
-.btnSubmit {
-  padding: $sp-sm $sp-md;
-  font-size: $font-sm;
-  min-width: 90px;
-  
-  @media (max-width: 640px) {
-    flex: 1;
-    min-width: auto;
-  }
+  margin-top: 10px;
 }
 
 .btnCancel {
   @include btn-secondary;
+  padding: 10px 24px;
 }
 
 .btnSubmit {
   @include btn-primary;
-
+  padding: 10px 32px;
+  font-weight: 600;
   &:disabled {
     opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-.timeRow {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: $sp-sm;
-  
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.inputSmall {
-  @include input;
-  width: 100%;
-  
-  @media (max-width: 770px) {
-    max-width: 90%;
-  }
-
-  &:focus {
-    border-color: $green;
-    box-shadow: 0 0 0 3px rgba($green, 0.1);
   }
 }

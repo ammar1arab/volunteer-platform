@@ -1,5 +1,5 @@
 import { ActivitiesPage } from "@/presentation/pages";
 
-export default function AdminActivitiesPage() {
+export default function Activities() {
   return <ActivitiesPage />;
 }

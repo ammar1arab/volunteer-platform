@@ -29,9 +29,9 @@
   @include flex-center;
   padding: $sp-lg;
   animation: fadeIn 0.2s ease;
-  
+
   @media (max-width: 640px) {
-    padding: $sp-xl $sp-md;
+    padding: $sp-sm;
   }
 }
 
@@ -39,29 +39,28 @@
   background: $bg;
   border-radius: $radius;
   box-shadow: 0 20px 60px rgba($black, 0.3);
-  max-height: 90vh;
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid rgba($black, 0.08);
-  
+
   @media (max-width: 640px) {
-    max-height: 80vh;
+    max-height: 75vh;
+    width: calc(100vw - 32px);
   }
 
   &.sm {
-    width: 100%;
-    max-width: 400px;
+    width: 400px;
+    max-width: calc(100vw - 32px);
   }
-
   &.md {
-    width: 100%;
-    max-width: 600px;
+    width: 560px;
+    max-width: calc(100vw - 32px);
   }
-
   &.lg {
-    width: 100%;
-    max-width: 800px;
+    width: 760px;
+    max-width: calc(100vw - 32px);
   }
 }
 
@@ -70,7 +69,7 @@
   padding: $sp-lg;
   border-bottom: 1px solid $border;
   flex-shrink: 0;
-  
+
   @media (max-width: 640px) {
     padding: $sp-md;
   }
@@ -81,7 +80,7 @@
   font-size: $font-lg;
   font-weight: 700;
   color: $text;
-  
+
   @media (max-width: 640px) {
     font-size: $font-md;
   }
@@ -108,13 +107,11 @@
   padding: $sp-lg;
   overflow-y: auto;
   flex: 1;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
     display: none;
   }
-  
+
   @media (max-width: 640px) {
     padding: $sp-md;
   }

@@ -9,7 +9,11 @@ export const ROUTES = {
   POST_DETAILS: (id: string) => `/posts/${id}`,
   ACTIVITIES: "/activities",
   ACTIVITY_DETAILS: (id: string) => `/activities/${id}`,
-  
+  SPOTLIGHT: {
+    BASE: "/spotlight",
+    DETAILS: (id: string) => `/spotlight/${id}`
+  },
+
   ADMIN: {
     ROOT: "/admin/dashboard",
     FEATURED_POSTS: "/admin/dashboard/featured-posts",
@@ -18,17 +22,17 @@ export const ROUTES = {
     ACTIVITIES: "/admin/dashboard/activities",
     REQUESTS: "/admin/dashboard/requests",
     USERS: "/admin/dashboard/users",
-    USER_DETAILS: (id: string) => `/admin/dashboard/users/${id}`,
+    USER_DETAILS: (id: string) => `/admin/dashboard/users/${id}`
   },
-  
+
   VOLUNTEER: {
     ROOT: "/volunteer",
     PROFILE: "/volunteer/profile",
-    REQUESTS: "/volunteer/requests",
+    REQUESTS: "/volunteer/requests"
   },
-  
+
   redirectByRole(role?: UserRole) {
     if (role === UserRole.ADMIN) return this.ADMIN.FEATURED_POSTS;
     return this.VOLUNTEER.PROFILE;
-  },
+  }
 } as const;

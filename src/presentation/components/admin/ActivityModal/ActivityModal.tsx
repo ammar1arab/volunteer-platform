@@ -1,9 +1,10 @@
+"use client";
 import Image from "next/image";
 import { Upload, MapPinned } from "lucide-react";
 import { useActivityModal } from "./ActivityModal.logic";
 import styles from "./ActivityModal.module.scss";
-import { Modal } from '@/presentation/components';
-import { DAY_OPTIONS } from '@/presentation/constants/labels'; // ✅ Add this import
+import { Modal, SelectInput, BirthDateInput, TimePickerInput } from '@/presentation/components';
+import { DAY_OPTIONS } from '@/presentation/constants/labels';
 
 type Props = {
     isOpen: boolean;
@@ -16,15 +17,31 @@ type Props = {
 };
 
 const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUpload, isSubmitting }: Props) => {
-    const { form, preview, uploading, useCustomLocation, setForm, setUseCustomLocation, handleImage, detectLocation, handleSubmit } = useActivityModal({ initialData, onSubmit, onImageUpload, onClose });
+    const {
+        form,
+        preview,
+        uploading,
+        useCustomLocation,
+        setForm,
+        setUseCustomLocation,
+        handleImage,
+        detectLocation,
+        handleSubmit
+    } = useActivityModal({ initialData, onSubmit, onImageUpload, onClose });
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={mode === "create" ? "فرصة جديدة" : "تعديل الفرصة"} size="lg">
+        <Modal isOpen={isOpen} onClose={onClose} title={mode === "create" ? "إنشاء فرصة تطوعية" : "تعديل الفرصة"} size="lg">
             <form className={styles.form} onSubmit={handleSubmit}>
+
                 <div className={styles.row}>
                     <div className={styles.field}>
-                        <label className={styles.label}>العنوان</label>
-                        <input className={styles.input} value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
+                        <label className={styles.label}>عنوان الفرصة</label>
+                        <input
+                            className={styles.input}
+                            value={form.title}
+                            onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
+                            required
+                        />
                     </div>
                     <div className={styles.field}>
                         <label className={styles.label}>الفئة المستهدفة</label>
@@ -37,30 +54,27 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
                 </div>
 
                 <div className={styles.field}>
-                    <label className={styles.label}>الوصف</label>
+                    <label className={styles.label}>وصف الفعالية</label>
                     <textarea
                         className={styles.textarea}
                         value={form.description}
                         onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-                        rows={4}
+                        rows={3}
                     />
                 </div>
 
                 <div className={styles.row}>
                     <div className={styles.field}>
-                        <label className={styles.label}>اليوم</label>
-                        <select
-                            className={styles.input}
+                        <SelectInput
+                            label="اليوم"
                             value={form.dayOfWeek}
-                            onChange={(e) => setForm((p) => ({ ...p, dayOfWeek: e.target.value }))}
-                        >
-                            {DAY_OPTIONS.map((d) => (  // ✅ Changed DAYS to DAY_OPTIONS
-                                <option key={d.value} value={d.value}>{d.label}</option>
-                            ))}
-                        </select>
+                            options={DAY_OPTIONS}
+                            onChange={(value) => setForm((p) => ({ ...p, dayOfWeek: value }))}
+                            required
+                        />
                     </div>
                     <div className={styles.field}>
-                        <label className={styles.label}>العدد الأقصى</label>
+                        <label className={styles.label}>العدد الأقصى للمتطوعين</label>
                         <input
                             className={styles.input}
                             type="number"
@@ -73,32 +87,27 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
 
                 <div className={styles.timeRow}>
                     <div className={styles.field}>
-                        <label className={styles.label}>التاريخ</label>
-                        <input
-                            className={styles.inputSmall}
-                            type="date"
+                        <BirthDateInput
+                            label="التاريخ"
                             value={form.date}
-                            onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))}
+                            onChange={(value) => setForm((p) => ({ ...p, date: value }))}
+                            required
                         />
                     </div>
-                    <div className={styles.field}>
-                        <label className={styles.label}>وقت البداية</label>
-                        <input
-                            className={styles.inputSmall}
-                            type="time"
-                            value={form.startTime}
-                            onChange={(e) => setForm((p) => ({ ...p, startTime: e.target.value }))}
-                        />
-                    </div>
-                    <div className={styles.field}>
-                        <label className={styles.label}>وقت النهاية</label>
-                        <input
-                            className={styles.inputSmall}
-                            type="time"
-                            value={form.endTime}
-                            onChange={(e) => setForm((p) => ({ ...p, endTime: e.target.value }))}
-                        />
-                    </div>
+
+                    <TimePickerInput
+                        label="وقت البدء"
+                        value={form.startTime}
+                        onChange={(value) => setForm((p) => ({ ...p, startTime: value }))}
+                        required
+                    />
+
+                    <TimePickerInput
+                        label="وقت الانتهاء"
+                        value={form.endTime}
+                        onChange={(value) => setForm((p) => ({ ...p, endTime: value }))}
+                        required
+                    />
                 </div>
 
                 <div className={styles.row}>
@@ -122,11 +131,11 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
 
                 <div className={styles.location}>
                     <div className={styles.locationHeader}>
-                        <label className={styles.label}>الموقع</label>
+                        <label className={styles.label}>إحداثيات الموقع (GPS)</label>
                         <div className={styles.locationActions}>
                             <button type="button" className={styles.btnLocation} onClick={detectLocation}>
                                 <MapPinned size={14} />
-                                موقعي الحالي
+                                تحديد موقعي الحالي
                             </button>
                             <button type="button" className={styles.btnToggle} onClick={() => setUseCustomLocation(!useCustomLocation)}>
                                 {useCustomLocation ? "إخفاء الإحداثيات" : "إدخال يدوي"}
@@ -137,7 +146,7 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
                     {useCustomLocation && (
                         <div className={styles.coords}>
                             <div className={styles.field}>
-                                <label className={styles.labelSmall}>Latitude</label>
+                                <label className={styles.labelSmall}>خط العرض (Latitude)</label>
                                 <input
                                     className={styles.input}
                                     type="number"
@@ -147,7 +156,7 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
                                 />
                             </div>
                             <div className={styles.field}>
-                                <label className={styles.labelSmall}>Longitude</label>
+                                <label className={styles.labelSmall}>خط الطول (Longitude)</label>
                                 <input
                                     className={styles.input}
                                     type="number"
@@ -161,32 +170,36 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
                 </div>
 
                 <div className={styles.field}>
-                    <label className={styles.label}>الصورة</label>
-                    {(preview || form.imageUrl) && (
-                        <div className={styles.preview}>
-                            <Image src={preview || form.imageUrl} alt="Preview" fill className={styles.previewImg} />
-                        </div>
-                    )}
-                    <label className={styles.btnUpload}>
-                        <Upload size={16} />
-                        {uploading ? "جاري الرفع..." : "رفع صورة"}
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className={styles.fileInput}
-                            onChange={(e) => handleImage(e.target.files?.[0] ?? null)}
-                        />
-                    </label>
+                    <label className={styles.label}>صورة الفعالية</label>
+                    <div className={styles.uploadSection}>
+                        {(preview || form.imageUrl) && (
+                            <div className={styles.preview}>
+                                <Image src={preview || form.imageUrl} alt="Preview" fill className={styles.previewImg} />
+                            </div>
+                        )}
+                        <label className={styles.btnUpload}>
+                            <Upload size={16} />
+                            {uploading ? "جاري الرفع..." : (form.imageUrl ? "تغيير الصورة" : "رفع صورة الغلاف")}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className={styles.fileInput}
+                                onChange={(e) => handleImage(e.target.files?.[0] ?? null)}
+                                disabled={uploading}
+                            />
+                        </label>
+                    </div>
                 </div>
 
                 <div className={styles.actions}>
-                    <button type="button" className={styles.btnCancel} onClick={onClose}>
+                    <button type="button" className={styles.btnCancel} onClick={onClose} disabled={isSubmitting}>
                         إلغاء
                     </button>
-                    <button type="submit" className={styles.btnSubmit} disabled={isSubmitting || uploading}>
-                        {isSubmitting ? "جاري الحفظ..." : mode === "create" ? "إنشاء" : "حفظ"}
+                    <button type="submit" className={styles.btnSubmit} disabled={isSubmitting || uploading || !form.title}>
+                        {isSubmitting ? "جاري الحفظ..." : mode === "create" ? "إنشاء الفرصة" : "حفظ التعديلات"}
                     </button>
                 </div>
+
             </form>
         </Modal>
     );

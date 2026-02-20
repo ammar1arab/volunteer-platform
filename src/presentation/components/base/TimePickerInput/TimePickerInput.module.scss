@@ -1,0 +1,239 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrapper {
+  position: relative;
+  @include flex-col;
+  gap: 6px;
+  width: 100%;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+  display: flex;
+  gap: 4px;
+}
+
+.required {
+  color: rgba($red, 0.7);
+}
+
+.trigger {
+  @include input;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 12px;
+  height: 42px;
+  font-family: inherit;
+  font-size: 14px;
+  background: #fcfcfc;
+  border: 1px solid $border;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba($green, 0.4);
+  }
+
+  &.active {
+    border-color: $green;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba($green, 0.08);
+  }
+}
+
+.valueText {
+  color: $text;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  letter-spacing: 0.5px;
+}
+
+.placeholder {
+  color: $text-muted;
+  direction: ltr;
+}
+
+.icon {
+  color: $text-muted;
+  flex-shrink: 0;
+  transition: color 0.2s;
+  .active & {
+    color: $green;
+  }
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: 230px;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 16px;
+  box-shadow:
+    0 10px 32px rgba($black, 0.1),
+    0 2px 8px rgba($black, 0.04);
+  overflow: hidden;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: $green;
+}
+
+.timeDisplay {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.segment,
+.activeSegment {
+  border: none;
+  background: rgba(#fff, 0.15);
+  color: rgba(#fff, 0.5);
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.activeSegment {
+  background: rgba(#fff, 0.25);
+  color: #fff;
+}
+
+.colon {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.periodToggle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.periodBtn {
+  border: 1px solid rgba(#fff, 0.2);
+  background: transparent;
+  color: rgba(#fff, 0.5);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &.periodActive {
+    background: rgba(#fff, 0.2);
+    color: #fff;
+    border-color: rgba(#fff, 0.4);
+  }
+}
+
+.clockFace {
+  position: relative;
+  width: 192px;
+  height: 192px;
+  margin: 14px auto 16px;
+  border-radius: 50%;
+  background: rgba($green, 0.03);
+}
+
+.centerDot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $green;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+}
+
+.pointer {
+  position: absolute;
+  bottom: 50%;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 58px;
+  background: $green;
+  transform-origin: bottom center;
+  transition: transform 0.2s ease;
+  z-index: 1;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba($green, 0.12);
+  }
+}
+
+.clockNum {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+  cursor: pointer;
+  z-index: 3;
+  transition: all 0.15s;
+
+  &:hover:not(.numSelected) {
+    background: rgba($green, 0.08);
+  }
+
+  &.numSelected {
+    background: $green;
+    color: #fff;
+    font-weight: 700;
+  }
+}

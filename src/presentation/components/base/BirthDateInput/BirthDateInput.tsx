@@ -1,5 +1,4 @@
 "use client";
-
 import { useMemo, useState, useEffect } from "react";
 import { SelectInput } from "@/presentation/components";
 import styles from "./BirthDateInput.module.scss";
@@ -10,6 +9,8 @@ interface BirthDateInputProps {
   onChange: (value: string) => void;
   required?: boolean;
   error?: string;
+  minAge?: number;
+  maxAge?: number;
 }
 
 const BirthDateInput = ({
@@ -18,10 +19,16 @@ const BirthDateInput = ({
   onChange,
   required = false,
   error,
+  minAge = 0,
+  maxAge = 100,
 }: BirthDateInputProps) => {
-  const currentYear = new Date().getFullYear();
-  const MIN_YEAR = currentYear - 100;
-  const MAX_YEAR = currentYear - 15;
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth() + 1;
+  const currentDay = today.getDate();
+
+  const MIN_YEAR = currentYear - maxAge;
+  const MAX_YEAR = currentYear - minAge;
 
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
@@ -45,7 +52,7 @@ const BirthDateInput = ({
     [MIN_YEAR, MAX_YEAR]
   );
 
-  const months = [
+  const ALL_MONTHS = [
     { value: "01", label: "يناير" },
     { value: "02", label: "فبراير" },
     { value: "03", label: "مارس" },
@@ -60,25 +67,34 @@ const BirthDateInput = ({
     { value: "12", label: "ديسمبر" },
   ];
 
+  const months = useMemo(() => {
+    if (Number(year) === MAX_YEAR) {
+      return ALL_MONTHS.filter((m) => Number(m.value) <= currentMonth);
+    }
+    return ALL_MONTHS;
+  }, [year, MAX_YEAR, currentMonth]);
+
   const daysInMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
 
   const days = useMemo(() => {
     if (!year || !month) return [];
     const count = daysInMonth(Number(year), Number(month));
-    return Array.from({ length: count }, (_, i) => {
+    const maxDay =
+      Number(year) === MAX_YEAR && Number(month) === currentMonth
+        ? currentDay
+        : count;
+    return Array.from({ length: maxDay }, (_, i) => {
       const d = String(i + 1).padStart(2, "0");
       return { value: d, label: d };
     });
-  }, [year, month]);
+  }, [year, month, MAX_YEAR, currentMonth, currentDay]);
 
   const handleYearChange = (y: string) => {
     setYear(y);
     if (y && month && day) {
       const maxDays = daysInMonth(Number(y), Number(month));
       const validDay = Number(day) <= maxDays ? day : "";
-      if (validDay) {
-        onChange(`${y}-${month}-${validDay}`);
-      }
+      if (validDay) onChange(`${y}-${month}-${validDay}`);
     }
   };
 
@@ -87,17 +103,13 @@ const BirthDateInput = ({
     if (year && m && day) {
       const maxDays = daysInMonth(Number(year), Number(m));
       const validDay = Number(day) <= maxDays ? day : "";
-      if (validDay) {
-        onChange(`${year}-${m}-${validDay}`);
-      }
+      if (validDay) onChange(`${year}-${m}-${validDay}`);
     }
   };
 
   const handleDayChange = (d: string) => {
     setDay(d);
-    if (year && month && d) {
-      onChange(`${year}-${month}-${d}`);
-    }
+    if (year && month && d) onChange(`${year}-${month}-${d}`);
   };
 
   return (
@@ -106,7 +118,6 @@ const BirthDateInput = ({
         {label}
         {required && <span className={styles.required}>*</span>}
       </label>
-
       <div className={styles.row}>
         <div className={styles.col}>
           <SelectInput
@@ -117,7 +128,6 @@ const BirthDateInput = ({
             onChange={handleYearChange}
           />
         </div>
-
         <div className={styles.col}>
           <SelectInput
             label=""
@@ -127,7 +137,6 @@ const BirthDateInput = ({
             onChange={handleMonthChange}
           />
         </div>
-
         <div className={styles.col}>
           <SelectInput
             label=""
@@ -139,7 +148,6 @@ const BirthDateInput = ({
           />
         </div>
       </div>
-
       {error && <span className={styles.errorText}>{error}</span>}
     </div>
   );

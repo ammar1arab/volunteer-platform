@@ -4,11 +4,14 @@ export { default as PostDetailsPage } from "./home/PostDetailsPage/PostDetailsPa
 export { default as ActivitiesPublicPage } from "./home/ActivitiesPublicPage/ActivitiesPublicPage";
 export { default as ActivityDetailsPage } from "./home/ActivityDetailsPage/ActivityDetailsPage";
 export { default as AboutPage } from "./home/AboutPage/AboutPage";
+export { default as VolunteerSpotlightPublicPage } from "./home/VolunteerSpotlightPublicPage/VolunteerSpotlightPublicPage";
+export { default as VolunteerSpotlightDetailsPage } from "./home/VolunteerSpotlightDetailsPage/VolunteerSpotlightDetailsPage";
 
 export { default as ActivitiesPage } from "./admin/ActivitiesPage/ActivitiesPage";
-export { default as FeaturedPostsPage } from "./admin/FeaturedPostsPage/FeaturedPostsPage";
 export { default as UserManagementPage } from "./admin/UserManagementPage/UserManagementPage";
-export { default as ParticipationRequestsPage } from "./admin/ParticipationRequestsPage/ParticipationRequestsPage";
 export { default as AdminUserDetailsPage } from "./admin/AdminUserDetailsPage/AdminUserDetailsPage";
+export { default as ParticipationRequestsPage } from "./admin/ParticipationRequestsPage/ParticipationRequestsPage";
+export { default as FeaturedPostsPage } from "./admin/FeaturedPostsPage/FeaturedPostsPage";
+export { default as VolunteerSpotlightPage } from "./admin/VolunteerSpotlightPage/VolunteerSpotlightPage";
 
 export { default as VolunteerProfilePage } from "./volunteer/VolunteerProfilePage/VolunteerProfilePage";
