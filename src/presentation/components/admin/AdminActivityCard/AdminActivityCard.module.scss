@@ -1,96 +1,174 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-.card {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  overflow: hidden;
-  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
-  position: relative;
-  cursor: pointer;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: $radius-lg;
-    padding: 2px;
-    background: linear-gradient(120deg, rgba($green, 0.2), rgba($green, 0.05), rgba($green, 0.2));
-    -webkit-mask: 
-      linear-gradient(#fff 0 0) content-box, 
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: destination-out;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    pointer-events: none;
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 4px 20px rgba($black, 0.06);
   }
-
-  &:hover::before {
-    opacity: 1;
-  }
-
-  // Soft lift + shadow depth
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 16px 32px rgba($green, 0.15);
-    border-color: rgba($green, 0.3);
-  }
-
-  // Floating content inside
-  &:hover .body {
-    transform: translateY(-4px);
-    transition: transform 0.4s ease;
+  50% {
+    box-shadow:
+      0 8px 40px rgba($green, 0.14),
+      0 0 0 4px rgba($green, 0.06);
   }
 }
 
-.image {
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(500%);
+    opacity: 0;
+  }
+}
+
+@keyframes float-pin {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.card {
+  @include flex-col;
+  border-radius: $radius-lg;
+  border: 1px solid $border;
+  overflow: visible;
+  position: relative;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.3s ease;
+
+  > *:first-child {
+    border-radius: $radius-lg $radius-lg 0 0;
+    overflow: hidden;
+  }
+
+  &:hover {
+    transform: translateY(-7px) scale(1.012);
+    border-color: rgba($green, 0.3);
+    animation: breathe 2.5s ease infinite;
+
+    .img {
+      transform: scale(1.06);
+    }
+    .scanline {
+      animation: scanline 2.5s ease infinite;
+    }
+    .shareBtn {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .infoItem {
+      border-color: rgba($green, 0.2);
+      svg {
+        color: $green;
+      }
+    }
+    .mapsBtn {
+      border-color: $green;
+      color: $green;
+      svg:first-child {
+        animation: float-pin 1s ease infinite;
+      }
+    }
+    .title {
+      color: $green;
+    }
+  }
+}
+
+.imageWrapper {
   position: relative;
   width: 100%;
-  height: 180px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
+  background: $bg;
+  flex-shrink: 0;
+}
 
-  img {
-    object-fit: contain;
-    transition: transform 0.4s ease;
+.img {
+  object-fit: contain;
+  padding: $sp-sm;
+  transition: transform 0.5s ease;
+}
+
+.scanline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 35%, rgba($green, 0.07) 50%, transparent 65%);
+  transform: translateY(-100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.badge {
+  position: absolute;
+  top: $sp-sm;
+  right: $sp-sm;
+  z-index: 2;
+}
+
+.shareWrapper {
+  position: absolute;
+  top: $sp-sm;
+  left: $sp-sm;
+  z-index: 20;
+}
+
+.shareBtn {
+  @include flex-center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid $border;
+  background: $bg;
+  color: $text-muted;
+  cursor: pointer;
+  opacity: 0.75;
+  transform: scale(0.92);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+
+  &:hover {
+    border-color: $green;
+    color: $green;
+    transform: scale(1.1) rotate(15deg);
   }
 }
 
 .body {
   @include flex-col;
-  padding: $sp-md;
   gap: $sp-sm;
-  transition: transform 0.4s ease;
-}
-
-.header {
-  @include flex-between;
-  gap: $sp-xs;
-  align-items: flex-start;
+  padding: $sp-md;
+  flex: 1;
 }
 
 .title {
-  flex: 1;
   margin: 0;
   font-size: $font-sm;
   font-weight: 700;
   color: $text;
   line-height: 1.4;
   @include line-clamp(2);
+  transition: color 0.3s ease;
 }
 
-.meta {
-  @include flex-col;
-  gap: $sp-xs;
-  flex-shrink: 0;
-}
-
-.desc {
+.description {
   margin: 0;
   font-size: $font-xs;
   color: $text-muted;
@@ -98,8 +176,86 @@
   @include line-clamp(2);
 }
 
-.actions {
-  @include flex(row, center, flex-start, $sp-xs);
-  padding-top: $sp-sm;
-  border-top: 1px solid rgba($green, 0.1);
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-xs;
+}
+
+.infoItem {
+  @include flex(row, flex-start, flex-start, 6px);
+  padding: $sp-xs $sp-sm;
+  border-radius: $radius;
+  border: 1px solid $border;
+  transition: border-color 0.3s ease;
+
+  svg {
+    color: $text-muted;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: color 0.3s ease;
+  }
+}
+
+.infoContent {
+  @include flex-col;
+  gap: 1px;
+  min-width: 0;
+}
+.infoLabel {
+  font-size: 9px;
+  color: $text-muted;
+  font-weight: 500;
+}
+.infoValue {
+  font-size: 10px;
+  color: $text;
+  font-weight: 600;
+  @include line-clamp(1);
+}
+
+.locationRow {
+  @include flex(row, center, space-between, $sp-sm);
+  padding: $sp-xs $sp-sm;
+  border-radius: $radius;
+  border: 1px solid $border;
+  margin-top: $sp-xs;
+}
+
+.locationInfo {
+  @include flex-col;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+.placeName {
+  font-size: $font-xs;
+  font-weight: 700;
+  color: $text;
+  @include line-clamp(1);
+}
+.address {
+  font-size: 10px;
+  color: $text-muted;
+  @include line-clamp(1);
+}
+
+.mapsBtn {
+  @include flex-center;
+  gap: 3px;
+  flex-shrink: 0;
+  padding: $sp-xs $sp-sm;
+  border-radius: $radius;
+  border: 1px solid $border;
+  color: $text-muted;
+  text-decoration: none;
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.footer {
+  @include flex(row, center, flex-end, $sp-xs);
+  padding: $sp-sm $sp-md;
+  border-top: 1px solid $border;
 }

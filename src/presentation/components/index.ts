@@ -20,6 +20,7 @@ export { default as Badge } from "./base/Badge/Badge";
 export { default as Dropdown } from "./base/Dropdown/Dropdown";
 export { default as MultiSelectInput } from "./base/MultiSelectInput/MultiSelectInput";
 export { default as TimePickerInput } from "./base/TimePickerInput/TimePickerInput";
+export { default as Share } from "./base/Share/Share";
 
 export { default as HeroSection } from "./home/HeroSection/HeroSection";
 export { default as AboutSection } from "./home/AboutSection/AboutSection";
