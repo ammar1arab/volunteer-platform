@@ -87,7 +87,6 @@ ${typeof window !== "undefined" ? window.location.href : ""}`;
         <div className={styles.locationRow}>
           <div className={styles.locationInfo}>
             <span className={styles.placeName}>{activity.placeName}</span>
-            <span className={styles.address}>{activity.location.address}</span>
           </div>
           <a className={styles.mapsBtn} href={mapsUrl} target="_blank"
             rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
