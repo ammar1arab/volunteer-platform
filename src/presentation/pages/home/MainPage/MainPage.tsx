@@ -51,7 +51,7 @@ const MainPage = () => {
       {posts.length > 0 && (
         <section className={styles.section}>
           <Container>
-            <SectionHeader title="منشورات" subtitle="تجارب وإنجازات ملهمة" />
+            <SectionHeader title="منشورات ملهمة" subtitle="تجارب وإنجازات تستحق أن تُشارك" />
             <div className={styles.postsGrid}>
               {posts.map((post) => (
                 <FeaturedPostCard key={post.id} id={post.id} imageUrl={post.imageUrl}
@@ -70,13 +70,13 @@ const MainPage = () => {
       {spotlights.length > 0 && (
         <section className={styles.section}>
           <Container>
-            <SectionHeader title="متطوعون مميزون" subtitle="قصص إلهام من قلب العمل التطوعي" />
+            <SectionHeader title="المتطوعون البارزون" subtitle="وجوه أضاءت مجتمعها بعطائها وإخلاصها" />
             <div className={styles.spotlightsGrid}>
               {spotlights.map((s) => <VolunteerSpotlightCard key={s.id} spotlight={s} />)}
             </div>
             {hasMoreSpotlights && (
               <div className={styles.viewAll}>
-                <Button variant="primary" size="md" onClick={() => router.push(ROUTES.SPOTLIGHT.BASE)}>عرض الجميع</Button>
+                <Button variant="primary" size="md" onClick={() => router.push(ROUTES.SPOTLIGHT.BASE)}>تعرّف على المزيد</Button>
               </div>
             )}
           </Container>
