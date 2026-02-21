@@ -12,11 +12,20 @@ type ShareProps = {
 const Share = ({ trigger }: ShareProps) => {
   const { isOpen, payload, open, close, getLinks } = useShare();
   const [copied, setCopied] = useState(false);
+  const [copiedApp, setCopiedApp] = useState<string | null>(null);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(window.location.href);
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleAppCopy = (label: string) => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    navigator.clipboard.writeText(url);
+    setCopiedApp(label);
+    setTimeout(() => setCopiedApp(null), 2000);
   };
 
   const links = payload ? getLinks(payload) : [];
@@ -36,13 +45,26 @@ const Share = ({ trigger }: ShareProps) => {
 
             <div className={styles.grid}>
               {links.map((link) => (
-                <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
-                  className={styles.item}
-                  style={{ "--app-color": link.bg } as React.CSSProperties}>
-                  <div className={styles.iconWrapper}
-                    dangerouslySetInnerHTML={{ __html: link.icon }} />
-                  <span className={styles.label}>{link.label}</span>
-                </a>
+                link.copyOnClick ? (
+                  <button key={link.label}
+                    className={`${styles.item} ${styles.itemBtn}`}
+                    style={{ "--app-color": link.bg } as React.CSSProperties}
+                    onClick={() => handleAppCopy(link.label)}>
+                    <div className={styles.iconWrapper}
+                      dangerouslySetInnerHTML={{ __html: copiedApp === link.label ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><polyline points="20 6 9 17 4 12"/></svg>` : link.icon }} />
+                    <span className={styles.label}>
+                      {copiedApp === link.label ? "تم النسخ!" : link.label}
+                    </span>
+                  </button>
+                ) : (
+                  <a key={link.label} href={link.href!} target="_blank" rel="noopener noreferrer"
+                    className={styles.item}
+                    style={{ "--app-color": link.bg } as React.CSSProperties}>
+                    <div className={styles.iconWrapper}
+                      dangerouslySetInnerHTML={{ __html: link.icon }} />
+                    <span className={styles.label}>{link.label}</span>
+                  </a>
+                )
               ))}
             </div>
 
@@ -50,7 +72,7 @@ const Share = ({ trigger }: ShareProps) => {
 
             <button className={styles.copyBtn} onClick={handleCopy}>
               {copied ? <Check size={15} /> : <Link2 size={15} />}
-              {copied ? "تم النسخ!" : "نسخ الرابط"}
+              {copied ? "تم نسخ الرابط!" : "نسخ رابط الصفحة"}
             </button>
           </div>
         </div>,

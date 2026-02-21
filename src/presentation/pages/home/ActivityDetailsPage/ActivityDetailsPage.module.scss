@@ -1,6 +1,15 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
+@keyframes fill-bar {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--target-width, 100%);
+  }
+}
+
 .container {
   @include container;
   padding-top: 100px;
@@ -21,92 +30,298 @@
 }
 
 .backBtn {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-sm $sp-md;
+  background: transparent;
+  color: $text-muted;
+  border: 1px solid $border;
+  border-radius: $radius;
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: $transition;
   margin-bottom: $sp-lg;
+
+  &:hover {
+    color: $text;
+    border-color: $text-muted;
+    transform: translateX(3px);
+  }
 }
 
 .article {
-  max-width: 900px;
+  max-width: 860px;
   margin: 0 auto;
+  @include flex-col;
+  gap: 0;
 }
 
 .hero {
   position: relative;
   width: 100%;
-  height: 400px;
-  border-radius: $radius-lg;
+  height: 440px;
+  border-radius: $radius-lg $radius-lg 0 0;
   overflow: hidden;
+  background: $bg;
+  border: 1px solid $border;
+  border-bottom: none;
+
   @include sm {
-    height: 250px;
+    height: 240px;
   }
 }
 
 .heroImage {
   object-fit: contain;
+  padding: $sp-lg;
 }
 
-.badge {
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba($black, 0.25) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.heroBadges {
   position: absolute;
   top: $sp-md;
   right: $sp-md;
-  padding: $sp-sm $sp-lg;
-  background: rgba(107, 114, 128, 0.95);
-  color: $bg;
+  z-index: 2;
+}
+
+.badgeFull {
+  @include flex(row, center, center, 5px);
+  padding: $sp-xs $sp-md;
+  background: rgba($red, 0.92);
+  color: $white;
   border-radius: $radius-full;
-  font-size: $font-sm;
-  font-weight: 600;
+  font-size: $font-xs;
+  font-weight: 700;
+}
+
+.badgeOpen {
+  @include flex(row, center, center, 5px);
+  padding: $sp-xs $sp-md;
+  background: rgba($green, 0.92);
+  color: $white;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 700;
 }
 
 .content {
-  padding: $sp-xl 0;
+  @include flex-col;
+  gap: $sp-lg;
+  padding: $sp-xl;
+  border: 1px solid $border;
+  border-top: none;
+  border-radius: 0 0 $radius-lg $radius-lg;
+
+  @include sm {
+    padding: $sp-md;
+  }
 }
 
-.header {
-  @include flex-col;
-  gap: $sp-md;
-  margin-bottom: $sp-lg;
-  padding-bottom: $sp-md;
-  border-bottom: 2px solid rgba($green, 0.1);
+.titleRow {
+  @include flex(row, flex-start, space-between, $sp-md);
 }
 
 .title {
+  margin: 0;
   font-size: $font-2xl;
   font-weight: 700;
   color: $text;
   line-height: 1.3;
-  margin: 0;
+  flex: 1;
+
   @include sm {
     font-size: $font-xl;
   }
 }
 
-.meta {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $sp-md;
-  @include sm {
-    grid-template-columns: 1fr;
-    gap: $sp-sm;
+.shareBtn {
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius;
+  border: 1px solid $border;
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: $transition;
+
+  &:hover {
+    border-color: $green;
+    color: $green;
+    transform: rotate(15deg);
   }
 }
 
-.metaItem {
-  @include flex(row, center, flex-start, $sp-xs);
-  font-size: $font-sm;
-  color: $text;
-  font-weight: 500;
-  svg {
-    color: $green;
-    flex-shrink: 0;
+.chipsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-sm;
+
+  @include sm {
+    grid-template-columns: 1fr;
   }
+}
+
+.chip {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  border: 1px solid $border;
+  transition: border-color 0.3s ease;
+
+  &[data-type="date"] .chipIcon {
+    background: rgba(#3b82f6, 0.1);
+    color: #3b82f6;
+  }
+  &[data-type="time"] .chipIcon {
+    background: rgba(#8b5cf6, 0.1);
+    color: #8b5cf6;
+  }
+  &[data-type="audience"] .chipIcon {
+    background: rgba(#f59e0b, 0.1);
+    color: #f59e0b;
+  }
+  &[data-type="volunteers"] .chipIcon {
+    background: rgba($green, 0.1);
+    color: $green;
+  }
+
+  &:hover {
+    border-color: rgba($green, 0.25);
+  }
+}
+
+.chipIcon {
+  @include flex-center;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius;
+  flex-shrink: 0;
+  transition: $transition;
+}
+
+.chipContent {
+  @include flex-col;
+  gap: 1px;
+  min-width: 0;
+}
+
+.chipLabel {
+  font-size: 10px;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.chipValue {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+  @include line-clamp(1);
+}
+
+
+
+.locationCard {
+  @include flex(row, center, space-between, $sp-md);
+  padding: $sp-md $sp-lg;
+  border-radius: $radius;
+  border: 1px solid $border;
+  flex-wrap: wrap;
+  gap: $sp-sm;
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: rgba($green, 0.3);
+  }
+}
+
+.locationMain {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+.locationIconWrap {
+  @include flex-center;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius;
+  border: 1px solid rgba(#f97316, 0.25);
+  color: #f97316;
+  flex-shrink: 0;
+}
+
+.locationText {
+  @include flex-col;
+  gap: 2px;
+  min-width: 0;
+}
+
+.placeName {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+}
+
+.address {
+  font-size: $font-xs;
+  color: $text-muted;
+  @include line-clamp(1);
+}
+
+.mapsBtn {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-xs $sp-md;
+  border-radius: $radius;
+  border: 1px solid rgba(#f97316, 0.3);
+  background: rgba(#f97316, 0.06);
+  color: #f97316;
+  font-size: $font-xs;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: $transition;
+
+  &:hover {
+    background: #f97316;
+    color: $white;
+    border-color: #f97316;
+    transform: translateY(-1px);
+  }
+}
+
+.descriptionCard {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-lg;
+  border-radius: $radius;
+  border: 1px solid $border;
+  background: rgba($green, 0.01);
+}
+
+.descTitle {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+  padding-bottom: $sp-sm;
+  border-bottom: 2px solid rgba($green, 0.15);
 }
 
 .description {
+  margin: 0;
   font-size: $font-md;
   color: $text;
   white-space: pre-wrap;
   word-break: break-word;
-  line-height: 1.8;
-  margin: 0 0 $sp-xl 0;
+  line-height: 2;
+
   @include sm {
     font-size: $font-sm;
   }
@@ -115,5 +330,16 @@
 .actionContainer {
   @include flex-center;
   padding-top: $sp-lg;
-  border-top: 2px solid rgba($green, 0.1);
+  border-top: 1px solid $border;
+}
+
+.actionInfo {
+  @include flex(row, center, flex-start, $sp-xs);
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text-muted;
+
+  svg {
+    color: $green;
+  }
 }
