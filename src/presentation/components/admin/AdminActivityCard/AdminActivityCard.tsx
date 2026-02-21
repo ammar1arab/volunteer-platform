@@ -20,8 +20,14 @@ const AdminActivityCard = ({ activity, meta, actions }: AdminActivityCardProps) 
 
   const mapsUrl = `https://www.google.com/maps?q=${activity.location.latitude},${activity.location.longitude}`;
 
-  const shareText = `📢 ${activity.title}\n\n📍 ${activity.placeName}\n🗺️ ${activity.location.address}\n📅 ${getDayLabel(activity.dayOfWeek)} · ${formattedDate}\n⏰ ${activity.startTime} – ${activity.endTime}\n👥 الفئة: ${activity.targetAudience}\n\n🗺️ ${mapsUrl}`;
+  const shareText = `${activity.title}
 
+${activity.placeName} - ${activity.location.address}
+${getDayLabel(activity.dayOfWeek)} ${formattedDate}
+${activity.startTime} – ${activity.endTime}
+الفئة: ${activity.targetAudience}
+
+${typeof window !== "undefined" ? window.location.href : ""}`;
   return (
     <article className={styles.card}>
       <div className={styles.imageWrapper}>

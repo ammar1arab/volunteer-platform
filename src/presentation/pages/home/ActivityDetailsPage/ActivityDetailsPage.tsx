@@ -49,10 +49,14 @@ const ActivityDetailsPage = () => {
 
     const mapsUrl = `https://www.google.com/maps?q=${activity.location.latitude},${activity.location.longitude}`;
 
-    const shareText = `📢 ${activity.title}\n\n📍 ${activity.placeName}\n📅 ${formattedDate}\n⏰ ${activity.startTime} – ${activity.endTime}\n👥 الفئة: ${activity.targetAudience}`;
+    const shareText = `${activity.title}
 
-    const spotsLeft = activity.maxVolunteers - activity.currentVolunteers;
-    const fillPercent = Math.round((activity.currentVolunteers / activity.maxVolunteers) * 100);
+${activity.placeName}
+${formattedDate} - ${activity.startTime} – ${activity.endTime}
+الفئة: ${activity.targetAudience}
+
+${typeof window !== "undefined" ? window.location.href : ""}`;
+
 
     return (
         <div className={styles.container}>
@@ -119,7 +123,7 @@ const ActivityDetailsPage = () => {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className={styles.locationCard}>
                         <div className={styles.locationMain}>
                             <div className={styles.locationIconWrap}>

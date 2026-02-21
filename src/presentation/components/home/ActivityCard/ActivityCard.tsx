@@ -21,8 +21,13 @@ const ActivityCard = ({ activity, actionButton }: ActivityCardProps) => {
 
   const mapsUrl = `https://www.google.com/maps?q=${activity.location.latitude},${activity.location.longitude}`;
 
-  const shareText = `${activity.title}\n\n ${activity.placeName}\n ${formattedDate}\n  ${activity.startTime} – ${activity.endTime}\n👥 الفئة: ${activity.targetAudience}\n\n🗺️ ${mapsUrl}`;
+  const shareText = `${activity.title}
 
+${activity.placeName}
+${formattedDate} - ${activity.startTime} – ${activity.endTime}
+الفئة: ${activity.targetAudience}
+
+${typeof window !== "undefined" ? window.location.href : ""}`;
   return (
     <article className={styles.card} onClick={() => router.push(ROUTES.ACTIVITY_DETAILS(activity.id))}>
 
