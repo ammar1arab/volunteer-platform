@@ -1,12 +1,17 @@
 "use client";
 import styles from "./ActivityDetailsPage.module.scss";
+
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ArrowRight, MapPin, Calendar, Clock, Users, Target, Share2, CheckCircle2, XCircle } from "lucide-react";
+
 import { LoadingState, Button, Share } from "@/presentation/components";
 import { useActivityDetails, useActivityParticipations, useToast } from "@/presentation/hooks";
 import { ROUTES } from "@/presentation/constants";
+import { ArrowRight, MapPin, Calendar, Clock, Users, Target, Share2, CheckCircle2, XCircle } from "lucide-react";
 
 const ActivityDetailsPage = () => {
     const params = useParams();
@@ -139,8 +144,11 @@ ${typeof window !== "undefined" ? window.location.href : ""}`;
 
                     <div className={styles.descriptionCard}>
                         <h2 className={styles.descTitle}>عن الفرصة</h2>
-                        <p className={styles.description}>{activity.description}</p>
-                    </div>
+                        <div className={styles.description}>
+                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                {activity.description}
+                            </ReactMarkdown>
+                        </div>                    </div>
 
                     <div className={styles.actionContainer}>
                         {getActionButton()}

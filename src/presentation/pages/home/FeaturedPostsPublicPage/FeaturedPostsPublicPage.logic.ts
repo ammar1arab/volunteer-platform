@@ -2,20 +2,20 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useFeaturedPosts } from "@/presentation/hooks";
-import { CATEGORY_OPTIONS } from "@/presentation/constants/labels"; 
+import { CATEGORY_OPTIONS } from "@/presentation/constants/labels";
 
 const ITEMS_PER_PAGE = 20;
 
 export const useFeaturedPostsPublicPage = () => {
   const { list, loading, error, refresh } = useFeaturedPosts({ activeOnly: true });
-  
+
   const [selectedMonth, setSelectedMonth] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
 
   const monthOptions = useMemo(() => {
     const months = new Map<string, string>();
-    
+
     list.forEach((post) => {
       const date = new Date(post.createdAt);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -34,7 +34,7 @@ export const useFeaturedPostsPublicPage = () => {
   const categoryOptions = useMemo(
     () => [
       { key: "all", label: "جميع التصنيفات" },
-      ...CATEGORY_OPTIONS.map((cat) => ({ key: cat.value, label: cat.label })), 
+      ...CATEGORY_OPTIONS.map((cat) => ({ key: cat.value, label: cat.label })),
     ],
     []
   );

@@ -9,7 +9,6 @@
 
 .content {
   @include flex-col;
-  @include flex-center;
   gap: $sp-md;
   text-align: center;
   max-width: 400px;

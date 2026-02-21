@@ -36,7 +36,7 @@ class ActivityUseCase {
   private sanitize(dto: { title?: string; description?: string; placeName?: string }) {
     return {
       title: dto.title ? InputSanitizer.sanitizeString(dto.title) : undefined,
-      description: dto.description ? InputSanitizer.sanitizeString(dto.description) : undefined,
+      description: dto.description?.trim(),
       placeName: dto.placeName ? InputSanitizer.sanitizeString(dto.placeName) : undefined
     };
   }

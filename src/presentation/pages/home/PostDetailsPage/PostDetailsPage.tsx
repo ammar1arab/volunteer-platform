@@ -7,10 +7,11 @@ import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import ReactMarkdown from "react-markdown";
 
-import { ROUTES } from "@/presentation/constants";
+import { getCategoryLabel, ROUTES } from "@/presentation/constants";
 import { LoadingState, Button } from "@/presentation/components";
 import { usePostDetails } from "@/presentation/hooks";
 import { ArrowRight, Calendar } from "lucide-react";
+import { DomainFeaturedPostCategory } from "@/core/domain/enums";
 
 const PostDetailsPage = () => {
   const params = useParams();
@@ -77,7 +78,7 @@ const PostDetailsPage = () => {
               <div className={styles.categories}>
                 {post.categories.map((cat) => (
                   <span key={cat} className={styles.category}>
-                    {cat}
+                    {getCategoryLabel(cat as DomainFeaturedPostCategory)}
                   </span>
                 ))}
               </div>

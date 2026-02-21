@@ -225,8 +225,6 @@
   @include line-clamp(1);
 }
 
-
-
 .locationCard {
   @include flex(row, center, space-between, $sp-md);
   padding: $sp-md $sp-lg;
@@ -315,12 +313,24 @@
 }
 
 .description {
-  margin: 0;
   font-size: $font-md;
   color: $text;
-  white-space: pre-wrap;
-  word-break: break-word;
-  line-height: 2;
+  line-height: 1.9;
+
+  p {
+    margin: 0 0 $sp-sm 0;
+  }
+  strong {
+    font-weight: 700;
+  }
+  ul,
+  ol {
+    padding-right: $sp-lg;
+    margin: $sp-sm 0;
+  }
+  li {
+    margin-bottom: $sp-xs;
+  }
 
   @include sm {
     font-size: $font-sm;
