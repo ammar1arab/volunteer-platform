@@ -28,7 +28,8 @@
       "default",
       {
         "ignore": [
-          "-webkit-mask"
+          "-webkit-mask",
+          "user-select"
         ]
       }
     ]

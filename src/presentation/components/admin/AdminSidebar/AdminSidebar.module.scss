@@ -5,7 +5,7 @@
   position: sticky;
   top: 0;
   height: 100vh;
-  width: 260px;
+  width: 240px;
   background: $bg;
   border-left: 1px solid $border;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -14,7 +14,7 @@
   z-index: 1000;
 
   &.collapsed {
-    width: 80px;
+    width: 100px;
   }
 
   @media (max-width: 1024px) {
@@ -101,7 +101,7 @@
 
 .link {
   @include flex(row, center, flex-start, $sp-md);
-  padding: 12px $sp-md;
+  padding: 7px $sp-md;
   border-radius: $radius-lg;
   color: $text-muted;
   text-decoration: none;
@@ -144,7 +144,6 @@
 .logout {
   margin-top: $sp-xl;
   padding-top: $sp-lg;
-  border-top: 1px solid $border;
   color: $red;
   background: transparent;
   width: 100%;

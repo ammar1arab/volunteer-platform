@@ -18,7 +18,7 @@ const AdminTopbar = ({ onMenuClick, isMenuOpen }: Props) => {
         {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
       
-      <h1 className={styles.title}>لوحة التحكم</h1>
+      <h1 className={styles.title}></h1>
       
       <div className={styles.userBadge}>
         <span className={styles.userName}>{name}</span>

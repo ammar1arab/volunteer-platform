@@ -11,6 +11,7 @@ interface BirthDateInputProps {
   error?: string;
   minAge?: number;
   maxAge?: number;
+  allowFuture?: boolean;
 }
 
 const BirthDateInput = ({
@@ -21,14 +22,15 @@ const BirthDateInput = ({
   error,
   minAge = 0,
   maxAge = 100,
+  allowFuture = false,
 }: BirthDateInputProps) => {
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth() + 1;
   const currentDay = today.getDate();
 
-  const MIN_YEAR = currentYear - maxAge;
-  const MAX_YEAR = currentYear - minAge;
+  const MIN_YEAR = allowFuture ? currentYear : currentYear - maxAge;
+  const MAX_YEAR = allowFuture ? currentYear + 2 : currentYear - minAge;
 
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
@@ -46,10 +48,10 @@ const BirthDateInput = ({
   const years = useMemo(
     () =>
       Array.from({ length: MAX_YEAR - MIN_YEAR + 1 }, (_, i) => {
-        const y = MAX_YEAR - i;
+        const y = allowFuture ? MIN_YEAR + i : MAX_YEAR - i;
         return { value: String(y), label: String(y) };
       }),
-    [MIN_YEAR, MAX_YEAR]
+    [MIN_YEAR, MAX_YEAR, allowFuture]
   );
 
   const ALL_MONTHS = [
@@ -68,11 +70,11 @@ const BirthDateInput = ({
   ];
 
   const months = useMemo(() => {
-    if (Number(year) === MAX_YEAR) {
+    if (!allowFuture && Number(year) === MAX_YEAR) {
       return ALL_MONTHS.filter((m) => Number(m.value) <= currentMonth);
     }
     return ALL_MONTHS;
-  }, [year, MAX_YEAR, currentMonth]);
+  }, [year, MAX_YEAR, currentMonth, allowFuture]);
 
   const daysInMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
 
@@ -80,14 +82,14 @@ const BirthDateInput = ({
     if (!year || !month) return [];
     const count = daysInMonth(Number(year), Number(month));
     const maxDay =
-      Number(year) === MAX_YEAR && Number(month) === currentMonth
+      !allowFuture && Number(year) === MAX_YEAR && Number(month) === currentMonth
         ? currentDay
         : count;
     return Array.from({ length: maxDay }, (_, i) => {
       const d = String(i + 1).padStart(2, "0");
       return { value: d, label: d };
     });
-  }, [year, month, MAX_YEAR, currentMonth, currentDay]);
+  }, [year, month, MAX_YEAR, currentMonth, currentDay, allowFuture]);
 
   const handleYearChange = (y: string) => {
     setYear(y);

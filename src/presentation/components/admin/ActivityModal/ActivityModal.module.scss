@@ -179,4 +179,110 @@
   &:disabled {
     opacity: 0.5;
   }
+}.locationBox {
+  @include flex-col;
+  gap: $sp-sm;
+}
+
+.searchRow {
+  display: flex;
+  gap: $sp-sm;
+
+  .input { flex: 1; }
+}
+
+.btnSearch {
+  @include flex-center;
+  gap: $sp-xs;
+  padding: 0 $sp-md;
+  background: rgba($green, 0.1);
+  border: 1px solid rgba($green, 0.3);
+  border-radius: $radius;
+  color: $green;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background $transition;
+
+  &:hover:not(:disabled) { background: rgba($green, 0.18); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.btnLocate {
+  @include flex-center;
+  gap: $sp-xs;
+  width: 100%;
+  padding: $sp-sm;
+  background: rgba($green, 0.06);
+  border: 1px dashed rgba($green, 0.35);
+  border-radius: $radius;
+  color: $green;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transition;
+
+  &:hover:not(:disabled) { background: rgba($green, 0.12); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.mapWrap {
+  @include flex-col;
+  gap: $sp-xs;
+  border-radius: $radius;
+  overflow: hidden;
+  border: 1px solid rgba($green, 0.2);
+}
+
+.mapFrame {
+  width: 100%;
+  height: 220px;
+  border: none;
+  display: block;
+}
+
+.mapLink {
+  @include flex-center;
+  gap: $sp-xs;
+  padding: $sp-xs;
+  background: rgba($green, 0.05);
+  color: $green;
+  font-size: $font-xs;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background $transition;
+
+  &:hover { background: rgba($green, 0.1); }
+}
+
+.errorMsg {
+  font-size: $font-xs;
+  color: $red;
+  margin: 0;
+}
+
+.manualDetails {
+  border: 1px solid rgba($text-muted, 0.15);
+  border-radius: $radius;
+  overflow: hidden;
+}
+
+.manualSummary {
+  padding: $sp-sm $sp-md;
+  font-size: $font-sm;
+  color: $text-muted;
+  cursor: pointer;
+  user-select: none;
+
+  &:hover { color: $text; }
+}
+
+.coords {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-sm;
+  padding: $sp-sm $sp-md $sp-md;
+
+  @include sm { grid-template-columns: 1fr; }
 }
