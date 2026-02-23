@@ -21,45 +21,43 @@ const VolunteerSpotlightCard = ({ spotlight }: Props) => {
     cardRef.current.style.setProperty("--y", `${e.clientY - top}px`);
   };
 
-  const formattedDate = new Date(spotlight.spotlightDate).toLocaleDateString("ar", {
+  const formattedDate = new Date(spotlight.spotlightDate).toLocaleDateString("ar-JO", {
     year: "numeric", month: "long", day: "numeric",
   });
 
   return (
-    <article 
-      ref={cardRef}
-      className={styles.card} 
-      onMouseMove={handleMouseMove}
-      onClick={() => router.push(ROUTES.SPOTLIGHT.DETAILS(spotlight.id))}
-    >
-      <div className={styles.imageWrapper}>
-        <Image 
-          src={spotlight.imageUrl} 
-          alt={spotlight.name} 
-          fill 
-          sizes="(max-width: 768px) 100vw, 300px" 
-          className={styles.img} 
-        />
-      </div>
+    <article ref={cardRef} className={styles.card} onMouseMove={handleMouseMove}
+      onClick={() => router.push(ROUTES.SPOTLIGHT.DETAILS(spotlight.id))}>
 
-      <div className={styles.content}>
-        <div className={styles.nameWrapper}>
-          <h3 className={styles.name}>{spotlight.name}</h3>
-          <div className={styles.nameUnderline} />
+      <div className={styles.body}>
+        <div className={styles.avatarWrap}>
+          <div className={styles.avatar}>
+            <Image src={spotlight.imageUrl} alt={spotlight.name} fill sizes="80px" className={styles.avatarImg} />
+          </div>
+          <div className={styles.glow} />
         </div>
 
-        <div className={styles.info}>
-          <span className={styles.infoItem}><MapPin size={11} />{getCityLabel(spotlight.city)}</span>
-          <span className={styles.infoItem}><Calendar size={11} />{formattedDate}</span>
-        </div>
+        <div className={styles.content}>
+          <div className={styles.nameWrapper}>
+            <h3 className={styles.name}>{spotlight.name}</h3>
+            <div className={styles.nameUnderline} />
+          </div>
 
-        <p className={styles.bio}>{spotlight.description}</p>
+          <div className={styles.info}>
+            <span className={styles.infoItem}><MapPin size={11} />{getCityLabel(spotlight.city)}</span>
+            <span className={styles.infoItem}><Calendar size={11} />{formattedDate}</span>
+          </div>
 
-        <div className={styles.cta}>
-          <span>تعرّف عليه</span>
-          <ArrowLeft size={16} className={styles.arrow} />
+          <p className={styles.bio}>{spotlight.description}</p>
+
+          <div className={styles.cta}>
+            <span>تعرّف عليه</span>
+            <ArrowLeft size={14} className={styles.arrow} />
+          </div>
         </div>
       </div>
+
+      <div className={styles.shimmer} />
     </article>
   );
 };

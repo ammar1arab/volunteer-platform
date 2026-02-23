@@ -1,0 +1,340 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrapper {
+  @include flex-col;
+  gap: $sp-sm;
+  width: 100%;
+  min-width: 0;
+}
+
+.label {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text;
+}
+
+.labelSm {
+  font-size: $font-xs;
+  font-weight: 500;
+  color: $text-muted;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.input {
+  width: 100%;
+  padding: $sp-sm $sp-md;
+  border: 1px solid rgba($text-muted, 0.2);
+  border-radius: $radius;
+  font-size: $font-sm;
+  color: $text;
+  background: $bg;
+  box-sizing: border-box;
+  transition: border-color $transition;
+
+  &:focus { outline: none; border-color: $green; }
+}
+
+.searchWrap { position: relative; width: 100%; }
+
+.searchRow,
+.linkRow {
+  display: flex;
+  gap: $sp-sm;
+  width: 100%;
+
+  .input { flex: 1; min-width: 0; }
+}
+
+.btnSearch {
+  @include flex-center;
+  gap: $sp-xs;
+  padding: 0 $sp-md;
+  background: rgba($green, 0.1);
+  border: 1px solid rgba($green, 0.25);
+  border-radius: $radius;
+  color: $green;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background $transition;
+
+  &:hover:not(:disabled) { background: rgba($green, 0.18); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: $bg;
+  border: 1px solid rgba($text-muted, 0.15);
+  border-radius: $radius;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 20000;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+}
+
+.resultItem {
+  @include flex(row, flex-start, flex-start, $sp-xs);
+  padding: $sp-sm $sp-md;
+  font-size: $font-xs;
+  color: $text;
+  cursor: pointer;
+  transition: background $transition;
+
+  &:hover { background: rgba($green, 0.06); }
+
+  span {
+    line-height: 1.5;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+
+.resultIcon {
+  color: $green;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.btnLocate {
+  @include flex-center;
+  gap: $sp-xs;
+  width: 100%;
+  padding: $sp-sm;
+  background: rgba($green, 0.05);
+  border: 1px dashed rgba($green, 0.3);
+  border-radius: $radius;
+  color: $green;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transition;
+
+  &:hover:not(:disabled) { background: rgba($green, 0.1); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btnPickMap {
+  @include flex-center;
+  gap: $sp-xs;
+  width: 100%;
+  padding: $sp-sm;
+  background: rgba($green, 0.05);
+  border: 1px solid rgba($green, 0.25);
+  border-radius: $radius;
+  color: $green;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transition;
+
+  &:hover { background: rgba($green, 0.12); }
+}
+
+.error {
+  font-size: $font-xs;
+  color: $red;
+  margin: 0;
+}
+
+.previewWrap {
+  position: relative;
+  width: 100%;
+  border: 1px solid rgba($green, 0.2);
+  border-radius: $radius;
+  overflow: hidden;
+  cursor: pointer;
+
+  &:hover .previewOverlay { opacity: 1; }
+}
+
+.previewFrame {
+  width: 100%;
+  height: 160px;
+  border: none;
+  display: block;
+  pointer-events: none;
+}
+
+.previewOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  @include flex(column, center, center, $sp-xs);
+  opacity: 0;
+  transition: opacity $transition;
+  color: white;
+  font-size: $font-xs;
+  font-weight: 600;
+}
+
+.previewHint {
+  background: rgba($green, 0.85);
+  padding: 3px $sp-sm;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+}
+
+.manual {
+  border: 1px solid rgba($text-muted, 0.15);
+  border-radius: $radius;
+}
+
+.manualTitle {
+  @include flex(row, flex-start, center, $sp-xs);
+  padding: $sp-sm $sp-md;
+  font-size: $font-sm;
+  color: $text-muted;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+
+  &:hover { color: $text; }
+}
+
+.manualFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-sm;
+  padding: $sp-sm $sp-md $sp-md;
+
+  @include sm { grid-template-columns: 1fr; }
+}
+
+.field { @include flex-col; }
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+// ── Modal ──────────────────────────────────────
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  @include flex-center;
+  padding: $sp-lg;
+
+  @include sm { padding: 0; }
+}
+
+.modal {
+  @include flex-col;
+  width: 100%;
+  max-width: 720px;
+  height: 90vh;
+  background: $bg;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+
+  @include sm { border-radius: 0; height: 100dvh; max-width: 100%; }
+}
+
+.modalHeader {
+  @include flex(row, space-between, flex-start);
+  padding: $sp-md $sp-lg;
+  border-bottom: 1px solid rgba($text-muted, 0.1);
+  flex-shrink: 0;
+
+  h3 { font-size: $font-md; font-weight: 700; color: $text; margin: 0 0 4px; }
+  p  { font-size: $font-xs; color: $text-muted; margin: 0; }
+}
+
+.btnClose {
+  @include flex-center;
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: $sp-xs;
+  border-radius: $radius;
+  flex-shrink: 0;
+  transition: color $transition;
+
+  &:hover { color: $text; }
+}
+
+.modalSearch {
+  padding: $sp-sm $sp-lg;
+  border-bottom: 1px solid rgba($text-muted, 0.1);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.mapContainer {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+.modalFooter {
+  @include flex(row, space-between, center);
+  padding: $sp-md $sp-lg;
+  border-top: 1px solid rgba($text-muted, 0.1);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: $sp-sm;
+}
+
+.coordsDisplay {
+  @include flex(row, flex-start, center, $sp-md);
+  font-size: $font-xs;
+  color: $text-muted;
+  font-variant-numeric: tabular-nums;
+
+  @include sm { flex-direction: column; gap: 2px; }
+}
+
+.modalActions {
+  @include flex(row, flex-end, center, $sp-sm);
+}
+
+.btnCancel {
+  padding: $sp-sm $sp-lg;
+  border: 1px solid rgba($text-muted, 0.2);
+  border-radius: $radius;
+  background: none;
+  color: $text-muted;
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all $transition;
+
+  &:hover { border-color: $text-muted; color: $text; }
+}
+
+.btnSave {
+  @include flex-center;
+  gap: $sp-xs;
+  padding: $sp-sm $sp-lg;
+  background: $green;
+  border: none;
+  border-radius: $radius;
+  color: white;
+  font-size: $font-sm;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity $transition;
+
+  &:hover { opacity: 0.88; }
+}

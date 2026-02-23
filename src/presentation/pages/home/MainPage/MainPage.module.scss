@@ -3,27 +3,38 @@
 
 .section {
   padding: 60px 0;
-  @include sm { padding: 40px 0; }
+  @include sm {
+    padding: 40px 0;
+  }
 }
 
 .activitiesGrid {
   @include grid(1);
-  @include md { grid-template-columns: repeat(2, 1fr); }
+  @include md {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .postsGrid {
   @include grid(2);
-  gap: 20px;
-  @include lg { grid-template-columns: repeat(4, 1fr); }
+  gap: $sp-md;
+  @include lg {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .spotlightsGrid {
-  @include grid(1);
-  @include md { grid-template-columns: repeat(3, 1fr); }
+  @include grid(2);
+  gap: $sp-md;
+  @include md {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .viewAll {
   @include flex-center;
   padding: $sp-xl 0 $sp-md;
-  @include sm { padding: $sp-lg 0 $sp-sm; }
+  @include sm {
+    padding: $sp-lg 0 $sp-sm;
+  }
 }

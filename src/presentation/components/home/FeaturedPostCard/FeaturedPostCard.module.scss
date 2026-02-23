@@ -1,39 +1,62 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-.card {
-  @include flex-col;
-  border-radius: $radius-lg;
-  overflow: hidden;
-  transition: $transition;
-  cursor: pointer;
-  @include hover-lift;
+@keyframes line-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
-.card[data-variant="glass"] {
+.card {
+  @include flex-col;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 
   &:hover {
-    border-color: rgba($green, 0.3);
+    border-color: $green;
+
+    .imageInner {
+      background: rgba($green, 0.03);
+    }
+
+    .imageInner img {
+      transform: scale(1.05);
+    }
+
+    .titleLine {
+      animation: line-grow 0.4s forwards;
+    }
   }
 }
 
 .imageWrapper {
+  padding: $sp-md;
+  background: radial-gradient(circle at 50% 50%, rgba($green, 0.05) 0%, transparent 70%);
+  border-bottom: 1px solid $border;
+}
+
+.imageInner {
   position: relative;
   width: 100%;
-  height: 200px;
-
-  @include sm {
-    height: 160px;
-  }
+  aspect-ratio: 16 / 10;
+  border-radius: $radius-lg;
+  border: 1px solid $border;
+  background: $white;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 
   img {
-    object-fit: contain;
-    padding: $sp-sm;
-    transition: transform 0.3s ease;
-  }
-
-  .card:hover & img {
-    transform: scale(1.05);
+    object-fit: contain !important;
+    position: relative !important;
+    width: 90% !important;
+    height: 90% !important;
+    border-radius: $radius;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
   }
 }
 
@@ -43,34 +66,42 @@
   padding: $sp-lg;
   gap: $sp-sm;
 
-  @include sm {
-    padding: $sp-md;
-  }
+  @include sm { padding: $sp-md; }
+}
+
+.titleGroup {
+  @include flex-col;
+  gap: 4px;
 }
 
 .title {
   margin: 0;
   font-size: $font-md;
-  font-weight: 700;
+  font-weight: 800;
   color: $text;
   line-height: 1.3;
   @include line-clamp(2);
 
-  @include sm {
-    font-size: $font-sm;
-  }
+  @include sm { font-size: $font-sm; }
+}
+
+.titleLine {
+  height: 2px;
+  width: 100%;
+  background: $green;
+  transform: scaleX(0);
+  transform-origin: right;
+  border-radius: $radius-lg;
 }
 
 .description {
   margin: 0;
   font-size: $font-sm;
   color: $text-muted;
-  line-height: 1.5;
+  line-height: 1.65;
   @include line-clamp(3);
 
-  @include sm {
-    @include line-clamp(2);
-  }
+  @include sm { font-size: $font-xs; @include line-clamp(2); }
 }
 
 .readMore {
@@ -87,17 +118,13 @@
   cursor: pointer;
   transition: $transition;
 
+  @include sm { font-size: $font-xs; padding: $sp-xs $sp-sm; }
+
   &:hover {
     background: $green;
     color: $bg;
-    transform: translateX(-4px);
+    svg { transform: translateX(-4px); }
   }
 
-  svg {
-    transition: transform 0.3s;
-  }
-
-  &:hover svg {
-    transform: translateX(-4px);
-  }
+  svg { transition: transform 0.3s; }
 }

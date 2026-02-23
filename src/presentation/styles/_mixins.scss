@@ -32,7 +32,7 @@
 @mixin grid-responsive($min: 280px) {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax($min, 1fr));
-  gap: map.get($spacings, xl);
+  gap: map.get($spacings, md);
 }
 
 @mixin container {

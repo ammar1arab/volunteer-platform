@@ -1,13 +1,42 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-@keyframes glow {
+@keyframes breathe {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba($green, 0);
+    box-shadow: 0 4px 20px rgba($black, 0.06);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba($green, 0.08);
+    box-shadow:
+      0 8px 40px rgba($green, 0.14),
+      0 0 0 4px rgba($green, 0.06);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(500%);
+    opacity: 0;
+  }
+}
+
+@keyframes float-pin {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
   }
 }
 
@@ -18,16 +47,19 @@
   cursor: pointer;
   border: 1px solid $border;
   transition:
-    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
     border-color 0.3s ease;
 
   &:hover {
-    transform: translateY(-6px);
+    transform: translateY(-7px) scale(1.012);
     border-color: rgba($green, 0.3);
-    animation: glow 2.5s ease infinite;
+    animation: breathe 2.5s ease infinite;
 
     .img {
-      transform: scale(1.04);
+      transform: scale(1.06);
+    }
+    .scanline {
+      animation: scanline 2.5s ease infinite;
     }
     .title {
       color: $green;
@@ -51,7 +83,16 @@
 .img {
   object-fit: contain;
   padding: $sp-xs;
-  transition: transform 0.4s ease;
+  transition: transform 0.5s ease;
+}
+
+.scanline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 35%, rgba($green, 0.07) 50%, transparent 65%);
+  transform: translateY(-100%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .fullBadge {
@@ -97,18 +138,19 @@
 }
 
 .infoRow {
-  @include flex(row, center, flex-start, $sp-sm);
+  @include flex(row, flex-start, center, $sp-sm);
   flex-wrap: wrap;
 }
 
 .infoChip {
-  @include flex(row, center, flex-start, 5px);
+  @include flex(row, flex-start, center, 5px);
   padding: 4px $sp-sm;
   border-radius: $radius-full;
   border: 1px solid $border;
   font-size: 11px;
   font-weight: 600;
   color: $text-muted;
+  transition: border-color 0.3s ease;
 
   svg {
     color: $green;
@@ -117,12 +159,12 @@
 }
 
 .placeRow {
-  @include flex(row, center, flex-start, 5px);
+  @include flex(row, flex-start, center, $sp-xs);
   padding: $sp-xs $sp-sm;
   border-radius: $radius;
   border: 1px solid $border;
-  gap: $sp-xs;
   margin-top: $sp-xs;
+  transition: border-color 0.3s ease;
 }
 
 .placeIcon {
@@ -146,7 +188,7 @@
 }
 
 .actions {
-  @include flex(row, center, flex-start, $sp-xs);
+  @include flex(row, flex-start, center, $sp-xs);
   padding-top: $sp-sm;
   border-top: 1px solid $border;
   margin-top: auto;
@@ -162,7 +204,11 @@
   background: rgba(#f97316, 0.06);
   text-decoration: none;
   flex-shrink: 0;
-  transition: $transition;
+  transition: all $transition;
+
+  svg {
+    animation: float-pin 1.5s ease infinite;
+  }
 
   &:hover {
     background: rgba(#f97316, 0.15);
@@ -181,7 +227,7 @@
   background: rgba(#3b82f6, 0.06);
   cursor: pointer;
   flex-shrink: 0;
-  transition: $transition;
+  transition: all $transition;
 
   &:hover {
     background: rgba(#3b82f6, 0.15);
@@ -192,4 +238,61 @@
 
 .actionMain {
   margin-right: auto;
+}
+.locBody {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.locAddress {
+  font-size: $font-sm;
+  color: $text-muted;
+  margin: 0;
+  line-height: 1.6;
+  padding-bottom: $sp-sm;
+  border-bottom: 1px solid rgba($text-muted, 0.1);
+}
+
+.locActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-sm;
+
+  @include sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.locBtnShare {
+  @include flex-center;
+  padding: $sp-sm;
+  background: rgba(#3b82f6, 0.06);
+  border: 1px solid rgba(#3b82f6, 0.2);
+  border-radius: $radius;
+  color: #3b82f6;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transition;
+
+  &:hover {
+    background: rgba(#3b82f6, 0.13);
+  }
+}
+
+.locBtnMaps {
+  @include flex-center;
+  padding: $sp-sm;
+  background: rgba(#f97316, 0.06);
+  border: 1px solid rgba(#f97316, 0.2);
+  border-radius: $radius;
+  color: #f97316;
+  font-size: $font-sm;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background $transition;
+
+  &:hover {
+    background: rgba(#f97316, 0.13);
+  }
 }

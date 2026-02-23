@@ -2,29 +2,21 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DayOfWeek, UserRole } from "@/core/domain/enums";
-import {
-  useActivities,
-  useToast,
-  useAuth,
-} from "@/presentation/hooks";
-import type {
-  ActivityDto,
-  CreateActivityRequest,
-  UpdateActivityRequest,
-} from "@/core/application/dtos";
+import { useActivities, useToast, useAuth } from "@/presentation/hooks";
+import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
 import { processImageForUpload } from "@/lib/utils";
 
 export const FILTERS = [
   { key: "PUBLISHED", label: "منشور" },
   { key: "DRAFT", label: "مسودة" },
   { key: "CANCELLED", label: "ملغي" },
-  { key: "all", label: "الكل" },
+  { key: "all", label: "الكل" }
 ];
 
 export const STATUS_MAP = {
   DRAFT: { label: "مسودة", class: "draft" },
   PUBLISHED: { label: "منشور", class: "published" },
-  CANCELLED: { label: "ملغي", class: "cancelled" },
+  CANCELLED: { label: "ملغي", class: "cancelled" }
 } as const;
 
 const VALIDATION_RULES = [
@@ -36,7 +28,7 @@ const VALIDATION_RULES = [
   { field: "date", message: "التاريخ مطلوب" },
   { field: "startTime", message: "الوقت مطلوب" },
   { field: "endTime", message: "الوقت مطلوب" },
-  { field: "targetAudience", message: "الفئة المستهدفة مطلوبة" },
+  { field: "targetAudience", message: "الفئة المستهدفة مطلوبة" }
 ];
 
 type ConfirmOptions = {
@@ -52,18 +44,9 @@ export const useActivitiesPage = () => {
   const { toasts, showToast, removeToast } = useToast();
   const ITEMS_PER_PAGE = 20;
 
-  const {
-    list,
-    loading,
-    submitting,
-    uploadImage,
-    create,
-    update,
-    remove,
-    publish,
-    cancel,
-    restore,
-  } = useActivities({ filter: "all" });
+  const { list, loading, submitting, uploadImage, create, update, remove, publish, cancel, restore } = useActivities({
+    filter: "all"
+  });
 
   const [activeFilter, setActiveFilter] = useState("PUBLISHED");
   const [currentPage, setCurrentPage] = useState(1);
@@ -118,10 +101,6 @@ export const useActivitiesPage = () => {
   }, []);
 
   const handleEdit = useCallback((activity: ActivityDto) => {
-    if (activity.status !== "DRAFT") {
-      showToast("فقط المسودات يمكن تعديلها", "warning");
-      return;
-    }
     setMode("edit");
     setEditData({
       id: activity.id,
@@ -137,24 +116,42 @@ export const useActivitiesPage = () => {
       latitude: activity.location.latitude,
       longitude: activity.location.longitude,
       targetAudience: activity.targetAudience,
-      maxVolunteers: activity.maxVolunteers,
+      maxVolunteers: activity.maxVolunteers
     });
     setShowModal(true);
-  }, [showToast]);
+  }, []);
 
-  const handleImageUpload = useCallback(async (file: File): Promise<string | null> => {
-    const result = await processImageForUpload(file, { maxSizeMB: 5, quality: 0.85 });
-    if (result.error) {
-      showToast(result.error, "error");
+  const handlePublish = useCallback(
+    async (activity: ActivityDto) => {
+      if (activity.status !== "DRAFT") return;
+      const ok = await confirm({
+        title: "نشر الفرصة",
+        message: `هل تريد نشر "${activity.title}"؟ سيتمكن المتطوعون من رؤيتها والتسجيل فيها.`,
+        confirmText: "نشر الآن",
+        cancelText: "إلغاء",
+        variant: "primary"
+      });
+      if (ok && (await publish(activity.id))) showToast("تم النشر بنجاح", "success");
+    },
+    [confirm, publish, showToast]
+  );
+
+  const handleImageUpload = useCallback(
+    async (file: File): Promise<string | null> => {
+      const result = await processImageForUpload(file, { maxSizeMB: 5, quality: 0.85 });
+      if (result.error) {
+        showToast(result.error, "error");
+        return null;
+      }
+      const url = await uploadImage(result.file);
+      if (url) {
+        showToast("تم رفع الصورة", "success");
+        return url;
+      }
       return null;
-    }
-    const url = await uploadImage(result.file);
-    if (url) {
-      showToast("تم رفع الصورة", "success");
-      return url;
-    }
-    return null;
-  }, [uploadImage, showToast]);
+    },
+    [uploadImage, showToast]
+  );
 
   const validate = useCallback((form: any): string | null => {
     for (const rule of VALIDATION_RULES) {
@@ -166,84 +163,93 @@ export const useActivitiesPage = () => {
     return null;
   }, []);
 
-  const handleModalSubmit = useCallback(async (formData: any) => {
-    const error = validate(formData);
-    if (error) {
-      showToast(error, "warning");
-      return;
-    }
-
-    const payload: CreateActivityRequest | UpdateActivityRequest = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      imageUrl: formData.imageUrl,
-      dayOfWeek: formData.dayOfWeek as DayOfWeek,
-      date: formData.date,
-      startTime: formData.startTime,
-      endTime: formData.endTime,
-      placeName: formData.placeName.trim(),
-      location: {
-        address: formData.address.trim(),
-        latitude: formData.latitude,
-        longitude: formData.longitude,
-      },
-      targetAudience: formData.targetAudience.trim(),
-      maxVolunteers: formData.maxVolunteers,
-    };
-
-    try {
-      const success = mode === "create"
-        ? await create(payload as CreateActivityRequest)
-        : await update(formData.id, payload as UpdateActivityRequest);
-
-      if (success) {
-        showToast(mode === "create" ? "تم الإنشاء" : "تم التحديث", "success");
-        setShowModal(false);
+  const handleModalSubmit = useCallback(
+    async (formData: any) => {
+      const error = validate(formData);
+      if (error) {
+        showToast(error, "warning");
+        return;
       }
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "حدث خطأ", "error");
-    }
-  }, [mode, create, update, showToast, validate]);
 
-  const handleDelete = useCallback(async (activity: ActivityDto) => {
-    const ok = await confirm({
-      title: "حذف الفرصة",
-      message: `هل تريد حذف "${activity.title}"؟`,
-      confirmText: "حذف",
-      cancelText: "إلغاء",
-      variant: "danger",
-    });
-    if (ok && (await remove(activity.id))) showToast("تم الحذف", "success");
-  }, [confirm, remove, showToast]);
+      const payload: CreateActivityRequest | UpdateActivityRequest = {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        imageUrl: formData.imageUrl,
+        dayOfWeek: formData.dayOfWeek as DayOfWeek,
+        date: formData.date,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        placeName: formData.placeName.trim(),
+        location: {
+          address: formData.address.trim(),
+          latitude: formData.latitude,
+          longitude: formData.longitude
+        },
+        targetAudience: formData.targetAudience.trim(),
+        maxVolunteers: formData.maxVolunteers
+      };
 
-  const handlePublish = useCallback(async (activity: ActivityDto) => {
-    if (activity.status !== "DRAFT") return;
-    if (await publish(activity.id)) showToast("تم النشر", "success");
-  }, [publish, showToast]);
+      try {
+        const success =
+          mode === "create"
+            ? await create(payload as CreateActivityRequest)
+            : await update(formData.id, payload as UpdateActivityRequest);
 
-  const handleCancelActivity = useCallback(async (activity: ActivityDto) => {
-    if (activity.status === "CANCELLED") return;
-    const ok = await confirm({
-      title: "إلغاء الفرصة",
-      message: `هل تريد إلغاء "${activity.title}"؟ يمكنك استعادتها لاحقاً.`,
-      confirmText: "إلغاء الفرصة",
-      cancelText: "رجوع",
-      variant: "danger",
-    });
-    if (ok && (await cancel(activity.id))) showToast("تم الإلغاء", "success");
-  }, [confirm, cancel, showToast]);
+        if (success) {
+          showToast(mode === "create" ? "تم الإنشاء" : "تم التحديث", "success");
+          setShowModal(false);
+        }
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : "حدث خطأ", "error");
+      }
+    },
+    [mode, create, update, showToast, validate]
+  );
 
-  const handleRestore = useCallback(async (activity: ActivityDto) => {
-    if (activity.status !== "CANCELLED") return;
-    const ok = await confirm({
-      title: "استعادة الفرصة",
-      message: `هل تريد استعادة "${activity.title}" كمسودة؟`,
-      confirmText: "استعادة",
-      cancelText: "إلغاء",
-      variant: "primary",
-    });
-    if (ok && (await restore(activity.id))) showToast("تم الاستعادة كمسودة", "success");
-  }, [confirm, restore, showToast]);
+  const handleDelete = useCallback(
+    async (activity: ActivityDto) => {
+      const ok = await confirm({
+        title: "حذف الفرصة",
+        message: `هل تريد حذف "${activity.title}"؟`,
+        confirmText: "حذف",
+        cancelText: "إلغاء",
+        variant: "danger"
+      });
+      if (ok && (await remove(activity.id))) showToast("تم الحذف", "success");
+    },
+    [confirm, remove, showToast]
+  );
+
+
+  const handleCancelActivity = useCallback(
+    async (activity: ActivityDto) => {
+      if (activity.status === "CANCELLED") return;
+      const ok = await confirm({
+        title: "إلغاء الفرصة",
+        message: `هل تريد إلغاء "${activity.title}"؟ يمكنك استعادتها لاحقاً.`,
+        confirmText: "إلغاء الفرصة",
+        cancelText: "رجوع",
+        variant: "danger"
+      });
+      if (ok && (await cancel(activity.id))) showToast("تم الإلغاء", "success");
+    },
+    [confirm, cancel, showToast]
+  );
+
+  const handleRestore = useCallback(
+    async (activity: ActivityDto) => {
+      if (activity.status !== "CANCELLED") return;
+      const ok = await confirm({
+        title: "استعادة الفرصة",
+        message: `هل تريد استعادة "${activity.title}" كمسودة؟`,
+        confirmText: "استعادة",
+        cancelText: "إلغاء",
+        variant: "primary"
+      });
+      if (ok && (await restore(activity.id))) showToast("تم الاستعادة كمسودة", "success");
+    },
+    [confirm, restore, showToast]
+  );
 
   const handleViewVolunteers = useCallback((activity: ActivityDto) => {
     setSelectedActivity(activity);
@@ -270,7 +276,7 @@ export const useActivitiesPage = () => {
       isOpen: isConfirmOpen,
       options: confirmOptions,
       handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog,
+      handleCancel: handleCancelDialog
     },
     setActiveFilter,
     setCurrentPage,
@@ -284,6 +290,6 @@ export const useActivitiesPage = () => {
     handlePublish,
     handleCancel: handleCancelActivity,
     handleRestore,
-    handleViewVolunteers,
+    handleViewVolunteers
   };
 };

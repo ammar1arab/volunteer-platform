@@ -66,6 +66,9 @@
     .scanline {
       animation: scanline 2.5s ease infinite;
     }
+    .title {
+      color: $green;
+    }
     .shareBtn {
       opacity: 1;
       transform: scale(1);
@@ -76,16 +79,7 @@
         color: $green;
       }
     }
-    .mapsBtn {
-      border-color: $green;
-      color: $green;
-      svg:first-child {
-        animation: float-pin 1s ease infinite;
-      }
-    }
-    .title {
-      color: $green;
-    }
+
   }
 }
 
@@ -215,11 +209,12 @@
 }
 
 .locationRow {
-  @include flex(row, center, space-between, $sp-sm);
+  @include flex(row, space-between, center, $sp-sm);
   padding: $sp-xs $sp-sm;
   border-radius: $radius;
   border: 1px solid $border;
   margin-top: $sp-xs;
+  transition: border-color 0.3s ease;
 }
 
 .locationInfo {
@@ -228,15 +223,11 @@
   min-width: 0;
   flex: 1;
 }
+
 .placeName {
   font-size: $font-xs;
   font-weight: 700;
   color: $text;
-  @include line-clamp(1);
-}
-.address {
-  font-size: 10px;
-  color: $text-muted;
   @include line-clamp(1);
 }
 
@@ -246,16 +237,77 @@
   flex-shrink: 0;
   padding: $sp-xs $sp-sm;
   border-radius: $radius;
-  border: 1px solid $border;
-  color: $text-muted;
+  border-color: $green;
+  color: $green;
   text-decoration: none;
   transition:
     border-color 0.3s ease,
     color 0.3s ease;
+
+  svg {
+    animation: float-pin 1.5s ease infinite;
+  }
 }
 
 .footer {
-  @include flex(row, center, flex-end, $sp-xs);
+  @include flex(row, flex-end, center, $sp-xs);
   padding: $sp-sm $sp-md;
   border-top: 1px solid $border;
+}
+.locBody {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.locAddress {
+  font-size: $font-sm;
+  color: $text-muted;
+  margin: 0;
+  line-height: 1.6;
+  padding-bottom: $sp-sm;
+  border-bottom: 1px solid rgba($text-muted, 0.1);
+}
+
+.locActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-sm;
+
+  @include sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.locBtnShare {
+  @include flex-center;
+  padding: $sp-sm;
+  background: rgba(#3b82f6, 0.06);
+  border: 1px solid rgba(#3b82f6, 0.2);
+  border-radius: $radius;
+  color: #3b82f6;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transition;
+
+  &:hover {
+    background: rgba(#3b82f6, 0.13);
+  }
+}
+
+.locBtnMaps {
+  @include flex-center;
+  padding: $sp-sm;
+  background: rgba(#f97316, 0.06);
+  border: 1px solid rgba(#f97316, 0.2);
+  border-radius: $radius;
+  color: #f97316;
+  font-size: $font-sm;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background $transition;
+
+  &:hover {
+    background: rgba(#f97316, 0.13);
+  }
 }

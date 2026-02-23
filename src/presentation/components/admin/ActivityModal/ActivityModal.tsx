@@ -1,10 +1,11 @@
 "use client";
-import Image from "next/image";
-import { Upload, MapPinned, Search, ExternalLink } from "lucide-react";
-import { useActivityModal } from "./ActivityModal.logic";
 import styles from "./ActivityModal.module.scss";
-import { Modal, SelectInput, BirthDateInput, TimePickerInput } from "@/presentation/components";
+import { useActivityModal } from "./ActivityModal.logic";
+
+import Image from "next/image";
 import { DAY_OPTIONS } from "@/presentation/constants/labels";
+import { Modal, SelectInput, BirthDateInput, TimePickerInput, LocationPicker } from "@/presentation/components";
+import { Upload } from "lucide-react";
 
 type Props = {
   isOpen: boolean;
@@ -17,26 +18,8 @@ type Props = {
 };
 
 const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUpload, isSubmitting }: Props) => {
-  const {
-    form,
-    preview,
-    uploading,
-    locating,
-    locationError,
-    searchQuery,
-    searching,
-    searchError,
-    setForm,
-    setSearchQuery,
-    handleImage,
-    detectLocation,
-    searchByAddress,
-    handleSubmit,
-  } = useActivityModal({ initialData, onSubmit, onImageUpload, onClose });
-
-  const hasLocation = form.latitude !== 0 || form.longitude !== 0;
-  const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${form.longitude - 0.012}%2C${form.latitude - 0.012}%2C${form.longitude + 0.012}%2C${form.latitude + 0.012}&layer=mapnik&marker=${form.latitude}%2C${form.longitude}`;
-  const mapsLink = `https://maps.google.com/?q=${form.latitude},${form.longitude}`;
+  const { form, preview, uploading, setForm, handleImage, handleSubmit } =
+    useActivityModal({ initialData, onSubmit, onImageUpload, onClose });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={mode === "create" ? "إنشاء فرصة تطوعية" : "تعديل الفرصة"} size="lg">
@@ -45,184 +28,66 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
         <div className={styles.row}>
           <div className={styles.field}>
             <label className={styles.label}>عنوان الفرصة</label>
-            <input
-              className={styles.input}
-              value={form.title}
-              onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-              required
-            />
+            <input className={styles.input} value={form.title} required
+              onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
           </div>
           <div className={styles.field}>
             <label className={styles.label}>الفئة المستهدفة</label>
-            <input
-              className={styles.input}
-              value={form.targetAudience}
-              onChange={(e) => setForm((p) => ({ ...p, targetAudience: e.target.value }))}
-            />
+            <input className={styles.input} value={form.targetAudience}
+              onChange={(e) => setForm((p) => ({ ...p, targetAudience: e.target.value }))} />
           </div>
         </div>
 
         <div className={styles.field}>
           <label className={styles.label}>وصف الفعالية</label>
-          <textarea
-            className={styles.textarea}
-            value={form.description}
-            onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-            rows={3}
-          />
+          <textarea className={styles.textarea} rows={3} value={form.description}
+            onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
         </div>
 
         <div className={styles.row}>
           <div className={styles.field}>
-            <SelectInput
-              label="اليوم"
-              value={form.dayOfWeek}
-              options={DAY_OPTIONS}
-              onChange={(value) => setForm((p) => ({ ...p, dayOfWeek: value }))}
-              required
-            />
+            <SelectInput label="اليوم" value={form.dayOfWeek} options={DAY_OPTIONS} required
+              onChange={(value) => setForm((p) => ({ ...p, dayOfWeek: value }))} />
           </div>
           <div className={styles.field}>
             <label className={styles.label}>العدد الأقصى للمتطوعين</label>
-            <input
-              className={styles.input}
-              type="number"
-              min={1}
-              value={form.maxVolunteers}
-              onChange={(e) => setForm((p) => ({ ...p, maxVolunteers: parseInt(e.target.value) || 1 }))}
-            />
+            <input className={styles.input} type="number" min={1} value={form.maxVolunteers}
+              onChange={(e) => setForm((p) => ({ ...p, maxVolunteers: parseInt(e.target.value) || 1 }))} />
           </div>
         </div>
 
         <div className={styles.timeRow}>
           <div className={styles.field}>
-            <BirthDateInput
-              label="التاريخ"
-              value={form.date}
-              onChange={(value) => setForm((p) => ({ ...p, date: value }))}
-              required
-              allowFuture
-            />
+            <BirthDateInput label="التاريخ" value={form.date} required allowFuture
+              onChange={(value) => setForm((p) => ({ ...p, date: value }))} />
           </div>
-          <TimePickerInput
-            label="وقت البدء"
-            value={form.startTime}
-            onChange={(value) => setForm((p) => ({ ...p, startTime: value }))}
-            required
-          />
-          <TimePickerInput
-            label="وقت الانتهاء"
-            value={form.endTime}
-            onChange={(value) => setForm((p) => ({ ...p, endTime: value }))}
-            required
-          />
+          <TimePickerInput label="وقت البدء" value={form.startTime} required
+            onChange={(value) => setForm((p) => ({ ...p, startTime: value }))} />
+          <TimePickerInput label="وقت الانتهاء" value={form.endTime} required
+            onChange={(value) => setForm((p) => ({ ...p, endTime: value }))} />
         </div>
 
         <div className={styles.row}>
           <div className={styles.field}>
             <label className={styles.label}>اسم المكان</label>
-            <input
-              className={styles.input}
-              value={form.placeName}
-              onChange={(e) => setForm((p) => ({ ...p, placeName: e.target.value }))}
-            />
+            <input className={styles.input} value={form.placeName}
+              onChange={(e) => setForm((p) => ({ ...p, placeName: e.target.value }))} />
           </div>
           <div className={styles.field}>
             <label className={styles.label}>العنوان</label>
-            <input
-              className={styles.input}
-              value={form.address}
-              onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
-            />
+            <input className={styles.input} value={form.address}
+              onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))} />
           </div>
         </div>
 
-        {/* ── Location ── */}
-        <div className={styles.locationBox}>
-          <label className={styles.label}>موقع الفعالية على الخريطة</label>
-
-          {/* البحث بالعنوان */}
-          <div className={styles.searchRow}>
-            <input
-              className={styles.input}
-              placeholder="ابحث عن العنوان... مثال: عمان، الأردن"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), searchByAddress())}
-            />
-            <button
-              type="button"
-              className={styles.btnSearch}
-              onClick={searchByAddress}
-              disabled={searching}
-            >
-              <Search size={15} />
-              {searching ? "جاري البحث..." : "بحث"}
-            </button>
-          </div>
-          {searchError && <p className={styles.errorMsg}>{searchError}</p>}
-
-          {/* تحديد الموقع الحالي */}
-          <button
-            type="button"
-            className={styles.btnLocate}
-            onClick={detectLocation}
-            disabled={locating}
-          >
-            <MapPinned size={15} />
-            {locating ? "جاري تحديد موقعك..." : "استخدم موقعي الحالي (GPS)"}
-          </button>
-          {locationError && <p className={styles.errorMsg}>{locationError}</p>}
-
-          {/* المعاينة على الخريطة */}
-          {hasLocation && (
-            <div className={styles.mapWrap}>
-              <iframe
-                title="location-preview"
-                src={mapSrc}
-                className={styles.mapFrame}
-              />
-              <a
-                href={mapsLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.mapLink}
-              >
-                <ExternalLink size={13} />
-                فتح في خرائط جوجل للتحقق
-              </a>
-            </div>
-          )}
-
-          {/* إدخال يدوي */}
-          <details className={styles.manualDetails}>
-            <summary className={styles.manualSummary}>إدخال الإحداثيات يدوياً</summary>
-            <div className={styles.coords}>
-              <div className={styles.field}>
-                <label className={styles.labelSmall}>خط العرض (Latitude)</label>
-                <input
-                  className={styles.input}
-                  type="number"
-                  step="any"
-                  value={form.latitude}
-                  onChange={(e) => setForm((p) => ({ ...p, latitude: parseFloat(e.target.value) || 0 }))}
-                />
-              </div>
-              <div className={styles.field}>
-                <label className={styles.labelSmall}>خط الطول (Longitude)</label>
-                <input
-                  className={styles.input}
-                  type="number"
-                  step="any"
-                  value={form.longitude}
-                  onChange={(e) => setForm((p) => ({ ...p, longitude: parseFloat(e.target.value) || 0 }))}
-                />
-              </div>
-            </div>
-          </details>
+        <div className={styles.field}>
+          <LocationPicker
+            latitude={form.latitude}
+            longitude={form.longitude}
+            onChange={(lat, lng) => setForm((p) => ({ ...p, latitude: lat, longitude: lng }))}
+          />
         </div>
 
-        {/* الصورة */}
         <div className={styles.field}>
           <label className={styles.label}>صورة الفعالية</label>
           <div className={styles.uploadSection}>
@@ -234,13 +99,8 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
             <label className={styles.btnUpload}>
               <Upload size={16} />
               {uploading ? "جاري الرفع..." : form.imageUrl ? "تغيير الصورة" : "رفع صورة الغلاف"}
-              <input
-                type="file"
-                accept="image/*"
-                className={styles.fileInput}
-                onChange={(e) => handleImage(e.target.files?.[0] ?? null)}
-                disabled={uploading}
-              />
+              <input type="file" accept="image/*" className={styles.fileInput} disabled={uploading}
+                onChange={(e) => handleImage(e.target.files?.[0] ?? null)} />
             </label>
           </div>
         </div>

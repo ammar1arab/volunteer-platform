@@ -116,12 +116,12 @@ class Activity extends BaseEntity {
   }
 
   canBeEdited(): boolean {
-    return this.props.status === "DRAFT";
+    return this.props.status === "DRAFT" || this.props.status === "PUBLISHED";
   }
 
   update(input: Partial<Omit<ActivityProps, "id" | "createdAt" | "currentVolunteers" | "status" | "createdBy">>): void {
     if (!this.canBeEdited()) {
-      throw new Error("Only draft activities can be edited");
+      throw new Error("Cannot edit a cancelled activity");
     }
 
     let changed = false;

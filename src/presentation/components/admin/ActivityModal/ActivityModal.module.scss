@@ -286,3 +286,11 @@
 
   @include sm { grid-template-columns: 1fr; }
 }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}

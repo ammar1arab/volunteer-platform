@@ -5,7 +5,7 @@ import { JordanianCity } from "@/core/domain/enums";
 import { getCityLabel } from "@/presentation/constants/labels";
 import { MapPin, Calendar } from "lucide-react";
 
-type AdminVolunteerSpotlightCardProps = {
+type Props = {
   imageUrl: string;
   name: string;
   description: string;
@@ -15,33 +15,21 @@ type AdminVolunteerSpotlightCardProps = {
   actions?: React.ReactNode;
 };
 
-const AdminVolunteerSpotlightCard = ({
-  imageUrl,
-  name,
-  description,
-  city,
-  spotlightDate,
-  meta,
-  actions,
-}: AdminVolunteerSpotlightCardProps) => {
-  const formattedDate = new Date(spotlightDate).toLocaleDateString("ar", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+const AdminVolunteerSpotlightCard = ({ imageUrl, name, description, city, spotlightDate, meta, actions }: Props) => {
+  const formattedDate = new Date(spotlightDate).toLocaleDateString("ar-JO", {
+    year: "numeric", month: "long", day: "numeric",
   });
 
   return (
     <article className={styles.card}>
       <div className={styles.body}>
+
         <div className={styles.header}>
-          <div className={styles.avatar}>
-            <Image
-              src={imageUrl}
-              alt={name}
-              fill
-              sizes="64px"
-              className={styles.avatarImg}
-            />
+          <div className={styles.avatarWrap}>
+            <div className={styles.avatar}>
+              <Image src={imageUrl} alt={name} fill sizes="80px" className={styles.avatarImg} />
+            </div>
+            <div className={styles.glow} />
           </div>
           {meta && <div className={styles.meta}>{meta}</div>}
         </div>
@@ -53,14 +41,8 @@ const AdminVolunteerSpotlightCard = ({
           </div>
 
           <div className={styles.info}>
-            <span className={styles.infoItem}>
-              <MapPin size={11} />
-              {getCityLabel(city)}
-            </span>
-            <span className={styles.infoItem}>
-              <Calendar size={11} />
-              {formattedDate}
-            </span>
+            <span className={styles.infoItem}><MapPin size={11} />{getCityLabel(city)}</span>
+            <span className={styles.infoItem}><Calendar size={11} />{formattedDate}</span>
           </div>
 
           <p className={styles.description}>{description}</p>

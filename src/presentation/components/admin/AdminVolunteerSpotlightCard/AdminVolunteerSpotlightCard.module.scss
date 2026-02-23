@@ -1,75 +1,114 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba($green, 0.35);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba($green, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba($green, 0);
+  }
 }
 
 .card {
-  position: relative;
   border-radius: $radius-lg;
   border: 1px solid $border;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   overflow: hidden;
-
-  // noise texture — Clerk style
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    border-radius: inherit;
+  transition:
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+  .avatarWrap {
+    animation: float 2.5s ease-in-out infinite;
+  }
+  .avatar {
+    animation: ring-pulse 1.8s ease infinite;
+    border-color: rgba($green, 0.4);
+  }
+  .nameUnderline {
+    width: 100%;
+  }
+  .infoItem {
+    color: $text;
+    svg {
+      opacity: 1;
+      color: $green;
+    }
+  }
+  .actions {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   &:hover {
-    transform: translateY(-8px);
-    border-color: rgba($green, 0.25);
+    transform: translateY(-7px) scale(1.012);
+    border-color: rgba($green, 0.3);
     box-shadow:
-      0 16px 48px rgba($green, 0.12),
-      0 4px 12px rgba($black, 0.08);
-
-    .actions {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .nameUnderline {
-      width: 100%;
-    }
-
-    .avatar {
-      box-shadow: 0 0 0 3px rgba($green, 0.2);
-    }
+      0 16px 48px rgba($green, 0.1),
+      0 4px 12px rgba($black, 0.06);
   }
 }
 
 .body {
-  padding: $sp-lg;
   @include flex-col;
+  align-items: center;
   gap: $sp-md;
-  position: relative;
-  z-index: 1;
+  padding: $sp-lg $sp-lg $sp-md;
+
+  @include sm {
+    padding: $sp-md $sp-md $sp-sm;
+    gap: $sp-sm;
+  }
 }
 
 .header {
-  @include flex(row, flex-start, space-between, $sp-md);
+  @include flex(row, space-between, flex-start);
+  width: 100%;
+}
+
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .avatar {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba($black, 0.08);
-  flex-shrink: 0;
+  border: 2px solid rgba($green, 0.15);
   position: relative;
-  transition: box-shadow 0.3s ease;
+  transition: border-color 0.3s ease;
+
+  @include sm {
+    width: 64px;
+    height: 64px;
+  }
 }
 
 .avatarImg {
   object-fit: cover;
+}
+
+.glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba($green, 0.12), transparent 70%);
+  pointer-events: none;
 }
 
 .meta {
@@ -78,13 +117,16 @@
 
 .content {
   @include flex-col;
-  gap: $sp-sm;
+  width: 100%;
+  gap: $sp-xs;
+  align-items: center;
+  text-align: center;
 }
 
 .nameWrapper {
   @include flex-col;
   gap: 4px;
-  width: fit-content;
+  align-items: center;
 }
 
 .name {
@@ -92,32 +134,36 @@
   font-size: $font-md;
   font-weight: 700;
   color: $text;
-  letter-spacing: -0.2px;
   line-height: 1.3;
+
+  @include sm {
+    font-size: $font-sm;
+  }
 }
 
-// Peerlist animated underline
 .nameUnderline {
   height: 2px;
-  width: 0%;
+  width: 0;
   background: $green;
   border-radius: 2px;
   transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .info {
-  @include flex(row, center, flex-start, $sp-xs);
+  @include flex(row, center, center, $sp-sm);
   flex-wrap: wrap;
 }
 
 .infoItem {
-  @include flex(row, center, flex-start, 4px);
+  @include flex(row, center, center, 4px);
   font-size: 11px;
   color: $text-muted;
   font-weight: 500;
+  transition: all 0.3s ease;
 
   svg {
     opacity: 0.5;
+    transition: color 0.3s ease;
   }
 
   &::after {
@@ -125,9 +171,12 @@
     margin-right: $sp-xs;
     opacity: 0.3;
   }
-
   &:last-child::after {
     display: none;
+  }
+
+  @include sm {
+    font-size: 10px;
   }
 }
 
@@ -136,20 +185,22 @@
   font-size: $font-xs;
   color: $text-muted;
   line-height: 1.65;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  @include line-clamp(2);
+
+  @include sm {
+    font-size: 11px;
+  }
 }
 
-// Peerlist fade-in actions
 .actions {
-  @include flex(row, center, flex-end, $sp-xs);
+  @include flex(row, flex-end, center, $sp-xs);
   padding: $sp-sm $sp-lg;
   border-top: 1px solid rgba($black, 0.05);
-  position: relative;
-  z-index: 1;
   opacity: 0.4;
   transform: translateY(4px);
   transition: all 0.3s ease;
+
+  @include sm {
+    padding: $sp-sm $sp-md;
+  }
 }
