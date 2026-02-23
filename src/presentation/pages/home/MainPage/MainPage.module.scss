@@ -10,6 +10,8 @@
 
 .activitiesGrid {
   @include grid(1);
+  gap: $sp-md;
+
   @include md {
     grid-template-columns: repeat(2, 1fr);
   }
