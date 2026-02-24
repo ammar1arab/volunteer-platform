@@ -46,6 +46,7 @@
   border: 1px solid $border;
   overflow: visible;
   position: relative;
+  min-width: 0; // ← prevents grid blowout
   transition:
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
     border-color 0.3s ease;
@@ -79,7 +80,6 @@
         color: $green;
       }
     }
-
   }
 }
 
@@ -150,6 +150,7 @@
   gap: $sp-sm;
   padding: $sp-md;
   flex: 1;
+  min-width: 0; // ← ensures line-clamp truncates instead of overflows
 }
 
 .title {
@@ -174,6 +175,10 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $sp-xs;
+
+  @include sm {
+    grid-template-columns: 1fr;
+  }
 }
 
 .infoItem {
@@ -196,11 +201,13 @@
   gap: 1px;
   min-width: 0;
 }
+
 .infoLabel {
   font-size: 9px;
   color: $text-muted;
   font-weight: 500;
 }
+
 .infoValue {
   font-size: 10px;
   color: $text;
@@ -209,7 +216,7 @@
 }
 
 .locationRow {
-  @include flex(row, space-between, center, $sp-sm);
+  @include flex(row, center, space-between, $sp-sm); // ← fixed param order
   padding: $sp-xs $sp-sm;
   border-radius: $radius;
   border: 1px solid $border;
@@ -250,10 +257,18 @@
 }
 
 .footer {
-  @include flex(row, flex-end, center, $sp-xs);
+  @include flex(row, center, flex-end, $sp-xs);
   padding: $sp-sm $sp-md;
   border-top: 1px solid $border;
+  flex-wrap: wrap; // ← buttons wrap on tiny screens
+
+  @include sm {
+    justify-content: flex-start;
+  }
 }
+
+// ── Location modal ────────────────────────────────────────────────────────────
+
 .locBody {
   @include flex-col;
   gap: $sp-md;
