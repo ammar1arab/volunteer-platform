@@ -2,116 +2,211 @@
 @use "@/presentation/styles/mixins" as *;
 
 @keyframes book-float {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50%       { transform: translateY(-6px) rotate(2deg); }
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
 }
 
-@keyframes ring-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.3; }
-  50%       { transform: scale(1.4); opacity: 0; }
+@keyframes ring-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ring-spin-r {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.15);
+  }
 }
 
 .card {
+  position: relative;
   border-radius: $radius-lg;
-  border: 1px solid $border;
+  border: 1px solid rgba($red, 0.25);
   @include flex-col;
+  align-items: center;
   overflow: hidden;
   box-sizing: border-box;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
+
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba($red, 0.3), transparent);
+  }
 
   &:hover {
-    border-color: rgba($green, 0.45);
-    box-shadow: 0 10px 28px rgba($green, 0.1);
-    transform: translateY(-3px);
+    transform: translateY(-6px);
+    border-color: rgba($red, 0.5);
 
-    .title { color: $green; }
-    .iconBox { background: rgba($green, 0.14); }
+    .downloadHint {
+      color: $red;
+    }
+    .glow {
+      opacity: 0.9;
+    }
   }
+
+  &.inactive {
+    opacity: 0.55;
+  }
+}
+
+.glow {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba($red, 0.12) 0%, transparent 70%);
+  opacity: 0.4;
+  pointer-events: none;
+  animation: glow-breathe 5s ease-in-out infinite;
+  transition: opacity 0.4s ease;
 }
 
 .top {
-  @include flex(row, center, space-between, 16px);
-  padding: 18px 18px 14px;
-  cursor: pointer;
-  flex: 1;
-}
-
-.left {
   @include flex-col;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-}
-
-.title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: $text;
-  line-height: 1.4;
-  @include line-clamp(2);
-  transition: color 0.25s ease;
-}
-
-.datePill {
-  display: inline-flex;
   align-items: center;
-  align-self: flex-start;
-  padding: 4px 12px;
-  border-radius: 20px;
-  background: $green;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+  padding: 28px 16px 14px;
+  gap: 14px;
+  cursor: pointer;
+  width: 100%;
 }
 
-.right {
-  flex-shrink: 0;
+.iconArea {
   position: relative;
-  width: 68px;
-  height: 68px;
+  width: 100px;
+  height: 100px;
   @include flex-center;
+}
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    border: 1.5px solid rgba($green, 0.3);
-    animation: ring-pulse 2.6s ease-in-out infinite;
-  }
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba($green, 0.55);
+  border-top-color: transparent;
+  animation: ring-spin 6s linear infinite;
+}
+
+.ringOuter {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba($red, 0.4);
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  animation: ring-spin-r 9s linear infinite;
 }
 
 .iconBox {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
-  background: rgba($green, 0.08);
-  color: $green;
+  width: 80px;
+  height: 80px;
   @include flex-center;
   position: relative;
   z-index: 1;
-  animation: book-float 3.5s ease-in-out infinite;
-  transition: background 0.25s ease;
+  animation: book-float 5s ease-in-out infinite;
+
+  transition:
+    background 0.4s ease,
+    box-shadow 0.4s ease;
+
+  svg {
+    color: $red;
+  }
 }
 
 .pdfTag {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
+  bottom: -6px;
+  right: -6px;
   background: $green;
-  color: #fff;
-  font-size: 8px;
+  color: $white;
+  font-size: 7px;
   font-weight: 800;
   letter-spacing: 1.5px;
   padding: 2px 5px;
   border-radius: 5px;
   z-index: 2;
+  box-shadow: 0 2px 6px rgba($green, 0.4);
+}
+
+.info {
+  @include flex-col;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  width: 100%;
+}
+
+.datePill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: $radius-full;
+  background: $green;
+  color: $white;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba($green, 0.35);
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: $text;
+  line-height: 1.4;
+  @include line-clamp(2);
+  width: 100%;
+}
+
+.downloadHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: $red;
+  font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .footer {
   @include flex(row, center, flex-end, 6px);
-  padding: 10px 14px;
-  border-top: 1px solid $border;
+  padding: 10px 24px;
+  border-top: 1px solid rgba($red, 0.1);
+  background: linear-gradient(to right, rgba($red, 0.02), rgba($green, 0.02));
 }

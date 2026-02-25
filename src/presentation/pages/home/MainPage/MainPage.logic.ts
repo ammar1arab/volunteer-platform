@@ -16,7 +16,7 @@ import { ROUTES } from "@/presentation/constants";
 const ACTIVITIES_LIMIT = 4;
 const POSTS_LIMIT = 8;
 const SPOTLIGHT_LIMIT = 3;
-const MAGAZINES_LIMIT = 5;
+const MAGAZINES_LIMIT = 10;
 
 export const useMainPage = () => {
   const router = useRouter();

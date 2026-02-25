@@ -2,117 +2,205 @@
 @use "@/presentation/styles/mixins" as *;
 
 @keyframes book-float {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50%       { transform: translateY(-8px) rotate(2deg); }
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
 }
 
-@keyframes ring-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.25; }
-  50%       { transform: scale(1.55); opacity: 0; }
+@keyframes ring-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ring-spin-r {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateX(-50%) scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.15);
+  }
 }
 
 .card {
+  position: relative;
   border-radius: $radius-lg;
-  border: 1px solid $border;
+  border: 1px solid rgba($red, 0.25);
   @include flex-col;
   align-items: center;
   overflow: hidden;
   cursor: pointer;
-  box-sizing: border-box;
-  padding: 20px 16px 16px;
-  gap: 14px;
+  padding: 28px 16px 18px;
+  gap: 16px;
+
   transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.25s ease;
+    transform 0.4s ease,
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba($red, 0.3), transparent);
+  }
 
   &:hover {
-    border-color: rgba($green, 0.5);
-    box-shadow: 0 14px 36px rgba($green, 0.13);
-    transform: translateY(-4px);
+    transform: translateY(-7px);
+    border-color: rgba($red, 0.5);
 
-    .title   { color: $green; }
-    .iconBox { background: rgba($green, 0.15); }
+    .downloadBtn {
+      box-shadow: 0 6px 20px rgba($red, 0.45);
+      letter-spacing: 0.5px;
+    }
+    .glow {
+      opacity: 1;
+    }
   }
+}
+
+.glow {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba($red, 0.14) 0%, transparent 70%);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: glow-breathe 5s ease-in-out infinite;
+  transition: opacity 0.4s ease;
 }
 
 .iconArea {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 100px;
+  height: 100px;
   @include flex-center;
-  flex-shrink: 0;
 }
 
 .ring {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1.5px solid rgba($green, 0.3);
-  animation: ring-pulse 2.8s ease-in-out infinite;
+  border: 1.5px solid rgba($green, 0.55);
+  border-top-color: transparent;
+  animation: ring-spin 6s linear infinite;
+}
+
+.ringOuter {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba($red, 0.4);
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  animation: ring-spin-r 9s linear infinite;
 }
 
 .iconBox {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: rgba($green, 0.08);
-  color: $green;
+  width: 80px;
+  height: 80px;
   @include flex-center;
   position: relative;
+  background-color: $red;
+  border-radius: $radius-full;
   z-index: 1;
-  animation: book-float 3.5s ease-in-out infinite;
-  transition: background 0.25s ease;
+  animation: book-float 5s ease-in-out infinite;
+  transition:
+    background 0.4s ease,
+    box-shadow 0.4s ease;
+
+  svg {
+    color: $white;
+  }
 }
 
 .pdfTag {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
-  background: $green;
-  color: #fff;
+  bottom: -6px;
+  right: -6px;
+  background: $black;
+  color: $white;
   font-size: 7px;
   font-weight: 800;
   letter-spacing: 1.5px;
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: 2px 5px;
+  border-radius: 5px;
   z-index: 2;
+  box-shadow: 0 2px 6px rgba($green, 0.4);
 }
 
 .info {
   @include flex-col;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
   width: 100%;
   text-align: center;
-  min-width: 0;
 }
 
 .datePill {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 4px 14px;
+  border-radius: $radius-full;
   background: $green;
-  color: #fff;
+  color: $white;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 8px rgba($green, 0.35);
 }
 
 .title {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: $text;
   line-height: 1.4;
   @include line-clamp(2);
-  transition: color 0.25s ease;
   width: 100%;
 }
 
-.hint {
-  font-size: 10px;
-  color: $text-muted;
-  font-weight: 500;
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 20px;
+  border-radius: $radius-full;
+  // background: $red;
+  color: $red;
+  font-size: 11px;
+  font-weight: 700;
+  transition:
+    box-shadow 0.3s ease,
+    letter-spacing 0.3s ease;
+  &:hover {
+    background-color: #000;
+    color: #fff;
+  }
 }

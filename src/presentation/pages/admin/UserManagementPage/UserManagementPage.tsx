@@ -9,23 +9,27 @@ import {
 } from "@/presentation/components";
 
 const SORT_OPTIONS = [
-  { key: "default", label: "الافتراضي" },
+  { key: "default",     label: "الافتراضي" },
   { key: "most-active", label: "الأكثر نشاطاً" },
-  { key: "oldest", label: "الأقدم" },
-  { key: "newest", label: "الأحدث" },
-  { key: "name", label: "الاسم" },
+  { key: "oldest",      label: "الأقدم" },
+  { key: "newest",      label: "الأحدث" },
+  { key: "name",        label: "الاسم" },
 ];
 
 const EXPORT_COLUMNS = [
-  { key: "fullName", label: "الاسم" },
-  { key: "age", label: "العمر" },
-  { key: "phone", label: "رقم الهاتف" },
-  { key: "email", label: "البريد الإلكتروني" },
-  { key: "city", label: "المدينة" },
-  { key: "skills", label: "المهارات" },
+  { key: "fullName",           label: "الاسم" },
+  { key: "age",                label: "العمر" },
+  { key: "phone",              label: "رقم الهاتف" },
+  { key: "email",              label: "البريد الإلكتروني" },
+  { key: "city",               label: "المدينة" },
+  { key: "skills",             label: "المهارات" },
   { key: "approvedActivities", label: "عدد الفرص الموافق عليها" },
-  { key: "createdAt", label: "تاريخ الانضمام" },
+  { key: "createdAt",          label: "تاريخ الانضمام" },
 ];
+
+const ExportBtn = ({ data }: { data: any[] }) => (
+  <ExportUsersButton data={data} columns={EXPORT_COLUMNS} buttonText="Export Excel" />
+);
 
 const UserManagementPage = () => {
   const {
@@ -55,10 +59,17 @@ const UserManagementPage = () => {
           {volunteers.length > 0 && (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
+
                 <div className={styles.headerLeft}>
-                  <h2 className={styles.sectionTitle}>المتطوعين</h2>
-                  <span className={styles.count}>{volunteers.length}</span>
+                  <div className={styles.titleGroup}>
+                    <h2 className={styles.sectionTitle}>المتطوعين</h2>
+                    <span className={styles.count}>{volunteers.length}</span>
+                  </div>
+                  <div className={styles.exportMobile}>
+                    <ExportBtn data={exportData} />
+                  </div>
                 </div>
+
                 <div className={styles.headerRight}>
                   <Search
                     value={searchQuery}
@@ -73,12 +84,11 @@ const UserManagementPage = () => {
                     placeholder="ترتيب حسب"
                     compact
                   />
-                  <ExportUsersButton
-                    data={exportData}
-                    columns={EXPORT_COLUMNS}
-                    buttonText="Export Excel"
-                  />
+                  <div className={styles.exportDesktop}>
+                    <ExportBtn data={exportData} />
+                  </div>
                 </div>
+
               </div>
 
               {volunteers.length === 0 ? (
@@ -109,8 +119,10 @@ const UserManagementPage = () => {
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
                 <div className={styles.headerLeft}>
-                  <h2 className={styles.sectionTitle}>Admins</h2>
-                  <span className={styles.count}>{admins.length}</span>
+                  <div className={styles.titleGroup}>
+                    <h2 className={styles.sectionTitle}>Admins</h2>
+                    <span className={styles.count}>{admins.length}</span>
+                  </div>
                 </div>
               </div>
               <div className={styles.grid}>

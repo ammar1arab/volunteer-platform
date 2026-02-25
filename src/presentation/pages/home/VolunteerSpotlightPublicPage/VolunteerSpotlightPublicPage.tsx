@@ -13,7 +13,7 @@ const VolunteerSpotlightPublicPage = () => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>المتطوعون البارزون</h1>
+        <h1 className={styles.title}>أبرز المتطوعين</h1>
         <p className={styles.subtitle}>وجوه أضاءت مجتمعها بعطائها وإخلاصها</p>
       </header>
       {spotlights.length === 0 ? (

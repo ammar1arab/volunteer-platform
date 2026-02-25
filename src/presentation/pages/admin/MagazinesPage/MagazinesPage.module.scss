@@ -2,7 +2,6 @@
 @use "@/presentation/styles/mixins" as *;
 @use "@/presentation/styles/admin-mixins" as *;
 
-
 .header {
   @include page-header;
   margin-bottom: $sp-lg;
@@ -11,12 +10,12 @@
 .actions {
   @include flex(row, center, space-between, $sp-sm);
   width: 100%;
-  flex-wrap: wrap;
 
   @include sm {
-    flex-direction: column;
-    gap: $sp-sm;
-    > * { width: 100%; }
+    flex-direction: row;
+    > *:first-child {
+      flex: 1;
+    }
   }
 }
 

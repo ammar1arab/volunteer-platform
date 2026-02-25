@@ -9,16 +9,49 @@
 
 .sectionHeader {
   @include flex-between;
-  gap: $sp-md;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: $sp-sm;
+
+  @include sm {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .headerLeft {
+  @include flex(row, center, space-between, $sp-sm);
+
+  @include sm {
+    width: 100%;
+  }
+}
+
+.titleGroup {
   @include flex(row, center, flex-start, $sp-sm);
 }
 
 .headerRight {
   @include flex(row, center, flex-end, $sp-sm);
+
+  @include sm {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: $sp-sm;
+
+    > *:nth-child(1) { grid-column: 1 / 2; }
+    > *:nth-child(2) { grid-column: 2 / 3; }
+    > *:nth-child(3) { display: none; }
+  }
+}
+
+.exportDesktop {
+  @include sm { display: none; }
+}
+
+.exportMobile {
+  display: none;
+  @include sm { display: block; }
 }
 
 .sectionTitle {
@@ -26,6 +59,7 @@
   font-size: $font-lg;
   font-weight: 700;
   color: $text;
+  white-space: nowrap;
 }
 
 .count {
@@ -39,11 +73,12 @@
   font-size: $font-sm;
   font-weight: 700;
   color: $green;
+  flex-shrink: 0;
 }
 
 .grid {
   @include cards-grid;
-  
+
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }

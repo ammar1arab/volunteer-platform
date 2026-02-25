@@ -80,7 +80,7 @@ const MainPage = () => {
         <section className={styles.section}>
           <Container>
             <SectionHeader
-              title="سفراء الأثر"
+              title="أبرز المتطوعين"
               subtitle="نحتفي بنماذج مضيئة كرّست وقتها لخدمة المجتمع"
             />         <div className={styles.spotlightsGrid}>
               {spotlights.map((s) => <VolunteerSpotlightCard key={s.id} spotlight={s} />)}
@@ -100,7 +100,7 @@ const MainPage = () => {
         <section className={styles.section}>
           <Container>
             <SectionHeader
-              title="حصاد الشهر"
+              title="المجلة الشهرية"
               subtitle="توثيق شامل لإنجازاتنا وفعالياتنا في إصدارات رقمية"
             />
             <div className={styles.magazinesGrid}>
