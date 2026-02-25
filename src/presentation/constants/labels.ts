@@ -33,7 +33,9 @@ export const CATEGORY_LABELS: Record<DomainFeaturedPostCategory, string> = {
   [DomainFeaturedPostCategory.ENTERTAINMENT]: "ترفيه",
   [DomainFeaturedPostCategory.DISABILITY]: "ذوي الإعاقة",
   [DomainFeaturedPostCategory.ECONOMY]: "اقتصاد",
-  [DomainFeaturedPostCategory.LAW]: "قانون"
+  [DomainFeaturedPostCategory.LAW]: "قانون",
+  [DomainFeaturedPostCategory.CULTURE]: "ثقافي",
+[DomainFeaturedPostCategory.SPECIAL_EVENTS]: "مناسبات خاصة",
 };
 
 export const DAY_LABELS: Record<DayOfWeek, string> = {

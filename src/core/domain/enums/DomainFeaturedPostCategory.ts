@@ -11,4 +11,6 @@ export enum DomainFeaturedPostCategory {
   DISABILITY = "DISABILITY",
   ECONOMY = "ECONOMY",
   LAW = "LAW",
+  CULTURE = "CULTURE",            
+  SPECIAL_EVENTS = "SPECIAL_EVENTS" 
 }

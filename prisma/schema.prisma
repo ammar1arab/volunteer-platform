@@ -173,4 +173,6 @@ enum FeaturedPostCategory {
   DISABILITY
   ECONOMY
   LAW
+  CULTURE
+  SPECIAL_EVENTS
 }
