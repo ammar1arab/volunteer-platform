@@ -97,7 +97,7 @@ model FeaturedPost {
   id          String                 @id @default(uuid())
   imageUrl    String
   title       String
-  description String                 @db.Text 
+  description String                 @db.Text
   isActive    Boolean                @default(true)
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
@@ -108,17 +108,30 @@ model FeaturedPost {
 }
 
 model VolunteerSpotlight {
-  id            String              @id @default(uuid())
+  id            String        @id @default(uuid())
   imageUrl      String
   name          String
-  description   String              @db.Text
+  description   String        @db.Text
   spotlightDate DateTime
   city          JordanianCity
-  isActive      Boolean             @default(true)
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@index([name])
+}
+
+model MonthlyMagazine {
+  id        String   @id @default(uuid())
+  title     String
+  pdfUrl    String
+  monthYear DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([monthYear])
+  @@map("monthly_magazines")
 }
 
 enum UserRole {
@@ -161,4 +174,3 @@ enum FeaturedPostCategory {
   ECONOMY
   LAW
 }
-

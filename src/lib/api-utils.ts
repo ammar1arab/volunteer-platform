@@ -123,8 +123,15 @@ export function apiError(scope: string, action: string, error: unknown) {
   );
 }
 
-export function validateFile(file: File | null, maxMB = 10) {
+export function validateFile(file: File | null, maxMB = 10, type: "image" | "pdf" = "image") {
   if (!file) return "No file provided";
+
+  if (type === "pdf") {
+    if (file.type !== "application/pdf") return "Invalid file type. Only PDF allowed";
+    if (file.size > maxMB * 1024 * 1024) return `File too large. Maximum ${maxMB}MB`;
+    return null;
+  }
+
   const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
   if (!allowed.includes(file.type)) return "Invalid file type. Only JPEG, PNG, WEBP, GIF allowed";
   if (file.size > maxMB * 1024 * 1024) return `File too large. Maximum ${maxMB}MB`;

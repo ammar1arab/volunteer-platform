@@ -5,3 +5,4 @@ export { default as Activity } from "./Activity";
 export { default as ActivityParticipation } from "./ActivityParticipation";
 export { default as FeaturedPost } from "./FeaturedPost";
 export { default as VolunteerSpotlight } from "./VolunteerSpotlight";
+export { default as MonthlyMagazine } from "./MonthlyMagazine";

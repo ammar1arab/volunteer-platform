@@ -1,42 +1,47 @@
 import { R2StorageService } from "@/infrastructure/external";
 
 import {
+  UserRepository,
+  VolunteerProfileRepository,
   ActivityRepository,
   ActivityParticipationRepository,
   FeaturedPostRepository,
-  UserRepository,
-  VolunteerProfileRepository,
-  VolunteerSpotlightRepository
+  VolunteerSpotlightRepository,
+  MonthlyMagazineRepository,
 } from "@/infrastructure/persistence/repositories";
 import {
-  ActivityService,
-  ActivityParticipationService,
-  AuthService,
-  FeaturedPostService,
-  UserService,
-  VolunteerProfileService,
-  VolunteerSpotlightService
+  AuthUseCase,
+  UserUseCase,
+  VolunteerProfileUseCase,
+  ActivityUseCase,
+  ActivityParticipationUseCase,
+  FeaturedPostUseCase,
+  VolunteerSpotlightUseCase,
+  MonthlyMagazineUseCase,
 } from "@/core/application/useCases";
 
 export const providers = {
-  auth: () => new AuthService(new UserRepository(), new VolunteerProfileRepository()),
+  auth: () => new AuthUseCase(new UserRepository(), new VolunteerProfileRepository()),
 
-  user: () => new UserService(new UserRepository()),
+  user: () => new UserUseCase(new UserRepository()),
 
-  volunteerProfile: () => new VolunteerProfileService(new VolunteerProfileRepository(), new R2StorageService()),
+  volunteerProfile: () => new VolunteerProfileUseCase(new VolunteerProfileRepository(), new R2StorageService()),
 
-  activity: () => new ActivityService(new ActivityRepository(), new ActivityParticipationRepository()),
+  activity: () => new ActivityUseCase(new ActivityRepository(), new ActivityParticipationRepository()),
 
   participation: () =>
-    new ActivityParticipationService(
+    new ActivityParticipationUseCase(
       new ActivityParticipationRepository(),
       new ActivityRepository(),
       new UserRepository()
     ),
 
-  featuredPost: () => new FeaturedPostService(new FeaturedPostRepository()),
+  featuredPost: () => new FeaturedPostUseCase(new FeaturedPostRepository()),
 
-  volunteerSpotlight: () => new VolunteerSpotlightService(new VolunteerSpotlightRepository()),
+  volunteerSpotlight: () => new VolunteerSpotlightUseCase(new VolunteerSpotlightRepository()),
+
+    monthlyMagazine: () => new MonthlyMagazineUseCase(new MonthlyMagazineRepository()),
+
 
   storage: () => new R2StorageService()
 };

@@ -7,7 +7,7 @@ export type {
   UserSummaryDto,
   VolunteerProfileSummaryDto,
   ActivitySummaryDto,
-  ApprovedVolunteerRow,
+  ApprovedVolunteerRow
 } from "./shared.dto";
 
 // ─── Auth ─────────────────────────────────────────────────────
@@ -33,7 +33,7 @@ export type {
   GetUserDetailsResponse,
   GetUserActivitiesResponse,
   UpdateUserRequest,
-  UpdateUserResponse,
+  UpdateUserResponse
 } from "./user.dto";
 
 // ─── Volunteer Profile ────────────────────────────────────────
@@ -43,7 +43,7 @@ export type {
   UpdateVolunteerProfileRequest,
   UpdateVolunteerProfileResponse,
   UploadProfilePictureRequest,
-  UploadProfilePictureResponse,
+  UploadProfilePictureResponse
 } from "./volunteerProfile.dto";
 
 // ─── Activity ─────────────────────────────────────────────────
@@ -60,7 +60,7 @@ export type {
   CancelActivityResponse,
   RestoreActivityResponse,
   ActivityVolunteerDto,
-  GetActivityVolunteersResponse,
+  GetActivityVolunteersResponse
 } from "./activity.dto";
 
 // ─── Participation ────────────────────────────────────────────
@@ -69,7 +69,7 @@ export type {
   CreateJoinRequestResponse,
   GetJoinRequestsResponse,
   ApproveJoinRequestResponse,
-  RejectJoinRequestResponse,
+  RejectJoinRequestResponse
 } from "./participation.dto";
 
 // ─── Featured Post ────────────────────────────────────────────
@@ -81,7 +81,7 @@ export type {
   UpdateFeaturedPostResponse,
   GetFeaturedPostResponse,
   GetAllFeaturedPostsResponse,
-  DeleteFeaturedPostResponse,
+  DeleteFeaturedPostResponse
 } from "./featuredPost.dto";
 
 // ─── Volunteer Spotlight ────────────────────────────────────────────
@@ -93,5 +93,16 @@ export type {
   UpdateVolunteerSpotlightResponse,
   GetVolunteerSpotlightResponse,
   GetAllVolunteerSpotlightsResponse,
-  DeleteVolunteerSpotlightResponse,
+  DeleteVolunteerSpotlightResponse
 } from "./volunteerSpotlight.dto";
+
+export type {
+  CreateMonthlyMagazineRequest,
+  CreateMonthlyMagazineResponse,
+  DeleteMonthlyMagazineResponse,
+  GetAllMonthlyMagazinesResponse,
+  GetMonthlyMagazineResponse,
+  MonthlyMagazineDto,
+  UpdateMonthlyMagazineRequest,
+  UpdateMonthlyMagazineResponse
+} from "./monthlyMagazine.dto";

@@ -7,7 +7,7 @@ import { logger } from "@/lib/utils";
 
 export const runtime = "nodejs";
 
-const VALID_SCOPES: StorageFolder[] = ["activities", "featured-posts", "profiles", "volunteer-spotlight"];
+const VALID_SCOPES: StorageFolder[] = ["activities", "featured-posts", "profiles", "volunteer-spotlight", "magazines"];
 
 export async function POST(req: Request, ctx: { params: Promise<{ scope: string }> }) {
   try {

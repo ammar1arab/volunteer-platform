@@ -1,6 +1,6 @@
-import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import R2Client from './R2Client';
-import crypto from 'crypto';
+import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import R2Client from "./R2Client";
+import crypto from "crypto";
 
 export interface UploadResult {
   success: boolean;
@@ -9,26 +9,22 @@ export interface UploadResult {
   error?: string;
 }
 
-export type StorageFolder = 'activities' | 'featured-posts' | 'profiles' | 'volunteer-spotlight';
+export type StorageFolder = "activities" | "featured-posts" | "profiles" | "volunteer-spotlight" | "magazines";
 
 class R2StorageService {
   private bucketName: string;
   private publicUrl: string;
 
   constructor() {
-    this.bucketName = process.env.R2_BUCKET_NAME || 'volunteer-platform';
-    this.publicUrl = process.env.R2_PUBLIC_URL || '';
+    this.bucketName = process.env.R2_BUCKET_NAME || "volunteer-platform";
+    this.publicUrl = process.env.R2_PUBLIC_URL || "";
 
     if (!this.publicUrl) {
-      throw new Error('R2_PUBLIC_URL not configured');
+      throw new Error("R2_PUBLIC_URL not configured");
     }
   }
 
-  async upload(
-    fileBuffer: Buffer,
-    folder: StorageFolder,
-    originalFileName: string
-  ): Promise<UploadResult> {
+  async upload(fileBuffer: Buffer, folder: StorageFolder, originalFileName: string): Promise<UploadResult> {
     try {
       const client = R2Client.getInstance();
       const extension = this.extractExtension(originalFileName);
@@ -40,7 +36,7 @@ class R2StorageService {
         Key: key,
         Body: fileBuffer,
         ContentType: this.getContentType(extension),
-        CacheControl: 'public, max-age=31536000, immutable',
+        CacheControl: "public, max-age=31536000, immutable"
       });
 
       await client.send(command);
@@ -49,10 +45,10 @@ class R2StorageService {
 
       return { success: true, key, url };
     } catch (error) {
-      console.error('R2 upload error:', error);
-      return { 
-        success: false, 
-        error: 'فشل رفع الملف إلى التخزين' 
+      console.error("R2 upload error:", error);
+      return {
+        success: false,
+        error: "فشل رفع الملف إلى التخزين"
       };
     }
   }
@@ -61,20 +57,20 @@ class R2StorageService {
     try {
       const key = this.extractKeyFromUrl(fileUrl);
       if (!key) {
-        console.warn('Could not extract key from URL:', fileUrl);
+        console.warn("Could not extract key from URL:", fileUrl);
         return false;
       }
 
       const client = R2Client.getInstance();
       const command = new DeleteObjectCommand({
         Bucket: this.bucketName,
-        Key: key,
+        Key: key
       });
 
       await client.send(command);
       return true;
     } catch (error) {
-      console.error('R2 delete error:', error);
+      console.error("R2 delete error:", error);
       return false;
     }
   }
@@ -94,27 +90,28 @@ class R2StorageService {
   }
 
   private extractExtension(fileName: string): string {
-    const parts = fileName.split('.');
-    return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : 'jpg';
+    const parts = fileName.split(".");
+    return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "jpg";
   }
 
   private generateUniqueFileName(extension: string): string {
     const timestamp = Date.now();
-    const randomHex = crypto.randomBytes(8).toString('hex');
+    const randomHex = crypto.randomBytes(8).toString("hex");
     return `${timestamp}-${randomHex}.${extension}`;
   }
 
   private getContentType(extension: string): string {
     const contentTypes: Record<string, string> = {
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      png: 'image/png',
-      gif: 'image/gif',
-      webp: 'image/webp',
-      svg: 'image/svg+xml',
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      gif: "image/gif",
+      webp: "image/webp",
+      svg: "image/svg+xml",
+      pdf: "application/pdf"
     };
 
-    return contentTypes[extension] || 'application/octet-stream';
+    return contentTypes[extension] || "application/octet-stream";
   }
 }
 

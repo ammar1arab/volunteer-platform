@@ -4,3 +4,4 @@ export { default as ActivityRepository } from "./ActivityRepository/ActivityRepo
 export { default as ActivityParticipationRepository } from "./ActivityParticipationRepository/ActivityParticipationRepository";
 export { default as FeaturedPostRepository } from "./FeaturedPostRepository/FeaturedPostRepository";
 export { default as VolunteerSpotlightRepository } from "./VolunteerSpotlightRepository/VolunteerSpotlightRepository";
+export { default as MonthlyMagazineRepository } from "./MonthlyMagazineRepository/MonthlyMagazineRepository";
