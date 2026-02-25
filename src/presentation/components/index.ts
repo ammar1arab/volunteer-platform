@@ -29,6 +29,7 @@ export { default as ContactSection } from "./home/ContactSection/ContactSection"
 export { default as ActivityCard } from "./home/ActivityCard/ActivityCard";
 export { default as FeaturedPostCard } from "./home/FeaturedPostCard/FeaturedPostCard";
 export { default as VolunteerSpotlightCard } from "./home/VolunteerSpotlightCard/VolunteerSpotlightCard";
+export { default as MagazineCard } from "./home/MagazineCard/MagazineCard";
 
 export { default as AdminSidebar } from "./admin/AdminSidebar/AdminSidebar";
 export { default as AdminTopbar } from "./admin/AdminTopbar/AdminTopbar";
@@ -37,6 +38,7 @@ export { default as ActivityModal } from "./admin/ActivityModal/ActivityModal";
 export { default as ActivityItem } from "./admin/ActivityItem/ActivityItem";
 export { default as AdminFeaturedPostCard } from "./admin/AdminFeaturedPostCard/AdminFeaturedPostCard";
 export { default as AdminVolunteerSpotlightCard } from "./admin/AdminVolunteerSpotlightCard/AdminVolunteerSpotlightCard";
+export { default as AdminMagazineCard } from "./admin/AdminMagazineCard/AdminMagazineCard";
 export { default as VolunteersModal } from "./admin/VolunteersModal/VolunteersModal";
 export { default as UserCard } from "./admin/UserCard/UserCard";
 export { default as UserStatsCard } from "./admin/UserStatsCard/UserStatsCard";

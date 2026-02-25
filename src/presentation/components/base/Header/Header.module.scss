@@ -27,8 +27,12 @@ $mobile-break: 900px;
 }
 
 @keyframes scanline {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .nav {
@@ -77,8 +81,6 @@ $mobile-break: 900px;
   color: $text;
 }
 
-
-
 .navItem.active {
   color: $green;
   font-weight: 750;
@@ -118,9 +120,15 @@ $mobile-break: 900px;
 }
 
 @keyframes sheen {
-  0% { transform: translateX(-180%) skewX(-22deg); }
-  55% { transform: translateX(260%) skewX(-22deg); }
-  100% { transform: translateX(260%) skewX(-22deg); }
+  0% {
+    transform: translateX(-180%) skewX(-22deg);
+  }
+  55% {
+    transform: translateX(260%) skewX(-22deg);
+  }
+  100% {
+    transform: translateX(260%) skewX(-22deg);
+  }
 }
 
 .loginBtn:hover {
@@ -161,11 +169,16 @@ $mobile-break: 900px;
   clip-path: inset(0 0 100% 0 round $radius);
   animation: unfold 320ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
   transform-origin: top;
+  background: $bg;
 }
 
 @keyframes unfold {
-  0% { clip-path: inset(0 0 100% 0 round $radius); }
-  100% { clip-path: inset(0 0 0 0 round $radius); }
+  0% {
+    clip-path: inset(0 0 100% 0 round $radius);
+  }
+  100% {
+    clip-path: inset(0 0 0 0 round $radius);
+  }
 }
 
 .socialLink {
@@ -295,6 +308,7 @@ $mobile-break: 900px;
     transition: none;
   }
 }
+
 .iconWrapper {
   position: relative;
 }
@@ -332,6 +346,39 @@ $mobile-break: 900px;
   transform: scale(1);
 }
 
+.desktopLogoutBtn {
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius;
+  color: $text-muted;
+  transition: $transition;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.desktopLogoutBtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba($red, 0.1);
+  transform: scale(0);
+  border-radius: $radius;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.desktopLogoutBtn:hover {
+  color: $red;
+  border-color: rgba($red, 0.3);
+}
+
+.desktopLogoutBtn:hover::before {
+  transform: scale(1);
+}
+
 .notifMenu {
   position: absolute;
   top: 50px;
@@ -343,6 +390,7 @@ $mobile-break: 900px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   clip-path: inset(0 0 100% 0 round $radius);
   animation: unfold 320ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  background: $bg;
 }
 
 .notifMessage {

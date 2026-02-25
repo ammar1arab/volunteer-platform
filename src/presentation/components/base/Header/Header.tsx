@@ -14,6 +14,9 @@ import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
 
 const NAV_LINKS = [
   { href: ROUTES.ACTIVITIES, label: 'الفرص' },
+  { href: ROUTES.POSTS, label: 'أصداء العطاء' },
+  { href: ROUTES.SPOTLIGHT.BASE, label: 'سفراء الأثر' },
+  { href: ROUTES.MAGAZINES, label: 'حصاد الشهر' },
   { href: ROUTES.ABOUT, label: 'من نحن' },
   { href: '/#contact', label: 'تواصل معنا' },
 ];
@@ -88,9 +91,9 @@ const Header = () => {
             {isVolunteer ? (
               <>
                 <div className={styles.iconWrapper} ref={notifRef}>
-                  <button className={styles.iconBtn} onClick={() => setNotifOpen(!notifOpen)} title="الإشعارات">
+                  {/* <button className={styles.iconBtn} onClick={() => setNotifOpen(!notifOpen)} title="الإشعارات">
                     <Bell size={20} />
-                  </button>
+                  </button> */}
                   {notifOpen && (
                     <div className={styles.notifMenu}>
                       <p className={styles.notifMessage}>سنعمل على هذه الميزة مستقبلاً</p>
@@ -100,6 +103,9 @@ const Header = () => {
                 <Link href={ROUTES.VOLUNTEER.PROFILE} className={styles.iconBtn} title="الملف الشخصي">
                   <User size={20} />
                 </Link>
+                <button className={styles.desktopLogoutBtn} onClick={() => signOut({ callbackUrl: "/" })} title="تسجيل الخروج">
+                  <LogOut size={20} />
+                </button>
               </>
             ) : (
               <Link href={ROUTES.LOGIN}>

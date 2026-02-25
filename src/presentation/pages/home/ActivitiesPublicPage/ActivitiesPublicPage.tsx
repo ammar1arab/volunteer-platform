@@ -18,8 +18,8 @@ const ActivitiesPublicPage = () => {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>جميع الفرص المتاحة</h1>
-        <p className={styles.subtitle}>استكشف الفرص التطوعية واختر ما يناسبك</p>
+        <h1 className={styles.title}>بادر الآن</h1>
+        <p className={styles.subtitle}>جميع المسارات التطوعية المتاحة.. اختر ما يشبه طموحك وابدأ رحلتك معنا</p>
       </header>
 
       {activities.length === 0 ? (

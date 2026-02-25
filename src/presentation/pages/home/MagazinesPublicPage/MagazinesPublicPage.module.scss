@@ -1,0 +1,50 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.container {
+  @include container;
+  padding-top: 100px;
+  padding-bottom: $sp-2xl;
+  min-height: 100vh;
+}
+
+.loadingContainer {
+  @include flex-center;
+  min-height: 100vh;
+}
+
+.header {
+  @include flex-col;
+  gap: $sp-xs;
+  margin-bottom: $sp-xl;
+  text-align: center;
+
+  @include sm { margin-bottom: $sp-lg; }
+}
+
+.title {
+  margin: 0;
+  font-size: $font-2xl;
+  font-weight: 700;
+  color: $text;
+
+  @include sm { font-size: $font-xl; }
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-md;
+  color: $text-muted;
+
+  @include sm { font-size: $font-sm; }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: $sp-md;
+
+  @media (max-width: 1200px) { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px)  { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 640px)  { grid-template-columns: repeat(2, 1fr); gap: $sp-sm; }
+}

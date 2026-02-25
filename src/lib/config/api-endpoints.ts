@@ -37,7 +37,13 @@ export const API_ENDPOINTS = {
     BASE: "/api/volunteer-spotlight",
     BY_ID: (id: string) => `/api/volunteer-spotlight/${id}`
   },
+  MONTHLY_MAGAZINES: {
+    BASE: "/api/monthly-magazines",
+    BY_ID: (id: string) => `/api/monthly-magazines/${id}`,
+    UPLOAD: "/api/uploads/magazines"
+  },
   UPLOADS: {
-    BY_SCOPE: (scope: "featured-posts" | "activities" | "profiles" | "volunteer-spotlight") => `/api/uploads/${scope}`
+    BY_SCOPE: (scope: "featured-posts" | "activities" | "profiles" | "volunteer-spotlight" | "magazines") =>
+      `/api/uploads/${scope}`
   }
 } as const;

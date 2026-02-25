@@ -1,0 +1,118 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+@keyframes book-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%       { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes ring-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.25; }
+  50%       { transform: scale(1.55); opacity: 0; }
+}
+
+.card {
+  border-radius: $radius-lg;
+  border: 1px solid $border;
+  @include flex-col;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  box-sizing: border-box;
+  padding: 20px 16px 16px;
+  gap: 14px;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+
+  &:hover {
+    border-color: rgba($green, 0.5);
+    box-shadow: 0 14px 36px rgba($green, 0.13);
+    transform: translateY(-4px);
+
+    .title   { color: $green; }
+    .iconBox { background: rgba($green, 0.15); }
+  }
+}
+
+.iconArea {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba($green, 0.3);
+  animation: ring-pulse 2.8s ease-in-out infinite;
+}
+
+.iconBox {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: rgba($green, 0.08);
+  color: $green;
+  @include flex-center;
+  position: relative;
+  z-index: 1;
+  animation: book-float 3.5s ease-in-out infinite;
+  transition: background 0.25s ease;
+}
+
+.pdfTag {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: $green;
+  color: #fff;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  z-index: 2;
+}
+
+.info {
+  @include flex-col;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  text-align: center;
+  min-width: 0;
+}
+
+.datePill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: $green;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: $text;
+  line-height: 1.4;
+  @include line-clamp(2);
+  transition: color 0.25s ease;
+  width: 100%;
+}
+
+.hint {
+  font-size: 10px;
+  color: $text-muted;
+  font-weight: 500;
+}

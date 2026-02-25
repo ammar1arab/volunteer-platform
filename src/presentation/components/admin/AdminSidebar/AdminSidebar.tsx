@@ -19,9 +19,9 @@ import {
 
 const navItems = [
   { href: ROUTES.ADMIN.FEATURED_POSTS, label: "المنشورات", icon: FileText },
+  { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: "أبرز المتطوعين", icon: Trophy },
+  { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "المجلة الشهرية", icon: BookOpen },
   { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية", icon: Activity },
-  { href: ROUTES.ADMIN.MAGAZINE, label: "المجلة الشهرية", icon: BookOpen },
-  { href: ROUTES.ADMIN.SUCCESS_STORIES, label: "أبرز المتطوعين", icon: Trophy },
   { href: ROUTES.ADMIN.REQUESTS, label: "طلبات الانضمام", icon: UserCheck },
   { href: ROUTES.ADMIN.USERS, label: "إدارة المستخدمين", icon: Users },
 ];

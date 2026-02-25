@@ -2,7 +2,7 @@ import { apiClient } from "./client.service";
 import { API_ENDPOINTS } from "@/lib/config";
 import type { Result } from "@/core/application/dtos";
 
-type UploadScope = "featured-posts" | "activities" | "profiles" | "volunteer-spotlight";
+type UploadScope = "featured-posts" | "activities" | "profiles" | "volunteer-spotlight" | "magazines";
 type UploadResponse = Result<{ imageUrl: string }>;
 
 const upload = (scope: UploadScope, file: File): Promise<UploadResponse> => {
@@ -16,5 +16,6 @@ export const uploadApi = {
   uploadFeaturedImage: (file: File) => upload("featured-posts", file),
   uploadActivityImage: (file: File) => upload("activities", file),
   uploadProfilePicture: (file: File) => upload("profiles", file),
-  uploadVolunteerSpotlightImage: (file: File) => upload("volunteer-spotlight", file)
+  uploadVolunteerSpotlightImage: (file: File) => upload("volunteer-spotlight", file),
+  uploadMagazinePdf: (file: File) => upload("magazines", file) 
 };

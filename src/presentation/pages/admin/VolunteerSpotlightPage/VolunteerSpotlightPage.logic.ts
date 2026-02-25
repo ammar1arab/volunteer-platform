@@ -20,7 +20,8 @@ interface FormState {
   imageUrl: string;
   name: string;
   description: string;
-  spotlightDate: Date;
+  month: string;
+  year: string;
   city: JordanianCity;
   isActive: boolean;
 }
@@ -30,7 +31,8 @@ const EMPTY_FORM: FormState = {
   imageUrl: "",
   name: "",
   description: "",
-  spotlightDate: new Date(),
+  month: String(new Date().getMonth() + 1),
+  year: String(new Date().getFullYear()),
   city: JordanianCity.AMMAN,
   isActive: true
 };
@@ -116,10 +118,17 @@ export const useVolunteerSpotlightPage = () => {
   const openEdit = useCallback(
     (spotlight: VolunteerSpotlightDto) => {
       if (preview) revokeImagePreview(preview);
+      const date = new Date(spotlight.spotlightDate);
       setMode("edit");
       setForm({
-        ...spotlight,
-        spotlightDate: new Date(spotlight.spotlightDate)
+        id: spotlight.id,
+        imageUrl: spotlight.imageUrl,
+        name: spotlight.name,
+        description: spotlight.description,
+        month: String(date.getMonth() + 1),
+        year: String(date.getFullYear()),
+        city: spotlight.city,
+        isActive: spotlight.isActive
       });
       setPreview("");
       setShowModal(true);
@@ -156,7 +165,7 @@ export const useVolunteerSpotlightPage = () => {
       imageUrl: form.imageUrl,
       name: normalizeWhitespace(form.name),
       description: form.description.trim(),
-      spotlightDate: form.spotlightDate,
+      spotlightDate: new Date(`${form.year}-${form.month.padStart(2, "0")}-01`),
       city: form.city,
       isActive: form.isActive
     };

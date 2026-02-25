@@ -6,6 +6,7 @@ export const ROUTES = {
   SIGNUP: "/signup",
   ABOUT: "/about",
   POSTS: "/posts",
+  MAGAZINES: "/magazines",
   POST_DETAILS: (id: string) => `/posts/${id}`,
   ACTIVITIES: "/activities",
   ACTIVITY_DETAILS: (id: string) => `/activities/${id}`,
@@ -17,8 +18,8 @@ export const ROUTES = {
   ADMIN: {
     ROOT: "/admin/dashboard",
     FEATURED_POSTS: "/admin/dashboard/featured-posts",
-    SUCCESS_STORIES: "/admin/dashboard/success-stories",
-    MAGAZINE: "/admin/dashboard/magazine",
+    VOLUNTEER_SPOTLIGHT: "/admin/dashboard/volunteer-spotlight",
+    MONTHLY_MAGAZINE: "/admin/dashboard/monthly-magazine",
     ACTIVITIES: "/admin/dashboard/activities",
     REQUESTS: "/admin/dashboard/requests",
     USERS: "/admin/dashboard/users",

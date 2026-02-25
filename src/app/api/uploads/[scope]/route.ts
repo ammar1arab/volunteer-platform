@@ -21,7 +21,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ scope: string 
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const fileError = validateFile(file);
+
+    const fileType = scope === "magazines" ? "pdf" : "image";
+    const fileError = validateFile(file, scope === "magazines" ? 50 : 10, fileType);
     if (fileError) return badRequest(fileError);
 
     const buffer = Buffer.from(await file!.arrayBuffer());

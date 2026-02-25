@@ -3,13 +3,14 @@
 
 .page {
   min-height: 100vh;
-  background: $bg;
   padding: 80px 10px 0;
+  overflow-x: hidden; 
 }
 
 .container {
   @include container;
   padding: $sp-xl 0 $sp-2xl;
+  max-width: 100%;
 }
 
 .errorAlert {
@@ -22,20 +23,20 @@
   margin-bottom: $sp-md;
 }
 
-// Hero
 .hero {
   display: flex;
   align-items: center;
   gap: $sp-lg;
   padding: $sp-lg;
-  background: $bg;
   border: 1px solid $border;
   border-radius: $radius-lg;
   margin-bottom: $sp-lg;
+  flex-wrap: wrap; 
 
   @media (max-width: 768px) {
     flex-direction: column;
     text-align: center;
+    padding: $sp-md;
   }
 }
 
@@ -56,6 +57,7 @@
   height: 120px;
   border-radius: 50%;
   border: 3px solid $green;
+  max-width: 100%; // حماية إضافية
 }
 
 .avatar {
@@ -99,6 +101,7 @@
   flex: 1;
   @include flex-col;
   gap: $sp-sm;
+  min-width: 0; 
 }
 
 .name {
@@ -106,6 +109,7 @@
   font-size: $font-xl;
   font-weight: 700;
   color: $text;
+  word-break: break-word;
 }
 
 .memberSince {
@@ -121,9 +125,11 @@
 .stats {
   @include flex(row, center, flex-start, $sp-lg);
   margin-top: $sp-xs;
+  flex-wrap: wrap;
 
   @media (max-width: 768px) {
     justify-content: center;
+    gap: $sp-md;
   }
 }
 
@@ -144,40 +150,39 @@
   color: $text-muted;
 }
 
-// Grid
 .grid {
   display: grid;
-  grid-template-columns: 400px 1fr;
+  grid-template-columns: minmax(280px, 350px) minmax(0, 1fr);
   gap: $sp-lg;
+  align-items: start; 
 
   @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr); 
   }
 }
 
 .col {
   @include flex-col;
   gap: $sp-md;
+  min-width: 0; 
 }
 
-// Card
 .card {
   @include flex-col;
   gap: $sp-md;
   padding: $sp-md;
-  background: $bg;
   border: 1px solid $border;
   border-radius: $radius;
+  max-width: 100%; 
+  overflow: hidden;
 }
 
 .cardHeader {
-  @include flex-between;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: $sp-sm;
-
-  @media (max-width: 640px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  flex-wrap: wrap; 
 }
 
 .cardTitle {
@@ -186,6 +191,7 @@
   font-weight: 700;
   color: $text;
   @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
 }
 
 .btnEdit {
@@ -198,6 +204,7 @@
   color: $text-muted;
   cursor: pointer;
   transition: $transition;
+  flex-shrink: 0;
 
   &:hover {
     background: rgba($green, 0.1);
@@ -210,10 +217,14 @@
 .infoList {
   @include flex-col;
   gap: $sp-sm;
+  width: 100%;
 }
 
 .infoRow {
-  @include flex(row, flex-start, flex-start, $sp-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: $sp-sm;
+  width: 100%;
 }
 
 .infoIcon {
@@ -230,7 +241,7 @@
   @include flex-col;
   gap: 4px;
   flex: 1;
-  min-width: 0;
+  min-width: 0; // يمنع خروج النص داخل الفليكس
 }
 
 .infoLabel {
@@ -244,11 +255,15 @@
   font-size: $font-sm;
   font-weight: 500;
   color: $text;
+  word-break: break-word; // كسر الإيميلات والنصوص الطويلة
 }
 
 .infoValueRow {
-  @include flex-between;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: $sp-sm;
+  width: 100%;
 }
 
 .btnEditIcon {
@@ -258,6 +273,7 @@
   cursor: pointer;
   padding: 4px;
   transition: $transition;
+  flex-shrink: 0;
 
   &:hover {
     color: $green;
@@ -265,8 +281,11 @@
 }
 
 .inlineEdit {
-  @include flex(row, center, flex-start, 4px);
-  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  flex-wrap: wrap; // التفاف الأزرار والإنبوت في الشاشات الصغيرة
 }
 
 .input {
@@ -274,6 +293,8 @@
   padding: $sp-xs $sp-sm;
   font-size: $font-sm;
   flex: 1;
+  min-width: 120px; // ضمان عدم اختفاء الحقل
+  max-width: 100%;
 }
 
 .btnCheck,
@@ -315,6 +336,7 @@
 .editSection {
   @include flex-col;
   gap: $sp-sm;
+  width: 100%;
 }
 
 .textarea {
@@ -322,6 +344,8 @@
   resize: vertical;
   min-height: 80px;
   font-family: inherit;
+  width: 100%; 
+  max-width: 100%;
 }
 
 .bio {
@@ -329,10 +353,12 @@
   font-size: $font-sm;
   line-height: 1.6;
   color: $text;
+  word-break: break-word;
 }
 
 .actions {
   @include flex(row, center, flex-end, $sp-xs);
+  flex-wrap: wrap;
 }
 
 .btnSave,
@@ -345,6 +371,7 @@
   cursor: pointer;
   transition: $transition;
   border: none;
+  white-space: nowrap; 
 
   &:disabled {
     opacity: 0.5;
@@ -372,7 +399,10 @@
 
 // Tags
 .tagInput {
-  @include flex(row, center, flex-start, $sp-xs);
+  display: flex;
+  align-items: center;
+  gap: $sp-xs;
+  width: 100%;
 }
 
 .btnAdd {
@@ -401,6 +431,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: $sp-xs;
+  width: 100%;
 }
 
 .tag {
@@ -409,6 +440,7 @@
   border-radius: $radius-full;
   font-size: $font-xs;
   font-weight: 600;
+  word-break: break-word;
 
   &.green {
     background: rgba($green, 0.1);
@@ -433,6 +465,7 @@
   color: $red;
   cursor: pointer;
   transition: $transition;
+  flex-shrink: 0;
 
   &:hover:not(:disabled) {
     background: rgba($red, 0.3);
@@ -444,20 +477,20 @@
   }
 }
 
-// Activities
 .list {
   @include flex-col;
   gap: $sp-sm;
+  width: 100%;
 }
 
 .activityCard {
   @include flex-col;
   gap: $sp-sm;
   padding: $sp-md;
-  background: $bg;
   border: 1px solid $border;
   border-radius: $radius;
   transition: $transition;
+  max-width: 100%;
 
   &:hover {
     border-color: $green;
@@ -465,8 +498,11 @@
 }
 
 .activityHeader {
-  @include flex-between;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: $sp-sm;
+  flex-wrap: wrap; 
 }
 
 .activityTitle {
@@ -475,6 +511,8 @@
   font-weight: 700;
   color: $text;
   flex: 1;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .badge {
@@ -482,6 +520,7 @@
   border-radius: $radius-full;
   font-size: $font-xs;
   font-weight: 700;
+  white-space: nowrap;
 
   &.yellow {
     background: rgba(#f59e0b, 0.1);
@@ -504,11 +543,13 @@
   font-size: $font-sm;
   line-height: 1.5;
   color: $text;
+  word-break: break-word;
 }
 
 .activityDetails {
-  @include flex-col;
-  gap: 4px;
+  display: flex;
+  flex-wrap: wrap; // التفاف تفاصيل النشاط
+  gap: $sp-md;
 }
 
 .detail {
@@ -530,5 +571,7 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }

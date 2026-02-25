@@ -46,11 +46,27 @@ export const DAY_LABELS: Record<DayOfWeek, string> = {
   [DayOfWeek.SATURDAY]: "السبت"
 };
 
+export const MONTH_LABELS: Record<number, string> = {
+  1: "يناير",
+  2: "فبراير",
+  3: "مارس",
+  4: "أبريل",
+  5: "مايو",
+  6: "يونيو",
+  7: "يوليو",
+  8: "أغسطس",
+  9: "سبتمبر",
+  10: "أكتوبر",
+  11: "نوفمبر",
+  12: "ديسمبر"
+};
+
 // Helper functions for components
 export const getGenderLabel = (gender: Gender) => GENDER_LABELS[gender] || gender;
 export const getCityLabel = (city: JordanianCity) => CITY_LABELS[city] || city;
 export const getCategoryLabel = (cat: DomainFeaturedPostCategory) => CATEGORY_LABELS[cat] || cat;
 export const getDayLabel = (day: DayOfWeek) => DAY_LABELS[day] || day;
+export const getMonthLabel = (month: number) => MONTH_LABELS[month] || String(month);
 
 // For select inputs in forms
 export const GENDER_OPTIONS = Object.entries(GENDER_LABELS).map(([value, label]) => ({ value, label }));

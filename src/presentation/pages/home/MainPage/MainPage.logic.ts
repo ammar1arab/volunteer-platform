@@ -8,6 +8,7 @@ import {
   useActivityParticipations,
   useToast,
   useVolunteerSpotlight,
+  useMonthlyMagazines
 } from "@/presentation/hooks";
 import type { ActivityDto } from "@/core/application/dtos";
 import { ROUTES } from "@/presentation/constants";
@@ -15,6 +16,7 @@ import { ROUTES } from "@/presentation/constants";
 const ACTIVITIES_LIMIT = 4;
 const POSTS_LIMIT = 8;
 const SPOTLIGHT_LIMIT = 3;
+const MAGAZINES_LIMIT = 5;
 
 export const useMainPage = () => {
   const router = useRouter();
@@ -24,11 +26,13 @@ export const useMainPage = () => {
   const { list: allPosts, loading: postsLoading } = useFeaturedPosts({ activeOnly: true });
   const { list: allActivities, loading: activitiesLoading } = useActivities({ filter: "published" });
   const { list: allSpotlights, loading: spotlightsLoading } = useVolunteerSpotlight({ activeOnly: true });
+  const { list: allMagazines, loading: magazinesLoading } = useMonthlyMagazines({ activeOnly: true });
   const { submitting, createRequest, getRequestForActivity } = useActivityParticipations({ autoFetch: !!session });
 
   const posts = useMemo(() => allPosts.slice(0, POSTS_LIMIT), [allPosts]);
   const activities = useMemo(() => allActivities.slice(0, ACTIVITIES_LIMIT), [allActivities]);
   const spotlights = useMemo(() => allSpotlights.slice(0, SPOTLIGHT_LIMIT), [allSpotlights]);
+  const magazines = useMemo(() => allMagazines.slice(0, MAGAZINES_LIMIT), [allMagazines]);
 
   const handleJoin = useCallback(
     async (activity: ActivityDto) => {
@@ -36,7 +40,7 @@ export const useMainPage = () => {
       const success = await createRequest(activity.id);
       showToast(success ? "تم إرسال طلب الانضمام" : "فشل إرسال الطلب", success ? "success" : "error");
     },
-    [session, router, createRequest, showToast],
+    [session, router, createRequest, showToast]
   );
 
   const getActionButton = useCallback(
@@ -48,18 +52,20 @@ export const useMainPage = () => {
       if (request?.status === "APPROVED") return { variant: "ghost" as const, label: "أنت مشارك", disabled: true };
       return { variant: "primary" as const, label: "انضم الآن", disabled: false, onClick: () => handleJoin(activity) };
     },
-    [session, router, getRequestForActivity, handleJoin],
+    [session, router, getRequestForActivity, handleJoin]
   );
 
   return {
     posts,
     activities,
     spotlights,
+    magazines,
     hasMorePosts: allPosts.length > POSTS_LIMIT,
     hasMoreActivities: allActivities.length > ACTIVITIES_LIMIT,
     hasMoreSpotlights: allSpotlights.length > SPOTLIGHT_LIMIT,
-    loading: postsLoading || activitiesLoading || spotlightsLoading,
+    hasMoreMagazines: allMagazines.length > MAGAZINES_LIMIT,
+    loading: postsLoading || activitiesLoading || spotlightsLoading || magazinesLoading,
     submitting,
-    getActionButton,
+    getActionButton
   };
 };

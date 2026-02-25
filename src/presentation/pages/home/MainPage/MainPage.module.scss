@@ -33,6 +33,23 @@
   }
 }
 
+.magazinesGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: $sp-md;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-sm;
+  }
+}
+
 .viewAll {
   @include flex-center;
   padding: $sp-xl 0 $sp-md;

@@ -4,6 +4,7 @@ import { useVolunteerSpotlightPage } from "./VolunteerSpotlightPage.logic";
 import Image from "next/image";
 import { AdminVolunteerSpotlightCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, Dropdown, SelectInput, BirthDateInput, } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, Users, User } from "lucide-react";
+import { MONTH_LABELS } from "@/presentation/constants";
 
 const VolunteerSpotlightPage = () => {
     const {
@@ -138,11 +139,22 @@ const VolunteerSpotlightPage = () => {
                             onChange={(value) => setForm((p) => ({ ...p, city: value as any }))}
                             required
                         />
-                        <BirthDateInput
-                            label="تاريخ التكريم"
-                            value={form.spotlightDate.toISOString().split("T")[0]}
-                            onChange={(value) => setForm((p) => ({ ...p, spotlightDate: new Date(value) }))}
-                            required
+                        <SelectInput
+                            label="الشهر"
+                            value={form.month}
+                            options={Object.entries(MONTH_LABELS).map(([value, label]) => ({ value, label }))}
+                            onChange={(val) => setForm((p) => ({ ...p, month: val }))}
+                            disabled={isSubmitting || isUploading}
+                        />
+                        <SelectInput
+                            label="السنة"
+                            value={form.year}
+                            options={Array.from({ length: 10 }, (_, i) => {
+                                const y = String(new Date().getFullYear() - 2 + i);
+                                return { value: y, label: y };
+                            })}
+                            onChange={(val) => setForm((p) => ({ ...p, year: val }))}
+                            disabled={isSubmitting || isUploading}
                         />
                     </div>
 

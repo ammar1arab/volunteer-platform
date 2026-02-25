@@ -4,7 +4,6 @@
 .card {
   @include flex(row, center, flex-start, $sp-md);
   padding: $sp-md;
-  background: $bg;
   border-radius: $radius-lg;
   border: 2px solid $border;
   position: relative;

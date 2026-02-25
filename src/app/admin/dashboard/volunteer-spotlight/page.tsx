@@ -1,5 +1,5 @@
 import { VolunteerSpotlightPage } from "@/presentation/pages";
 
-export default function SuccessStories() {
+export default function VolunteerSpotlight() {
     return <VolunteerSpotlightPage />
 }

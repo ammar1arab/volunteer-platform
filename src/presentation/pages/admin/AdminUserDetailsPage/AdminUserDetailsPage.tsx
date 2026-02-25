@@ -6,8 +6,8 @@ import Link from "next/link";
 import { LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown, InfoCard, ActivityItem, ToastContainer, Pagination } from "@/presentation/components";
 import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
-import { getCityLabel } from "@/presentation/constants/labels"; // ✅ Add this import
-import { JordanianCity } from "@/core/domain/enums"; // ✅ Add this import
+import { getCityLabel } from "@/presentation/constants/labels";
+import { JordanianCity } from "@/core/domain/enums"; 
 
 const AdminUserDetailsPage = () => {
   const {
@@ -43,7 +43,6 @@ const AdminUserDetailsPage = () => {
   }
 
   const volunteerProfile = user.volunteerProfile;
-  // ✅ Use getCityLabel helper instead
   const cityLabel = volunteerProfile?.city
     ? getCityLabel(volunteerProfile.city as JordanianCity)
     : undefined;

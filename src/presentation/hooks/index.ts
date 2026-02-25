@@ -7,3 +7,4 @@ export * from "./apiHooks/useActivities";
 export * from "./apiHooks/useActivityParticipations";
 export * from "./apiHooks/useFeaturedPosts";
 export * from "./apiHooks/useVolunteerSpotlight";
+export * from "./apiHooks/useMonthlyMagazine";
