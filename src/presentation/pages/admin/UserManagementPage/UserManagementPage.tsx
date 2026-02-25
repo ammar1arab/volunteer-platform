@@ -9,22 +9,22 @@ import {
 } from "@/presentation/components";
 
 const SORT_OPTIONS = [
-  { key: "default",     label: "الافتراضي" },
+  { key: "default", label: "الافتراضي" },
   { key: "most-active", label: "الأكثر نشاطاً" },
-  { key: "oldest",      label: "الأقدم" },
-  { key: "newest",      label: "الأحدث" },
-  { key: "name",        label: "الاسم" },
+  { key: "oldest", label: "الأقدم" },
+  { key: "newest", label: "الأحدث" },
+  { key: "name", label: "الاسم" },
 ];
 
 const EXPORT_COLUMNS = [
-  { key: "fullName",           label: "الاسم" },
-  { key: "age",                label: "العمر" },
-  { key: "phone",              label: "رقم الهاتف" },
-  { key: "email",              label: "البريد الإلكتروني" },
-  { key: "city",               label: "المدينة" },
-  { key: "skills",             label: "المهارات" },
+  { key: "fullName", label: "الاسم" },
+  { key: "age", label: "العمر" },
+  { key: "phone", label: "رقم الهاتف" },
+  { key: "email", label: "البريد الإلكتروني" },
+  { key: "city", label: "المدينة" },
+  { key: "skills", label: "المهارات" },
   { key: "approvedActivities", label: "عدد الفرص الموافق عليها" },
-  { key: "createdAt",          label: "تاريخ الانضمام" },
+  { key: "createdAt", label: "تاريخ الانضمام" },
 ];
 
 const ExportBtn = ({ data }: { data: any[] }) => (
@@ -56,7 +56,7 @@ const UserManagementPage = () => {
         <EmptyState icon={UsersIcon} message="لا يوجد مستخدمين" />
       ) : (
         <>
-          {volunteers.length > 0 && (
+          {(volunteers.length > 0 || appliedSearch) && (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
 
