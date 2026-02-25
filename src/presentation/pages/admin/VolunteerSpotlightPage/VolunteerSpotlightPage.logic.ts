@@ -55,11 +55,17 @@ export const useVolunteerSpotlightPage = () => {
     message: ""
   });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
 
   const filteredList = useMemo(() => {
-    if (activeCity === "all") return list;
-    return list.filter((spotlight) => spotlight.city === activeCity);
-  }, [list, activeCity]);
+    let result = activeCity === "all" ? list : list.filter((s) => s.city === activeCity);
+    if (appliedSearch.trim()) {
+      const q = appliedSearch.toLowerCase();
+      result = result.filter((s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q));
+    }
+    return result;
+  }, [list, activeCity, appliedSearch]);
 
   const paginatedList = useMemo(() => {
     if (!Array.isArray(filteredList)) return [];
@@ -80,7 +86,7 @@ export const useVolunteerSpotlightPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeCity]);
+  }, [activeCity, appliedSearch]);
 
   const confirm = useCallback((opts: ConfirmOptions) => {
     setConfirmOptions(opts);
@@ -257,6 +263,9 @@ export const useVolunteerSpotlightPage = () => {
     handleFileChange,
     handleSubmit,
     handleToggle,
-    handleDelete
+    handleDelete,
+    searchQuery,
+setSearchQuery,
+setAppliedSearch,
   };
 };

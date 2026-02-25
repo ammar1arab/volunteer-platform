@@ -9,7 +9,8 @@ import {
   EmptyState,
   Pagination,
   ConfirmDialog,
-  SelectInput
+  SelectInput,
+  Search
 } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, BookOpen, FileText } from "lucide-react";
 import { MONTH_LABELS } from "@/presentation/constants/labels";
@@ -38,7 +39,11 @@ const MagazinesPage = () => {
     handlePdfUpload,
     handleSubmit,
     handleToggle,
-    handleDelete
+    handleDelete,
+    filteredList,
+    searchQuery,
+    setSearchQuery,
+    setAppliedSearch,
   } = useMagazinesPage();
 
   if (status === "loading") return <LoadingState />;
@@ -54,8 +59,8 @@ const MagazinesPage = () => {
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       <header className={styles.header}>
-        <h1 className={styles.title}>المجلة الشهرية</h1>
         <div className={styles.actions}>
+          <Search value={searchQuery} onChange={setSearchQuery} onSearch={setAppliedSearch} placeholder="ابحث عن مجلة..." />
           <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
             <Plus size={18} />
             إضافة مجلة جديدة
@@ -65,10 +70,10 @@ const MagazinesPage = () => {
 
       {isLoading ? (
         <LoadingState />
-      ) : list.length === 0 ? (
+      ) : filteredList.length === 0 ? (
         <EmptyState
           icon={BookOpen}
-          message="لا توجد مجلات منشورة"
+          message={searchQuery ? "لا توجد نتائج للبحث" : "لا توجد مجلات منشورة"}
           action={{ label: "إضافة مجلة", onClick: openCreate }}
         />
       ) : (
@@ -96,10 +101,10 @@ const MagazinesPage = () => {
               />
             ))}
           </div>
-
+          
           <Pagination
             currentPage={currentPage}
-            totalItems={list.length}
+            totalItems={filteredList.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             sticky

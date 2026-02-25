@@ -13,6 +13,7 @@ type Props = {
   confirmText?: string;
   cancelText?: string;
   variant?: "danger" | "primary";
+  warning?: string;
 };
 
 const ConfirmDialog = ({
@@ -24,6 +25,7 @@ const ConfirmDialog = ({
   confirmText = "تأكيد",
   cancelText = "إلغاء",
   variant = "danger",
+  warning,
 }: Props) => {
   const Icon = variant === "danger" ? AlertTriangle : CheckCircle;
 
@@ -34,6 +36,9 @@ const ConfirmDialog = ({
           <Icon size={20} />
         </div>
         <p className={styles.message}>{message}</p>
+        {warning && (
+          <p className={styles.warning}>{warning}</p>
+        )}
         <div className={styles.actions}>
           <button className={styles.cancel} onClick={onClose}>
             {cancelText}

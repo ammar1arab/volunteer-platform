@@ -1,0 +1,80 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrapper {
+  position: relative;
+  @include flex(row, center, flex-start, 0);
+  height: 36px;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $bg;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-width: 200px;
+
+  &:focus-within,
+  &.active {
+    border-color: rgba($green, 0.5);
+    box-shadow: 0 0 0 3px rgba($green, 0.06);
+  }
+}
+
+.icon {
+  flex-shrink: 0;
+  color: $text-muted;
+  margin: 0 10px;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: $text;
+  font-family: inherit;
+  padding: 0;
+  min-width: 0;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.clear {
+  @include flex-center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-left: 6px;
+  border: none;
+  background: rgba($black, 0.06);
+  border-radius: 50%;
+  color: $text-muted;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+}
+.searchBtn {
+  @include flex-center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0 8px;
+
+  &:hover:not(:disabled) { color: $green; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

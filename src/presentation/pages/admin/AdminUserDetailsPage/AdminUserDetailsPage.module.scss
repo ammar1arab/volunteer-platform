@@ -2,6 +2,7 @@
 @use "@/presentation/styles/mixins" as *;
 
 .header {
+  @include flex(row, center, space-between, $sp-sm);
   margin-bottom: $sp-md;
 }
 

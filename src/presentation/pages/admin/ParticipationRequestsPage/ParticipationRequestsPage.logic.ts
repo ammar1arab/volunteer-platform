@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { UserRole } from "@/core/domain/enums";
 import { useActivityParticipations, useToast, useAuth } from "@/presentation/hooks";
 
@@ -11,6 +10,7 @@ type ConfirmOptions = {
   confirmText?: string;
   cancelText?: string;
   variant?: "danger" | "primary";
+  warning?: string;
 };
 
 export const useParticipationRequestsPage = () => {
@@ -21,7 +21,11 @@ export const useParticipationRequestsPage = () => {
     type: "pending"
   });
 
+  const ITEMS_PER_PAGE = 20;
   const [filter, setFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
@@ -47,9 +51,22 @@ export const useParticipationRequestsPage = () => {
   }, [confirmResolver]);
 
   const filteredRequests = useMemo(() => {
-    if (filter === "all") return requests;
-    return requests.filter((r) => r.activityId === filter);
-  }, [requests, filter]);
+    let result = filter === "all" ? requests : requests.filter((r) => r.activityId === filter);
+    if (appliedSearch.trim()) {
+      const q = appliedSearch.toLowerCase();
+      result = result.filter((r) =>
+        r.volunteer?.fullName?.toLowerCase().includes(q) ||
+        r.volunteer?.email?.toLowerCase().includes(q) ||
+        r.volunteer?.phone?.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [requests, filter, appliedSearch]);
+
+  const paginatedRequests = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredRequests.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredRequests, currentPage]);
 
   const filterItems = useMemo(() => {
     const activities = Array.from(new Set(requests.map((r) => r.activityId))).map((id) => {
@@ -60,26 +77,29 @@ export const useParticipationRequestsPage = () => {
         count: requests.filter((r) => r.activityId === id).length
       };
     });
-
     return [{ key: "all", label: "الكل", count: requests.length }, ...activities];
   }, [requests]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, appliedSearch]);
+
   const handleApprove = useCallback(
-    async (id: string, volunteerName: string) => {
+    async (id: string, volunteerName: string, volunteerCity?: string, activityCity?: string) => {
+      const cityMismatch = volunteerCity && activityCity && volunteerCity !== activityCity;
       const ok = await confirm({
         title: "موافقة على الطلب",
         message: `هل تريد الموافقة على طلب ${volunteerName}؟`,
         confirmText: "موافقة",
         cancelText: "إلغاء",
-        variant: "primary"
+        variant: "primary",
+        warning: cityMismatch
+          ? `تنبيه: المتطوع من ${volunteerCity} والنشاط في ${activityCity}`
+          : undefined
       });
-
       if (!ok) return;
-
       const success = await approve(id);
-      if (success) {
-        showToast("تمت الموافقة", "success");
-      }
+      if (success) showToast("تمت الموافقة", "success");
     },
     [confirm, approve, showToast]
   );
@@ -93,13 +113,9 @@ export const useParticipationRequestsPage = () => {
         cancelText: "إلغاء",
         variant: "danger"
       });
-
       if (!ok) return;
-
       const success = await reject(id);
-      if (success) {
-        showToast("تم الرفض", "success");
-      }
+      if (success) showToast("تم الرفض", "success");
     },
     [confirm, reject, showToast]
   );
@@ -113,18 +129,13 @@ export const useParticipationRequestsPage = () => {
       cancelText: "إلغاء",
       variant: "primary"
     });
-
     if (!ok) return;
-
     let successCount = 0;
     for (const request of filteredRequests) {
       const success = await approve(request.id);
       if (success) successCount++;
     }
-
-    if (successCount > 0) {
-      showToast(`تمت الموافقة على ${successCount} من ${count} طلب`, "success");
-    }
+    if (successCount > 0) showToast(`تمت الموافقة على ${successCount} من ${count} طلب`, "success");
   }, [filteredRequests, confirm, approve, showToast]);
 
   return {
@@ -132,9 +143,17 @@ export const useParticipationRequestsPage = () => {
     loading,
     filter,
     filteredRequests,
+    paginatedRequests,
     filterItems,
     toasts,
     removeToast,
+    searchQuery,
+    setSearchQuery,
+    setAppliedSearch,
+    appliedSearch,
+    currentPage,
+    setCurrentPage,
+    itemsPerPage: ITEMS_PER_PAGE,
     confirmDialog: {
       isOpen: isConfirmOpen,
       options: confirmOptions,

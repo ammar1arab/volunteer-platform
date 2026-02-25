@@ -52,11 +52,22 @@ export const useFeaturedPostsPage = () => {
     message: ""
   });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
 
   const filteredList = useMemo(() => {
-    if (activeCategory === "all") return list;
-    return list.filter((post) => post.categories.includes(activeCategory as DomainFeaturedPostCategory));
-  }, [list, activeCategory]);
+    let result =
+      activeCategory === "all"
+        ? list
+        : list.filter((post) => post.categories.includes(activeCategory as DomainFeaturedPostCategory));
+    if (appliedSearch.trim()) {
+      const q = appliedSearch.toLowerCase();
+      result = result.filter(
+        (post) => post.title.toLowerCase().includes(q) || post.description.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [list, activeCategory, appliedSearch]);
 
   const paginatedList = useMemo(() => {
     if (!Array.isArray(filteredList)) return [];
@@ -85,7 +96,7 @@ export const useFeaturedPostsPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeCategory]);
+  }, [activeCategory, appliedSearch]);
 
   const confirm = useCallback((opts: ConfirmOptions) => {
     setConfirmOptions(opts);
@@ -250,6 +261,9 @@ export const useFeaturedPostsPage = () => {
     handleFileChange,
     handleSubmit,
     handleToggle,
-    handleDelete
+    handleDelete,
+    searchQuery,
+    setSearchQuery,
+    setAppliedSearch
   };
 };

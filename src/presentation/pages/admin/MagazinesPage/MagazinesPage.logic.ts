@@ -54,15 +54,27 @@ export const useMagazinesPage = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
+
+  const filteredList = useMemo(() => {
+    if (!appliedSearch.trim()) return list;
+    const q = appliedSearch.toLowerCase();
+    return list.filter((m) => m.title.toLowerCase().includes(q));
+  }, [list, appliedSearch]);
 
   const paginatedList = useMemo(() => {
-    if (!Array.isArray(list)) return [];
-    return list.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-  }, [list, currentPage]);
+    if (!Array.isArray(filteredList)) return [];
+    return filteredList.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  }, [filteredList, currentPage]);
 
   useEffect(() => {
     if (error && error.trim()) showToast(error, "error");
   }, [error, showToast]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [appliedSearch]);
 
   // ── Confirm Dialog ──────────────────────────────────────────────────────────
 
@@ -227,6 +239,10 @@ export const useMagazinesPage = () => {
     handlePdfUpload,
     handleSubmit,
     handleToggle,
-    handleDelete
+    handleDelete,
+    filteredList,
+    searchQuery,
+    setSearchQuery,
+    setAppliedSearch
   };
 };

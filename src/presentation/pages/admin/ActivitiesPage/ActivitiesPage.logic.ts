@@ -59,11 +59,23 @@ export const useActivitiesPage = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
 
   const filtered = useMemo(() => {
-    if (activeFilter === "all") return list;
-    return list.filter((a) => a.status === activeFilter);
-  }, [list, activeFilter]);
+    let result = activeFilter === "all" ? list : list.filter((a) => a.status === activeFilter);
+    if (appliedSearch.trim()) {
+      const q = appliedSearch.toLowerCase();
+      result = result.filter(
+        (a) =>
+          a.title.toLowerCase().includes(q) ||
+          a.description.toLowerCase().includes(q) ||
+          a.placeName.toLowerCase().includes(q) ||
+          a.location.address.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [list, activeFilter, appliedSearch]);
 
   const paginatedActivities = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -72,7 +84,7 @@ export const useActivitiesPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilter]);
+  }, [activeFilter, appliedSearch]);
 
   const confirm = useCallback((opts: ConfirmOptions) => {
     setConfirmOptions(opts);
@@ -220,7 +232,6 @@ export const useActivitiesPage = () => {
     [confirm, remove, showToast]
   );
 
-
   const handleCancelActivity = useCallback(
     async (activity: ActivityDto) => {
       if (activity.status === "CANCELLED") return;
@@ -290,6 +301,10 @@ export const useActivitiesPage = () => {
     handlePublish,
     handleCancel: handleCancelActivity,
     handleRestore,
-    handleViewVolunteers
+    handleViewVolunteers,
+    searchQuery,
+    setSearchQuery,
+    setAppliedSearch,
+    appliedSearch
   };
 };

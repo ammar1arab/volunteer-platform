@@ -1,23 +1,19 @@
 "use client";
 import styles from "./ParticipationRequestsPage.module.scss";
 import { useParticipationRequestsPage } from "./ParticipationRequestsPage.logic";
-import { LoadingState, EmptyState, ToastContainer, ConfirmDialog, ParticipationRequestItem, Dropdown } from "@/presentation/components";
+import {
+  LoadingState, EmptyState, ToastContainer, ConfirmDialog,
+  ParticipationRequestItem, Dropdown, Search, Pagination
+} from "@/presentation/components";
 import { CheckCircle, CheckCheck } from "lucide-react";
 
 const ParticipationRequestsPage = () => {
   const {
-    status,
-    loading,
-    filter,
-    filteredRequests,
-    filterItems,
-    toasts,
-    removeToast,
-    confirmDialog,
-    setFilter,
-    handleApprove,
-    handleReject,
-    handleApproveAll,
+    status, loading, filter, filteredRequests, paginatedRequests,
+    filterItems, toasts, removeToast, confirmDialog,
+    searchQuery, setSearchQuery, setAppliedSearch, appliedSearch,
+    currentPage, setCurrentPage, itemsPerPage,
+    setFilter, handleApprove, handleReject, handleApproveAll,
   } = useParticipationRequestsPage();
 
   if (status === "loading" || loading) return <LoadingState />;
@@ -27,39 +23,59 @@ const ParticipationRequestsPage = () => {
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       <header className={styles.header}>
-        <h1 className={styles.title}>طلبات الانضمام</h1>
-
         <div className={styles.actions}>
-          <Dropdown
-            items={filterItems}
-            active={filter}
-            onChange={setFilter}
-            placeholder="النشاط"
-            compact
+          <Search
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onSearch={setAppliedSearch}
+            placeholder="ابحث بالاسم أو البريد أو الهاتف..."
           />
-
-          {filteredRequests.length > 0 && (
-            <button className={styles.btnApproveAll} onClick={handleApproveAll}>
-              <CheckCheck size={18} />
-              قبول الكل ({filteredRequests.length})
-            </button>
-          )}
+          <div className={styles.actionsEnd}>
+            <Dropdown
+              items={filterItems}
+              active={filter}
+              onChange={setFilter}
+              placeholder="النشاط"
+              compact
+            />
+            {filteredRequests.length > 0 && (
+              <button className={styles.btnApproveAll} onClick={handleApproveAll}>
+                <CheckCheck size={18} />
+                قبول الكل ({filteredRequests.length})
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
       {filteredRequests.length === 0 ? (
-        <EmptyState icon={CheckCircle} message="لا توجد طلبات معلقة" />
+        <EmptyState
+          icon={CheckCircle}
+          message={appliedSearch ? "لا توجد نتائج للبحث" : "لا توجد طلبات معلقة"}
+        />
       ) : (
-        <div className={styles.list}>
-          {filteredRequests.map((request) => (
-            <ParticipationRequestItem
-              key={request.id}
-              request={request}
-              onApprove={handleApprove}
-              onReject={handleReject}
+        <>
+          <div className={styles.list}>
+            {paginatedRequests.map((request) => (
+              <ParticipationRequestItem
+                key={request.id}
+                request={request}
+                onApprove={handleApprove}
+                onReject={handleReject}
+              />
+            ))}
+          </div>
+
+          {filteredRequests.length > itemsPerPage && (
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredRequests.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+              sticky
             />
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       <ConfirmDialog
@@ -71,6 +87,7 @@ const ParticipationRequestsPage = () => {
         confirmText={confirmDialog.options.confirmText}
         cancelText={confirmDialog.options.cancelText}
         variant={confirmDialog.options.variant}
+        warning={confirmDialog.options.warning}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 import styles from "./ActivitiesPage.module.scss";
 import { useActivitiesPage, FILTERS, STATUS_MAP } from "./ActivitiesPage.logic";
-import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown } from "@/presentation/components";
+import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown, Search } from "@/presentation/components";
 import { Plus, Edit2, Trash2, CalendarDays, Send, Ban, UsersIcon, RotateCcw } from "lucide-react";
 
 const ActivitiesPage = () => {
@@ -12,6 +12,7 @@ const ActivitiesPage = () => {
     setActiveFilter, setCurrentPage, setShowModal, setShowVolunteersModal,
     openCreateModal, handleEdit, handleImageUpload, handleModalSubmit,
     handleDelete, handlePublish, handleCancel, handleRestore, handleViewVolunteers,
+    searchQuery, setSearchQuery, setAppliedSearch, appliedSearch
   } = useActivitiesPage();
 
   if (status === "loading") return <LoadingState />;
@@ -21,23 +22,24 @@ const ActivitiesPage = () => {
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       <header className={styles.header}>
-        <h1 className={styles.title}>الفرص التطوعية</h1>
         <div className={styles.actions}>
-          <Dropdown
-            items={FILTERS.map(f => ({ key: f.key, label: f.label }))}
-            active={activeFilter}
-            onChange={setActiveFilter}
-            placeholder="تصفية حسب الحالة"
-            compact
-          />
-          <button className={styles.btnCreate} onClick={openCreateModal}>
-            <Plus size={18} /> إضافة فرصة جديدة
-          </button>
+          <Search value={searchQuery} onChange={setSearchQuery} onSearch={setAppliedSearch} placeholder="ابحث عن فرصة..." />
+          <div className={styles.actionsEnd}>
+            <Dropdown
+              items={FILTERS.map(f => ({ key: f.key, label: f.label }))}
+              active={activeFilter}
+              onChange={setActiveFilter}
+              placeholder="تصفية حسب الحالة"
+              compact
+            />
+            <button className={styles.btnCreate} onClick={openCreateModal}>
+              <Plus size={18} /> إضافة فرصة جديدة
+            </button>
+          </div>
         </div>
       </header>
-
       {loading ? <LoadingState /> : filtered.length === 0 ? (
-        <EmptyState icon={CalendarDays} message="لم يتم العثور على أي فرص تطوعية"
+        <EmptyState icon={CalendarDays} message={appliedSearch ? "لا توجد نتائج للبحث" : "لم يتم العثور على أي فرص تطوعية"}
           action={{ label: "إضافة فرصة الآن", onClick: openCreateModal }} />
       ) : (
         <>

@@ -3,11 +3,11 @@ import styles from "./AdminUserDetailsPage.module.scss";
 import { useAdminUserDetailsPage } from "./AdminUserDetailsPage.logic";
 
 import Link from "next/link";
-import { LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown, InfoCard, ActivityItem, ToastContainer, Pagination } from "@/presentation/components";
+import { LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown, InfoCard, ActivityItem, ToastContainer, Pagination, ExportUsersButton } from "@/presentation/components";
 import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 import { getCityLabel } from "@/presentation/constants/labels";
-import { JordanianCity } from "@/core/domain/enums"; 
+import { JordanianCity } from "@/core/domain/enums";
 
 const AdminUserDetailsPage = () => {
   const {
@@ -24,7 +24,8 @@ const AdminUserDetailsPage = () => {
     setCurrentPage,
     itemsPerPage,
     toasts,
-    removeToast
+    removeToast,
+    exportData
   } = useAdminUserDetailsPage();
 
   if (status === "loading" || loadingUser) return <LoadingState />;
@@ -63,7 +64,25 @@ const AdminUserDetailsPage = () => {
           <ArrowRight size={18} />
           العودة
         </Link>
+        <ExportUsersButton
+          data={exportData}
+          columns={[
+            { key: "fullName", label: "الاسم" },
+            { key: "email", label: "البريد الإلكتروني" },
+            { key: "phone", label: "رقم الهاتف" },
+            { key: "city", label: "المدينة" },
+            { key: "dateOfBirth", label: "تاريخ الميلاد" },
+            { key: "gender", label: "الجنس" },
+            { key: "bio", label: "النبذة" },
+            { key: "interests", label: "الاهتمامات" },
+            { key: "skills", label: "المهارات" },
+            { key: "activities", label: "الفرص التطوعية" },
+            { key: "createdAt", label: "تاريخ الانضمام" },
+          ]}
+          buttonText="Export Excel"
+        />
       </div>
+
 
       <ProfileHeader
         fullName={user.fullName}

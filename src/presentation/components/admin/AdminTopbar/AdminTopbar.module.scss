@@ -10,15 +10,20 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  
+
   @media (max-width: 1024px) {
     padding: $sp-sm $sp-md;
+    border-radius: 0;
   }
+}
+
+.rightSide {
+  @include flex(row, center, flex-start, $sp-md);
 }
 
 .menuBtn {
   display: none;
-  
+
   @media (max-width: 1024px) {
     @include flex-center;
     background: $green;
@@ -28,7 +33,7 @@
     padding: $sp-xs;
     cursor: pointer;
     transition: $transition;
-    
+
     &:active {
       transform: scale(0.95);
     }
@@ -39,9 +44,9 @@
   font-size: $font-xl;
   font-weight: 700;
   color: $text;
-  
+
   @media (max-width: 1024px) {
-    display: none;
+    font-size: $font-lg;
   }
 }
 

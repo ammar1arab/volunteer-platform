@@ -5,13 +5,7 @@ import { UserRole } from "@/core/domain/enums";
 import { useUsers, useToast, useAuth } from "@/presentation/hooks";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 
-type SortOption =
-  | "default"
-  | "oldest"
-  | "newest"
-  | "name"
-  | "age"
-  | "most-active";
+type SortOption = "default" | "oldest" | "newest" | "name" | "age" | "most-active";
 
 const calculateAge = (dateOfBirth?: string): number => {
   if (!dateOfBirth) return 0;
@@ -19,19 +13,13 @@ const calculateAge = (dateOfBirth?: string): number => {
   const birthDate = new Date(dateOfBirth);
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < birthDate.getDate())
-  ) {
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
   return age;
 };
 
-const sortUsers = (
-  users: UserAnalyticsDto[],
-  sortBy: SortOption,
-): UserAnalyticsDto[] => {
+const sortUsers = (users: UserAnalyticsDto[], sortBy: SortOption): UserAnalyticsDto[] => {
   return [...users].sort((a, b) => {
     switch (sortBy) {
       case "default": {
@@ -41,18 +29,12 @@ const sortUsers = (
         if (a.stats.approvedActivities !== b.stats.approvedActivities) {
           return b.stats.approvedActivities - a.stats.approvedActivities;
         }
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
       case "oldest":
-        return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       case "newest":
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       case "name":
         return a.fullName.localeCompare(b.fullName, "ar");
       case "age": {
@@ -74,6 +56,8 @@ export const useUserManagementPage = () => {
   const { users, loading, error } = useUsers();
   const [sortBy, setSortBy] = useState<SortOption>("default");
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
   const ITEMS_PER_PAGE = 32;
 
   useEffect(() => {
@@ -82,22 +66,27 @@ export const useUserManagementPage = () => {
     }
   }, [error, showToast]);
 
-  const volunteers = useMemo(
-    () =>
-      sortUsers(
-        users.filter((u) => u.role === "VOLUNTEER"),
-        sortBy,
-      ),
-    [users, sortBy],
-  );
+  const volunteers = useMemo(() => {
+    let result = users.filter((u) => u.role === "VOLUNTEER");
+    if (appliedSearch.trim()) {
+      const q = appliedSearch.toLowerCase();
+      result = result.filter(
+        (u) =>
+          u.fullName.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q) ||
+          u.phone?.toLowerCase().includes(q)
+      );
+    }
+    return sortUsers(result, sortBy);
+  }, [users, sortBy, appliedSearch]);
 
   const admins = useMemo(
     () =>
       sortUsers(
         users.filter((u) => u.role === "ADMIN"),
-        sortBy,
+        sortBy
       ),
-    [users, sortBy],
+    [users, sortBy]
   );
 
   const paginatedVolunteers = useMemo(() => {
@@ -107,7 +96,7 @@ export const useUserManagementPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortBy]);
+  }, [sortBy, appliedSearch]);
 
   const exportData = useMemo(
     () =>
@@ -120,9 +109,9 @@ export const useUserManagementPage = () => {
         skills: user.volunteerProfile?.skills?.join(", ") || "-",
         interests: user.volunteerProfile?.interests?.join(", ") || "-",
         approvedActivities: user.stats.approvedActivities,
-        createdAt: new Date(user.createdAt).toLocaleDateString("ar"),
+        createdAt: new Date(user.createdAt).toLocaleDateString("ar")
       })),
-    [volunteers],
+    [volunteers]
   );
 
   const handleSortChange = useCallback((key: string) => {
@@ -143,5 +132,9 @@ export const useUserManagementPage = () => {
     exportData,
     toasts,
     removeToast,
+    searchQuery,
+    setSearchQuery,
+    setAppliedSearch,
+    appliedSearch
   };
 };

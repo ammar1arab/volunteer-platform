@@ -22,6 +22,7 @@ export { default as MultiSelectInput } from "./base/MultiSelectInput/MultiSelect
 export { default as TimePickerInput } from "./base/TimePickerInput/TimePickerInput";
 export { default as Share } from "./base/Share/Share";
 export { default as LocationPicker } from "./base/LocationPicker/LocationPicker";
+export { default as Search } from "./base/Search/Search";
 
 export { default as HeroSection } from "./home/HeroSection/HeroSection";
 export { default as AboutSection } from "./home/AboutSection/AboutSection";

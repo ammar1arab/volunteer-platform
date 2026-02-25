@@ -4,23 +4,32 @@
 
 .header {
   @include page-header;
-}
-.title {
-  @include page-title;
+  margin-bottom: $sp-lg;
 }
 
 .actions {
-  @include header-actions;
-  > div {
-    min-width: 200px;
-    max-width: 350px;
-  }
+  @include flex(row, center, space-between, $sp-sm);
+  width: 100%;
+  flex-wrap: wrap;
+
   @include sm {
-    flex-direction: row;
-    width: 100%;
-    > div {
+    flex-direction: column;
+    gap: $sp-sm;
+
+    > * {
       width: 100%;
-      max-width: 100%;
+    }
+  }
+}
+
+.actionsEnd {
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+
+  @include sm {
+    width: 100%;
+    > *:first-child {
+      flex: 1;
     }
   }
 }

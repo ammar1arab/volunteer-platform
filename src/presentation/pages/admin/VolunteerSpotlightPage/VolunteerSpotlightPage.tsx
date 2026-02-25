@@ -2,7 +2,7 @@
 import styles from "./VolunteerSpotlightPage.module.scss";
 import { useVolunteerSpotlightPage } from "./VolunteerSpotlightPage.logic";
 import Image from "next/image";
-import { AdminVolunteerSpotlightCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, Dropdown, SelectInput, BirthDateInput, } from "@/presentation/components";
+import { AdminVolunteerSpotlightCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, Dropdown, SelectInput, BirthDateInput, Search, } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, Users, User } from "lucide-react";
 import { MONTH_LABELS } from "@/presentation/constants";
 
@@ -35,6 +35,9 @@ const VolunteerSpotlightPage = () => {
         handleSubmit,
         handleToggle,
         handleDelete,
+        searchQuery,
+        setSearchQuery,
+        setAppliedSearch,
     } = useVolunteerSpotlightPage();
 
     if (status === "loading") return <LoadingState />;
@@ -44,25 +47,26 @@ const VolunteerSpotlightPage = () => {
             <ToastContainer toasts={toasts} onRemove={removeToast} />
 
             <header className={styles.header}>
-                <h1 className={styles.title}>أبرز المتطوعين</h1>
                 <div className={styles.actions}>
-                    <Dropdown
-                        items={[
-                            { key: "all", label: "جميع المدن" },
-                            ...cityOptions.map((city) => ({ key: city.value, label: city.label })),
-                        ]}
-                        active={activeCity}
-                        onChange={setActiveCity}
-                        placeholder="المدينة"
-                        compact
-                    />
-                    <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
-                        <Plus size={18} />
-                        إضافة متطوع مميز
-                    </button>
+                    <Search value={searchQuery} onChange={setSearchQuery} onSearch={setAppliedSearch} placeholder="ابحث عن متطوع..." />
+                    <div className={styles.actionsEnd}>
+                        <Dropdown
+                            items={[
+                                { key: "all", label: "جميع المدن" },
+                                ...cityOptions.map((city) => ({ key: city.value, label: city.label })),
+                            ]}
+                            active={activeCity}
+                            onChange={setActiveCity}
+                            placeholder="المدينة"
+                            compact
+                        />
+                        <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
+                            <Plus size={18} />
+                            إضافة متطوع مميز
+                        </button>
+                    </div>
                 </div>
             </header>
-
             {isLoading ? (
                 <LoadingState />
             ) : filteredList.length === 0 ? (

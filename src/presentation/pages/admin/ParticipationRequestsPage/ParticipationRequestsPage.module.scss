@@ -4,14 +4,29 @@
 
 .header {
   @include page-header;
-}
-
-.title {
-  @include page-title;
+  margin-bottom: $sp-lg;
 }
 
 .actions {
-  @include header-actions;
+  @include flex(row, center, space-between, $sp-sm);
+  width: 100%;
+  flex-wrap: wrap;
+
+  @include sm {
+    flex-direction: column;
+    gap: $sp-sm;
+    > * { width: 100%; }
+  }
+}
+
+.actionsEnd {
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+
+  @include sm {
+    width: 100%;
+    > *:first-child { flex: 1; }
+  }
 }
 
 .btnApproveAll {

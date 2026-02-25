@@ -3,7 +3,7 @@ import styles from "./FeaturedPostsPage.module.scss";
 import { useFeaturedPostsPage } from "./FeaturedPostsPage.logic";
 import Image from "next/image";
 import { DomainFeaturedPostCategory } from "@/core/domain/enums";
-import { AdminFeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, MultiSelectInput, Dropdown } from "@/presentation/components";
+import { AdminFeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, MultiSelectInput, Dropdown, Search } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, FileImage } from "lucide-react";
 
 const FeaturedPostsPage = () => {
@@ -35,6 +35,9 @@ const FeaturedPostsPage = () => {
     handleSubmit,
     handleToggle,
     handleDelete,
+    searchQuery,
+    setSearchQuery,
+    setAppliedSearch
   } = useFeaturedPostsPage();
 
   if (status === "loading") return <LoadingState />;
@@ -44,22 +47,28 @@ const FeaturedPostsPage = () => {
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       <header className={styles.header}>
-        <h1 className={styles.title}>المنشورات</h1>
         <div className={styles.actions}>
-          <Dropdown
-            items={[
-              { key: "all", label: "جميع التصنيفات" },
-              ...categoryOptions.map((cat) => ({ key: cat.value, label: cat.label })),
-            ]}
-            active={activeCategory}
-            onChange={setActiveCategory}
-            placeholder="التصنيف"
-            compact
-          />
-          <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
-            <Plus size={18} />
-            إضافة منشور جديد
-          </button>
+          <Search
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onSearch={setAppliedSearch}
+            placeholder="ابحث عن منشور..."
+          />    <div className={styles.actionsEnd}>
+            <Dropdown
+              items={[
+                { key: "all", label: "جميع التصنيفات" },
+                ...categoryOptions.map((cat) => ({ key: cat.value, label: cat.label })),
+              ]}
+              active={activeCategory}
+              onChange={setActiveCategory}
+              placeholder="التصنيف"
+              compact
+            />
+            <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
+              <Plus size={18} />
+              إضافة منشور جديد
+            </button>
+          </div>
         </div>
       </header>
 

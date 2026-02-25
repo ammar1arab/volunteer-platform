@@ -2,30 +2,62 @@
 @use "@/presentation/styles/mixins" as *;
 @use "@/presentation/styles/admin-mixins" as *;
 
-.header { @include page-header; }
-.title { @include page-title; }
+.header {
+  @include page-header;
+  margin-bottom: $sp-lg;
+}
 
 .actions {
-  @include header-actions;
-  > div { min-width: 200px; max-width: 350px; }
+  @include flex(row, center, space-between, $sp-sm);
+  width: 100%;
+  flex-wrap: wrap;
+
   @include sm {
-    flex-direction: row;
-    width: 100%;
-    > div { width: 100%; max-width: 100%; }
+    flex-direction: column;
+    gap: $sp-sm;
+    > * {
+      width: 100%;
+    }
   }
 }
 
-.btnCreate { @include create-btn; }
-.grid { @include cards-grid; }
+.actionsEnd {
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+
+  @include sm {
+    width: 100%;
+    > *:first-child {
+      flex: 1;
+    }
+  }
+}
+
+.btnCreate {
+  @include create-btn;
+}
+.grid {
+  @include cards-grid;
+}
 
 .badge {
   @include status-badge;
-  &.active { background: rgba($green, 0.1); color: $green; }
-  &.inactive { background: rgba($red, 0.1); color: $red; }
+  &.active {
+    background: rgba($green, 0.1);
+    color: $green;
+  }
+  &.inactive {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
 }
 
-.cardActions { @include flex(row, center, flex-end, 6px); }
-.btn { @include action-btn; }
+.cardActions {
+  @include flex(row, center, flex-end, 6px);
+}
+.btn {
+  @include action-btn;
+}
 .btnDanger {
   @include action-btn;
   &:hover:not(:disabled) {
@@ -70,14 +102,15 @@
   color: $text;
 }
 
-.input, .textarea {
+.input,
+.textarea {
   @include input;
   width: 100%;
   box-sizing: border-box; // يمنع الـ input من الخروج عن المودال
   padding: 10px 14px;
   font-size: 14px;
   background: #fcfcfc;
-  
+
   &:focus {
     border-color: $green;
     background: #fff;
@@ -160,7 +193,9 @@
   }
 }
 
-.fileInput { @include hidden; }
+.fileInput {
+  @include hidden;
+}
 
 // ─── Toggle & Footer ────────────────────────────────────────
 
@@ -175,7 +210,9 @@
     opacity: 0;
     &:checked + .slider {
       background: $green;
-      &::before { transform: translateX(16px); }
+      &::before {
+        transform: translateX(16px);
+      }
     }
   }
 }
@@ -197,7 +234,7 @@
     top: 3px;
     left: 3px;
     transition: 0.3s;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 }
 
