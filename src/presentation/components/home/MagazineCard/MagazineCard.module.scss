@@ -44,7 +44,6 @@
 .card {
   position: relative;
   border-radius: $radius-lg;
-  border: 1px solid rgba($red, 0.25);
   @include flex-col;
   align-items: center;
   overflow: hidden;
