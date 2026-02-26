@@ -24,6 +24,9 @@
 }
 
 .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   border-radius: $radius-lg;
   border: 1px solid $border;
   overflow: hidden;
@@ -31,6 +34,7 @@
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
     border-color 0.3s ease,
     box-shadow 0.3s ease;
+
   .avatarWrap {
     animation: float 2.5s ease-in-out infinite;
   }
@@ -63,17 +67,18 @@
 }
 
 .body {
-  @include flex-col;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: $sp-md;
   padding: $sp-lg $sp-lg $sp-md;
+  flex-grow: 1;
 
   @include sm {
     padding: $sp-md $sp-md $sp-sm;
     gap: $sp-sm;
   }
 }
-
 .header {
   @include flex(row, space-between, flex-start);
   width: 100%;
@@ -193,6 +198,7 @@
 }
 
 .actions {
+  margin-top: auto;
   @include flex(row, flex-end, center, $sp-xs);
   padding: $sp-sm $sp-lg;
   border-top: 1px solid rgba($black, 0.05);

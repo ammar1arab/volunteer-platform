@@ -1,8 +1,9 @@
 "use client";
 import styles from "./VolunteerSpotlightPage.module.scss";
 import { useVolunteerSpotlightPage } from "./VolunteerSpotlightPage.logic";
+
 import Image from "next/image";
-import { AdminVolunteerSpotlightCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, Dropdown, SelectInput, BirthDateInput, Search, } from "@/presentation/components";
+import { AdminVolunteerSpotlightCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, Dropdown, SelectInput, Search, } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, Users, User } from "lucide-react";
 import { MONTH_LABELS } from "@/presentation/constants";
 
@@ -121,7 +122,7 @@ const VolunteerSpotlightPage = () => {
             <Modal
                 isOpen={showModal}
                 onClose={resetForm}
-                title={mode === "create" ? "إضافة متطوع جديد" : "تعديل بيانات المتطوع"}
+                title={mode === "create" ? "إضافة متطوع بارز جديد" : "تعديل بيانات المتطوع"}
                 size="lg"
             >
                 <div className={styles.form}>

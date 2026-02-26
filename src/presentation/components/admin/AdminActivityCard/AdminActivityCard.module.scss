@@ -46,7 +46,7 @@
   border: 1px solid $border;
   overflow: visible;
   position: relative;
-  min-width: 0; // ← prevents grid blowout
+  min-width: 0; 
   transition:
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
     border-color 0.3s ease;
@@ -57,7 +57,7 @@
   }
 
   &:hover {
-    transform: translateY(-7px) scale(1.012);
+    transform: translateY(-1px) scale(1.012);
     border-color: rgba($green, 0.3);
     animation: breathe 2.5s ease infinite;
 
