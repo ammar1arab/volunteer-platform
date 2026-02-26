@@ -53,6 +53,21 @@ class R2StorageService {
     }
   }
 
+  async getPresignedUploadUrl(folder: StorageFolder, fileName: string, contentType: string) {
+    const { getSignedUrl } = await import("@aws-sdk/s3-request-presigner");
+    const key = `${folder}/${this.generateUniqueFileName(this.extractExtension(fileName))}`;
+    const url = await getSignedUrl(
+      R2Client.getInstance(),
+      new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+        ContentType: contentType
+      }),
+      { expiresIn: 300 }
+    );
+    return { url, key };
+  }
+
   async delete(fileUrl: string): Promise<boolean> {
     try {
       const key = this.extractKeyFromUrl(fileUrl);

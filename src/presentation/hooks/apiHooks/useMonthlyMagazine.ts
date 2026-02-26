@@ -83,18 +83,12 @@ export const useMonthlyMagazines = (options: { activeOnly?: boolean; autoLoad?: 
 
   const uploadPdf = useCallback(async (file: File) => {
     setState((p) => ({ ...p, uploading: true, error: "" }));
-
     try {
-      const res = await uploadApi.uploadMagazinePdf(file);
-      const pdfUrl = (res as { data?: { imageUrl?: string } })?.data?.imageUrl;
-      const success = (res as { success?: boolean })?.success;
-
-      if (!success || !pdfUrl) {
-        throw new Error((res as { error?: string })?.error || "فشل رفع الملف");
-      }
-
+      const res = await fetch(`/api/uploads/magazines/presign?fileName=${encodeURIComponent(file.name)}`);
+      const { data } = await res.json();
+      await fetch(data.presignedUrl, { method: "PUT", body: file, headers: { "Content-Type": "application/pdf" } });
       setState((p) => ({ ...p, uploading: false }));
-      return pdfUrl;
+      return data.publicUrl;
     } catch (err) {
       setError(getErrMsg(err, "فشل رفع الملف"));
       setState((p) => ({ ...p, uploading: false }));
