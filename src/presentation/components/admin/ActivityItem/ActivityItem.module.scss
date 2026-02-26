@@ -1,9 +1,8 @@
-@use "@/presentation/styles/variables" as *;
-@use "@/presentation/styles/mixins" as *;
+@use "@/presentation/styles/_variables" as *;
+@use "@/presentation/styles/_mixins" as *;
 
 .item {
-  display: flex;
-  flex-direction: column;
+  @include flex-col;
   gap: $sp-sm;
   padding: $sp-md;
   border: 1px solid $border;
@@ -11,15 +10,13 @@
   transition: $transition;
 
   &:hover {
-    border-color: $green;
+    border-color: rgba($green, 0.3);
+    box-shadow: 0 4px 12px rgba($green, 0.06);
   }
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: $sp-sm;
+  @include flex(row, center, space-between, $sp-sm);
 }
 
 .title {
@@ -28,31 +25,31 @@
   font-weight: 700;
   color: $text;
   flex: 1;
+  @include line-clamp(1);
 }
 
 .description {
   margin: 0;
   font-size: $font-sm;
-  line-height: 1.5;
-  color: $text;
+  color: $text-muted;
+  line-height: 1.6;
+  @include line-clamp(2);
 }
 
 .details {
-  display: flex;
-  flex-direction: column;
+  @include flex-col;
   gap: 4px;
 }
 
 .detail {
-  display: flex;
-  align-items: center;
-  gap: $sp-xs;
+  @include flex(row, center, flex-start, $sp-xs);
   font-size: $font-xs;
   color: $text-muted;
 
   svg {
     color: $green;
     flex-shrink: 0;
+    opacity: 0.8;
   }
 }
 

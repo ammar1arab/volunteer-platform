@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 import { VolunteerSpotlightDto } from "@/core/application/dtos";
-import { getCityLabel } from "@/presentation/constants/labels";
+import { getCityLabel, getMonthLabel } from "@/presentation/constants/labels";
 
 type Props = { spotlight: VolunteerSpotlightDto };
 
@@ -21,9 +21,10 @@ const VolunteerSpotlightCard = ({ spotlight }: Props) => {
     cardRef.current.style.setProperty("--y", `${e.clientY - top}px`);
   };
 
-  const formattedDate = new Date(spotlight.spotlightDate).toLocaleDateString("ar-JO", {
-    year: "numeric", month: "long", day: "numeric",
-  });
+  const date = new Date(spotlight.spotlightDate);
+  const month = getMonthLabel(date.getMonth() + 1);
+  const year = date.getFullYear();
+  const formattedDate = `${month} ${year}`;
 
   return (
     <article ref={cardRef} className={styles.card} onMouseMove={handleMouseMove}

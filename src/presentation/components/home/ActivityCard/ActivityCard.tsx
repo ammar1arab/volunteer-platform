@@ -5,9 +5,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ActivityDto } from "@/core/application/dtos";
-import { MapPin, Clock, Users, Share2 } from "lucide-react";
-import { ROUTES } from "@/presentation/constants";
+import { getMonthLabel, ROUTES } from "@/presentation/constants";
 import { Share, Modal } from "@/presentation/components";
+import { MapPin, Clock, Users, Share2 } from "lucide-react";
 
 type Props = { activity: ActivityDto; actionButton?: React.ReactNode };
 
@@ -15,9 +15,8 @@ const ActivityCard = ({ activity, actionButton }: Props) => {
   const router = useRouter();
   const [locationModalOpen, setLocationModalOpen] = useState(false);
 
-  const formattedDate = new Date(activity.date).toLocaleDateString("ar-JO", {
-    day: "numeric", month: "long", year: "numeric",
-  });
+  const date = new Date(activity.date);
+  const formattedDate = `${date.getDate()} ${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}`;
 
   const mapsUrl = `https://www.google.com/maps?q=${activity.location.latitude},${activity.location.longitude}`;
   const shareText = `${activity.title}\n\n${activity.placeName}\n${formattedDate} - ${activity.startTime} – ${activity.endTime}\nالفئة: ${activity.targetAudience}\n\n${typeof window !== "undefined" ? window.location.href : ""}`;

@@ -37,6 +37,7 @@ const UserManagementPage = () => {
     currentPage, setCurrentPage, itemsPerPage, sortBy, setSortBy,
     exportData, toasts, removeToast,
     searchQuery, setSearchQuery, setAppliedSearch, appliedSearch,
+    activeCity, setActiveCity, cityOptions,
   } = useUserManagementPage();
 
   const isEmpty = useMemo(
@@ -76,6 +77,13 @@ const UserManagementPage = () => {
                     onChange={setSearchQuery}
                     onSearch={setAppliedSearch}
                     placeholder="ابحث بالاسم أو البريد أو الهاتف..."
+                  />
+                  <Dropdown
+                    items={cityOptions}
+                    active={activeCity}
+                    onChange={setActiveCity}
+                    placeholder="المدينة"
+                    compact
                   />
                   <Dropdown
                     items={SORT_OPTIONS}

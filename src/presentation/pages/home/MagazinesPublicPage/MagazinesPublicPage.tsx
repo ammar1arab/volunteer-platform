@@ -12,7 +12,7 @@ const MagazinesPublicPage = () => {
     return (
         <div className={styles.container}>
             <header className={styles.header}>
-                <h1 className={styles.title}>حصاد الشهر</h1>
+                <h1 className={styles.title}>المجلة الشهرية</h1>
                 <p className={styles.subtitle}>نافذتكم على أرشيف كامل من المبادرات والتقارير الشهرية الموثقة</p>
             </header>
 

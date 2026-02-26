@@ -15,6 +15,7 @@ import {
   RejectJoinRequestResponse
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
+import { prisma } from "@/infrastructure/persistence/prisma";
 
 class ActivityParticipationUseCase {
   private static readonly SCOPE = "ActivityParticipationUseCase";
@@ -37,13 +38,22 @@ class ActivityParticipationUseCase {
 
   private async mapWithRelations(entity: ActivityParticipation) {
     const props = entity.toObject();
-    const [volunteer, activity] = await Promise.all([
+    const [volunteerUser, volunteerProfile, activity] = await Promise.all([
       this.userRepository.findById(props.volunteerId),
+      prisma.volunteerProfile.findUnique({
+        where: { userId: props.volunteerId },
+        select: { city: true }
+      }),
       this.activityRepository.findById(props.activityId)
     ]);
 
     return toParticipationDto(entity, {
-      volunteer: volunteer ? toUserSummaryDto(volunteer) : undefined,
+      volunteer: volunteerUser
+        ? {
+            ...toUserSummaryDto(volunteerUser),
+            city: volunteerProfile?.city ?? undefined
+          }
+        : undefined,
       activity: activity ? toActivitySummaryDto(activity) : undefined
     });
   }

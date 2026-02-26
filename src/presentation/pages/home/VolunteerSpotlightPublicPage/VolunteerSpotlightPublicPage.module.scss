@@ -18,7 +18,10 @@
   gap: $sp-xs;
   margin-bottom: $sp-xl;
   text-align: center;
-  @include sm { margin-bottom: $sp-lg; }
+
+  @include sm {
+    margin-bottom: $sp-lg;
+  }
 }
 
 .title {
@@ -26,20 +29,28 @@
   font-size: $font-2xl;
   font-weight: 700;
   color: $text;
-  @include sm { font-size: $font-xl; }
+
+  @include sm {
+    font-size: $font-xl;
+  }
 }
 
 .subtitle {
   margin: 0;
   font-size: $font-md;
   color: $text-muted;
-  @include sm { font-size: $font-sm; }
+
+  @include sm {
+    font-size: $font-sm;
+  }
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: $sp-lg;
-  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 640px) { grid-template-columns: 1fr; gap: $sp-md; }
+  @include grid(2, $sp-sm);
+  @include md {
+    @include grid(3, $sp-lg);
+  }
+  @include lg {
+    @include grid(5, $sp-lg);
+  }
 }

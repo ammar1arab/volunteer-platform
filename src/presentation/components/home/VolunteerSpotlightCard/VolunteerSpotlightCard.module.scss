@@ -1,107 +1,34 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-@keyframes ring-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba($green, 0.35);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba($green, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba($green, 0);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes ring-pulse { 0% { box-shadow: 0 0 0 0 rgba($red, 0.35); } 70% { box-shadow: 0 0 0 8px rgba($red, 0); } 100% { box-shadow: 0 0 0 0 rgba($red, 0); } }
+@keyframes shimmer { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
 .card {
+  height: 100%;
   @include flex-col;
   border-radius: $radius-lg;
-  border: 1px solid $border;
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  transition:
-    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
-  .avatarWrap {
-    animation: float 2.5s ease-in-out infinite;
-  }
-  .avatar {
-    animation: ring-pulse 1.8s ease infinite;
-    border-color: rgba($green, 0.4);
-  }
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 
-  &::before {
-    opacity: 1;
-  }
-  .nameUnderline {
-    width: 100%;
-  }
-  .infoItem {
-    color: $text;
-    svg {
-      opacity: 1;
-      color: $green;
-    }
-  }
-  .cta {
-    color: $green;
-    background: rgba($green, 0.07);
-  }
-  .arrow {
-    transform: translateX(-4px);
-  }
-  .shimmer {
-    animation: shimmer 1.5s ease infinite;
+  &:hover {
+    transform: translateY(-7px) scale(1.012);
+    border-color: rgba($green, 0.3);
+    &::before { opacity: 1; }
   }
 
   &::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(500px circle at var(--x, 50%) var(--y, 50%), rgba($green, 0.06), transparent 100%);
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
     z-index: 0;
   }
-
-  &:hover {
-    transform: translateY(-7px) scale(1.012);
-    border-color: rgba($green, 0.3);
-    box-shadow:
-      0 16px 48px rgba($green, 0.1),
-      0 4px 12px rgba($black, 0.06);
-  }
-}
-
-.shimmer {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(105deg, transparent 40%, rgba($green, 0.04) 50%, transparent 60%);
-  pointer-events: none;
-  z-index: 1;
-  transform: translateX(100%);
 }
 
 .body {
@@ -111,6 +38,7 @@
   padding: $sp-lg $sp-lg $sp-md;
   position: relative;
   z-index: 2;
+  flex-grow: 1;
 
   @include sm {
     padding: $sp-md $sp-md $sp-sm;
@@ -121,6 +49,7 @@
 .avatarWrap {
   position: relative;
   flex-shrink: 0;
+  animation: float 2.5s ease-in-out infinite;
 }
 
 .avatar {
@@ -128,26 +57,14 @@
   height: 80px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba($green, 0.15);
+  border: 2px solid rgba($red, 0.4);
   position: relative;
-  transition: border-color 0.3s ease;
+  animation: ring-pulse 1.8s ease infinite;
 
   @include sm {
     width: 64px;
     height: 64px;
   }
-}
-
-.avatarImg {
-  object-fit: cover;
-}
-
-.glow {
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba($green, 0.12), transparent 70%);
-  pointer-events: none;
 }
 
 .content {
@@ -156,6 +73,7 @@
   gap: $sp-xs;
   align-items: center;
   text-align: center;
+  flex-grow: 1;
 }
 
 .nameWrapper {
@@ -170,15 +88,12 @@
   font-weight: 700;
   color: $text;
   line-height: 1.3;
-
-  @include sm {
-    font-size: $font-sm;
-  }
+  @include sm { font-size: $font-sm; }
 }
 
 .nameUnderline {
   height: 2px;
-  width: 0;
+  width: 100%;
   background: $green;
   border-radius: 2px;
   transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -192,18 +107,9 @@
 .infoItem {
   @include flex(row, center, center, 4px);
   font-size: 11px;
-  color: $text-muted;
+  color: $text;
   font-weight: 500;
-  transition: all 0.3s ease;
-
-  svg {
-    opacity: 0.5;
-    transition: color 0.3s ease;
-  }
-
-  @include sm {
-    font-size: 10px;
-  }
+  svg { color: $green; opacity: 1; }
 }
 
 .bio {
@@ -212,21 +118,19 @@
   color: $text-muted;
   line-height: 1.65;
   @include line-clamp(2);
-
-  @include sm {
-    font-size: $font-xs;
-  }
+  @include sm { font-size: $font-xs; }
 }
 
 .cta {
+  margin-top: auto;
   @include flex(row, center, center, 6px);
   padding: 5px 14px;
   border-radius: 20px;
   font-size: $font-sm;
   font-weight: 600;
-  color: $text-muted;
+  color: $green;
+  background: rgba($green, 0.07);
   transition: all 0.3s ease;
-  margin-top: $sp-xs;
 
   @include sm {
     font-size: $font-xs;
@@ -234,6 +138,11 @@
   }
 }
 
-.arrow {
-  transition: transform 0.3s ease;
+.shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba($green, 0.04) 50%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+  animation: shimmer 1.5s ease infinite;
 }

@@ -1,13 +1,16 @@
 "use client";
 import styles from "./ParticipationRequestsPage.module.scss";
 import { useParticipationRequestsPage } from "./ParticipationRequestsPage.logic";
+import { useRouter } from "next/navigation";
 import {
   LoadingState, EmptyState, ToastContainer, ConfirmDialog,
   ParticipationRequestItem, Dropdown, Search, Pagination
 } from "@/presentation/components";
+import { ROUTES } from "@/presentation/constants";
 import { CheckCircle, CheckCheck } from "lucide-react";
 
 const ParticipationRequestsPage = () => {
+  const router = useRouter();
   const {
     status, loading, filter, filteredRequests, paginatedRequests,
     filterItems, toasts, removeToast, confirmDialog,
@@ -62,6 +65,7 @@ const ParticipationRequestsPage = () => {
                 request={request}
                 onApprove={handleApprove}
                 onReject={handleReject}
+                onVolunteerClick={(volunteerId) => router.push(ROUTES.ADMIN.USER_DETAILS(volunteerId))}
               />
             ))}
           </div>

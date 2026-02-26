@@ -1,6 +1,7 @@
 import { Calendar, Clock, MapPin } from "lucide-react";
 import styles from "./ActivityItem.module.scss";
 import { Badge } from "@/presentation/components";
+import { getMonthLabel } from "@/presentation/constants";
 
 type Status = "PENDING" | "APPROVED" | "REJECTED";
 
@@ -16,6 +17,11 @@ type Props = {
 };
 
 const ActivityItem = ({ title, description, date, startTime, endTime, placeName, status, requestedAt }: Props) => {
+  const formatDate = (d: string) => {
+    const dt = new Date(d);
+    return `${dt.getDate()} ${getMonthLabel(dt.getMonth() + 1)} ${dt.getFullYear()}`;
+  };
+
   const getStatusVariant = (): "success" | "danger" | "warning" => {
     if (status === "APPROVED") return "success";
     if (status === "REJECTED") return "danger";
@@ -40,13 +46,11 @@ const ActivityItem = ({ title, description, date, startTime, endTime, placeName,
       <div className={styles.details}>
         <div className={styles.detail}>
           <Calendar size={14} />
-          <span>{new Date(date).toLocaleDateString("ar")}</span>
+          <span>{formatDate(date)}</span>
         </div>
         <div className={styles.detail}>
           <Clock size={14} />
-          <span>
-            {startTime} - {endTime}
-          </span>
+          <span>{startTime} - {endTime}</span>
         </div>
         <div className={styles.detail}>
           <MapPin size={14} />
@@ -55,7 +59,7 @@ const ActivityItem = ({ title, description, date, startTime, endTime, placeName,
       </div>
 
       <div className={styles.footer}>
-        <span className={styles.requested}>طلب الانضمام: {new Date(requestedAt).toLocaleDateString("ar")}</span>
+        <span className={styles.requested}>طلب الانضمام: {formatDate(requestedAt)}</span>
       </div>
     </div>
   );

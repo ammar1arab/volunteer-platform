@@ -3,6 +3,7 @@ export interface UserSummaryDto {
   fullName: string;
   email: string;
   phone: string;
+  city?: string;
 }
 
 export interface VolunteerProfileSummaryDto {

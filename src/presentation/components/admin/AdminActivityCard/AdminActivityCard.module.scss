@@ -88,7 +88,6 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: $bg;
   flex-shrink: 0;
 }
 
@@ -150,7 +149,7 @@
   gap: $sp-sm;
   padding: $sp-md;
   flex: 1;
-  min-width: 0; // ← ensures line-clamp truncates instead of overflows
+  min-width: 0; 
 }
 
 .title {
@@ -216,7 +215,7 @@
 }
 
 .locationRow {
-  @include flex(row, center, space-between, $sp-sm); // ← fixed param order
+  @include flex(row, center, space-between, $sp-sm);
   padding: $sp-xs $sp-sm;
   border-radius: $radius;
   border: 1px solid $border;
@@ -260,14 +259,13 @@
   @include flex(row, center, flex-end, $sp-xs);
   padding: $sp-sm $sp-md;
   border-top: 1px solid $border;
-  flex-wrap: wrap; // ← buttons wrap on tiny screens
+  flex-wrap: wrap;
 
   @include sm {
     justify-content: flex-start;
   }
 }
 
-// ── Location modal ────────────────────────────────────────────────────────────
 
 .locBody {
   @include flex-col;

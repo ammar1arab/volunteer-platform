@@ -51,6 +51,7 @@
   border: 1px solid $border;
   border-radius: $radius;
   color: $text;
+  background-color: $white;
   cursor: pointer;
   transition: $transition;
 
@@ -79,6 +80,8 @@
   font-weight: 600;
   cursor: pointer;
   transition: $transition;
+    background-color: $white;
+
 
   &:hover:not(.active) {
     border-color: $green;

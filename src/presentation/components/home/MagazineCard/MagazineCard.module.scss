@@ -1,60 +1,22 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-@keyframes book-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-2deg);
-  }
-  50% {
-    transform: translateY(-12px) rotate(3deg);
-  }
-}
-
-@keyframes ring-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes ring-spin-r {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(-360deg);
-  }
-}
-
-@keyframes glow-breathe {
-  0%,
-  100% {
-    opacity: 0.5;
-    transform: translateX(-50%) scale(0.95);
-  }
-  50% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1.15);
-  }
-}
+@keyframes book-float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+@keyframes ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes ring-spin-r { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+@keyframes glow-breathe { 0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(0.95); } 50% { opacity: 1; transform: translateX(-50%) scale(1.15); } }
 
 .card {
-  position: relative;
-  border-radius: $radius-lg;
+  height: 100%;
   @include flex-col;
   align-items: center;
+  position: relative;
+  border-radius: $radius-lg;
   overflow: hidden;
   cursor: pointer;
-  padding: 28px 16px 18px;
-  gap: 16px;
-
-  transition:
-    transform 0.4s ease,
-    box-shadow 0.4s ease,
-    border-color 0.4s ease;
+  padding: $sp-lg $sp-lg $sp-md;
+  gap: $sp-md;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
 
   &::after {
     content: "";
@@ -69,14 +31,15 @@
   &:hover {
     transform: translateY(-7px);
     border-color: rgba($red, 0.5);
-
     .downloadBtn {
       box-shadow: 0 6px 20px rgba($red, 0.45);
       letter-spacing: 0.5px;
     }
-    .glow {
-      opacity: 1;
-    }
+  }
+
+  @include sm {
+    padding: $sp-md $sp-md $sp-sm;
+    gap: $sp-sm;
   }
 }
 
@@ -92,14 +55,19 @@
   opacity: 0.5;
   pointer-events: none;
   animation: glow-breathe 5s ease-in-out infinite;
-  transition: opacity 0.4s ease;
 }
 
 .iconArea {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   @include flex-center;
+  flex-shrink: 0;
+
+  @include sm {
+    width: 64px;
+    height: 64px;
+  }
 }
 
 .ring {
@@ -122,21 +90,15 @@
 }
 
 .iconBox {
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  height: 100%;
   @include flex-center;
   position: relative;
   background-color: $red;
   border-radius: $radius-full;
   z-index: 1;
   animation: book-float 5s ease-in-out infinite;
-  transition:
-    background 0.4s ease,
-    box-shadow 0.4s ease;
-
-  svg {
-    color: $white;
-  }
+  svg { color: $white; }
 }
 
 .pdfTag {
@@ -160,11 +122,11 @@
   gap: 7px;
   width: 100%;
   text-align: center;
+  flex-grow: 1;
 }
 
 .datePill {
   display: inline-flex;
-  align-items: center;
   padding: 4px 14px;
   border-radius: $radius-full;
   background: $green;
@@ -182,24 +144,26 @@
   color: $text;
   line-height: 1.4;
   @include line-clamp(2);
-  width: 100%;
+  @include sm { font-size: 12px; }
 }
 
 .downloadBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  margin-top: auto;
+  @include flex(row, center, center, 5px);
   padding: 8px 20px;
   border-radius: $radius-full;
-  // background: $red;
   color: $red;
   font-size: 11px;
   font-weight: 700;
-  transition:
-    box-shadow 0.3s ease,
-    letter-spacing 0.3s ease;
+  transition: all 0.3s ease;
+
   &:hover {
-    background-color: #000;
-    color: #fff;
+    background-color: $black;
+    color: $white;
+  }
+
+  @include sm {
+    font-size: 10px;
+    padding: 6px 14px;
   }
 }

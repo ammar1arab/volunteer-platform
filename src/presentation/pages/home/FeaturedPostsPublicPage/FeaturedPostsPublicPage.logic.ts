@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useFeaturedPosts } from "@/presentation/hooks";
-import { CATEGORY_OPTIONS } from "@/presentation/constants/labels";
+import { CATEGORY_OPTIONS, getMonthLabel } from "@/presentation/constants";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -19,7 +19,7 @@ export const useFeaturedPostsPublicPage = () => {
     list.forEach((post) => {
       const date = new Date(post.createdAt);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-      const label = date.toLocaleDateString("ar-JO", { year: "numeric", month: "long" });
+      const label = `${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}`;
       months.set(key, label);
     });
 
@@ -27,14 +27,14 @@ export const useFeaturedPostsPublicPage = () => {
       { key: "all", label: "جميع الأشهر" },
       ...Array.from(months.entries())
         .sort((a, b) => b[0].localeCompare(a[0]))
-        .map(([key, label]) => ({ key, label })),
+        .map(([key, label]) => ({ key, label }))
     ];
   }, [list]);
 
   const categoryOptions = useMemo(
     () => [
       { key: "all", label: "جميع التصنيفات" },
-      ...CATEGORY_OPTIONS.map((cat) => ({ key: cat.value, label: cat.label })),
+      ...CATEGORY_OPTIONS.map((cat) => ({ key: cat.value, label: cat.label }))
     ],
     []
   );
@@ -86,6 +86,6 @@ export const useFeaturedPostsPublicPage = () => {
     setCurrentPage,
     handleMonthChange,
     handleCategoryChange,
-    refresh,
+    refresh
   };
 };

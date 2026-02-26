@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { UserRole } from "@/core/domain/enums";
 import { useUsers, useToast, useAuth } from "@/presentation/hooks";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
+import { getCityLabel } from "@/presentation/constants";
 
 type SortOption = "default" | "oldest" | "newest" | "name" | "age" | "most-active";
 
@@ -58,6 +59,8 @@ export const useUserManagementPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
+  const [activeCity, setActiveCity] = useState("all");
+
   const ITEMS_PER_PAGE = 32;
 
   useEffect(() => {
@@ -68,6 +71,11 @@ export const useUserManagementPage = () => {
 
   const volunteers = useMemo(() => {
     let result = users.filter((u) => u.role === "VOLUNTEER");
+
+    if (activeCity !== "all") {
+      result = result.filter((u) => u.volunteerProfile?.city === activeCity);
+    }
+
     if (appliedSearch.trim()) {
       const q = appliedSearch.toLowerCase();
       result = result.filter(
@@ -77,8 +85,9 @@ export const useUserManagementPage = () => {
           u.phone?.toLowerCase().includes(q)
       );
     }
+
     return sortUsers(result, sortBy);
-  }, [users, sortBy, appliedSearch]);
+  }, [users, sortBy, appliedSearch, activeCity]);
 
   const admins = useMemo(
     () =>
@@ -89,6 +98,21 @@ export const useUserManagementPage = () => {
     [users, sortBy]
   );
 
+  const cityOptions = useMemo(() => {
+    const allVolunteers = users.filter((u) => u.role === "VOLUNTEER");
+    const counts = new Map<string, number>();
+    allVolunteers.forEach((u) => {
+      const city = u.volunteerProfile?.city;
+      if (city) counts.set(city, (counts.get(city) || 0) + 1);
+    });
+    return [
+      { key: "all", label: "جميع المدن", count: allVolunteers.length },
+      ...Array.from(counts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([city, count]) => ({ key: city, label: getCityLabel(city as any), count }))
+    ];
+  }, [users]);
+
   const paginatedVolunteers = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return volunteers.slice(start, start + ITEMS_PER_PAGE);
@@ -96,7 +120,7 @@ export const useUserManagementPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortBy, appliedSearch]);
+  }, [sortBy, appliedSearch, activeCity]);
 
   const exportData = useMemo(
     () =>
@@ -135,6 +159,9 @@ export const useUserManagementPage = () => {
     searchQuery,
     setSearchQuery,
     setAppliedSearch,
-    appliedSearch
+    appliedSearch,
+    activeCity,
+    setActiveCity,
+    cityOptions
   };
 };

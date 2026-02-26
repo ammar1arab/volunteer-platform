@@ -13,13 +13,13 @@
 
 @keyframes ring-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba($green, 0.35);
+    box-shadow: 0 0 0 0 rgba($red, 0.35);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba($green, 0);
+    box-shadow: 0 0 0 8px rgba($red, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba($green, 0);
+    box-shadow: 0 0 0 0 rgba($red, 0);
   }
 }
 
@@ -28,7 +28,6 @@
   flex-direction: column;
   height: 100%;
   border-radius: $radius-lg;
-  border: 1px solid $border;
   overflow: hidden;
   transition:
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -40,7 +39,7 @@
   }
   .avatar {
     animation: ring-pulse 1.8s ease infinite;
-    border-color: rgba($green, 0.4);
+    border-color: rgba($red, 0.4);
   }
   .nameUnderline {
     width: 100%;

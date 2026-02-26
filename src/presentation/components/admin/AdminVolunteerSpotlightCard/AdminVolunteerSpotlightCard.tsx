@@ -2,7 +2,7 @@
 import styles from "./AdminVolunteerSpotlightCard.module.scss";
 import Image from "next/image";
 import { JordanianCity } from "@/core/domain/enums";
-import { getCityLabel } from "@/presentation/constants/labels";
+import { getCityLabel, getMonthLabel } from "@/presentation/constants/labels";
 import { MapPin, Calendar } from "lucide-react";
 
 type Props = {
@@ -16,9 +16,10 @@ type Props = {
 };
 
 const AdminVolunteerSpotlightCard = ({ imageUrl, name, description, city, spotlightDate, meta, actions }: Props) => {
-  const formattedDate = new Date(spotlightDate).toLocaleDateString("ar-JO", {
-    year: "numeric", month: "long", day: "numeric",
-  });
+  const date = new Date(spotlightDate);
+  const month = getMonthLabel(date.getMonth() + 1);
+  const year = date.getFullYear();
+  const formattedDate = `${month} ${year}`;
 
   return (
     <article className={styles.card}>
