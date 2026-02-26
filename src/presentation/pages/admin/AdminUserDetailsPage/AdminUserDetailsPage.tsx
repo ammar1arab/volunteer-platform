@@ -2,29 +2,45 @@
 import styles from "./AdminUserDetailsPage.module.scss";
 import { useAdminUserDetailsPage } from "./AdminUserDetailsPage.logic";
 import Link from "next/link";
-import { LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown, InfoCard, ActivityItem, ToastContainer, Pagination, ExportUsersButton } from "@/presentation/components";
+import {
+  LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown,
+  InfoCard, ActivityItem, ToastContainer, Pagination, ExportUsersButton
+} from "@/presentation/components";
 import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
-import { ROUTES } from "@/presentation/constants";
-import { getCityLabel } from "@/presentation/constants/labels";
+import { ROUTES, getCityLabel, getMonthLabel } from "@/presentation/constants";
 import { JordanianCity } from "@/core/domain/enums";
+
+const FILTER_OPTIONS = [
+  { key: "all", label: "الكل" },
+  { key: "PENDING", label: "قيد الانتظار" },
+  { key: "APPROVED", label: "موافق عليه" },
+  { key: "REJECTED", label: "مرفوض" },
+];
+
+const EXPORT_COLUMNS = [
+  { key: "fullName", label: "الاسم" },
+  { key: "email", label: "البريد الإلكتروني" },
+  { key: "phone", label: "رقم الهاتف" },
+  { key: "city", label: "المدينة" },
+  { key: "dateOfBirth", label: "تاريخ الميلاد" },
+  { key: "gender", label: "الجنس" },
+  { key: "bio", label: "النبذة" },
+  { key: "interests", label: "الاهتمامات" },
+  { key: "skills", label: "المهارات" },
+  { key: "activities", label: "الفرص التطوعية" },
+  { key: "createdAt", label: "تاريخ الانضمام" },
+];
+
+const formatDate = (d: string) => {
+  const dt = new Date(d);
+  return `${dt.getDate()} ${getMonthLabel(dt.getMonth() + 1)} ${dt.getFullYear()}`;
+};
 
 const AdminUserDetailsPage = () => {
   const {
-    status,
-    user,
-    activities,
-    allActivities,
-    totalFilteredItems,
-    loadingUser,
-    loadingActivities,
-    activeFilter,
-    setActiveFilter,
-    currentPage,
-    setCurrentPage,
-    itemsPerPage,
-    toasts,
-    removeToast,
-    exportData
+    status, user, activities, allActivities, totalFilteredItems,
+    loadingUser, loadingActivities, activeFilter, setActiveFilter,
+    currentPage, setCurrentPage, itemsPerPage, toasts, removeToast, exportData
   } = useAdminUserDetailsPage();
 
   if (status === "loading" || loadingUser) return <LoadingState />;
@@ -35,22 +51,17 @@ const AdminUserDetailsPage = () => {
         <User size={64} />
         <h2>المستخدم غير موجود</h2>
         <Link href={ROUTES.ADMIN.USERS} className={styles.backLink}>
-          <ArrowRight size={18} />
-          العودة للقائمة
+          <ArrowRight size={18} /> العودة للقائمة
         </Link>
       </div>
     );
   }
 
-  const volunteerProfile = user.volunteerProfile;
-  const cityLabel = volunteerProfile?.city ? getCityLabel(volunteerProfile.city as JordanianCity) : undefined;
-
-  const filterItems = [
-    { key: "all", label: "الكل", count: allActivities.length },
-    { key: "PENDING", label: "قيد الانتظار", count: allActivities.filter((a) => a.status === "PENDING").length },
-    { key: "APPROVED", label: "موافق عليه", count: allActivities.filter((a) => a.status === "APPROVED").length },
-    { key: "REJECTED", label: "مرفوض", count: allActivities.filter((a) => a.status === "REJECTED").length },
-  ];
+  const vp = user.volunteerProfile;
+  const filterItems = FILTER_OPTIONS.map((opt) => ({
+    ...opt,
+    count: opt.key === "all" ? allActivities.length : allActivities.filter((a) => a.status === opt.key).length,
+  }));
 
   return (
     <div className={styles.pageWrapper}>
@@ -58,32 +69,15 @@ const AdminUserDetailsPage = () => {
 
       <div className={styles.header}>
         <Link href={ROUTES.ADMIN.USERS} className={styles.back}>
-          <ArrowRight size={18} />
-          العودة
+          <ArrowRight size={18} /> العودة
         </Link>
-        <ExportUsersButton
-          data={exportData}
-          columns={[
-            { key: "fullName", label: "الاسم" },
-            { key: "email", label: "البريد الإلكتروني" },
-            { key: "phone", label: "رقم الهاتف" },
-            { key: "city", label: "المدينة" },
-            { key: "dateOfBirth", label: "تاريخ الميلاد" },
-            { key: "gender", label: "الجنس" },
-            { key: "bio", label: "النبذة" },
-            { key: "interests", label: "الاهتمامات" },
-            { key: "skills", label: "المهارات" },
-            { key: "activities", label: "الفرص التطوعية" },
-            { key: "createdAt", label: "تاريخ الانضمام" },
-          ]}
-          buttonText="Export Excel"
-        />
+        <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export Excel" />
       </div>
 
       <ProfileHeader
         fullName={user.fullName}
         role={user.role}
-        profilePictureUrl={volunteerProfile?.profilePictureUrl}
+        profilePictureUrl={vp?.profilePictureUrl}
         createdAt={user.createdAt}
         isEditable={false}
       />
@@ -102,36 +96,32 @@ const AdminUserDetailsPage = () => {
             <div className={styles.infoList}>
               <InfoCard icon={Mail} label="البريد الإلكتروني" value={user.email} />
               <InfoCard icon={Phone} label="رقم الهاتف" value={user.phone} />
-              {cityLabel && <InfoCard icon={MapPin} label="المدينة" value={cityLabel} />}
-              <InfoCard icon={Calendar} label="تاريخ الانضمام" value={new Date(user.createdAt).toLocaleDateString("ar")} />
+              {vp?.city && <InfoCard icon={MapPin} label="المدينة" value={getCityLabel(vp.city as JordanianCity)} />}
+              <InfoCard icon={Calendar} label="تاريخ الانضمام" value={formatDate(user.createdAt)} />
             </div>
           </div>
 
-          {volunteerProfile?.bio && (
+          {vp?.bio && (
             <div className={styles.section}>
               <h3 className={styles.sectionTitle}>النبذة</h3>
-              <p className={styles.bio}>{volunteerProfile.bio}</p>
+              <p className={styles.bio}>{vp.bio}</p>
             </div>
           )}
 
-          {volunteerProfile?.skills && volunteerProfile.skills.length > 0 && (
+          {vp?.skills && vp.skills.length > 0 && (
             <div className={styles.section}>
               <h3 className={styles.sectionTitle}>المهارات</h3>
               <div className={styles.tags}>
-                {volunteerProfile.skills.map((skill) => (
-                  <span key={skill} className={styles.tag}>{skill}</span>
-                ))}
+                {vp.skills.map((s) => <span key={s} className={styles.tag}>{s}</span>)}
               </div>
             </div>
           )}
 
-          {volunteerProfile?.interests && volunteerProfile.interests.length > 0 && (
+          {vp?.interests && vp.interests.length > 0 && (
             <div className={styles.section}>
               <h3 className={styles.sectionTitle}>الاهتمامات</h3>
               <div className={styles.tags}>
-                {volunteerProfile.interests.map((interest) => (
-                  <span key={interest} className={styles.tag}>{interest}</span>
-                ))}
+                {vp.interests.map((i) => <span key={i} className={styles.tag}>{i}</span>)}
               </div>
             </div>
           )}
@@ -144,9 +134,7 @@ const AdminUserDetailsPage = () => {
               <Dropdown items={filterItems} active={activeFilter} onChange={setActiveFilter} placeholder="اختر الحالة" compact />
             </div>
 
-            {loadingActivities ? (
-              <LoadingState />
-            ) : activities.length === 0 ? (
+            {loadingActivities ? <LoadingState /> : activities.length === 0 ? (
               <EmptyState icon={Activity} message="لا توجد فرص" />
             ) : (
               <div className={styles.listWrapper}>
