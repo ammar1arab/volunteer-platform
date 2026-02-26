@@ -1,7 +1,6 @@
 "use client";
 import styles from "./AdminUserDetailsPage.module.scss";
 import { useAdminUserDetailsPage } from "./AdminUserDetailsPage.logic";
-
 import Link from "next/link";
 import { LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown, InfoCard, ActivityItem, ToastContainer, Pagination, ExportUsersButton } from "@/presentation/components";
 import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
@@ -44,9 +43,7 @@ const AdminUserDetailsPage = () => {
   }
 
   const volunteerProfile = user.volunteerProfile;
-  const cityLabel = volunteerProfile?.city
-    ? getCityLabel(volunteerProfile.city as JordanianCity)
-    : undefined;
+  const cityLabel = volunteerProfile?.city ? getCityLabel(volunteerProfile.city as JordanianCity) : undefined;
 
   const filterItems = [
     { key: "all", label: "الكل", count: allActivities.length },
@@ -56,7 +53,7 @@ const AdminUserDetailsPage = () => {
   ];
 
   return (
-    <>
+    <div className={styles.pageWrapper}>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       <div className={styles.header}>
@@ -82,7 +79,6 @@ const AdminUserDetailsPage = () => {
           buttonText="Export Excel"
         />
       </div>
-
 
       <ProfileHeader
         fullName={user.fullName}
@@ -153,7 +149,7 @@ const AdminUserDetailsPage = () => {
             ) : activities.length === 0 ? (
               <EmptyState icon={Activity} message="لا توجد فرص" />
             ) : (
-              <>
+              <div className={styles.listWrapper}>
                 <div className={styles.list}>
                   {activities.map((item) => (
                     <ActivityItem
@@ -169,7 +165,6 @@ const AdminUserDetailsPage = () => {
                     />
                   ))}
                 </div>
-
                 <Pagination
                   currentPage={currentPage}
                   totalItems={totalFilteredItems}
@@ -177,12 +172,12 @@ const AdminUserDetailsPage = () => {
                   onPageChange={setCurrentPage}
                   sticky
                 />
-              </>
+              </div>
             )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
