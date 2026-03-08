@@ -1,9 +1,8 @@
-"use client";
 import styles from "./AboutPage.module.scss";
 
 import Link from "next/link";
 import { Container } from "@/presentation/components";
-import { Target, Heart, Users, Briefcase, Radio, BookOpen, Calendar, Sparkles, TrendingUp, TreePine } from "lucide-react";
+import { Target, Heart, Users, Briefcase, Sparkles, TreePine } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 
 const AboutPage = () => {

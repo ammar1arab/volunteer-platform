@@ -21,19 +21,19 @@ type Shape = {
 };
 
 const FIXED_SHAPES: Omit<Shape, "x" | "y" | "swayAngle">[] = [
-  { xRatio: 0.04, targetLength: 180, size: 16, color: "#16a34a", type: "lantern", swaySpeed: 0.005, swayRange: 8 },
+  { xRatio: 0.04, targetLength: 180, size: 16, color: "#f59e0b", type: "lantern", swaySpeed: 0.005, swayRange: 8 },
   { xRatio: 0.12, targetLength: 140, size: 16, color: "#22c55e", type: "star", swaySpeed: -0.004, swayRange: 6 },
   { xRatio: 0.20, targetLength: 220, size: 20, color: "#15803d", type: "crescent", swaySpeed: 0.003, swayRange: 10 },
   { xRatio: 0.28, targetLength: 160, size: 18, color: "#4ade80", type: "star", swaySpeed: -0.006, swayRange: 7 },
-  { xRatio: 0.36, targetLength: 250, size: 18, color: "#16a34a", type: "lantern", swaySpeed: 0.004, swayRange: 9 },
+  { xRatio: 0.36, targetLength: 250, size: 18, color: "#f59e0b", type: "lantern", swaySpeed: 0.004, swayRange: 9 },
   { xRatio: 0.44, targetLength: 130, size: 15, color: "#86efac", type: "star", swaySpeed: -0.005, swayRange: 5 },
   { xRatio: 0.50, targetLength: 200, size: 21, color: "#15803d", type: "crescent", swaySpeed: 0.006, swayRange: 11 },
   { xRatio: 0.57, targetLength: 170, size: 19, color: "#22c55e", type: "star", swaySpeed: -0.003, swayRange: 6 },
-  { xRatio: 0.64, targetLength: 240, size: 14, color: "#16a34a", type: "lantern", swaySpeed: 0.005, swayRange: 9 },
+  { xRatio: 0.64, targetLength: 240, size: 14, color: "#f59e0b", type: "lantern", swaySpeed: 0.005, swayRange: 9 },
   { xRatio: 0.72, targetLength: 150, size: 17, color: "#4ade80", type: "star", swaySpeed: -0.004, swayRange: 7 },
   { xRatio: 0.79, targetLength: 210, size: 22, color: "#15803d", type: "crescent", swaySpeed: 0.003, swayRange: 10 },
   { xRatio: 0.87, targetLength: 145, size: 16, color: "#86efac", type: "star", swaySpeed: -0.005, swayRange: 5 },
-  { xRatio: 0.94, targetLength: 230, size: 22, color: "#16a34a", type: "lantern", swaySpeed: 0.004, swayRange: 8 },
+  { xRatio: 0.94, targetLength: 230, size: 22, color: "#f59e0b", type: "lantern", swaySpeed: 0.004, swayRange: 8 },
   { xRatio: 0.08, targetLength: 300, size: 20, color: "#22c55e", type: "crescent", swaySpeed: -0.003, swayRange: 12 },
   { xRatio: 0.97, targetLength: 280, size: 18, color: "#15803d", type: "crescent", swaySpeed: 0.004, swayRange: 9 },
 ];
