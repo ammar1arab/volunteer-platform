@@ -10,7 +10,7 @@ export const CITY_LABELS: Record<JordanianCity, string> = {
   [JordanianCity.ZARQA]: "الزرقاء",
   [JordanianCity.IRBID]: "إربد",
   [JordanianCity.AQABA]: "العقبة",
-  [JordanianCity.SALT]: "السلط",
+  [JordanianCity.SALT]: "البلقاء",
   [JordanianCity.MAFRAQ]: "المفرق",
   [JordanianCity.KARAK]: "الكرك",
   [JordanianCity.MADABA]: "مادبا",
