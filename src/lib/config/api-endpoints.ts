@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
     PUBLISH: (id: string) => `/api/activities/${id}/publish`,
     CANCEL: (id: string) => `/api/activities/${id}/cancel`,
     RESTORE: (id: string) => `/api/activities/${id}/restore`,
+    COMPLETE: (id: string) => `/api/activities/${id}/complete`,
     VOLUNTEERS: (id: string) => `/api/activities/${id}/volunteers`,
     PUBLISHED: "/api/activities?filter=published"
   },
@@ -27,7 +28,9 @@ export const API_ENDPOINTS = {
     PENDING: "/api/activity-participations/pending",
     APPROVE: (id: string) => `/api/activity-participations/${id}/approve`,
     REJECT: (id: string) => `/api/activity-participations/${id}/reject`,
-    MY_REQUESTS: "/api/activity-participations/my-requests"
+    MY_REQUESTS: "/api/activity-participations/my-requests",
+    CANCEL: (id: string) => `/api/activity-participations/${id}/cancel`,
+    MARK_ATTENDANCE: (id: string) => `/api/activity-participations/${id}/mark-attendance`
   },
   FEATURED_POSTS: {
     BASE: "/api/featured-posts",

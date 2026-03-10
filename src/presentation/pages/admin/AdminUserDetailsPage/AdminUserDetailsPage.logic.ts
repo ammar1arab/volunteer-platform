@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useUserDetails, useToast, useAuth } from "@/presentation/hooks";
-import { UserRole } from "@/core/domain/enums";
+import { ParticipationStatus, UserRole } from "@/core/domain/enums";
 
 export const useAdminUserDetailsPage = () => {
   const params = useParams();
@@ -27,9 +27,13 @@ export const useAdminUserDetailsPage = () => {
     setCurrentPage(1);
   }, [activeFilter]);
 
-  const filteredActivities = useMemo(() => {
-    return activeFilter === "all" ? activities : activities.filter((a) => a.status === activeFilter);
-  }, [activities, activeFilter]);
+  const filteredActivities = useMemo(
+    () =>
+      activeFilter === "all"
+        ? activities
+        : activities.filter((a) => a.status === (activeFilter as ParticipationStatus)),
+    [activities, activeFilter]
+  );
 
   const paginatedActivities = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;

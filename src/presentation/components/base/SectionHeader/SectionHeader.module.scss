@@ -1,28 +1,51 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
+@keyframes shimmer-line {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
 .header {
   text-align: center;
   margin-top: $sp-xl;
   margin-bottom: $sp-xl;
+  @include flex-col;
+  align-items: center;
 }
 
 .title {
   font-size: $font-2xl;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: $sp-sm;
+  color: $text;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   color: $text-muted;
   max-width: 600px;
   margin: 0 auto $sp-md;
+  line-height: 1.6;
 }
 
 .underline {
-  width: 60px;
-  height: 4px;
-  background: $green;
+  position: relative;
+  width: 80px;
+  height: 3px;
+  background: rgba($black, 0.05);
   margin: 0 auto;
   border-radius: $radius-full;
+  overflow: hidden;
+
+  /* حركة المسح الضوئي داخل الخط */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 50%;
+    background: $green;
+    border-radius: $radius-full;
+    animation: shimmer-line 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }

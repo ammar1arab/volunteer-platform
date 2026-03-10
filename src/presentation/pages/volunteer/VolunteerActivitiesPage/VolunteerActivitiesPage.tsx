@@ -1,0 +1,110 @@
+"use client";
+import styles from "./VolunteerActivitiesPage.module.scss";
+import { useVolunteerActivitiesPage } from "./VolunteerActivitiesPage.logic";
+import { ParticipationStatus } from "@/core/domain/enums";
+import {
+  LoadingState, EmptyState, ToastContainer, Pagination,
+  Search, ActivityItem, ConfirmDialog
+} from "@/presentation/components";
+import { CalendarDays } from "lucide-react";
+
+const VolunteerActivitiesPage = () => {
+  const {
+    status, loading, stats,
+    filtered, paginated, currentPage, setCurrentPage, itemsPerPage,
+    activeFilter, setActiveFilter,
+    searchQuery, setSearchQuery, setAppliedSearch, appliedSearch,
+    actionLoading, reapply, cancelRequest,
+    toasts, removeToast, confirmDialog,
+  } = useVolunteerActivitiesPage();
+
+  if (status === "loading" || loading) return <LoadingState />;
+
+  const STAT_CARDS = [
+    { key: "hours", value: stats.hours, label: "ساعات التطوع", cls: `${styles.statValue} ${styles.green}`, noFilter: true },
+    { key: ParticipationStatus.APPROVED, value: stats.approved, label: "موافق عليه", cls: `${styles.statValue} ${styles.green}` },
+    { key: ParticipationStatus.PENDING, value: stats.pending, label: "قيد الانتظار", cls: styles.statValue },
+    { key: ParticipationStatus.REJECTED, value: stats.rejected, label: "مرفوض", cls: `${styles.statValue} ${styles.red}` },
+    { key: ParticipationStatus.CANCELLED, value: stats.cancelled, label: "ملغى", cls: `${styles.statValue} ${styles.muted}` },
+  ];
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.container}>
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+        <div className={styles.statsRow}>
+          {STAT_CARDS.map(({ key, value, label, cls, noFilter }) => (
+            <div
+              key={key}
+              className={[
+                styles.statCard,
+                noFilter ? styles.hoursCard : "",
+                !noFilter && activeFilter === key ? styles.active : "",
+              ].join(" ")}
+              onClick={() => { if (!noFilter) setActiveFilter(activeFilter === key ? "all" : key); }}
+            >
+              <span className={cls}>{value}</span>
+              <span className={styles.statLabel}>{label}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.search}>
+          <Search value={searchQuery} onChange={setSearchQuery} onSearch={setAppliedSearch} placeholder="ابحث عن فرصة..." />
+        </div>
+
+        {filtered.length === 0 ? (
+          <EmptyState icon={CalendarDays} message={appliedSearch ? "لا توجد نتائج" : "لم تنضم إلى أي فرصة بعد"} />
+        ) : (
+          <>
+            <div className={styles.list}>
+              {paginated.map(p => (
+                <ActivityItem
+                  key={p.id}
+                  title={p.activity?.title ?? "فرصة تطوعية"}
+                  description={p.activity?.description ?? ""}
+                  date={p.activity?.date ?? ""}
+                  startTime={p.activity?.startTime ?? ""}
+                  endTime={p.activity?.endTime ?? ""}
+                  placeName={p.activity?.placeName ?? "إلكتروني"}
+                  status={p.status as ParticipationStatus}
+                  requestedAt={p.requestedAt}
+                  volunteerHours={p.volunteerHours}
+                  activityStatus={p.activity?.status} 
+                  actionLoading={actionLoading === p.activityId || actionLoading === p.id}
+                  onReapply={
+                    p.status === ParticipationStatus.REJECTED || p.status === ParticipationStatus.CANCELLED
+                      ? () => reapply(p.activityId) : undefined
+                  }
+                  onCancel={
+                    p.status === ParticipationStatus.PENDING || p.status === ParticipationStatus.APPROVED
+                      ? () => cancelRequest(p.id)
+                      : undefined
+                  } />
+              ))}
+            </div>
+
+            {filtered.length > itemsPerPage && (
+              <Pagination currentPage={currentPage} totalItems={filtered.length}
+                itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} sticky />
+            )}
+          </>
+        )}
+      </div>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={confirmDialog.handleCancel}
+        onConfirm={confirmDialog.handleConfirm}
+        title={confirmDialog.options.title}
+        message={confirmDialog.options.message}
+        confirmText={confirmDialog.options.confirmText}
+        cancelText={confirmDialog.options.cancelText}
+        variant={confirmDialog.options.variant}
+      />
+    </div>
+  );
+};
+
+export default VolunteerActivitiesPage;

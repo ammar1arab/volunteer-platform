@@ -2,8 +2,9 @@ import { ActivityRepository, ActivityParticipationRepository } from "@/infrastru
 import { InputSanitizer } from "@/infrastructure/security";
 import { Activity } from "@/core/domain/entities";
 import { R2StorageService } from "@/infrastructure/external";
-import { serviceError, guard } from "@/core/application/common";
+import { serviceError, guard, guardRange } from "@/core/application/common";
 import { toActivityDto, toActivityDtoList } from "@/core/application/mappers";
+import { ActivityStatus, ActivityType, JordanianCity } from "@/core/domain/enums";
 import {
   ok,
   fail,
@@ -18,7 +19,8 @@ import {
   CancelActivityResponse,
   RestoreActivityResponse,
   GetActivityVolunteersResponse,
-  ActivityVolunteerDto
+  ActivityVolunteerDto,
+  CompleteActivityResponse
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
 
@@ -67,10 +69,10 @@ class ActivityUseCase {
       guard(sanitized.title, "العنوان مطلوب");
       guard(sanitized.description, "الوصف مطلوب");
       guard(dto.imageUrl, "الصورة مطلوبة");
-      guard(sanitized.placeName, "اسم المكان مطلوب");
       guard(dto.startTime, "وقت البدء مطلوب");
       guard(dto.endTime, "وقت الانتهاء مطلوب");
-
+      guardRange(dto.durationHours, 1, 24, "مدة النشاط مطلوبة");
+      
       const activity = Activity.create({
         title: sanitized.title!,
         description: sanitized.description!,
@@ -79,17 +81,23 @@ class ActivityUseCase {
         date: new Date(dto.date),
         startTime: dto.startTime,
         endTime: dto.endTime,
-        placeName: sanitized.placeName!,
-        location: dto.location,
-        targetAudience: dto.targetAudience,
+        durationHours: dto.durationHours,
+        activityType: dto.activityType as ActivityType,
+        categories: dto.categories ?? [],
         maxVolunteers: dto.maxVolunteers,
         createdBy: userId,
-        isActive: true
+        isActive: true,
+        placeName: sanitized.placeName ?? null,
+        city: (dto.city as JordanianCity) ?? null,
+        latitude: dto.latitude ?? null,
+        longitude: dto.longitude ?? null,
+        meetingLink: dto.meetingLink ?? null,
+        meetingPlatform: dto.meetingPlatform ?? null,
+        externalMeetingId: dto.externalMeetingId ?? null
       });
 
       const created = await this.activityRepository.create(activity);
       logger.info(ActivityUseCase.SCOPE, "create", `Activity created: ${created.id}`);
-
       return ok({ activity: toActivityDto(created) });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "create", error, "حدث خطأ أثناء إنشاء الفرصة");
@@ -108,29 +116,26 @@ class ActivityUseCase {
 
       existing.update({
         ...(sanitized.title !== undefined && { title: sanitized.title }),
-        ...(sanitized.description !== undefined && {
-          description: sanitized.description
-        }),
-        ...(sanitized.placeName !== undefined && {
-          placeName: sanitized.placeName
-        }),
+        ...(sanitized.description !== undefined && { description: sanitized.description }),
+        ...(sanitized.placeName !== undefined && { placeName: sanitized.placeName }),
         ...(dto.imageUrl !== undefined && { imageUrl: dto.imageUrl }),
         ...(dto.dayOfWeek !== undefined && { dayOfWeek: dto.dayOfWeek }),
         ...(dto.date !== undefined && { date: new Date(dto.date) }),
         ...(dto.startTime !== undefined && { startTime: dto.startTime }),
         ...(dto.endTime !== undefined && { endTime: dto.endTime }),
-        ...(dto.location !== undefined && { location: dto.location }),
-        ...(dto.targetAudience !== undefined && {
-          targetAudience: dto.targetAudience
-        }),
-        ...(dto.maxVolunteers !== undefined && {
-          maxVolunteers: dto.maxVolunteers
-        })
+        ...(dto.durationHours !== undefined && { durationHours: dto.durationHours }),
+        ...(dto.maxVolunteers !== undefined && { maxVolunteers: dto.maxVolunteers }),
+        ...(dto.categories !== undefined && { categories: dto.categories }),
+        ...(dto.city !== undefined && { city: dto.city as JordanianCity }),
+        ...(dto.latitude !== undefined && { latitude: dto.latitude }),
+        ...(dto.longitude !== undefined && { longitude: dto.longitude }),
+        ...(dto.meetingLink !== undefined && { meetingLink: dto.meetingLink }),
+        ...(dto.meetingPlatform !== undefined && { meetingPlatform: dto.meetingPlatform }),
+        ...(dto.externalMeetingId !== undefined && { externalMeetingId: dto.externalMeetingId })
       });
 
       const updated = await this.activityRepository.update(existing);
       logger.info(ActivityUseCase.SCOPE, "update", `Activity updated: ${id}`);
-
       return ok({ activity: toActivityDto(updated) });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "update", error, "حدث خطأ أثناء تحديث الفرصة");
@@ -140,13 +145,10 @@ class ActivityUseCase {
   async delete(id: string): Promise<DeleteActivityResponse> {
     try {
       guard(id, "المعرف مطلوب");
-
       const existing = await this.activityRepository.findById(id);
       if (existing) await this.tryDeleteImage(existing.imageUrl);
-
       const deleted = await this.activityRepository.delete(id);
       if (!deleted) return fail("NOT_FOUND", "الفرصة غير موجود");
-
       logger.info(ActivityUseCase.SCOPE, "delete", `Activity deleted: ${id}`);
       return ok({ deleted: true });
     } catch (error) {
@@ -218,7 +220,7 @@ class ActivityUseCase {
   async restore(id: string): Promise<RestoreActivityResponse> {
     try {
       const activity = await this.findOrFail(id);
-      if (activity.status !== "CANCELLED") return fail("INVALID_STATE", "يمكن استعادة الفرص الملغاة فقط");
+      if (activity.status !== ActivityStatus.CANCELLED) return fail("INVALID_STATE", "يمكن استعادة الفرص الملغاة فقط");
       activity.restore();
       const updated = await this.activityRepository.update(activity);
       logger.info(ActivityUseCase.SCOPE, "restore", `Activity restored: ${id}`);
@@ -234,20 +236,40 @@ class ActivityUseCase {
       const volunteers = await this.participationRepository.findApprovedVolunteers(activityId);
 
       const items: ActivityVolunteerDto[] = volunteers.map((v) => ({
+        participationId: v.participationId,
         id: v.id,
         fullName: v.fullName,
         email: v.email,
         phone: v.phone,
-        profilePictureUrl: v.profilePictureUrl ?? undefined,
-        city: v.city ?? undefined,
-        dateOfBirth: v.dateOfBirth?.toISOString(),
-        gender: v.gender ?? undefined
+        profilePictureUrl: v.profilePictureUrl,
+        city: v.city,
+        dateOfBirth: v.dateOfBirth?.toISOString() ?? null,
+        gender: v.gender,
+        attendanceStatus: v.attendanceStatus,
+        volunteerHours: v.volunteerHours
       }));
 
       logger.info(ActivityUseCase.SCOPE, "getVolunteers", `Found ${items.length} for: ${activityId}`);
       return ok({ volunteers: items });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "getVolunteers", error, "حدث خطأ أثناء جلب المتطوعين");
+    }
+  }
+
+  async complete(id: string): Promise<CompleteActivityResponse> {
+    try {
+      const activity = await this.findOrFail(id);
+
+      const notMarkedCount = await this.participationRepository.countNotMarked(id);
+      if (notMarkedCount > 0)
+        return fail("INVALID_STATE", `لا يمكن إكمال النشاط — يوجد ${notMarkedCount} متطوع لم يُسجَّل حضوره`);
+
+      activity.complete();
+      const updated = await this.activityRepository.update(activity);
+      logger.info(ActivityUseCase.SCOPE, "complete", `Activity completed: ${id}`);
+      return ok({ activity: toActivityDto(updated) });
+    } catch (error) {
+      return serviceError(ActivityUseCase.SCOPE, "complete", error, "حدث خطأ أثناء إكمال النشاط");
     }
   }
 }

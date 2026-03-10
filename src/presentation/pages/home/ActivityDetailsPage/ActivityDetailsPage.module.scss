@@ -1,5 +1,5 @@
-@use "@/presentation/styles/_variables" as *;
-@use "@/presentation/styles/_mixins" as *;
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
 
 .container {
   @include container;
@@ -12,14 +12,12 @@
   @include flex-center;
   min-height: 100vh;
 }
-
 .empty {
   @include flex-col;
   @include flex-center;
   gap: $sp-md;
   min-height: 100vh;
 }
-
 .backBtn {
   margin-bottom: $sp-lg;
 }
@@ -28,10 +26,9 @@
   max-width: 1100px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 360px 1fr;
   gap: $sp-xl;
   align-items: start;
-  min-width: 0;
 
   @include sm {
     grid-template-columns: 1fr;
@@ -39,51 +36,114 @@
   }
 }
 
-.hero {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 500px;
-  border-radius: $radius-lg;
-  border: 1px solid rgba($green, 0.1);
-  background: rgba($green, 0.04);
+.imageCol {
+  position: sticky;
+  top: 100px;
+  z-index: 10;
 
   @include sm {
-    height: 240px;
+    position: relative;
+    top: 0;
+  }
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  border: 1px solid $border;
+  background: #f8f9fa;
+  transform: translateZ(0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @include sm {
+    aspect-ratio: 16 / 9;
   }
 }
 
 .heroImage {
-  object-fit: contain;
-  padding: $sp-md;
-  border-radius: $radius-lg;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  object-fit: contain !important;
+  padding: $sp-sm;
+  transition: transform 0.5s ease;
 }
 
 .heroBadges {
   position: absolute;
-  top: $sp-md;
-  right: $sp-md;
-  z-index: 2;
+  top: $sp-sm;
+  right: $sp-sm;
+  z-index: 3;
+  @include flex-col;
+  gap: $sp-xs;
 }
 
 .badgeFull {
   @include flex(row, center, center, 5px);
-  padding: $sp-xs $sp-md;
+  padding: 4px $sp-sm;
   background: rgba($red, 0.92);
   color: $white;
   border-radius: $radius-full;
-  font-size: $font-xs;
+  font-size: 10px;
   font-weight: 700;
 }
 
 .badgeOpen {
   @include flex(row, center, center, 5px);
-  padding: $sp-xs $sp-md;
+  padding: 4px $sp-sm;
   background: rgba($green, 0.92);
   color: $white;
   border-radius: $radius-full;
-  font-size: $font-xs;
+  font-size: 10px;
   font-weight: 700;
+}
+
+.typeChip {
+  position: absolute;
+  bottom: $sp-sm;
+  left: $sp-sm;
+  z-index: 3;
+  @include flex(row, center, center, 4px);
+  padding: 4px 10px;
+  border-radius: $radius-full;
+  font-size: 10px;
+  font-weight: 700;
+
+  &.inPerson {
+    background: rgba($green, 0.9);
+    color: $white;
+  }
+  &.online {
+    background: rgba(#2563eb, 0.9);
+    color: $white;
+  }
+}
+
+.shareBtn {
+  position: absolute;
+  top: $sp-sm;
+  left: $sp-sm;
+  z-index: 3;
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-full;
+  border: 1px solid rgba($text-muted, 0.25);
+  background: rgba($bg, 0.88);
+  color: $text;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $green;
+    color: $green;
+    transform: rotate(15deg);
+  }
 }
 
 .content {
@@ -92,47 +152,23 @@
   padding: $sp-xl;
   border: 1px solid $border;
   border-radius: $radius-lg;
-  min-width: 0;
-  overflow: hidden;
+  background: $bg;
 
   @include sm {
     padding: $sp-md;
   }
 }
 
-.titleRow {
-  @include flex(row, flex-start, space-between, $sp-md);
-}
-
 .title {
   margin: 0;
   font-size: $font-2xl;
-  font-weight: 700;
+  font-weight: 800;
   color: $text;
   line-height: 1.3;
-  flex: 1;
+  letter-spacing: -0.02em;
 
   @include sm {
     font-size: $font-xl;
-  }
-}
-
-.shareBtn {
-  @include flex-center;
-  width: 40px;
-  height: 40px;
-  border-radius: $radius;
-  border: 1px solid $border;
-  background: transparent;
-  color: $text-muted;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: $transition;
-
-  &:hover {
-    border-color: $green;
-    color: $green;
-    transform: rotate(15deg);
   }
 }
 
@@ -151,7 +187,7 @@
   padding: $sp-sm $sp-md;
   border-radius: $radius;
   border: 1px solid $border;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.25s ease;
 
   &[data-type="date"] .chipIcon {
     background: rgba(#3b82f6, 0.1);
@@ -161,13 +197,13 @@
     background: rgba(#8b5cf6, 0.1);
     color: #8b5cf6;
   }
-  &[data-type="audience"] .chipIcon {
-    background: rgba(#f59e0b, 0.1);
-    color: #f59e0b;
-  }
   &[data-type="volunteers"] .chipIcon {
     background: rgba($green, 0.1);
     color: $green;
+  }
+  &[data-type="duration"] .chipIcon {
+    background: rgba(#f59e0b, 0.1);
+    color: #f59e0b;
   }
 
   &:hover {
@@ -177,8 +213,8 @@
 
 .chipIcon {
   @include flex-center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: $radius;
   flex-shrink: 0;
 }
@@ -204,15 +240,15 @@
 
 .locationCard {
   @include flex(row, center, space-between, $sp-md);
-  padding: $sp-md $sp-lg;
+  padding: $sp-md;
   border-radius: $radius;
   border: 1px solid $border;
   flex-wrap: wrap;
   gap: $sp-sm;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.25s ease;
 
   &:hover {
-    border-color: rgba($green, 0.3);
+    border-color: rgba($green, 0.25);
   }
 }
 
@@ -224,12 +260,19 @@
 
 .locationIconWrap {
   @include flex-center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: $radius;
   border: 1px solid rgba(#f97316, 0.25);
+  background: rgba(#f97316, 0.06);
   color: #f97316;
   flex-shrink: 0;
+
+  &.onlineIcon {
+    border-color: rgba(#2563eb, 0.25);
+    background: rgba(#2563eb, 0.06);
+    color: #2563eb;
+  }
 }
 
 .locationText {
@@ -242,12 +285,17 @@
   font-size: $font-sm;
   font-weight: 700;
   color: $text;
+  @include line-clamp(1);
 }
 
-.address {
+.meetingLinkText {
   font-size: $font-xs;
-  color: $text-muted;
+  color: #2563eb;
+  text-decoration: none;
   @include line-clamp(1);
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .mapsBtn {
@@ -258,15 +306,35 @@
   background: rgba(#f97316, 0.06);
   color: #f97316;
   font-size: $font-xs;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   flex-shrink: 0;
-  transition: $transition;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 
   &:hover {
     background: #f97316;
     color: $white;
-    border-color: #f97316;
+  }
+}
+
+.meetingBtn {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-xs $sp-md;
+  border-radius: $radius;
+  border: 1px solid rgba(#2563eb, 0.3);
+  background: rgba(#2563eb, 0.06);
+  color: #2563eb;
+  font-size: $font-xs;
+  font-weight: 700;
+  text-decoration: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #2563eb;
+    color: $white;
   }
 }
 
@@ -299,7 +367,6 @@
     white-space: pre-wrap;
     word-wrap: break-word;
   }
-
   h2,
   h3,
   h4 {
@@ -308,28 +375,11 @@
     margin-bottom: $sp-sm;
     font-weight: 700;
   }
-
-  h2 {
-    font-size: 1.4rem;
-  }
-  h3 {
-    font-size: 1.2rem;
-  }
-
   ul,
   ol {
     margin-bottom: $sp-md;
     padding-right: $sp-xl;
-    list-style-position: outside;
   }
-
-  ul {
-    list-style-type: disc;
-  }
-  ol {
-    list-style-type: decimal;
-  }
-
   li {
     margin-bottom: $sp-xs;
     &::marker {
@@ -337,17 +387,9 @@
       font-weight: bold;
     }
   }
-
-  strong,
-  b {
-    font-weight: 700;
-  }
-
   a {
     color: $green;
     text-decoration: underline;
-    word-break: break-all;
-    overflow-wrap: anywhere;
     &:hover {
       text-decoration: none;
     }
@@ -369,20 +411,10 @@
   gap: $sp-md;
 }
 
-.locAddress {
-  font-size: $font-sm;
-  color: $text-muted;
-  margin: 0;
-  line-height: 1.6;
-  padding-bottom: $sp-sm;
-  border-bottom: 1px solid rgba($text-muted, 0.1);
-}
-
 .locActions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $sp-sm;
-
   @include sm {
     grid-template-columns: 1fr;
   }
@@ -398,8 +430,7 @@
   font-size: $font-sm;
   font-weight: 600;
   cursor: pointer;
-  transition: background $transition;
-
+  transition: background 0.2s;
   &:hover {
     background: rgba(#3b82f6, 0.13);
   }
@@ -415,8 +446,7 @@
   font-size: $font-sm;
   font-weight: 600;
   text-decoration: none;
-  transition: background $transition;
-
+  transition: background 0.2s;
   &:hover {
     background: rgba(#f97316, 0.13);
   }

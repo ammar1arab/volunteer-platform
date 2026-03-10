@@ -142,6 +142,50 @@ export const useActivityParticipations = (options: UseActivityParticipationsOpti
     [refresh]
   );
 
+  const cancelRequest = useCallback(
+    async (id: string) => {
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+      try {
+        const res = await participationApi.cancel(id);
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في إلغاء الطلب");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
+        }
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
+      } catch (err) {
+        setError(getErrMsg(err, "فشل في إلغاء الطلب"));
+        setState((p) => ({ ...p, submitting: false }));
+        return false;
+      }
+    },
+    [refresh]
+  );
+
+  const markAttendance = useCallback(
+    async (id: string, attended: boolean) => {
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+      try {
+        const res = await participationApi.markAttendance(id, attended);
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في تسجيل الحضور");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
+        }
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
+      } catch (err) {
+        setError(getErrMsg(err, "فشل في تسجيل الحضور"));
+        setState((p) => ({ ...p, submitting: false }));
+        return false;
+      }
+    },
+    [refresh]
+  );
+
   const getRequestForActivity = useCallback(
     (activityId: string) => state.requests.find((r) => r.activityId === activityId),
     [state.requests]
@@ -156,6 +200,8 @@ export const useActivityParticipations = (options: UseActivityParticipationsOpti
     createRequest,
     approve,
     reject,
-    getRequestForActivity
+    getRequestForActivity,
+    cancelRequest,
+    markAttendance
   };
 };

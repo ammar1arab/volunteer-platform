@@ -1,6 +1,7 @@
-import { UserRole } from "@/core/domain/enums";
+import { ParticipationStatus, UserRole } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 import type { UserSummaryDto, VolunteerProfileSummaryDto } from "./shared.dto";
+import { VolunteerProfileDto } from "./volunteerProfile.dto";
 
 // ─── User Profile (self-view) ─────────────────────────────────
 
@@ -8,7 +9,7 @@ export interface UserProfileDto extends UserSummaryDto {
   role: UserRole;
   isActive: boolean;
   createdAt: string;
-  volunteerProfile?: VolunteerProfileSummaryDto & { id: string };
+  volunteerProfile?: VolunteerProfileDto;
   participations?: Array<{ id: string; status: string }>;
 }
 
@@ -35,7 +36,7 @@ export interface UserAnalyticsDto extends UserDto {
 
 export interface UserActivityDto {
   id: string;
-  status: string;
+  status: ParticipationStatus;
   requestedAt: string;
   respondedAt: string | null;
   activity: {

@@ -53,12 +53,59 @@
   }
 }
 
+// ─── footer ──────────────────────────────────────────────────
+
 .footer {
+  @include flex(row, center, space-between, $sp-sm);
   padding-top: $sp-xs;
   border-top: 1px solid $border;
+  flex-wrap: wrap;
+  gap: $sp-xs;
 }
 
 .requested {
   font-size: $font-xs;
   color: $text-muted;
+}
+
+.footerActions {
+  @include flex(row, center, flex-end, $sp-xs);
+}
+
+.btnReapply {
+  padding: 4px $sp-sm;
+  border-radius: $radius;
+  border: 1px solid rgba($green, 0.3);
+  background: rgba($green, 0.06);
+  color: $green;
+  font-size: $font-xs;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover:not(:disabled) {
+    background: rgba($green, 0.12);
+    border-color: $green;
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btnCancelRequest {
+  padding: 4px $sp-sm;
+  border-radius: $radius;
+  border: 1px solid rgba($red, 0.3);
+  background: rgba($red, 0.06);
+  color: $red;
+  font-size: $font-xs;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover:not(:disabled) {
+    background: rgba($red, 0.12);
+    border-color: $red;
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }

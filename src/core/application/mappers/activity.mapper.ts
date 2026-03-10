@@ -12,9 +12,9 @@ export const toActivityDto = (entity: Activity): ActivityDto => {
     date: p.date.toISOString(),
     startTime: p.startTime,
     endTime: p.endTime,
-    placeName: p.placeName,
-    location: p.location,
-    targetAudience: p.targetAudience,
+    durationHours: p.durationHours,
+    activityType: p.activityType,
+    categories: p.categories,
     maxVolunteers: p.maxVolunteers,
     currentVolunteers: p.currentVolunteers,
     status: p.status,
@@ -23,6 +23,13 @@ export const toActivityDto = (entity: Activity): ActivityDto => {
     isActive: p.isActive,
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
+    placeName: p.placeName,
+    city: p.city,
+    latitude: p.latitude,
+    longitude: p.longitude,
+    meetingLink: p.meetingLink,
+    meetingPlatform: p.meetingPlatform,
+    externalMeetingId: p.externalMeetingId
   };
 };
 

@@ -2,145 +2,104 @@
 @use "@/presentation/styles/mixins" as *;
 @use "@/presentation/styles/admin-mixins" as *;
 
-.header {
-  @include page-header;
-  margin-bottom: $sp-lg;
-}
+.header { margin-bottom: $sp-lg; }
 
 .actions {
   @include flex(row, center, space-between, $sp-sm);
-  width: 100%;
   flex-wrap: wrap;
 
-  @include sm {
-    flex-direction: column;
-    gap: $sp-sm;
-    > * { width: 100%; }
-  }
+  @include sm { flex-direction: column; align-items: stretch; }
 }
 
 .actionsEnd {
   @include flex(row, center, flex-end, $sp-sm);
   flex-shrink: 0;
 
-  @include sm {
-    width: 100%;
-    > *:first-child { flex: 1; }
-  }
+  @include sm { justify-content: space-between; }
 }
 
 .btnCreate { @include create-btn; }
-.grid { @include cards-grid; }
 
-.metaContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
-}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $sp-md;
+  margin-bottom: $sp-lg;
 
-.metaRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #6B7280;
-  font-size: 13px;
-  
-  svg {
-    flex-shrink: 0;
-    color: $text-muted;
+  @media (max-width: $bp-md) {
+    grid-template-columns: 1fr;
   }
 }
 
-.status {
-  @include status-badge;
-  font-weight: 600;
+.status { @include status-badge; }
 
-  &.draft {
-    background: rgba(59, 130, 246, 0.1); 
-    color: #2563eb;
-  }
-
-  &.published {
-    background: rgba($green, 0.1);
-    color: $green;
-  }
-
-  &.cancelled {
-    background: rgba($red, 0.1);
-    color: $red;
-  }
-}
+.draft     { background: rgba(#f59e0b, 0.1);     color: #b45309;      border: 1px solid rgba(#f59e0b, 0.3); }
+.published { background: rgba($green, 0.08);      color: $green;       border: 1px solid rgba($green, 0.3); }
+.cancelled { background: rgba($red, 0.08);        color: $red;         border: 1px solid rgba($red, 0.3); }
+.completed { background: rgba($text-muted, 0.08); color: $text-muted;  border: 1px solid rgba($text-muted, 0.2); }
 
 .cardActions {
-  @include flex(row, center, flex-end, 6px);
-  width: 100%;
-  box-sizing: border-box;
+  @include flex(row, center, flex-end, $sp-xs);
+  flex-wrap: wrap;
 }
 
-.btn { @include action-btn; }
+.btn {
+  @include action-btn;
+  color: $text-muted;
+  &:hover:not(:disabled) { color: $text; border-color: $text; }
+}
 
 .btnSuccess {
   @include action-btn;
-  &:hover:not(:disabled) {
-    background: rgba($green, 0.05);
-    border-color: $green;
-    color: $green;
-  }
+  color: $green;
+  border-color: rgba($green, 0.3);
+  background: rgba($green, 0.05);
+  &:hover:not(:disabled) { background: rgba($green, 0.1); border-color: $green; }
+}
+
+.btnInfo {
+  @include action-btn;
+  position: relative;
+  color: #2563eb;
+  border-color: rgba(#2563eb, 0.3);
+  background: rgba(#2563eb, 0.05);
+  &:hover:not(:disabled) { background: rgba(#2563eb, 0.1); border-color: #2563eb; }
+}
+
+.badgeCount {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: $radius-full;
+  background: $green;
+  color: $white;
+  font-size: 9px;
+  font-weight: 800;
+  @include flex-center;
+  line-height: 1;
 }
 
 .btnWarning {
   @include action-btn;
-  &:hover:not(:disabled) {
-    background: rgba(#f59e0b, 0.05);
-    border-color: #f59e0b;
-    color: #f59e0b;
-  }
-}
-
-.btnDanger {
-  @include action-btn;
-  &:hover:not(:disabled) {
-    background: rgba($red, 0.05);
-    border-color: $red;
-    color: $red;
-  }
+  color: #d97706;
+  border-color: rgba(#d97706, 0.3);
+  background: rgba(#d97706, 0.05);
+  &:hover:not(:disabled) { background: rgba(#d97706, 0.1); border-color: #d97706; }
 }
 
 .btnRestore {
   @include action-btn;
-  border-color: rgba($green, 0.3);
-  background: rgba($green, 0.05);
-  color: $green;
-  &:hover { background: rgba($green, 0.1); }
+  color: $text-muted;
+  &:hover:not(:disabled) { color: $green; border-color: $green; }
 }
 
-.btnInfo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  padding: 0 10px;
-  gap: 6px;
-  border-radius: 6px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  background: rgba(59, 130, 246, 0.05);
-  color: #2563eb;
-  transition: all 0.2s ease;
-  cursor: pointer;
-
-  &:hover {
-    background: rgba(59, 130, 246, 0.1);
-    transform: translateY(-1px);
-  }
-}
-
-.badgeCount {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-:global(.modal-content) {
-  box-sizing: border-box;
-  * { box-sizing: border-box; }
+.btnDanger {
+  @include action-btn;
+  color: $red;
+  border-color: rgba($red, 0.3);
+  background: rgba($red, 0.05);
+  &:hover:not(:disabled) { background: rgba($red, 0.1); border-color: $red; }
 }

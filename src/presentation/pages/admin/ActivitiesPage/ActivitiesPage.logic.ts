@@ -1,34 +1,36 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DayOfWeek, UserRole } from "@/core/domain/enums";
+import { ActivityStatus, ActivityType, DayOfWeek, UserRole } from "@/core/domain/enums";
 import { useActivities, useToast, useAuth } from "@/presentation/hooks";
 import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
 import { processImageForUpload } from "@/lib/utils";
+import { ACTIVITY_STATUS_LABELS } from "@/presentation/constants";
 
 export const FILTERS = [
-  { key: "PUBLISHED", label: "منشور" },
-  { key: "DRAFT", label: "مسودة" },
-  { key: "CANCELLED", label: "ملغي" },
+  { key: ActivityStatus.PUBLISHED, label: ACTIVITY_STATUS_LABELS[ActivityStatus.PUBLISHED] },
+  { key: ActivityStatus.DRAFT, label: ACTIVITY_STATUS_LABELS[ActivityStatus.DRAFT] },
+  { key: ActivityStatus.CANCELLED, label: ACTIVITY_STATUS_LABELS[ActivityStatus.CANCELLED] },
+  { key: ActivityStatus.COMPLETED, label: ACTIVITY_STATUS_LABELS[ActivityStatus.COMPLETED] },
   { key: "all", label: "الكل" }
 ];
 
 export const STATUS_MAP = {
-  DRAFT: { label: "مسودة", class: "draft" },
-  PUBLISHED: { label: "منشور", class: "published" },
-  CANCELLED: { label: "ملغي", class: "cancelled" }
+  [ActivityStatus.DRAFT]: { label: ACTIVITY_STATUS_LABELS[ActivityStatus.DRAFT], class: "draft" },
+  [ActivityStatus.PUBLISHED]: { label: ACTIVITY_STATUS_LABELS[ActivityStatus.PUBLISHED], class: "published" },
+  [ActivityStatus.CANCELLED]: { label: ACTIVITY_STATUS_LABELS[ActivityStatus.CANCELLED], class: "cancelled" },
+  [ActivityStatus.COMPLETED]: { label: ACTIVITY_STATUS_LABELS[ActivityStatus.COMPLETED], class: "completed" }
 } as const;
 
 const VALIDATION_RULES = [
   { field: "title", message: "العنوان مطلوب" },
   { field: "description", message: "الوصف مطلوب" },
   { field: "imageUrl", message: "الصورة مطلوبة" },
-  { field: "placeName", message: "اسم المكان مطلوب" },
-  { field: "address", message: "العنوان مطلوب" },
   { field: "date", message: "التاريخ مطلوب" },
   { field: "startTime", message: "الوقت مطلوب" },
   { field: "endTime", message: "الوقت مطلوب" },
-  { field: "targetAudience", message: "الفئة المستهدفة مطلوبة" }
+  { field: "durationHours", message: "عدد الساعات مطلوب" },
+  { field: "activityType", message: "نوع النشاط مطلوب" }
 ];
 
 type ConfirmOptions = {
@@ -44,11 +46,10 @@ export const useActivitiesPage = () => {
   const { toasts, showToast, removeToast } = useToast();
   const ITEMS_PER_PAGE = 20;
 
-  const { list, loading, submitting, uploadImage, create, update, remove, publish, cancel, restore } = useActivities({
-    filter: "all"
-  });
+  const { list, loading, submitting, uploadImage, create, update, remove, publish, cancel, restore, complete } =
+    useActivities({ filter: "all" });
 
-  const [activeFilter, setActiveFilter] = useState("PUBLISHED");
+  const [activeFilter, setActiveFilter] = useState<string>(ActivityStatus.PUBLISHED);
   const [currentPage, setCurrentPage] = useState(1);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [showModal, setShowModal] = useState(false);
@@ -70,8 +71,7 @@ export const useActivitiesPage = () => {
         (a) =>
           a.title.toLowerCase().includes(q) ||
           a.description.toLowerCase().includes(q) ||
-          a.placeName.toLowerCase().includes(q) ||
-          a.location.address.toLowerCase().includes(q)
+          (a.placeName?.toLowerCase().includes(q) ?? false)
       );
     }
     return result;
@@ -113,6 +113,7 @@ export const useActivitiesPage = () => {
   }, []);
 
   const handleEdit = useCallback((activity: ActivityDto) => {
+    if (activity.status === ActivityStatus.COMPLETED) return;
     setMode("edit");
     setEditData({
       id: activity.id,
@@ -123,19 +124,23 @@ export const useActivitiesPage = () => {
       date: new Date(activity.date).toISOString().slice(0, 10),
       startTime: activity.startTime,
       endTime: activity.endTime,
+      durationHours: activity.durationHours,
+      activityType: activity.activityType,
+      categories: activity.categories,
+      maxVolunteers: activity.maxVolunteers,
       placeName: activity.placeName,
-      address: activity.location.address,
-      latitude: activity.location.latitude,
-      longitude: activity.location.longitude,
-      targetAudience: activity.targetAudience,
-      maxVolunteers: activity.maxVolunteers
+      city: activity.city,
+      latitude: activity.latitude,
+      longitude: activity.longitude,
+      meetingLink: activity.meetingLink,
+      meetingPlatform: activity.meetingPlatform
     });
     setShowModal(true);
   }, []);
 
   const handlePublish = useCallback(
     async (activity: ActivityDto) => {
-      if (activity.status !== "DRAFT") return;
+      if (activity.status !== ActivityStatus.DRAFT) return;
       const ok = await confirm({
         title: "نشر الفرصة",
         message: `هل تريد نشر "${activity.title}"؟ سيتمكن المتطوعون من رؤيتها والتسجيل فيها.`,
@@ -170,6 +175,11 @@ export const useActivitiesPage = () => {
       const value = form[rule.field];
       if (!value || (typeof value === "string" && !value.trim())) return rule.message;
     }
+    if (form.activityType === ActivityType.IN_PERSON && !form.placeName?.trim())
+      return "اسم المكان مطلوب للنشاط الوجاهي";
+    if (form.activityType === ActivityType.IN_PERSON && !form.city) return "المدينة مطلوبة للنشاط الوجاهي";
+    if (form.activityType === ActivityType.ONLINE && !form.meetingLink?.trim())
+      return "رابط الاجتماع مطلوب للنشاط الإلكتروني";
     if (form.startTime >= form.endTime) return "وقت البداية يجب أن يسبق النهاية";
     if (form.maxVolunteers < 1) return "العدد الأقصى يجب أن يكون 1 أو أكثر";
     return null;
@@ -191,14 +201,16 @@ export const useActivitiesPage = () => {
         date: formData.date,
         startTime: formData.startTime,
         endTime: formData.endTime,
-        placeName: formData.placeName.trim(),
-        location: {
-          address: formData.address.trim(),
-          latitude: formData.latitude,
-          longitude: formData.longitude
-        },
-        targetAudience: formData.targetAudience.trim(),
-        maxVolunteers: formData.maxVolunteers
+        durationHours: Number(formData.durationHours),
+        activityType: formData.activityType as ActivityType,
+        categories: formData.categories ?? [],
+        maxVolunteers: formData.maxVolunteers,
+        placeName: formData.placeName?.trim() ?? null,
+        city: formData.city ?? null,
+        latitude: formData.latitude ?? null,
+        longitude: formData.longitude ?? null,
+        meetingLink: formData.meetingLink?.trim() ?? null,
+        meetingPlatform: formData.meetingPlatform ?? null
       };
 
       try {
@@ -234,7 +246,7 @@ export const useActivitiesPage = () => {
 
   const handleCancelActivity = useCallback(
     async (activity: ActivityDto) => {
-      if (activity.status === "CANCELLED") return;
+      if (activity.status === ActivityStatus.CANCELLED) return;
       const ok = await confirm({
         title: "إلغاء الفرصة",
         message: `هل تريد إلغاء "${activity.title}"؟ يمكنك استعادتها لاحقاً.`,
@@ -249,7 +261,7 @@ export const useActivitiesPage = () => {
 
   const handleRestore = useCallback(
     async (activity: ActivityDto) => {
-      if (activity.status !== "CANCELLED") return;
+      if (activity.status !== ActivityStatus.CANCELLED) return;
       const ok = await confirm({
         title: "استعادة الفرصة",
         message: `هل تريد استعادة "${activity.title}" كمسودة؟`,
@@ -262,10 +274,34 @@ export const useActivitiesPage = () => {
     [confirm, restore, showToast]
   );
 
+  const handleComplete = useCallback(
+    async (activity: ActivityDto) => {
+      if (activity.status !== ActivityStatus.PUBLISHED) return;
+      const ok = await confirm({
+        title: "إكمال النشاط",
+        message: `هل تريد إكمال "${activity.title}"؟ تأكد من تسجيل حضور جميع المتطوعين أولاً.`,
+        confirmText: "إكمال",
+        cancelText: "إلغاء",
+        variant: "primary"
+      });
+      if (ok && (await complete(activity.id))) showToast("تم إكمال النشاط بنجاح", "success");
+    },
+    [confirm, complete, showToast]
+  );
+
   const handleViewVolunteers = useCallback((activity: ActivityDto) => {
     setSelectedActivity(activity);
     setShowVolunteersModal(true);
   }, []);
+
+  const completeActivity = useCallback(
+    async (id: string): Promise<boolean> => {
+      const success = await complete(id);
+      if (success) showToast("تم إكمال النشاط بنجاح", "success");
+      return success ?? false;
+    },
+    [complete, showToast]
+  );
 
   return {
     status,
@@ -301,10 +337,12 @@ export const useActivitiesPage = () => {
     handlePublish,
     handleCancel: handleCancelActivity,
     handleRestore,
+    handleComplete,
     handleViewVolunteers,
     searchQuery,
     setSearchQuery,
     setAppliedSearch,
-    appliedSearch
+    appliedSearch,
+    completeActivity
   };
 };

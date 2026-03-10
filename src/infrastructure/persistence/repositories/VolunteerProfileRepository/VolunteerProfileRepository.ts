@@ -1,8 +1,6 @@
 import IVolunteerProfileRepository from "./IVolunteerProfileRepository";
-
 import type { VolunteerProfile as PrismaVolunteerProfile } from "@prisma/client";
 import { prisma } from "@/infrastructure/persistence/prisma";
-
 import { VolunteerProfile } from "@/core/domain/entities";
 import { JordanianCity, Gender } from "@/core/domain/enums";
 
@@ -13,7 +11,8 @@ class VolunteerProfileRepository implements IVolunteerProfileRepository {
       city: data.city as JordanianCity,
       gender: (data.gender as Gender) ?? null,
       skills: data.skills ?? [],
-      interests: data.interests ?? []
+      interests: data.interests ?? [],
+      totalVolunteerHours: data.totalVolunteerHours ?? 0
     });
   }
 
@@ -28,7 +27,8 @@ class VolunteerProfileRepository implements IVolunteerProfileRepository {
       data: {
         ...props,
         city: props.city,
-        gender: props.gender ?? null
+        gender: props.gender ?? null,
+        totalVolunteerHours: props.totalVolunteerHours ?? 0
       }
     });
     return this.mapToEntity(created);
@@ -42,6 +42,7 @@ class VolunteerProfileRepository implements IVolunteerProfileRepository {
         ...props,
         city: props.city,
         gender: props.gender ?? null,
+        totalVolunteerHours: props.totalVolunteerHours,
         updatedAt: new Date()
       }
     });

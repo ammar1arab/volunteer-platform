@@ -1,8 +1,6 @@
 import { JordanianCity, Gender } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 
-// ─── Volunteer Profile ────────────────────────────────────────
-
 export interface VolunteerProfileDto {
   id: string;
   userId: string;
@@ -14,11 +12,8 @@ export interface VolunteerProfileDto {
   skills: string[];
   interests: string[];
   hasVolunteerExperience: boolean;
+  totalVolunteerHours: number;
 }
-
-export type GetVolunteerProfileResponse = Result<{ profile: VolunteerProfileDto }>;
-
-// ─── Update Profile ───────────────────────────────────────────
 
 export interface UpdateVolunteerProfileRequest {
   userId: string;
@@ -32,13 +27,11 @@ export interface UpdateVolunteerProfileRequest {
   hasVolunteerExperience?: boolean;
 }
 
-export type UpdateVolunteerProfileResponse = Result<{ profile: VolunteerProfileDto }>;
-
-// ─── Upload Picture ───────────────────────────────────────────
-
 export interface UploadProfilePictureRequest {
   userId: string;
   file: File;
 }
 
+export type GetVolunteerProfileResponse = Result<{ profile: VolunteerProfileDto }>;
+export type UpdateVolunteerProfileResponse = Result<{ profile: VolunteerProfileDto }>;
 export type UploadProfilePictureResponse = Result<{ imageUrl: string }>;

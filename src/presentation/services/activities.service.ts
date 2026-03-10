@@ -11,7 +11,8 @@ import type {
   PublishActivityResponse,
   CancelActivityResponse,
   RestoreActivityResponse,
-  GetActivityVolunteersResponse
+  GetActivityVolunteersResponse,
+  CompleteActivityResponse
 } from "@/core/application/dtos";
 
 export const activityApi = {
@@ -25,5 +26,6 @@ export const activityApi = {
   publish: (id: string) => apiClient.post<PublishActivityResponse>(API_ENDPOINTS.ACTIVITIES.PUBLISH(id)),
   cancel: (id: string) => apiClient.post<CancelActivityResponse>(API_ENDPOINTS.ACTIVITIES.CANCEL(id)),
   restore: (id: string) => apiClient.post<RestoreActivityResponse>(API_ENDPOINTS.ACTIVITIES.RESTORE(id)),
+  complete: (id: string) => apiClient.post<CompleteActivityResponse>(API_ENDPOINTS.ACTIVITIES.COMPLETE(id)),
   getVolunteers: (id: string) => apiClient.get<GetActivityVolunteersResponse>(API_ENDPOINTS.ACTIVITIES.VOLUNTEERS(id))
 };

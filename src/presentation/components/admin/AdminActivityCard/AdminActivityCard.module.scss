@@ -1,165 +1,151 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-@keyframes breathe {
-  0%,
-  100% {
-    box-shadow: 0 4px 20px rgba($black, 0.06);
-  }
-  50% {
-    box-shadow:
-      0 8px 40px rgba($green, 0.14),
-      0 0 0 4px rgba($green, 0.06);
-  }
-}
-
-@keyframes scanline {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(500%);
-    opacity: 0;
-  }
-}
-
 @keyframes float-pin {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 .card {
-  @include flex-col;
+  @include flex(row, stretch, flex-start);
   border-radius: $radius-lg;
   border: 1px solid $border;
-  overflow: visible;
+  background: $bg;
+  overflow: hidden;
   position: relative;
-  min-width: 0; 
-  transition:
-    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-    border-color 0.3s ease;
-
-  > *:first-child {
-    border-radius: $radius-lg $radius-lg 0 0;
-    overflow: hidden;
-  }
+  transition: $transition;
+  transition-property: transform, border-color, box-shadow;
 
   &:hover {
-    transform: translateY(-1px) scale(1.012);
-    border-color: rgba($green, 0.3);
-    animation: breathe 2.5s ease infinite;
+    transform: translateY(-2px);
+    border-color: $green;
+    box-shadow: 0 0 0 1px $green, $shadow;
 
-    .img {
-      transform: scale(1.06);
+    .imageInner { border-color: rgba($green, 0.4); }
+    .img { transform: scale(1.04); }
+    .title { color: $green; }
+    .shareBtn { opacity: 1; transform: scale(1); }
+    .metaIcon { background: $green; color: $white; }
+    .mapsBtn svg { animation: float-pin 1.8s ease infinite; }
+  }
+
+  &.completed {
+    opacity: 0.65;
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: $border;
+      .title { color: $text; }
     }
-    .scanline {
-      animation: scanline 2.5s ease infinite;
-    }
-    .title {
-      color: $green;
-    }
-    .shareBtn {
-      opacity: 1;
-      transform: scale(1);
-    }
-    .infoItem {
-      border-color: rgba($green, 0.2);
-      svg {
-        color: $green;
-      }
-    }
+  }
+
+  @include sm {
+    flex-direction: column;
+  }
+}
+
+.imageCol {
+  width: 220px;
+  flex-shrink: 0;
+  padding: $sp-sm;
+  background: $white;
+  border-left: 1px solid $border;
+  @include flex-center;
+
+  @include sm {
+    width: 100%;
+    border-left: none;
+    border-bottom: 1px solid $border;
+    padding: $sp-sm $sp-sm 0;
   }
 }
 
 .imageWrapper {
+  width: 100%;
+  background: radial-gradient(circle at 50% 50%, rgba($green, 0.04) 0%, transparent 70%);
+  border-radius: $radius-md;
+  overflow: hidden;
+  transition: border-color $transition;
+}
+
+.imageInner {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  flex-shrink: 0;
+  aspect-ratio: 4 / 3;
+  @include flex-center;
+  background: $white;
+  transition: border-color $transition;
 }
 
 .img {
-  object-fit: contain;
-  padding: $sp-sm;
-  transition: transform 0.5s ease;
-}
-
-.scanline {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 35%, rgba($green, 0.07) 50%, transparent 65%);
-  transform: translateY(-100%);
-  pointer-events: none;
-  z-index: 1;
+  object-fit: contain !important;
+  position: relative !important;
+  width: 88% !important;
+  height: 88% !important;
+  transition: transform 0.45s ease;
 }
 
 .badge {
   position: absolute;
   top: $sp-sm;
   right: $sp-sm;
-  z-index: 2;
+  z-index: 3;
 }
 
-.shareWrapper {
+.typeChip {
   position: absolute;
-  top: $sp-sm;
-  left: $sp-sm;
-  z-index: 20;
+  bottom: $sp-sm;
+  right: $sp-sm;
+  z-index: 3;
+  @include flex(row, center, center, 4px);
+  padding: 3px 10px;
+  border-radius: $radius-full;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+
+  &.inPerson { background: $green; color: $white; }
+  &.online    { background: #2563eb; color: $white; }
 }
 
 .shareBtn {
+  position: absolute;
+  top: $sp-sm;
+  left: $sp-sm;
+  z-index: 3;
   @include flex-center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius;
   border: 1px solid $border;
-  background: $bg;
+  background: $white;
   color: $text-muted;
   cursor: pointer;
-  opacity: 0.75;
-  transform: scale(0.92);
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease,
-    border-color 0.3s ease,
-    color 0.3s ease;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: $transition;
 
-  &:hover {
-    border-color: $green;
-    color: $green;
-    transform: scale(1.1) rotate(15deg);
-  }
+  &:hover { border-color: $green; color: $green; }
 }
 
 .body {
-  @include flex-col;
-  gap: $sp-sm;
+  @include flex(column, stretch, flex-start, $sp-sm);
   padding: $sp-md;
   flex: 1;
-  min-width: 0; 
+  min-width: 0;
 }
+
+.header { @include flex-col; gap: $sp-xs; }
 
 .title {
   margin: 0;
   font-size: $font-sm;
-  font-weight: 700;
+  font-weight: 800;
   color: $text;
   line-height: 1.4;
   @include line-clamp(2);
-  transition: color 0.3s ease;
+  transition: color $transition;
+  letter-spacing: -0.01em;
 }
 
 .description {
@@ -170,115 +156,116 @@
   @include line-clamp(2);
 }
 
-.grid {
+.metaGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $sp-xs;
-
-  @include sm {
-    grid-template-columns: 1fr;
-  }
 }
 
-.infoItem {
-  @include flex(row, flex-start, flex-start, 6px);
-  padding: $sp-xs $sp-sm;
+.metaItem {
+  @include flex(row, flex-start, flex-start, $sp-sm);
+  padding: 7px $sp-sm;
   border-radius: $radius;
   border: 1px solid $border;
-  transition: border-color 0.3s ease;
+  transition: border-color $transition;
 
-  svg {
-    color: $text-muted;
-    flex-shrink: 0;
-    margin-top: 2px;
-    transition: color 0.3s ease;
-  }
+  &:hover { border-color: rgba($green, 0.35); }
 }
 
-.infoContent {
-  @include flex-col;
-  gap: 1px;
-  min-width: 0;
+.metaIcon {
+  @include flex-center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba($green, 0.09);
+  color: $green;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: $transition;
 }
 
-.infoLabel {
+.metaContent { @include flex-col; gap: 1px; min-width: 0; }
+
+.metaLabel {
   font-size: 9px;
   color: $text-muted;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
-.infoValue {
-  font-size: 10px;
+.metaValue {
+  font-size: 11px;
   color: $text;
-  font-weight: 600;
-  @include line-clamp(1);
+  font-weight: 700;
+  @include truncate;
 }
+
+.accent { color: $green; font-weight: 800; }
+.slash  { color: $text-muted; margin: 0 1px; }
 
 .locationRow {
   @include flex(row, center, space-between, $sp-sm);
-  padding: $sp-xs $sp-sm;
+  padding: 7px $sp-sm;
   border-radius: $radius;
   border: 1px solid $border;
-  margin-top: $sp-xs;
-  transition: border-color 0.3s ease;
+  margin-top: auto;
+  transition: border-color $transition;
+
+  &:hover { border-color: rgba($red, 0.3); }
 }
 
 .locationInfo {
-  @include flex-col;
-  gap: 1px;
+  @include flex(row, center, flex-start, 6px);
+  font-size: $font-xs;
+  color: $text-muted;
+  font-weight: 500;
   min-width: 0;
   flex: 1;
+
+  svg { color: $red; flex-shrink: 0; }
+  span { @include truncate; }
 }
 
-.placeName {
+.meetingLink {
+  @include flex(row, center, flex-start, 6px);
   font-size: $font-xs;
-  font-weight: 700;
-  color: $text;
-  @include line-clamp(1);
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity $transition;
+
+  &:hover { opacity: 0.7; }
 }
 
 .mapsBtn {
-  @include flex-center;
-  gap: 3px;
-  flex-shrink: 0;
-  padding: $sp-xs $sp-sm;
+  @include flex(row, center, center, 5px);
+  padding: 4px 10px;
   border-radius: $radius;
-  border-color: $green;
-  color: $green;
-  text-decoration: none;
-  transition:
-    border-color 0.3s ease,
-    color 0.3s ease;
+  border: 1px solid rgba($red, 0.3);
+  background: rgba($red, 0.04);
+  color: $red;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: $transition;
 
-  svg {
-    animation: float-pin 1.5s ease infinite;
+  &:hover {
+    background: rgba($red, 0.09);
+    border-color: $red;
+    box-shadow: 0 0 8px rgba($red, 0.15);
   }
 }
 
-.footer {
+.actions {
   @include flex(row, center, flex-end, $sp-xs);
-  padding: $sp-sm $sp-md;
+  padding-top: $sp-xs;
   border-top: 1px solid $border;
   flex-wrap: wrap;
 
-  @include sm {
-    justify-content: flex-start;
-  }
-}
-
-
-.locBody {
-  @include flex-col;
-  gap: $sp-md;
-}
-
-.locAddress {
-  font-size: $font-sm;
-  color: $text-muted;
-  margin: 0;
-  line-height: 1.6;
-  padding-bottom: $sp-sm;
-  border-bottom: 1px solid rgba($text-muted, 0.1);
+  @include sm { justify-content: flex-start; }
 }
 
 .locActions {
@@ -286,41 +273,35 @@
   grid-template-columns: 1fr 1fr;
   gap: $sp-sm;
 
-  @include sm {
-    grid-template-columns: 1fr;
-  }
+  @include sm { grid-template-columns: 1fr; }
 }
 
 .locBtnShare {
   @include flex-center;
   padding: $sp-sm;
-  background: rgba(#3b82f6, 0.06);
-  border: 1px solid rgba(#3b82f6, 0.2);
   border-radius: $radius;
-  color: #3b82f6;
+  border: 1px solid rgba(#2563eb, 0.25);
+  background: rgba(#2563eb, 0.05);
+  color: #2563eb;
   font-size: $font-sm;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: background $transition;
 
-  &:hover {
-    background: rgba(#3b82f6, 0.13);
-  }
+  &:hover { background: rgba(#2563eb, 0.1); }
 }
 
 .locBtnMaps {
   @include flex-center;
   padding: $sp-sm;
-  background: rgba(#f97316, 0.06);
-  border: 1px solid rgba(#f97316, 0.2);
   border-radius: $radius;
-  color: #f97316;
+  border: 1px solid rgba($red, 0.25);
+  background: rgba($red, 0.05);
+  color: $red;
   font-size: $font-sm;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   transition: background $transition;
 
-  &:hover {
-    background: rgba(#f97316, 0.13);
-  }
+  &:hover { background: rgba($red, 0.1); }
 }

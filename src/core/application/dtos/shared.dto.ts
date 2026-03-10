@@ -23,21 +23,11 @@ export interface ActivitySummaryDto {
   date: string;
   startTime: string;
   endTime: string;
-  placeName: string;
-  address: string;
-  targetAudience: string;
+  durationHours: number;
+  activityType: string;
+  placeName: string | null;
+  city: string | null;
   maxVolunteers: number;
   currentVolunteers: number;
   status: string;
-}
-
-export interface ApprovedVolunteerRow {
-  id: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  profilePictureUrl: string | null;
-  city: string | null;
-  dateOfBirth: Date | null;
-  gender: string | null;
 }

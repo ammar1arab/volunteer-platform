@@ -1,6 +1,8 @@
 "use client";
 import styles from "./ActivitiesPage.module.scss";
 import { useActivitiesPage, FILTERS, STATUS_MAP } from "./ActivitiesPage.logic";
+
+import { ActivityStatus } from "@/core/domain/enums";
 import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown, Search } from "@/presentation/components";
 import { Plus, Edit2, Trash2, CalendarDays, Send, Ban, UsersIcon, RotateCcw } from "lucide-react";
 
@@ -12,7 +14,7 @@ const ActivitiesPage = () => {
     setActiveFilter, setCurrentPage, setShowModal, setShowVolunteersModal,
     openCreateModal, handleEdit, handleImageUpload, handleModalSubmit,
     handleDelete, handlePublish, handleCancel, handleRestore, handleViewVolunteers,
-    searchQuery, setSearchQuery, setAppliedSearch, appliedSearch
+    searchQuery, setSearchQuery, setAppliedSearch, appliedSearch, completeActivity
   } = useActivitiesPage();
 
   if (status === "loading") return <LoadingState />;
@@ -57,12 +59,13 @@ const ActivitiesPage = () => {
                   }
                   actions={
                     <div className={styles.cardActions}>
+                      {activity.status !== ActivityStatus.COMPLETED && (
+                        <button className={styles.btn} title="تعديل" onClick={() => handleEdit(activity)}>
+                          <Edit2 size={14} />
+                        </button>
+                      )}
 
-                      <button className={styles.btn} title="تعديل" onClick={() => handleEdit(activity)}>
-                        <Edit2 size={14} />
-                      </button>
-
-                      {activity.status === "DRAFT" && (
+                      {activity.status === ActivityStatus.DRAFT && (
                         <button className={styles.btnSuccess} title="نشر" onClick={() => handlePublish(activity)}>
                           <Send size={14} />
                         </button>
@@ -73,11 +76,11 @@ const ActivitiesPage = () => {
                         <span className={styles.badgeCount}>{activity.currentVolunteers}</span>
                       </button>
 
-                      {activity.status === "CANCELLED" ? (
+                      {activity.status === ActivityStatus.CANCELLED ? (
                         <button className={styles.btnRestore} title="استعادة" onClick={() => handleRestore(activity)}>
                           <RotateCcw size={14} />
                         </button>
-                      ) : (
+                      ) : activity.status !== ActivityStatus.COMPLETED && (
                         <button className={styles.btnWarning} title="إلغاء الفرصة" onClick={() => handleCancel(activity)}>
                           <Ban size={14} />
                         </button>
@@ -102,9 +105,14 @@ const ActivitiesPage = () => {
         mode={mode} initialData={editData} onSubmit={handleModalSubmit}
         onImageUpload={handleImageUpload} isSubmitting={submitting} />
 
-      <VolunteersModal activityId={selectedActivity?.id || ""}
+      <VolunteersModal
+        activityId={selectedActivity?.id || ""}
         activityTitle={selectedActivity?.title || ""}
-        isOpen={showVolunteersModal} onClose={() => setShowVolunteersModal(false)} />
+        activityStatus={selectedActivity?.status || ""}
+        isOpen={showVolunteersModal}
+        onClose={() => setShowVolunteersModal(false)}
+        onComplete={selectedActivity ? () => completeActivity(selectedActivity.id) : undefined}
+      />
 
       <ConfirmDialog isOpen={confirmDialog.isOpen} onClose={confirmDialog.handleCancel}
         onConfirm={confirmDialog.handleConfirm} title={confirmDialog.options.title}

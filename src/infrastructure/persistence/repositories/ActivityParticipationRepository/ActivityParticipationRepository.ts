@@ -1,23 +1,24 @@
 import IActivityParticipationRepository from "./IActivityParticipationRepository";
-
 import type { ActivityParticipation as PrismaParticipation } from "@prisma/client";
 import { prisma } from "@/infrastructure/persistence/prisma";
-
 import { ActivityParticipation } from "@/core/domain/entities";
+import { ParticipationStatus, AttendanceStatus, JordanianCity, Gender } from "@/core/domain/enums";
 import { ApprovedVolunteerRow } from "@/core/application/dtos";
 
 class ActivityParticipationRepository implements IActivityParticipationRepository {
   private mapToEntity(data: PrismaParticipation): ActivityParticipation {
     return new ActivityParticipation({
       ...data,
+      status: data.status as ParticipationStatus,
+      attendanceStatus: (data.attendanceStatus as AttendanceStatus) ?? AttendanceStatus.NOT_MARKED,
+      volunteerHours: data.volunteerHours ?? null,
+      markedAt: data.markedAt ?? null,
       respondedAt: data.respondedAt ?? undefined
     });
   }
 
   async findById(id: string): Promise<ActivityParticipation | null> {
-    const data = await prisma.activityParticipation.findUnique({
-      where: { id }
-    });
+    const data = await prisma.activityParticipation.findUnique({ where: { id } });
     return data ? this.mapToEntity(data) : null;
   }
 
@@ -30,7 +31,7 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
 
   async findPendingByActivity(activityId: string): Promise<ActivityParticipation[]> {
     const rows = await prisma.activityParticipation.findMany({
-      where: { activityId, status: "PENDING" },
+      where: { activityId, status: ParticipationStatus.PENDING },
       orderBy: { requestedAt: "desc" }
     });
     return rows.map((row) => this.mapToEntity(row));
@@ -38,7 +39,7 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
 
   async findAllPending(): Promise<ActivityParticipation[]> {
     const rows = await prisma.activityParticipation.findMany({
-      where: { status: "PENDING" },
+      where: { status: ParticipationStatus.PENDING },
       orderBy: { requestedAt: "desc" }
     });
     return rows.map((row) => this.mapToEntity(row));
@@ -50,6 +51,26 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
       orderBy: { requestedAt: "desc" }
     });
     return rows.map((row) => this.mapToEntity(row));
+  }
+
+  // Returns full participation entities for an activity (approved only)
+  async findApprovedByActivity(activityId: string): Promise<ActivityParticipation[]> {
+    const rows = await prisma.activityParticipation.findMany({
+      where: { activityId, status: ParticipationStatus.APPROVED },
+      orderBy: { requestedAt: "desc" }
+    });
+    return rows.map((row) => this.mapToEntity(row));
+  }
+
+  // Used by complete() to check if any approved are still NOT_MARKED
+  async countNotMarked(activityId: string): Promise<number> {
+    return prisma.activityParticipation.count({
+      where: {
+        activityId,
+        status: ParticipationStatus.APPROVED,
+        attendanceStatus: AttendanceStatus.NOT_MARKED
+      }
+    });
   }
 
   async create(participation: ActivityParticipation): Promise<ActivityParticipation> {
@@ -76,9 +97,10 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
     }
   }
 
+  // Used by admin volunteers modal — includes attendance info
   async findApprovedVolunteers(activityId: string): Promise<ApprovedVolunteerRow[]> {
     const rows = await prisma.activityParticipation.findMany({
-      where: { activityId, status: "APPROVED" },
+      where: { activityId, status: ParticipationStatus.APPROVED },
       include: {
         volunteer: {
           include: {
@@ -92,18 +114,22 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
             }
           }
         }
-      }
+      },
+      orderBy: { requestedAt: "desc" }
     });
 
     return rows.map((r) => ({
+      participationId: r.id,
       id: r.volunteer.id,
       fullName: r.volunteer.fullName,
       email: r.volunteer.email,
       phone: r.volunteer.phone,
       profilePictureUrl: r.volunteer.volunteerProfile?.profilePictureUrl ?? null,
-      city: r.volunteer.volunteerProfile?.city ?? null,
+      city: (r.volunteer.volunteerProfile?.city ?? null) as JordanianCity | null,
       dateOfBirth: r.volunteer.volunteerProfile?.dateOfBirth ?? null,
-      gender: r.volunteer.volunteerProfile?.gender ?? null
+      gender: (r.volunteer.volunteerProfile?.gender ?? null) as Gender | null,
+      attendanceStatus: r.attendanceStatus as AttendanceStatus,
+      volunteerHours: r.volunteerHours ?? null
     }));
   }
 }

@@ -5,7 +5,7 @@ export const toUserSummaryDto = (user: User): UserSummaryDto => ({
   id: user.id,
   fullName: user.fullName,
   email: user.email,
-  phone: user.phone,
+  phone: user.phone
 });
 
 export const toActivitySummaryDto = (entity: Activity): ActivitySummaryDto => {
@@ -17,11 +17,12 @@ export const toActivitySummaryDto = (entity: Activity): ActivitySummaryDto => {
     date: p.date.toISOString(),
     startTime: p.startTime,
     endTime: p.endTime,
+    durationHours: p.durationHours,
+    activityType: p.activityType,
     placeName: p.placeName,
-    address: p.location.address,
-    targetAudience: p.targetAudience,
+    city: p.city,
     maxVolunteers: p.maxVolunteers,
     currentVolunteers: p.currentVolunteers,
-    status: p.status,
+    status: p.status
   };
 };

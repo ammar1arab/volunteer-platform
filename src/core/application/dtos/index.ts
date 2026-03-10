@@ -3,12 +3,7 @@ export { ok, fail } from "./base.dto";
 export type { Result, ErrorPayload } from "./base.dto";
 
 // ─── Shared Fragments ─────────────────────────────────────────
-export type {
-  UserSummaryDto,
-  VolunteerProfileSummaryDto,
-  ActivitySummaryDto,
-  ApprovedVolunteerRow
-} from "./shared.dto";
+export type { UserSummaryDto, VolunteerProfileSummaryDto, ActivitySummaryDto } from "./shared.dto";
 
 // ─── Auth ─────────────────────────────────────────────────────
 export type {
@@ -60,7 +55,8 @@ export type {
   CancelActivityResponse,
   RestoreActivityResponse,
   ActivityVolunteerDto,
-  GetActivityVolunteersResponse
+  GetActivityVolunteersResponse,
+  CompleteActivityResponse
 } from "./activity.dto";
 
 // ─── Participation ────────────────────────────────────────────
@@ -69,7 +65,11 @@ export type {
   CreateJoinRequestResponse,
   GetJoinRequestsResponse,
   ApproveJoinRequestResponse,
-  RejectJoinRequestResponse
+  RejectJoinRequestResponse,
+  CancelJoinRequestResponse,
+  MarkAttendanceRequest,
+  MarkAttendanceResponse,
+  ApprovedVolunteerRow
 } from "./participation.dto";
 
 // ─── Featured Post ────────────────────────────────────────────

@@ -12,7 +12,9 @@ class VolunteerProfile extends BaseEntity {
     if (!props.city) throw new Error("City is required");
     if (!props.dateOfBirth) throw new Error("Date of birth is required");
 
-    this.props = { ...props };
+    this.props = {
+      ...props,
+    };
   }
 
   static create(input: Omit<VolunteerProfileProps, "id" | "createdAt" | "updatedAt">): VolunteerProfile {
@@ -47,87 +49,84 @@ class VolunteerProfile extends BaseEntity {
       this.props.city = input.city;
       changed = true;
     }
-
     if (input.dateOfBirth !== undefined) {
       this.props.dateOfBirth = input.dateOfBirth;
       changed = true;
     }
-
     if (input.profilePictureUrl !== undefined) {
       this.props.profilePictureUrl = input.profilePictureUrl;
       changed = true;
     }
-
     if (input.gender !== undefined) {
       this.props.gender = input.gender;
       changed = true;
     }
-
     if (input.bio !== undefined) {
       this.props.bio = input.bio?.trim() || null;
       changed = true;
     }
-
     if (input.skills !== undefined) {
       this.props.skills = input.skills;
       changed = true;
     }
-
     if (input.interests !== undefined) {
       this.props.interests = input.interests;
       changed = true;
     }
-
     if (input.hasVolunteerExperience !== undefined) {
       this.props.hasVolunteerExperience = input.hasVolunteerExperience;
       changed = true;
     }
-
     if (input.isActive !== undefined) {
       this.setActive(input.isActive);
       this.props.isActive = this.isActive;
       changed = true;
     }
 
-    if (changed) {
-      this.touch();
-    }
+    if (changed) this.touch();
+  }
+
+  addVolunteerHours(hours: number): void {
+    if (hours <= 0) throw new Error("Hours must be positive");
+    this.props.totalVolunteerHours = Math.round((this.props.totalVolunteerHours + hours) * 100) / 100;
+    this.touch();
+  }
+
+  subtractVolunteerHours(hours: number): void {
+    if (hours <= 0) throw new Error("Hours must be positive");
+    this.props.totalVolunteerHours = Math.max(0, Math.round((this.props.totalVolunteerHours - hours) * 100) / 100);
+    this.touch();
   }
 
   get userId(): string {
     return this.props.userId;
   }
-
   get city(): JordanianCity {
     return this.props.city;
   }
-
   get dateOfBirth(): Date {
     return this.props.dateOfBirth;
   }
-
   get profilePictureUrl(): string | null {
     return this.props.profilePictureUrl ?? null;
   }
-
   get gender(): Gender | null {
     return this.props.gender ?? null;
   }
-
   get bio(): string | null {
     return this.props.bio ?? null;
   }
-
   get skills(): string[] {
     return this.props.skills ?? [];
   }
-
   get interests(): string[] {
     return this.props.interests ?? [];
   }
-
   get hasVolunteerExperience(): boolean {
     return this.props.hasVolunteerExperience ?? false;
+  }
+  get totalVolunteerHours(): number {
+    return this.props.totalVolunteerHours;
   }
 
   toObject(): VolunteerProfileProps {

@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  ActivityDto,
-  CreateActivityRequest,
-  UpdateActivityRequest,
-} from "@/core/application/dtos";
+import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
 import { activityApi, uploadApi } from "@/presentation/services";
 
 type ListState = {
@@ -31,36 +27,31 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
     loading: false,
     submitting: false,
     uploading: false,
-    error: "",
+    error: ""
   });
 
   const hasLoadedRef = useRef(false);
 
-  const setError = (msg: string) =>
-    setState((p) => ({ ...p, error: msg || "" }));
+  const setError = (msg: string) => setState((p) => ({ ...p, error: msg || "" }));
 
   const refresh = useCallback(async () => {
     setState((p) => ({ ...p, loading: true, error: "" }));
 
     try {
-      const res =
-        filter === "published"
-          ? await activityApi.getPublished()
-          : await activityApi.getAll();
+      const res = filter === "published" ? await activityApi.getPublished() : await activityApi.getAll();
 
-      const activities: ActivityDto[] =
-        (res as { data?: { activities?: ActivityDto[] } })?.data?.activities ?? [];
+      const activities: ActivityDto[] = (res as { data?: { activities?: ActivityDto[] } })?.data?.activities ?? [];
 
       setState((p) => ({
         ...p,
         list: activities,
-        loading: false,
+        loading: false
       }));
     } catch (err) {
       setState((p) => ({
         ...p,
         loading: false,
-        error: getErrMsg(err, "فشل في جلب البيانات"),
+        error: getErrMsg(err, "فشل في جلب البيانات")
       }));
     }
   }, [filter]);
@@ -243,6 +234,28 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
     [refresh]
   );
 
+  const complete = useCallback(
+    async (id: string) => {
+      setState((p) => ({ ...p, submitting: true, error: "" }));
+      try {
+        const res = await activityApi.complete(id);
+        if (!(res as { success?: boolean })?.success) {
+          setError((res as { error?: string })?.error || "فشل في إكمال النشاط");
+          setState((p) => ({ ...p, submitting: false }));
+          return false;
+        }
+        await refresh();
+        setState((p) => ({ ...p, submitting: false }));
+        return true;
+      } catch (err) {
+        setError(getErrMsg(err, "فشل في إكمال النشاط"));
+        setState((p) => ({ ...p, submitting: false }));
+        return false;
+      }
+    },
+    [refresh]
+  );
+
   return {
     list: state.list,
     loading: state.loading,
@@ -257,6 +270,7 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
     publish,
     cancel,
     restore,
+    complete
   };
 };
 
@@ -281,8 +295,7 @@ export const useActivityDetails = (id: string) => {
         const res = await activityApi.getOne(id);
         if (cancelled) return;
 
-        const activityData: ActivityDto | null =
-          (res as { data?: { activity?: ActivityDto } })?.data?.activity ?? null;
+        const activityData: ActivityDto | null = (res as { data?: { activity?: ActivityDto } })?.data?.activity ?? null;
 
         setActivity(activityData);
 

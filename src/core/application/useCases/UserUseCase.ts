@@ -15,6 +15,7 @@ import {
   VolunteerProfileSummaryDto
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
+import { ParticipationStatus } from "@/core/domain/enums";
 
 const USER_WITH_ANALYTICS_INCLUDE = {
   volunteerProfile: {
@@ -153,7 +154,7 @@ class UserUseCase {
 
       const activities: UserActivityDto[] = participations.map((p) => ({
         id: p.id,
-        status: p.status,
+        status: p.status as ParticipationStatus,
         requestedAt: p.requestedAt.toISOString(),
         respondedAt: p.respondedAt?.toISOString() ?? null,
         activity: {
@@ -163,7 +164,7 @@ class UserUseCase {
           date: p.activity.date.toISOString(),
           startTime: p.activity.startTime,
           endTime: p.activity.endTime,
-          placeName: p.activity.placeName
+          placeName: p.activity.placeName ?? ""
         }
       }));
 

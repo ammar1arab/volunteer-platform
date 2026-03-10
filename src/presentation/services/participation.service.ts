@@ -4,7 +4,9 @@ import type {
   CreateJoinRequestResponse,
   GetJoinRequestsResponse,
   ApproveJoinRequestResponse,
-  RejectJoinRequestResponse
+  RejectJoinRequestResponse,
+  MarkAttendanceResponse,
+  CancelJoinRequestResponse
 } from "@/core/application/dtos";
 
 export const participationApi = {
@@ -14,5 +16,11 @@ export const participationApi = {
   getPending: () => apiClient.get<GetJoinRequestsResponse>(API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.PENDING),
   approve: (id: string) =>
     apiClient.post<ApproveJoinRequestResponse>(API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.APPROVE(id)),
-  reject: (id: string) => apiClient.post<RejectJoinRequestResponse>(API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.REJECT(id))
+  reject: (id: string) => apiClient.post<RejectJoinRequestResponse>(API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.REJECT(id)),
+  cancel: (id: string) => apiClient.post<CancelJoinRequestResponse>(API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.CANCEL(id)),
+
+  markAttendance: (id: string, attended: boolean) =>
+    apiClient.post<MarkAttendanceResponse>(API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.MARK_ATTENDANCE(id), {
+      attended
+    })
 };

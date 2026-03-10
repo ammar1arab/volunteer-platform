@@ -1,8 +1,49 @@
-import { JordanianCity, Gender, DomainFeaturedPostCategory, DayOfWeek } from "@/core/domain/enums";
+import {
+  JordanianCity,
+  Gender,
+  DomainFeaturedPostCategory,
+  DayOfWeek,
+  MeetingPlatform,
+  ParticipationStatus,
+  AttendanceStatus,
+  ActivityType,
+  ActivityStatus
+} from "@/core/domain/enums";
 
 export const GENDER_LABELS: Record<Gender, string> = {
   [Gender.MALE]: "ذكر",
   [Gender.FEMALE]: "أنثى"
+};
+export const ACTIVITY_STATUS_LABELS: Record<ActivityStatus, string> = {
+  [ActivityStatus.DRAFT]: "مسودة",
+  [ActivityStatus.PUBLISHED]: "منشور",
+  [ActivityStatus.CANCELLED]: "ملغى",
+  [ActivityStatus.COMPLETED]: "مكتمل"
+};
+
+export const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {
+  [ActivityType.IN_PERSON]: "وجاهي",
+  [ActivityType.ONLINE]: "إلكتروني"
+};
+
+export const ATTENDANCE_STATUS_LABELS: Record<AttendanceStatus, string> = {
+  [AttendanceStatus.NOT_MARKED]: "لم يُسجَّل",
+  [AttendanceStatus.ATTENDED]: "حضر",
+  [AttendanceStatus.ABSENT]: "غائب"
+};
+
+export const PARTICIPATION_STATUS_LABELS: Record<ParticipationStatus, string> = {
+  [ParticipationStatus.PENDING]: "قيد المراجعة",
+  [ParticipationStatus.APPROVED]: "مقبول",
+  [ParticipationStatus.REJECTED]: "مرفوض",
+  [ParticipationStatus.CANCELLED]: "ملغى"
+};
+
+export const MEETING_PLATFORM_LABELS: Record<MeetingPlatform, string> = {
+  [MeetingPlatform.ZOOM]: "Zoom",
+  [MeetingPlatform.GOOGLE_MEET]: "Google Meet",
+  [MeetingPlatform.TEAMS]: "Microsoft Teams",
+  [MeetingPlatform.OTHER]: "أخرى"
 };
 
 export const CITY_LABELS: Record<JordanianCity, string> = {
@@ -35,7 +76,7 @@ export const CATEGORY_LABELS: Record<DomainFeaturedPostCategory, string> = {
   [DomainFeaturedPostCategory.ECONOMY]: "اقتصاد",
   [DomainFeaturedPostCategory.LAW]: "قانون",
   [DomainFeaturedPostCategory.CULTURE]: "ثقافي",
-[DomainFeaturedPostCategory.SPECIAL_EVENTS]: "مناسبات خاصة",
+  [DomainFeaturedPostCategory.SPECIAL_EVENTS]: "مناسبات خاصة"
 };
 
 export const DAY_LABELS: Record<DayOfWeek, string> = {
@@ -69,8 +110,17 @@ export const getCityLabel = (city: JordanianCity) => CITY_LABELS[city] || city;
 export const getCategoryLabel = (cat: DomainFeaturedPostCategory) => CATEGORY_LABELS[cat] || cat;
 export const getDayLabel = (day: DayOfWeek) => DAY_LABELS[day] || day;
 export const getMonthLabel = (month: number) => MONTH_LABELS[month] || String(month);
+export const getActivityStatusLabel = (s: ActivityStatus) => ACTIVITY_STATUS_LABELS[s] || s;
+export const getActivityTypeLabel = (t: ActivityType) => ACTIVITY_TYPE_LABELS[t] || t;
+export const getAttendanceStatusLabel = (s: AttendanceStatus) => ATTENDANCE_STATUS_LABELS[s] || s;
+export const getParticipationStatusLabel = (s: ParticipationStatus) => PARTICIPATION_STATUS_LABELS[s] || s;
+export const getMeetingPlatformLabel = (p: MeetingPlatform) => MEETING_PLATFORM_LABELS[p] || p;
 
-// For select inputs in forms
+export const ACTIVITY_TYPE_OPTIONS = Object.entries(ACTIVITY_TYPE_LABELS).map(([value, label]) => ({ value, label }));
+export const MEETING_PLATFORM_OPTIONS = Object.entries(MEETING_PLATFORM_LABELS).map(([value, label]) => ({
+  value,
+  label
+}));
 export const GENDER_OPTIONS = Object.entries(GENDER_LABELS).map(([value, label]) => ({ value, label }));
 export const CITY_OPTIONS = Object.entries(CITY_LABELS).map(([value, label]) => ({ value, label }));
 export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));

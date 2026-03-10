@@ -9,7 +9,7 @@ interface ParticipationMapOptions {
 
 export const toParticipationDto = (
   entity: ActivityParticipation,
-  relations?: ParticipationMapOptions,
+  relations?: ParticipationMapOptions
 ): ActivityParticipationDto => {
   const p = entity.toObject();
   return {
@@ -19,7 +19,10 @@ export const toParticipationDto = (
     status: p.status,
     requestedAt: p.requestedAt.toISOString(),
     respondedAt: p.respondedAt?.toISOString(),
+    attendanceStatus: p.attendanceStatus,
+    volunteerHours: p.volunteerHours,
+    markedAt: p.markedAt?.toISOString() ?? null,
     ...(relations?.volunteer && { volunteer: relations.volunteer }),
-    ...(relations?.activity && { activity: relations.activity }),
+    ...(relations?.activity && { activity: relations.activity })
   };
 };

@@ -13,7 +13,7 @@ import {
 import type { ActivityDto } from "@/core/application/dtos";
 import { ROUTES } from "@/presentation/constants";
 
-const ACTIVITIES_LIMIT = 4;
+const ACTIVITIES_LIMIT = 8;
 const POSTS_LIMIT = 8;
 const SPOTLIGHT_LIMIT = 3;
 const MAGAZINES_LIMIT = 10;
@@ -36,7 +36,10 @@ export const useMainPage = () => {
 
   const handleJoin = useCallback(
     async (activity: ActivityDto) => {
-      if (!session) { router.push(ROUTES.LOGIN); return; }
+      if (!session) {
+        router.push(ROUTES.LOGIN);
+        return;
+      }
       const success = await createRequest(activity.id);
       showToast(success ? "تم إرسال طلب الانضمام" : "فشل إرسال الطلب", success ? "success" : "error");
     },
@@ -45,7 +48,13 @@ export const useMainPage = () => {
 
   const getActionButton = useCallback(
     (activity: ActivityDto) => {
-      if (!session) return { variant: "secondary" as const, label: "تسجيل الدخول", disabled: false, onClick: () => router.push(ROUTES.LOGIN) };
+      if (!session)
+        return {
+          variant: "secondary" as const,
+          label: "تسجيل الدخول",
+          disabled: false,
+          onClick: () => router.push(ROUTES.LOGIN)
+        };
       const request = getRequestForActivity(activity.id);
       if (activity.isFull) return { variant: "ghost" as const, label: "اكتمل العدد", disabled: true };
       if (request?.status === "PENDING") return { variant: "ghost" as const, label: "قيد المراجعة", disabled: true };

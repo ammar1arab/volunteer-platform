@@ -12,4 +12,5 @@ export const toVolunteerProfileDto = (entity: VolunteerProfile): VolunteerProfil
   skills: entity.skills,
   interests: entity.interests,
   hasVolunteerExperience: entity.hasVolunteerExperience,
+  totalVolunteerHours: entity.totalVolunteerHours
 });

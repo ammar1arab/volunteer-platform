@@ -1,5 +1,12 @@
 import { BaseEntityProps } from "./BaseEntityProps";
-import { DayOfWeek } from "@/core/domain/enums";
+import {
+  ActivityStatus,
+  ActivityType,
+  DayOfWeek,
+  DomainFeaturedPostCategory,
+  JordanianCity,
+  MeetingPlatform
+} from "@/core/domain/enums";
 
 export interface ActivityProps extends BaseEntityProps {
   title: string;
@@ -9,15 +16,22 @@ export interface ActivityProps extends BaseEntityProps {
   date: Date;
   startTime: string;
   endTime: string;
-  placeName: string;
-  location: {
-    latitude: number;
-    longitude: number;
-    address: string;
-  };
-  targetAudience: string;
+  durationHours: number;
   maxVolunteers: number;
   currentVolunteers: number;
-  status: string;
+  status: ActivityStatus;
+  activityType: ActivityType;
+  categories: DomainFeaturedPostCategory[];
   createdBy: string;
+
+  // IN_PERSON
+  placeName: string | null;
+  city: JordanianCity | null;
+  latitude: number | null;
+  longitude: number | null;
+
+  // ONLINE
+  meetingLink: string | null;
+  meetingPlatform: MeetingPlatform | null;
+  externalMeetingId: string | null;
 }

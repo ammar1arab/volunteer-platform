@@ -35,6 +35,7 @@ model VolunteerProfile {
   skills                 String[]      @default([])
   interests              String[]      @default([])
   hasVolunteerExperience Boolean       @default(false)
+  totalVolunteerHours    Float         @default(0)
   isActive               Boolean       @default(true)
   createdAt              DateTime      @default(now())
   updatedAt              DateTime      @updatedAt
@@ -53,14 +54,19 @@ model Activity {
   date              DateTime
   startTime         String
   endTime           String
-  placeName         String
-  latitude          Float
-  longitude         Float
-  address           String
-  targetAudience    String
+  durationHours     Float                   @default(0)
+  placeName         String?
+  city              String?
+  latitude          Float?
+  longitude         Float?
+  meetingLink       String?
+  meetingPlatform   String?
+  externalMeetingId String?
   maxVolunteers     Int
   currentVolunteers Int                     @default(0)
   status            String                  @default("DRAFT")
+  activityType      String                  @default("IN_PERSON")
+  categories        String[]                @default([])
   createdBy         String
   isActive          Boolean                 @default(true)
   createdAt         DateTime                @default(now())
@@ -74,17 +80,20 @@ model Activity {
 }
 
 model ActivityParticipation {
-  id          String    @id @default(uuid())
-  activityId  String
-  volunteerId String
-  status      String    @default("PENDING")
-  requestedAt DateTime  @default(now())
-  respondedAt DateTime?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  activity    Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  volunteer   User      @relation("VolunteerParticipations", fields: [volunteerId], references: [id])
+  id               String    @id @default(uuid())
+  activityId       String
+  volunteerId      String
+  status           String    @default("PENDING")
+  requestedAt      DateTime  @default(now())
+  respondedAt      DateTime?
+  attendanceStatus String    @default("NOT_MARKED")
+  volunteerHours   Float?
+  markedAt         DateTime?
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  activity         Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  volunteer        User      @relation("VolunteerParticipations", fields: [volunteerId], references: [id])
 
   @@unique([activityId, volunteerId])
   @@index([activityId])

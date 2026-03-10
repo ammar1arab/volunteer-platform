@@ -1,39 +1,124 @@
-@use "@/presentation/styles/_variables" as *;
-@use "@/presentation/styles/_mixins" as *;
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.wrapper {
+  @include flex-col;
+  min-height: 200px;
+  gap: $sp-sm;
+}
+
+.warning {
+  @include flex(row, flex-start, flex-start, $sp-sm);
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  border: 1px solid rgba($red, 0.3);
+  background: rgba($red, 0.04);
+  animation: slideDown 0.2s ease, shake 0.3s ease 0.05s;
+
+  strong {
+    display: block;
+    font-size: $font-xs;
+    font-weight: 700;
+    color: $red;
+    margin-bottom: 2px;
+  }
+
+  span {
+    font-size: $font-xs;
+    color: $text-muted;
+  }
+}
+
+.warningIcon {
+  @include flex-center;
+  color: $red;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.warningBody {
+  @include flex-col;
+  flex: 1;
+  gap: 2px;
+}
+
+.warningClose {
+  @include flex-center;
+  width: 22px;
+  height: 22px;
+  border-radius: $radius;
+  border: none;
+  background: transparent;
+  color: $red;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity $transition;
+
+  &:hover { opacity: 1; }
+}
 
 .loading {
   @include flex-center;
   padding: $sp-2xl;
 }
 
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 52vh;
+  padding-bottom: $sp-xs;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
 .list {
   @include flex-col;
-  gap: $sp-sm;
+  gap: $sp-xs;
+  padding: $sp-xs 0;
 }
 
 .card {
-  @include flex(row, center, flex-start, $sp-md);
-  padding: $sp-md;
-  border: 1px solid rgba($green, 0.1);
+  @include flex(row, flex-start, flex-start, $sp-md);
+  padding: $sp-sm $sp-md;
+  border: 1px solid $border;
   border-radius: $radius;
   cursor: pointer;
   transition: $transition;
 
   &:hover {
-    background: rgba($green, 0.06);
-    border-color: rgba($green, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba($green, 0.08);
+    border-color: rgba($green, 0.3);
+    background: rgba($green, 0.03);
+  }
+
+  &.cardWarn {
+    border-color: rgba($red, 0.25);
+    background: rgba($red, 0.02);
   }
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: $radius-full;
   overflow: hidden;
   flex-shrink: 0;
-  border: 2px solid rgba($green, 0.25);
+  border: 1.5px solid $border;
 }
 
 .avatarImage {
@@ -46,15 +131,15 @@
   @include flex-center;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, $green, #059669);
+  background: $green;
   color: $white;
-  font-size: $font-md;
+  font-size: $font-sm;
   font-weight: 700;
 }
 
 .info {
   @include flex-col;
-  gap: 2px;
+  gap: 3px;
   flex: 1;
   min-width: 0;
 }
@@ -67,32 +152,102 @@
   @include line-clamp(1);
 }
 
-.email {
-  margin: 0;
-  font-size: $font-xs;
-  color: $text-muted;
-  @include line-clamp(1);
-}
-
 .meta {
   @include flex(row, center, flex-start, $sp-sm);
   flex-wrap: wrap;
-  margin-top: $sp-xs;
 }
 
 .metaItem {
-  @include flex(row, center, flex-start, 4px);
+  @include flex(row, center, flex-start, 3px);
   font-size: $font-xs;
   color: $text-muted;
 
   svg { opacity: 0.6; }
 }
 
-.footer {
-  padding-top: $sp-md;
-  margin-top: $sp-md;
+.attendanceRow {
+  @include flex(row, center, flex-start, $sp-xs);
+  margin-top: 4px;
+}
+
+.attendBtn {
+  @include flex(row, center, center, 5px);
+  padding: 5px 12px;
+  border-radius: $radius;
+  border: 1.5px solid $border;
+  background: $bg;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+
+  &.attended {
+    &:hover {
+      border-color: $green;
+      color: $green;
+      background: rgba($green, 0.06);
+    }
+
+    &.active {
+      border-color: $green;
+      color: $white;
+      background: $green;
+      box-shadow: 0 2px 8px rgba($green, 0.3);
+    }
+  }
+
+  &.absent {
+    &:hover {
+      border-color: $red;
+      color: $red;
+      background: rgba($red, 0.06);
+    }
+
+    &.active {
+      border-color: $red;
+      color: $white;
+      background: $red;
+      box-shadow: 0 2px 8px rgba($red, 0.3);
+    }
+  }
+}
+
+.notMarked {
+  font-size: $font-xs;
+  color: $text-muted;
+  opacity: 0.5;
+
+  &.notMarkedWarn {
+    color: $red;
+    opacity: 0.8;
+    font-weight: 600;
+  }
+}
+
+.attendanceResult {
+  @include flex(row, center, flex-start, $sp-xs);
+  margin-top: 4px;
+}
+
+.resultAttended {
+  @include flex(row, center, center, 4px);
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $green;
+}
+
+.resultAbsent {
+  @include flex(row, center, center, 4px);
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $red;
+}
+
+.stickyFooter {
+  @include flex(row, center, space-between, $sp-md);
+  padding: $sp-sm $sp-xs;
   border-top: 1px solid $border;
-  text-align: center;
 }
 
 .count {
@@ -100,8 +255,54 @@
   font-size: $font-sm;
   color: $text-muted;
 
-  strong {
-    color: $green;
-    font-weight: 700;
-  }
+  strong { color: $green; font-weight: 700; }
+}
+
+.countWarn {
+  color: $red;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.btnComplete {
+  @include btn-primary;
+  padding: $sp-xs $sp-lg;
+  gap: $sp-xs;
+}
+
+.completing {
+  @include flex(column, center, center, $sp-md);
+  padding: $sp-2xl;
+  color: $text-muted;
+  font-size: $font-sm;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $border;
+  border-top-color: $green;
+  border-radius: $radius-full;
+  animation: spin 0.7s linear infinite;
+}
+.nameRow {
+  @include flex(row, center, space-between, $sp-xs);
+}
+
+.rejectBtn {
+  @include flex-center;
+  width: 24px;
+  height: 24px;
+  border-radius: $radius;
+  border: 1px solid rgba($red, 0.25);
+  background: transparent;
+  color: $red;
+  cursor: pointer;
+  opacity: 0;
+  flex-shrink: 0;
+  transition: $transition;
+
+  .card:hover & { opacity: 1; }
+  &:hover { background: rgba($red, 0.08); border-color: $red; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
 }

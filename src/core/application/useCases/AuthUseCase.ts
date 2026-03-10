@@ -105,6 +105,7 @@ class AuthUseCase {
         skills: [],
         interests: [],
         hasVolunteerExperience: false,
+        totalVolunteerHours: 0,
         isActive: true
       });
 

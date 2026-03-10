@@ -3,3 +3,8 @@ export { DayOfWeek } from "./DayOfWeek";
 export { JordanianCity } from "./JordanianCity";
 export { DomainFeaturedPostCategory } from "./DomainFeaturedPostCategory";
 export { Gender } from "./Gender";
+export { ActivityStatus } from "./ActivityStatus";
+export { ParticipationStatus } from "./ParticipationStatus";
+export { AttendanceStatus } from "./AttendanceStatus";
+export { ActivityType } from "./ActivityType";
+export { MeetingPlatform } from "./MeetingPlatform";

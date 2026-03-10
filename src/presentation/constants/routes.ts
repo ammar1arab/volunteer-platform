@@ -29,7 +29,8 @@ export const ROUTES = {
   VOLUNTEER: {
     ROOT: "/volunteer",
     PROFILE: "/volunteer/profile",
-    REQUESTS: "/volunteer/requests"
+    REQUESTS: "/volunteer/requests",
+    ACTIVITIES: "/volunteer/activities"
   },
 
   redirectByRole(role?: UserRole) {

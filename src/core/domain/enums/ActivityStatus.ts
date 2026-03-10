@@ -1,0 +1,6 @@
+export enum ActivityStatus {
+  DRAFT = "DRAFT",
+  PUBLISHED = "PUBLISHED",
+  CANCELLED = "CANCELLED",
+  COMPLETED = "COMPLETED"
+}

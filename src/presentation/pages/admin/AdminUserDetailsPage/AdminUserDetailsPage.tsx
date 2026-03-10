@@ -7,14 +7,15 @@ import {
   InfoCard, ActivityItem, ToastContainer, Pagination, ExportUsersButton
 } from "@/presentation/components";
 import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
-import { ROUTES, getCityLabel, getMonthLabel } from "@/presentation/constants";
-import { JordanianCity } from "@/core/domain/enums";
+import { ROUTES, getCityLabel, getMonthLabel, getParticipationStatusLabel } from "@/presentation/constants";
+import { JordanianCity, ParticipationStatus } from "@/core/domain/enums";
 
 const FILTER_OPTIONS = [
   { key: "all", label: "الكل" },
-  { key: "PENDING", label: "قيد الانتظار" },
-  { key: "APPROVED", label: "موافق عليه" },
-  { key: "REJECTED", label: "مرفوض" },
+  { key: ParticipationStatus.PENDING, label: getParticipationStatusLabel(ParticipationStatus.PENDING) },
+  { key: ParticipationStatus.APPROVED, label: getParticipationStatusLabel(ParticipationStatus.APPROVED) },
+  { key: ParticipationStatus.REJECTED, label: getParticipationStatusLabel(ParticipationStatus.REJECTED) },
+  { key: ParticipationStatus.CANCELLED, label: getParticipationStatusLabel(ParticipationStatus.CANCELLED) },
 ];
 
 const EXPORT_COLUMNS = [
@@ -148,7 +149,7 @@ const AdminUserDetailsPage = () => {
                       startTime={item.activity.startTime}
                       endTime={item.activity.endTime}
                       placeName={item.activity.placeName}
-                      status={item.status as "PENDING" | "APPROVED" | "REJECTED"}
+                      status={item.status as ParticipationStatus}
                       requestedAt={item.requestedAt}
                     />
                   ))}

@@ -56,7 +56,7 @@ const FeaturedPostsPage = () => {
           />    <div className={styles.actionsEnd}>
             <Dropdown
               items={[
-                { key: "all", label: "جميع التصنيفات" },
+                { key: "all", label: "الجميع" },
                 ...categoryOptions.map((cat) => ({ key: cat.value, label: cat.label })),
               ]}
               active={activeCategory}

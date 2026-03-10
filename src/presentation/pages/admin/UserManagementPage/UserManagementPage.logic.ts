@@ -106,7 +106,7 @@ export const useUserManagementPage = () => {
       if (city) counts.set(city, (counts.get(city) || 0) + 1);
     });
     return [
-      { key: "all", label: "جميع المدن", count: allVolunteers.length },
+      { key: "all", label: "الجميع", count: allVolunteers.length },
       ...Array.from(counts.entries())
         .sort((a, b) => b[1] - a[1])
         .map(([city, count]) => ({ key: city, label: getCityLabel(city as any), count }))

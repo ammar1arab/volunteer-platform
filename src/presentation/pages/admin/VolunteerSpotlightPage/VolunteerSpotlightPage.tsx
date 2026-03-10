@@ -53,7 +53,7 @@ const VolunteerSpotlightPage = () => {
                     <div className={styles.actionsEnd}>
                         <Dropdown
                             items={[
-                                { key: "all", label: "جميع المدن" },
+                                { key: "all", label: "الجميع" },
                                 ...cityOptions.map((city) => ({ key: city.value, label: city.label })),
                             ]}
                             active={activeCity}
