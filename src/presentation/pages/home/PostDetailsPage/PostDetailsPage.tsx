@@ -6,8 +6,8 @@ import { useParams, useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { ArrowRight, Calendar } from "lucide-react";
-import { getCategoryLabel, getMonthLabel, ROUTES } from "@/presentation/constants";
+import { ArrowRight } from "lucide-react";
+import { getCategoryLabel, ROUTES } from "@/presentation/constants";
 import { LoadingState, Button } from "@/presentation/components";
 import { usePostDetails } from "@/presentation/hooks";
 import { DomainFeaturedPostCategory } from "@/core/domain/enums";
@@ -25,8 +25,7 @@ const PostDetailsPage = () => {
     </div>
   );
 
-  const date = new Date(post.createdAt);
-  const formattedDate = `${date.getDate()} ${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}`;
+
 
   return (
     <div className={styles.container}>
@@ -48,11 +47,6 @@ const PostDetailsPage = () => {
         <div className={styles.content}>
           <header className={styles.header}>
             <h1 className={styles.title}>{post.title}</h1>
-
-            <span className={styles.date}>
-              <Calendar size={16} />
-              {formattedDate}
-            </span>
 
             {post.categories?.length > 0 && (
               <div className={styles.categories}>

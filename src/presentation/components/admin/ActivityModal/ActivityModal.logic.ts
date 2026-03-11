@@ -58,8 +58,7 @@ export const useActivityModal = ({ initialData, onSubmit, onImageUpload, onClose
 
   useEffect(() => {
     if (initialData) {
-      const formattedDate =
-        initialData.date instanceof Date ? initialData.date.toISOString().split("T")[0] : initialData.date;
+      const formattedDate = initialData.date.toString().split("T")[0];
 
       setForm({
         ...EMPTY_FORM,

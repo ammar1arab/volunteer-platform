@@ -121,27 +121,6 @@ export const useVolunteerSpotlightPage = () => {
     setShowModal(true);
   }, [resetForm]);
 
-  const openEdit = useCallback(
-    (spotlight: VolunteerSpotlightDto) => {
-      if (preview) revokeImagePreview(preview);
-      const date = new Date(spotlight.spotlightDate);
-      setMode("edit");
-      setForm({
-        id: spotlight.id,
-        imageUrl: spotlight.imageUrl,
-        name: spotlight.name,
-        description: spotlight.description,
-        month: String(date.getMonth() + 1),
-        year: String(date.getFullYear()),
-        city: spotlight.city,
-        isActive: spotlight.isActive
-      });
-      setPreview("");
-      setShowModal(true);
-    },
-    [preview]
-  );
-
   const handleFileChange = useCallback(
     async (file: File | null) => {
       if (!file) return;
@@ -171,7 +150,8 @@ export const useVolunteerSpotlightPage = () => {
       imageUrl: form.imageUrl,
       name: normalizeWhitespace(form.name),
       description: form.description.trim(),
-      spotlightDate: new Date(`${form.year}-${form.month.padStart(2, "0")}-01`),
+      // FIXED: Creates date on the 1st of the month, ignoring the day entirely
+      spotlightDate: new Date(parseInt(form.year), parseInt(form.month) - 1, 1),
       city: form.city,
       isActive: form.isActive
     };
@@ -192,6 +172,28 @@ export const useVolunteerSpotlightPage = () => {
       showToast(err instanceof Error ? err.message : "حدث خطأ", "error");
     }
   }, [mode, form, create, update, resetForm, showToast]);
+
+  // Update this function inside useVolunteerSpotlightPage
+  const openEdit = useCallback(
+    (spotlight: VolunteerSpotlightDto) => {
+      if (preview) revokeImagePreview(preview);
+      const date = new Date(spotlight.spotlightDate);
+      setMode("edit");
+      setForm({
+        id: spotlight.id,
+        imageUrl: spotlight.imageUrl,
+        name: spotlight.name,
+        description: spotlight.description,
+        month: String(date.getMonth() + 1), // Only Month
+        year: String(date.getFullYear()), // Only Year
+        city: spotlight.city,
+        isActive: spotlight.isActive
+      });
+      setPreview("");
+      setShowModal(true);
+    },
+    [preview]
+  );
 
   const handleToggle = useCallback(
     async (spotlight: VolunteerSpotlightDto) => {
@@ -265,7 +267,7 @@ export const useVolunteerSpotlightPage = () => {
     handleToggle,
     handleDelete,
     searchQuery,
-setSearchQuery,
-setAppliedSearch,
+    setSearchQuery,
+    setAppliedSearch
   };
 };

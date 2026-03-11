@@ -121,7 +121,7 @@ export const useActivitiesPage = () => {
       description: activity.description,
       imageUrl: activity.imageUrl,
       dayOfWeek: activity.dayOfWeek,
-      date: new Date(activity.date).toISOString().slice(0, 10),
+      date: activity.date.toString().split("T")[0],
       startTime: activity.startTime,
       endTime: activity.endTime,
       durationHours: activity.durationHours,

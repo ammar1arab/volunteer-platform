@@ -22,7 +22,7 @@ const VolunteerSpotlightDetailsPage = () => {
   );
 
   const date = new Date(spotlight.spotlightDate);
-  const formattedDate = `${date.getDate()} ${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}`;
+  const formattedDate = `${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}`;
 
   return (
     <div className={styles.container}>
@@ -59,7 +59,7 @@ const VolunteerSpotlightDetailsPage = () => {
               </span>
               <span className={styles.infoItem}>
                 <Calendar size={14} />
-                {formattedDate}
+                {formattedDate} 
               </span>
             </div>
           </header>

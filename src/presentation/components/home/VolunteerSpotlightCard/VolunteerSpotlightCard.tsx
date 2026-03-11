@@ -46,7 +46,10 @@ const VolunteerSpotlightCard = ({ spotlight }: Props) => {
 
           <div className={styles.info}>
             <span className={styles.infoItem}><MapPin size={11} />{getCityLabel(spotlight.city)}</span>
-            <span className={styles.infoItem}><Calendar size={11} />{formattedDate}</span>
+            <span className={styles.infoItem}>
+              <Calendar size={11} />
+              {formattedDate}
+            </span>
           </div>
 
 
