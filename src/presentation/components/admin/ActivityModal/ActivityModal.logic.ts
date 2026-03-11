@@ -61,7 +61,15 @@ export const useActivityModal = ({ initialData, onSubmit, onImageUpload, onClose
       const formattedDate =
         initialData.date instanceof Date ? initialData.date.toISOString().split("T")[0] : initialData.date;
 
-      setForm({ ...EMPTY_FORM, ...initialData, date: formattedDate });
+      setForm({
+        ...EMPTY_FORM,
+        ...initialData,
+        date: formattedDate,
+        meetingLink: initialData.meetingLink ?? "",
+        meetingPlatform: initialData.meetingPlatform ?? "",
+        placeName: initialData.placeName ?? "",
+        city: initialData.city ?? ""
+      });
     } else {
       setForm(EMPTY_FORM);
       setPreview("");

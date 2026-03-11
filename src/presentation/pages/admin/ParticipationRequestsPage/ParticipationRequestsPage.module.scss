@@ -15,7 +15,9 @@
   @include sm {
     flex-direction: column;
     gap: $sp-sm;
-    > * { width: 100%; }
+    > * {
+      width: 100%;
+    }
   }
 }
 
@@ -25,12 +27,23 @@
 
   @include sm {
     width: 100%;
-    > *:first-child { flex: 1; }
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: $sp-xs;
+
+    > * {
+      width: 100% !important;
+    }
   }
 }
 
 .btnApproveAll {
   @include create-btn;
+  @include sm {
+    font-size: 12px;
+    padding: 8px;
+    white-space: nowrap;
+  }
 }
 
 .list {

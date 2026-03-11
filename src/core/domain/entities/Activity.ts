@@ -130,11 +130,7 @@ class Activity extends BaseEntity {
     );
   }
 
-  update(
-    input: Partial<
-      Omit<ActivityProps, "id" | "createdAt" | "currentVolunteers" | "status" | "createdBy" | "activityType">
-    >
-  ): void {
+  update(input: Partial<Omit<ActivityProps, "id" | "createdAt" | "currentVolunteers" | "status" | "createdBy">>): void {
     if (!this.canBeEdited()) throw new Error("Cannot edit a cancelled or completed activity");
 
     let changed = false;
@@ -220,6 +216,10 @@ class Activity extends BaseEntity {
       this.props.categories = input.categories;
       changed = true;
     }
+    if (input.activityType !== undefined) {
+      this.props.activityType = input.activityType;
+      changed = true;
+    }
     if (input.isActive !== undefined) {
       this.setActive(input.isActive);
       this.props.isActive = this.isActive;
@@ -282,6 +282,15 @@ class Activity extends BaseEntity {
   }
   get externalMeetingId(): string | null {
     return this.props.externalMeetingId;
+  }
+  get dayOfWeek(): DayOfWeek {
+    return this.props.dayOfWeek;
+  }
+  get startTime(): string {
+    return this.props.startTime;
+  }
+  get endTime(): string {
+    return this.props.endTime;
   }
 
   toObject(): ActivityProps {

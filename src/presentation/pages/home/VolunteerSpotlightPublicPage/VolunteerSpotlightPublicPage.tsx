@@ -1,12 +1,15 @@
 "use client";
-import { useVolunteerSpotlightPublicPage } from "./VolunteerSpotlightPublicPage.logic";
-import { LoadingState, EmptyState } from "@/presentation/components";
-import { VolunteerSpotlightCard } from "@/presentation/components";
-import { Star } from "lucide-react";
 import styles from "./VolunteerSpotlightPublicPage.module.scss";
+import { useVolunteerSpotlightPublicPage } from "./VolunteerSpotlightPublicPage.logic";
+import { LoadingState, EmptyState, VolunteerSpotlightCard, Search, Dropdown } from "@/presentation/components";
+import { Star } from "lucide-react";
 
 const VolunteerSpotlightPublicPage = () => {
-  const { spotlights, loading } = useVolunteerSpotlightPublicPage();
+  const {
+    spotlights, loading,
+    searchQuery, setSearchQuery, setAppliedSearch,
+    activeCity, setActiveCity, cityOptions,
+  } = useVolunteerSpotlightPublicPage();
 
   if (loading) return <div className={styles.loadingContainer}><LoadingState /></div>;
 
@@ -16,6 +19,23 @@ const VolunteerSpotlightPublicPage = () => {
         <h1 className={styles.title}>أبرز المتطوعين</h1>
         <p className={styles.subtitle}>وجوه أضاءت مجتمعها بعطائها وإخلاصها</p>
       </header>
+
+      <div className={styles.toolbar}>
+        <Search
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onSearch={setAppliedSearch}
+          placeholder="ابحث عن متطوع..."
+        />
+        <Dropdown
+          items={cityOptions}
+          active={activeCity}
+          onChange={setActiveCity}
+          placeholder="المدينة"
+          compact
+        />
+      </div>
+
       {spotlights.length === 0 ? (
         <EmptyState icon={Star} title="لا توجد قصص بعد" message="سيتم إضافة أبرز المتطوعين قريباً" />
       ) : (

@@ -41,12 +41,14 @@ const ParticipationRequestsPage = () => {
               placeholder="النشاط"
               compact
             />
-            {filteredRequests.length > 0 && (
-              <button className={styles.btnApproveAll} onClick={handleApproveAll}>
-                <CheckCheck size={18} />
-                قبول الكل ({filteredRequests.length})
-              </button>
-            )}
+            <button
+              className={styles.btnApproveAll}
+              onClick={handleApproveAll}
+              disabled={filteredRequests.length === 0}
+            >
+              <CheckCheck size={18} />
+              قبول الكل ({filteredRequests.length})
+            </button>
           </div>
         </div>
       </header>

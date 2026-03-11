@@ -1,49 +1,18 @@
 "use client";
 import styles from "./MagazinesPage.module.scss";
 import { useMagazinesPage } from "./MagazinesPage.logic";
-import {
-  AdminMagazineCard,
-  ToastContainer,
-  Modal,
-  LoadingState,
-  EmptyState,
-  Pagination,
-  ConfirmDialog,
-  SelectInput,
-  Search
-} from "@/presentation/components";
+import { AdminMagazineCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, SelectInput, Search, Dropdown } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, BookOpen, FileText } from "lucide-react";
 import { MONTH_LABELS } from "@/presentation/constants/labels";
 
 const MagazinesPage = () => {
   const {
-    status,
-    isLoading,
-    isSubmitting,
-    isUploading,
-    mode,
-    form,
-    showModal,
-    list,
-    paginatedList,
-    currentPage,
-    itemsPerPage,
-    toasts,
-    removeToast,
-    confirmDialog,
-    setForm,
-    setCurrentPage,
-    resetForm,
-    openCreate,
-    openEdit,
-    handlePdfUpload,
-    handleSubmit,
-    handleToggle,
-    handleDelete,
-    filteredList,
-    searchQuery,
-    setSearchQuery,
-    setAppliedSearch,
+    status, isLoading, isSubmitting, isUploading, mode, form, showModal,
+    list, paginatedList, filteredByYear, currentPage, itemsPerPage,
+    toasts, removeToast, confirmDialog, activeYear, setActiveYear, yearFilterOptions,
+    setForm, setCurrentPage, resetForm, openCreate, openEdit,
+    handlePdfUpload, handleSubmit, handleToggle, handleDelete,
+    searchQuery, setSearchQuery, setAppliedSearch,
   } = useMagazinesPage();
 
   if (status === "loading") return <LoadingState />;
@@ -61,19 +30,27 @@ const MagazinesPage = () => {
       <header className={styles.header}>
         <div className={styles.actions}>
           <Search value={searchQuery} onChange={setSearchQuery} onSearch={setAppliedSearch} placeholder="ابحث عن مجلة..." />
-          <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
-            <Plus size={18} />
-            إضافة مجلة جديدة
-          </button>
+          <div className={styles.actionsEnd}>
+            <Dropdown
+              items={yearFilterOptions}
+              active={activeYear}
+              onChange={setActiveYear}
+              placeholder="السنة"
+              compact
+            />
+            <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
+              <Plus size={18} /> إضافة مجلة جديدة
+            </button>
+          </div>
         </div>
       </header>
 
       {isLoading ? (
         <LoadingState />
-      ) : filteredList.length === 0 ? (
+      ) : filteredByYear.length === 0 ? (
         <EmptyState
           icon={BookOpen}
-          message={searchQuery ? "لا توجد نتائج للبحث" : "لا توجد مجلات منشورة"}
+          message={searchQuery ? "لا توجد نتائج للبحث" : activeYear !== "all" ? "لا توجد مجلات لهذه السنة" : "لا توجد مجلات منشورة"}
           action={{ label: "إضافة مجلة", onClick: openCreate }}
         />
       ) : (
@@ -101,61 +78,35 @@ const MagazinesPage = () => {
               />
             ))}
           </div>
-          
-          <Pagination
-            currentPage={currentPage}
-            totalItems={filteredList.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-            sticky
-          />
+          <Pagination currentPage={currentPage} totalItems={filteredByYear.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} sticky />
         </>
       )}
 
-      <Modal
-        isOpen={showModal}
-        onClose={resetForm}
-        title={mode === "create" ? "إضافة مجلة جديدة" : "تعديل المجلة"}
-        size="md"
-      >
+      <Modal isOpen={showModal} onClose={resetForm} title={mode === "create" ? "إضافة مجلة جديدة" : "تعديل المجلة"} size="md">
         <div className={styles.form}>
-
           <div className={styles.field}>
             <label className={styles.label}>عنوان المجلة</label>
-            <input
-              className={styles.input}
-              value={form.title}
+            <input className={styles.input} value={form.title}
               onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-              disabled={isSubmitting || isUploading}
-            />
+              disabled={isSubmitting || isUploading} />
           </div>
 
           <div className={styles.field}>
             <label className={styles.label}>الشهر والسنة</label>
             <div className={styles.row}>
-              <SelectInput
-                label=""
-                value={form.month}
-                options={monthOptions}
+              <SelectInput label="" value={form.month} options={monthOptions}
                 onChange={(val) => setForm((p) => ({ ...p, month: val }))}
-                disabled={isSubmitting || isUploading}
-              />
-              <SelectInput
-                label=""
-                value={form.year}
-                options={yearOptions}
+                disabled={isSubmitting || isUploading} />
+              <SelectInput label="" value={form.year} options={yearOptions}
                 onChange={(val) => setForm((p) => ({ ...p, year: val }))}
-                disabled={isSubmitting || isUploading}
-              />
+                disabled={isSubmitting || isUploading} />
             </div>
           </div>
 
           <div className={styles.field}>
             <label className={styles.label}>ملف PDF</label>
             <div className={styles.uploadSection}>
-              <div className={styles.uploadIcon}>
-                <FileText size={22} />
-              </div>
+              <div className={styles.uploadIcon}><FileText size={22} /></div>
               <div className={styles.uploadContent}>
                 <span className={styles.uploadFileName}>
                   {isUploading ? "جاري الرفع..." : form.pdfUrl ? "✓ تم رفع الملف" : "لم يتم اختيار ملف"}
@@ -164,54 +115,36 @@ const MagazinesPage = () => {
                 <label className={styles.btnUpload}>
                   <Upload size={13} />
                   {form.pdfUrl ? "استبدال الملف" : "رفع PDF"}
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    className={styles.fileInput}
+                  <input type="file" accept="application/pdf" className={styles.fileInput}
                     onChange={(e) => handlePdfUpload(e.target.files?.[0] ?? null)}
-                    disabled={isSubmitting || isUploading}
-                  />
+                    disabled={isSubmitting || isUploading} />
                 </label>
               </div>
             </div>
           </div>
 
           <label className={styles.toggle}>
-            <input
-              type="checkbox"
-              checked={form.isActive}
+            <input type="checkbox" checked={form.isActive}
               onChange={(e) => setForm((p) => ({ ...p, isActive: e.target.checked }))}
-              disabled={isSubmitting || isUploading}
-            />
+              disabled={isSubmitting || isUploading} />
             <span className={styles.slider} />
             <span>تفعيل المجلة لتظهر في الموقع</span>
           </label>
 
           <div className={styles.modalActions}>
-            <button className={styles.btnCancel} onClick={resetForm} disabled={isSubmitting || isUploading}>
-              إلغاء
-            </button>
-            <button
-              className={styles.btnSubmit}
-              onClick={handleSubmit}
-              disabled={isSubmitting || isUploading || !form.title.trim() || !form.pdfUrl || !form.month || !form.year}
-            >
+            <button className={styles.btnCancel} onClick={resetForm} disabled={isSubmitting || isUploading}>إلغاء</button>
+            <button className={styles.btnSubmit} onClick={handleSubmit}
+              disabled={isSubmitting || isUploading || !form.title.trim() || !form.pdfUrl || !form.month || !form.year}>
               {isSubmitting ? "جاري الحفظ..." : mode === "create" ? "إنشاء" : "حفظ التعديلات"}
             </button>
           </div>
         </div>
       </Modal>
 
-      <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        onClose={confirmDialog.handleCancel}
-        onConfirm={confirmDialog.handleConfirm}
-        title={confirmDialog.options.title}
-        message={confirmDialog.options.message}
-        confirmText={confirmDialog.options.confirmText}
-        cancelText={confirmDialog.options.cancelText}
-        variant={confirmDialog.options.variant}
-      />
+      <ConfirmDialog isOpen={confirmDialog.isOpen} onClose={confirmDialog.handleCancel}
+        onConfirm={confirmDialog.handleConfirm} title={confirmDialog.options.title}
+        message={confirmDialog.options.message} confirmText={confirmDialog.options.confirmText}
+        cancelText={confirmDialog.options.cancelText} variant={confirmDialog.options.variant} />
     </>
   );
 };

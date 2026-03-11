@@ -48,25 +48,17 @@ const FeaturedPostsPage = () => {
 
       <header className={styles.header}>
         <div className={styles.actions}>
-          <Search
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSearch={setAppliedSearch}
-            placeholder="ابحث عن منشور..."
-          />    <div className={styles.actionsEnd}>
+          <Search value={searchQuery} onChange={setSearchQuery} onSearch={setAppliedSearch} placeholder="ابحث عن منشور..." />
+          <div className={styles.actionsEnd}>
             <Dropdown
-              items={[
-                { key: "all", label: "الجميع" },
-                ...categoryOptions.map((cat) => ({ key: cat.value, label: cat.label })),
-              ]}
+              items={[{ key: "all", label: "الجميع" }, ...categoryOptions.map((cat) => ({ key: cat.value, label: cat.label }))]}
               active={activeCategory}
               onChange={setActiveCategory}
               placeholder="التصنيف"
               compact
             />
             <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
-              <Plus size={18} />
-              إضافة منشور جديد
+              <Plus size={18} /> إضافة منشور جديد
             </button>
           </div>
         </div>
@@ -157,11 +149,6 @@ const FeaturedPostsPage = () => {
           <div className={styles.field}>
             <label className={styles.label}>صورة الغلاف</label>
             <div className={styles.uploadSection}>
-              {(preview || form.imageUrl) && (
-                <div className={styles.preview}>
-                  <Image src={preview || form.imageUrl} alt="Preview" fill className={styles.previewImg} loading="eager" />
-                </div>
-              )}
               <div className={styles.uploadControls}>
                 <span className={styles.uploadHint}>
                   {isUploading ? "جاري رفع الملف..." : "يفضل استخدام صور عالية الجودة بمقاس عريض"}

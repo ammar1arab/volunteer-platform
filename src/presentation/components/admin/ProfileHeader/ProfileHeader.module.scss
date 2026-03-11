@@ -9,7 +9,6 @@
   border: 1px solid $border;
   border-radius: $radius-lg;
   margin-bottom: $sp-lg;
-
   @media (max-width: 640px) {
     flex-direction: column;
     text-align: center;
@@ -66,10 +65,7 @@
   color: $bg;
   border: 2px solid $bg;
   transition: $transition;
-
-  &:hover {
-    transform: scale(1.1);
-  }
+  &:hover { transform: scale(1.1); }
 }
 
 .spinner {
@@ -92,10 +88,7 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
-
-  @media (max-width: 640px) {
-    align-items: center;
-  }
+  @media (max-width: 640px) { align-items: center; }
 }
 
 .name {
@@ -118,6 +111,30 @@
   font-size: $font-xs;
   color: $text-muted;
   margin-top: 4px;
+}
+
+.hoursChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: $sp-xs;
+  padding: 4px 12px;
+  background: rgba($green, 0.08);
+  border: 1px solid rgba($green, 0.2);
+  border-radius: $radius-full;
+  width: fit-content;
+}
+
+.hoursValue {
+  font-size: $font-sm;
+  font-weight: 800;
+  color: $green;
+}
+
+.hoursLabel {
+  font-size: $font-xs;
+  color: $text-muted;
+  font-weight: 500;
 }
 
 @keyframes spin {

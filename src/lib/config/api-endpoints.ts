@@ -30,7 +30,8 @@ export const API_ENDPOINTS = {
     REJECT: (id: string) => `/api/activity-participations/${id}/reject`,
     MY_REQUESTS: "/api/activity-participations/my-requests",
     CANCEL: (id: string) => `/api/activity-participations/${id}/cancel`,
-    MARK_ATTENDANCE: (id: string) => `/api/activity-participations/${id}/mark-attendance`
+    MARK_ATTENDANCE: (id: string) => `/api/activity-participations/${id}/mark-attendance`,
+    BULK_MARK_ATTENDANCE: "/api/activity-participations/bulk-mark-attendance"
   },
   FEATURED_POSTS: {
     BASE: "/api/featured-posts",

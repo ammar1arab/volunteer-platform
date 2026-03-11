@@ -15,7 +15,7 @@ import { ROUTES } from "@/presentation/constants";
 
 const ACTIVITIES_LIMIT = 8;
 const POSTS_LIMIT = 8;
-const SPOTLIGHT_LIMIT = 3;
+const SPOTLIGHT_LIMIT = 8;
 const MAGAZINES_LIMIT = 10;
 
 export const useMainPage = () => {

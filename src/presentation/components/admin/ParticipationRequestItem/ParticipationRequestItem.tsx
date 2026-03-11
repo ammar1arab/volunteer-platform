@@ -6,7 +6,7 @@ import { JordanianCity } from "@/core/domain/enums";
 
 type Props = {
   request: ActivityParticipationDto;
-  onApprove: (id: string, name: string) => void;
+  onApprove: (id: string, name: string, volunteerCity?: string, activityCity?: string) => void;
   onReject: (id: string, name: string) => void;
   onVolunteerClick?: (volunteerId: string) => void;
 };
@@ -59,7 +59,12 @@ const ParticipationRequestItem = ({ request, onApprove, onReject, onVolunteerCli
         </button>
         <button
           className={styles.btnApprove}
-          onClick={() => onApprove(request.id, request.volunteer?.fullName || "")}
+          onClick={() => onApprove(
+            request.id,
+            request.volunteer?.fullName || "",
+            request.volunteer?.city ?? undefined,
+            request.activity?.city ?? undefined
+          )}
           title="موافقة"
         >
           <CheckCircle size={16} />

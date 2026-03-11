@@ -30,29 +30,22 @@ const ActivityCard = ({ activity, actionButton }: Props) => {
     <>
       <article className={styles.card} onClick={() => router.push(ROUTES.ACTIVITY_DETAILS(activity.id))}>
 
-        {/* ── Image col ── */}
         <div className={styles.imageCol}>
           <div className={styles.imageInner}>
-            <Image
-              src={activity.imageUrl}
-              alt={activity.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 220px"
-              className={styles.img}
-            />
+            <Image src={activity.imageUrl} alt={activity.title} fill sizes="(max-width: 768px) 100vw, 220px" />
             <div className={styles.scanline} />
             {activity.isFull && <span className={styles.fullBadge}>مكتمل</span>}
+          </div>
+          <div className={styles.imageFooter}>
             <div className={`${styles.typeChip} ${isInPerson ? styles.inPerson : styles.online}`}>
               {isInPerson ? <MapPinned size={9} /> : <Wifi size={9} />}
               {getActivityTypeLabel(activity.activityType)}
             </div>
             <Share
               trigger={(openShare) => (
-                <button
-                  className={styles.shareBtn}
+                <button className={styles.shareBtn}
                   onClick={(e) => { e.stopPropagation(); openShare({ title: activity.title, text: shareText }); }}
-                  aria-label="مشاركة"
-                >
+                  aria-label="مشاركة">
                   <Share2 size={12} />
                 </button>
               )}
@@ -96,7 +89,7 @@ const ActivityCard = ({ activity, actionButton }: Props) => {
             <div className={styles.metaItem}>
               <div className={styles.metaIcon}><Timer size={11} /></div>
               <div className={styles.metaContent}>
-                <span className={styles.metaLabel}>المدة</span>
+                <span className={styles.metaLabel}>عدد الساعات</span>
                 <span className={styles.metaValue}>{activity.durationHours} ساعة</span>
               </div>
             </div>

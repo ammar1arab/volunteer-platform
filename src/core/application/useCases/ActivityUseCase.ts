@@ -72,7 +72,7 @@ class ActivityUseCase {
       guard(dto.startTime, "وقت البدء مطلوب");
       guard(dto.endTime, "وقت الانتهاء مطلوب");
       guardRange(dto.durationHours, 1, 24, "مدة النشاط مطلوبة");
-      
+
       const activity = Activity.create({
         title: sanitized.title!,
         description: sanitized.description!,
@@ -115,6 +115,7 @@ class ActivityUseCase {
       const sanitized = this.sanitize(dto);
 
       existing.update({
+        ...(dto.activityType !== undefined && { activityType: dto.activityType as ActivityType }),
         ...(sanitized.title !== undefined && { title: sanitized.title }),
         ...(sanitized.description !== undefined && { description: sanitized.description }),
         ...(sanitized.placeName !== undefined && { placeName: sanitized.placeName }),

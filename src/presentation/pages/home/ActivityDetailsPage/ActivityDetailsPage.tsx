@@ -129,7 +129,7 @@ const ActivityDetailsPage = () => {
               <div className={styles.chip} data-type="duration">
                 <div className={styles.chipIcon}><Timer size={14} /></div>
                 <div className={styles.chipContent}>
-                  <span className={styles.chipLabel}>المدة</span>
+                  <span className={styles.chipLabel}>عدد الساعات</span>
                   <span className={styles.chipValue}>{activity.durationHours} ساعة</span>
                 </div>
               </div>

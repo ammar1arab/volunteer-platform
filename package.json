@@ -17,6 +17,8 @@
     "@types/react-time-picker": "^4.0.3",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.561.0",
     "next": "^16.1.1",

@@ -34,7 +34,11 @@ export interface MarkAttendanceRequest {
   participationId: string;
   attended: boolean;
 }
+export interface BulkMarkAttendanceRequest {
+  items: { participationId: string; attended: boolean }[];
+}
 
+export type BulkMarkAttendanceResponse = Result<{ count: number }>;
 export type CreateJoinRequestResponse = Result<{ participation: ActivityParticipationDto }>;
 export type GetJoinRequestsResponse = Result<{ requests: ActivityParticipationDto[] }>;
 export type ApproveJoinRequestResponse = Result<{ participation: ActivityParticipationDto }>;

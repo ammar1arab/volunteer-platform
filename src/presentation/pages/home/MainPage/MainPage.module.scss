@@ -8,20 +8,20 @@
   }
 }
 
-.activitiesGrid {
-  @include grid(1);
-  gap: $sp-md;
-
-  @include md {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 .postsGrid {
   @include grid(2);
   gap: $sp-md;
   @include lg {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-sm;
+
+    & > :nth-child(n + 5) {
+      display: none;
+    }
   }
 }
 
@@ -31,13 +31,17 @@
   @include md {
     grid-template-columns: repeat(4, 1fr);
   }
+  @include sm {
+    & > :nth-child(n + 5) {
+      display: none;
+    }
+  }
 }
 
 .magazinesGrid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: $sp-md;
-
   @media (max-width: 1200px) {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -47,6 +51,9 @@
   @media (max-width: 640px) {
     grid-template-columns: repeat(2, 1fr);
     gap: $sp-sm;
+    & > :nth-child(n + 5) {
+      display: none;
+    }
   }
 }
 
@@ -56,100 +63,4 @@
   @include sm {
     padding: $sp-lg 0 $sp-sm;
   }
-}
-
-.carouselRoot {
-  @include flex-col;
-  gap: $sp-lg;
-}
-
-.carouselHeader {
-  @include flex-center;
-  text-align: center;
-  margin-bottom: $sp-sm;
-}
-
-.carouselWrapper {
-  position: relative;
-  width: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.arrowBtn {
-  @include flex-center;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid rgba($border, 0.5);
-  background: $white;
-  color: $text;
-  cursor: pointer;
-  z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-
-  &:hover:not(:disabled) {
-    border-color: $green;
-    color: $white;
-    background: $green;
-    box-shadow: 0 6px 16px rgba($green, 0.2);
-    transform: translateY(-50%) scale(1.05);
-  }
-
-  &:disabled {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  &.rightArrow {
-    right: -22px;
-  }
-
-  &.leftArrow {
-    left: -22px;
-  }
-
-  @include sm {
-    display: none;
-  }
-}
-
-.carouselTrack {
-  display: flex;
-  gap: $sp-md;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  cursor: grab;
-  flex: 1;
-  min-width: 0;
-  padding: $sp-xs 0;
-  
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  &:active {
-    cursor: grabbing;
-  }
-}
-
-.carouselItem {
-  flex: 0 0 calc(50% - 8px);
-  scroll-snap-align: start;
-  min-width: 0;
-  list-style: none;
-
-  @include sm {
-    flex: 0 0 100%;
-  }
-}
-
-.carouselFooter {
-  @include flex-center;
-  margin-top: $sp-sm;
 }

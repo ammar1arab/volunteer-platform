@@ -75,23 +75,13 @@
 }
 
 .imageInner {
-  position: relative;
-  width: 100%;
+  @include img-contain($sp-md);
   aspect-ratio: 16 / 10;
   border-radius: $radius-lg;
   border: 1px solid $border;
-  background: $white;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 
   img {
-    object-fit: contain !important;
-    position: relative !important;
-    width: 90% !important;
-    height: 90% !important;
     border-radius: $radius;
     transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
   }

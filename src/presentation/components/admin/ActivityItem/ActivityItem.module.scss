@@ -6,17 +6,20 @@
   gap: $sp-sm;
   padding: $sp-md;
   border: 1px solid $border;
-  border-radius: $radius;
+  border-radius: $radius-md;
+  background: $white;
   transition: $transition;
 
   &:hover {
-    border-color: rgba($green, 0.3);
-    box-shadow: 0 4px 12px rgba($green, 0.06);
+    border-color: rgba($green, 0.25);
+    box-shadow: 0 4px 16px rgba($green, 0.06);
   }
 }
 
+// ── Header ──────────────────────────────────────────
 .header {
-  @include flex(row, center, space-between, $sp-sm);
+  @include flex(row, flex-start, space-between, $sp-sm);
+  flex-wrap: wrap;
 }
 
 .title {
@@ -25,47 +28,163 @@
   font-weight: 700;
   color: $text;
   flex: 1;
-  @include line-clamp(1);
+  min-width: 0;
+  @include line-clamp(2);
 }
 
+.badges {
+  @include flex(row, center, flex-end, $sp-xs);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.typeBadgeOnline,
+.typeBadgeInPerson {
+  @include flex(row, center, center, 4px);
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.typeBadgeOnline {
+  background: rgba(#2563eb, 0.08);
+  color: #2563eb;
+  border: 1px solid rgba(#2563eb, 0.2);
+}
+
+.typeBadgeInPerson {
+  background: rgba($green, 0.08);
+  color: $green;
+  border: 1px solid rgba($green, 0.2);
+}
+
+// ── Description ──────────────────────────────────────
 .description {
   margin: 0;
-  font-size: $font-sm;
+  font-size: $font-xs;
   color: $text-muted;
   line-height: 1.6;
   @include line-clamp(2);
 }
 
-.details {
-  @include flex-col;
-  gap: 4px;
+// ── Details grid ─────────────────────────────────────
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px $sp-md;
+
+  @include sm { grid-template-columns: 1fr; }
 }
 
 .detail {
-  @include flex(row, center, flex-start, $sp-xs);
+  @include flex(row, center, flex-start, 6px);
   font-size: $font-xs;
   color: $text-muted;
+  min-width: 0;
 
   svg {
     color: $green;
     flex-shrink: 0;
-    opacity: 0.8;
+  }
+
+  span { @include truncate; }
+}
+
+.hoursDetail {
+  span {
+    color: $green;
+    font-weight: 700;
+  }
+  svg { opacity: 1; }
+}
+
+// ── Attendance chip ───────────────────────────────────
+.attendedChip,
+.absentChip {
+  @include flex(row, center, flex-start, 6px);
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 600;
+}
+
+.attendedChip {
+  background: rgba($green, 0.08);
+  color: $green;
+  border: 1px solid rgba($green, 0.2);
+}
+
+.absentChip {
+  background: rgba($red, 0.06);
+  color: $red;
+  border: 1px solid rgba($red, 0.15);
+}
+
+// ── Link buttons ──────────────────────────────────────
+.links {
+  @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
+}
+
+.linkBtn,
+.mapBtn {
+  @include flex(row, center, center, 5px);
+  padding: 5px 12px;
+  border-radius: $radius;
+  font-size: $font-xs;
+  font-weight: 600;
+  text-decoration: none;
+  transition: $transition;
+  border: 1px solid;
+}
+
+.linkBtn {
+  background: rgba(#2563eb, 0.06);
+  color: #2563eb;
+  border-color: rgba(#2563eb, 0.2);
+
+  &:hover {
+    background: rgba(#2563eb, 0.12);
+    border-color: #2563eb;
   }
 }
 
-// ─── footer ──────────────────────────────────────────────────
+.mapBtn {
+  background: rgba($green, 0.06);
+  color: $green;
+  border-color: rgba($green, 0.2);
 
+  &:hover {
+    background: rgba($green, 0.12);
+    border-color: $green;
+  }
+}
+
+// ── Footer ───────────────────────────────────────────
 .footer {
   @include flex(row, center, space-between, $sp-sm);
   padding-top: $sp-xs;
   border-top: 1px solid $border;
   flex-wrap: wrap;
   gap: $sp-xs;
+  margin-top: 2px;
 }
 
-.requested {
+.footerDates {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+  gap: $sp-xs;
+}
+
+.dateChip {
+  @include flex(row, center, flex-start, 4px);
   font-size: $font-xs;
   color: $text-muted;
+
+  svg { color: $green; flex-shrink: 0; }
 }
 
 .footerActions {
@@ -87,7 +206,6 @@
     background: rgba($green, 0.12);
     border-color: $green;
   }
-
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
@@ -106,6 +224,5 @@
     background: rgba($red, 0.12);
     border-color: $red;
   }
-
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }

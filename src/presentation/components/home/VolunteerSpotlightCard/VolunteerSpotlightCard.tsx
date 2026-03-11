@@ -49,7 +49,6 @@ const VolunteerSpotlightCard = ({ spotlight }: Props) => {
             <span className={styles.infoItem}><Calendar size={11} />{formattedDate}</span>
           </div>
 
-          <p className={styles.bio}>{spotlight.description}</p>
 
           <div className={styles.cta}>
             <span>تعرّف عليه</span>

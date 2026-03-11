@@ -8,21 +8,25 @@ export const toUserSummaryDto = (user: User): UserSummaryDto => ({
   phone: user.phone
 });
 
-export const toActivitySummaryDto = (entity: Activity): ActivitySummaryDto => {
-  const p = entity.toObject();
+export function toActivitySummaryDto(activity: Activity): ActivitySummaryDto {
   return {
-    id: p.id,
-    title: p.title,
-    description: p.description,
-    date: p.date.toISOString(),
-    startTime: p.startTime,
-    endTime: p.endTime,
-    durationHours: p.durationHours,
-    activityType: p.activityType,
-    placeName: p.placeName,
-    city: p.city,
-    maxVolunteers: p.maxVolunteers,
-    currentVolunteers: p.currentVolunteers,
-    status: p.status
+    id: activity.id,
+    title: activity.title,
+    description: activity.description,
+    date: activity.date.toISOString(),
+    startTime: activity.startTime,
+    endTime: activity.endTime,
+    durationHours: activity.durationHours,
+    activityType: activity.activityType,
+    status: activity.status,
+    maxVolunteers: activity.maxVolunteers,
+    currentVolunteers: activity.currentVolunteers,
+    placeName: activity.placeName ?? null,
+    city: activity.city ?? null,
+    latitude: activity.latitude ?? null,
+    longitude: activity.longitude ?? null,
+    meetingLink: activity.meetingLink ?? null,
+    meetingPlatform: activity.meetingPlatform ?? null,
+    externalMeetingId: activity.externalMeetingId ?? null,
   };
-};
+}

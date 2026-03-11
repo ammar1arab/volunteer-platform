@@ -41,7 +41,8 @@ const AdminUserDetailsPage = () => {
   const {
     status, user, activities, allActivities, totalFilteredItems,
     loadingUser, loadingActivities, activeFilter, setActiveFilter,
-    currentPage, setCurrentPage, itemsPerPage, toasts, removeToast, exportData
+    currentPage, setCurrentPage, itemsPerPage, toasts, removeToast,
+    exportData, totalHours
   } = useAdminUserDetailsPage();
 
   if (status === "loading" || loadingUser) return <LoadingState />;
@@ -81,6 +82,7 @@ const AdminUserDetailsPage = () => {
         profilePictureUrl={vp?.profilePictureUrl}
         createdAt={user.createdAt}
         isEditable={false}
+        totalHours={totalHours}
       />
 
       <div className={styles.statsGrid}>
@@ -151,6 +153,8 @@ const AdminUserDetailsPage = () => {
                       placeName={item.activity.placeName}
                       status={item.status as ParticipationStatus}
                       requestedAt={item.requestedAt}
+                      respondedAt={item.respondedAt}
+                      volunteerHours={item.volunteerHours}
                     />
                   ))}
                 </div>

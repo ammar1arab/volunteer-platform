@@ -25,10 +25,7 @@ interface FormState {
 
 const currentMonthYear = () => {
   const now = new Date();
-  return {
-    month: String(now.getMonth() + 1),
-    year: String(now.getFullYear())
-  };
+  return { month: String(now.getMonth() + 1), year: String(now.getFullYear()) };
 };
 
 const EMPTY_FORM: FormState = {
@@ -56,6 +53,7 @@ export const useMagazinesPage = () => {
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
+  const [activeYear, setActiveYear] = useState("all");
 
   const filteredList = useMemo(() => {
     if (!appliedSearch.trim()) return list;
@@ -63,10 +61,21 @@ export const useMagazinesPage = () => {
     return list.filter((m) => m.title.toLowerCase().includes(q));
   }, [list, appliedSearch]);
 
+  const yearFilterOptions = useMemo(() => {
+    const years = [...new Set(list.map(m => String(new Date(m.monthYear).getFullYear())))]
+      .sort((a, b) => Number(b) - Number(a));
+    return [{ key: "all", label: "الجميع" }, ...years.map(y => ({ key: y, label: y }))];
+  }, [list]);
+
+  const filteredByYear = useMemo(() => {
+    if (activeYear === "all") return filteredList;
+    return filteredList.filter(m => String(new Date(m.monthYear).getFullYear()) === activeYear);
+  }, [filteredList, activeYear]);
+
   const paginatedList = useMemo(() => {
-    if (!Array.isArray(filteredList)) return [];
-    return filteredList.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-  }, [filteredList, currentPage]);
+    if (!Array.isArray(filteredByYear)) return [];
+    return filteredByYear.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  }, [filteredByYear, currentPage]);
 
   useEffect(() => {
     if (error && error.trim()) showToast(error, "error");
@@ -74,9 +83,7 @@ export const useMagazinesPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [appliedSearch]);
-
-  // ── Confirm Dialog ──────────────────────────────────────────────────────────
+  }, [appliedSearch, activeYear]);
 
   const confirm = useCallback((opts: ConfirmOptions) => {
     setConfirmOptions(opts);
@@ -97,8 +104,6 @@ export const useMagazinesPage = () => {
     confirmResolver?.(false);
     setConfirmResolver(null);
   }, [confirmResolver]);
-
-  // ── Form ────────────────────────────────────────────────────────────────────
 
   const resetForm = useCallback(() => {
     setMode("create");
@@ -124,30 +129,19 @@ export const useMagazinesPage = () => {
     });
     setShowModal(true);
   }, []);
-  // ── PDF Upload ──────────────────────────────────────────────────────────────
 
-  const handlePdfUpload = useCallback(
-    async (file: File | null) => {
-      if (!file) return;
-
-      const { error: validationError } = processPdfForUpload(file, { maxSizeMB: 50 });
-      if (validationError) {
-        showToast(validationError, "error");
-        return;
-      }
-
-      const uploaded = await uploadPdf(file);
-      if (uploaded) {
-        setForm((prev) => ({ ...prev, pdfUrl: uploaded }));
-        showToast("تم رفع الملف بنجاح", "success");
-      } else {
-        showToast("فشل رفع الملف", "error");
-      }
-    },
-    [uploadPdf, showToast]
-  );
-
-  // ── Submit ──────────────────────────────────────────────────────────────────
+  const handlePdfUpload = useCallback(async (file: File | null) => {
+    if (!file) return;
+    const { error: validationError } = processPdfForUpload(file, { maxSizeMB: 50 });
+    if (validationError) { showToast(validationError, "error"); return; }
+    const uploaded = await uploadPdf(file);
+    if (uploaded) {
+      setForm((prev) => ({ ...prev, pdfUrl: uploaded }));
+      showToast("تم رفع الملف بنجاح", "success");
+    } else {
+      showToast("فشل رفع الملف", "error");
+    }
+  }, [uploadPdf, showToast]);
 
   const handleSubmit = useCallback(async () => {
     const payload = {
@@ -156,15 +150,8 @@ export const useMagazinesPage = () => {
       monthYear: new Date(`${form.year}-${form.month.padStart(2, "0")}-01`),
       isActive: form.isActive
     };
-
     try {
-      let success = false;
-      if (mode === "create") {
-        success = await create(payload);
-      } else if (form.id) {
-        success = await update(form.id, payload);
-      }
-
+      const success = mode === "create" ? await create(payload) : form.id ? await update(form.id, payload) : false;
       if (success) {
         showToast(mode === "create" ? "تم إنشاء المجلة" : "تم تحديث المجلة", "success");
         resetForm();
@@ -174,75 +161,39 @@ export const useMagazinesPage = () => {
     }
   }, [mode, form, create, update, resetForm, showToast]);
 
-  // ── Toggle ──────────────────────────────────────────────────────────────────
+  const handleToggle = useCallback(async (magazine: MonthlyMagazineDto) => {
+    const success = await update(magazine.id, {
+      title: magazine.title,
+      pdfUrl: magazine.pdfUrl,
+      monthYear: new Date(magazine.monthYear),
+      isActive: !magazine.isActive
+    });
+    if (success) showToast(magazine.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
+  }, [update, showToast]);
 
-  const handleToggle = useCallback(
-    async (magazine: MonthlyMagazineDto) => {
-      const success = await update(magazine.id, {
-        title: magazine.title,
-        pdfUrl: magazine.pdfUrl,
-        monthYear: new Date(magazine.monthYear),
-        isActive: !magazine.isActive
-      });
-      if (success) {
-        showToast(magazine.isActive ? "تم الإخفاء" : "تم التفعيل", "success");
-      }
-    },
-    [update, showToast]
-  );
-
-  // ── Delete ──────────────────────────────────────────────────────────────────
-
-  const handleDelete = useCallback(
-    async (magazine: MonthlyMagazineDto) => {
-      const ok = await confirm({
-        title: "حذف المجلة",
-        message: `هل تريد حذف "${magazine.title}"؟`,
-        confirmText: "حذف",
-        cancelText: "إلغاء",
-        variant: "danger"
-      });
-      if (!ok) return;
-      if (await remove(magazine.id)) {
-        showToast("تم الحذف", "success");
-        if (form.id === magazine.id) resetForm();
-      }
-    },
-    [confirm, form.id, remove, resetForm, showToast]
-  );
+  const handleDelete = useCallback(async (magazine: MonthlyMagazineDto) => {
+    const ok = await confirm({
+      title: "حذف المجلة",
+      message: `هل تريد حذف "${magazine.title}"؟`,
+      confirmText: "حذف",
+      cancelText: "إلغاء",
+      variant: "danger"
+    });
+    if (!ok) return;
+    if (await remove(magazine.id)) {
+      showToast("تم الحذف", "success");
+      if (form.id === magazine.id) resetForm();
+    }
+  }, [confirm, form.id, remove, resetForm, showToast]);
 
   return {
-    status,
-    isLoading: loading,
-    isSubmitting: submitting,
-    isUploading: uploading,
-    mode,
-    form,
-    showModal,
-    list,
-    paginatedList,
-    currentPage,
-    itemsPerPage: ITEMS_PER_PAGE,
-    toasts,
-    removeToast,
-    confirmDialog: {
-      isOpen: isConfirmOpen,
-      options: confirmOptions,
-      handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog
-    },
-    setForm,
-    setCurrentPage,
-    resetForm,
-    openCreate,
-    openEdit,
-    handlePdfUpload,
-    handleSubmit,
-    handleToggle,
-    handleDelete,
-    filteredList,
-    searchQuery,
-    setSearchQuery,
-    setAppliedSearch
+    status, isLoading: loading, isSubmitting: submitting, isUploading: uploading,
+    mode, form, showModal, list, paginatedList, filteredByYear, currentPage,
+    itemsPerPage: ITEMS_PER_PAGE, toasts, removeToast,
+    confirmDialog: { isOpen: isConfirmOpen, options: confirmOptions, handleConfirm: handleConfirmDialog, handleCancel: handleCancelDialog },
+    activeYear, setActiveYear, yearFilterOptions,
+    setForm, setCurrentPage, resetForm, openCreate, openEdit,
+    handlePdfUpload, handleSubmit, handleToggle, handleDelete,
+    searchQuery, setSearchQuery, setAppliedSearch
   };
 };

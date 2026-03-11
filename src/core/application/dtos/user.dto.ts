@@ -39,6 +39,7 @@ export interface UserActivityDto {
   status: ParticipationStatus;
   requestedAt: string;
   respondedAt: string | null;
+  volunteerHours: number;
   activity: {
     id: string;
     title: string;

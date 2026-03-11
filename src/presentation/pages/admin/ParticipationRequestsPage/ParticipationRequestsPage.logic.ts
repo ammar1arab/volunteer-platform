@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { UserRole } from "@/core/domain/enums";
+import { JordanianCity, UserRole } from "@/core/domain/enums";
 import { useActivityParticipations, useToast, useAuth } from "@/presentation/hooks";
+import { getCityLabel } from "@/presentation/constants";
 
 type ConfirmOptions = {
   title?: string;
@@ -54,10 +55,11 @@ export const useParticipationRequestsPage = () => {
     let result = filter === "all" ? requests : requests.filter((r) => r.activityId === filter);
     if (appliedSearch.trim()) {
       const q = appliedSearch.toLowerCase();
-      result = result.filter((r) =>
-        r.volunteer?.fullName?.toLowerCase().includes(q) ||
-        r.volunteer?.email?.toLowerCase().includes(q) ||
-        r.volunteer?.phone?.toLowerCase().includes(q)
+      result = result.filter(
+        (r) =>
+          r.volunteer?.fullName?.toLowerCase().includes(q) ||
+          r.volunteer?.email?.toLowerCase().includes(q) ||
+          r.volunteer?.phone?.toLowerCase().includes(q)
       );
     }
     return result;
@@ -94,7 +96,7 @@ export const useParticipationRequestsPage = () => {
         cancelText: "إلغاء",
         variant: "primary",
         warning: cityMismatch
-          ? `تنبيه: المتطوع من ${volunteerCity} والنشاط في ${activityCity}`
+          ? `تنبيه: المتطوع من ${getCityLabel(volunteerCity as JordanianCity)} والنشاط في ${getCityLabel(activityCity as JordanianCity)}`
           : undefined
       });
       if (!ok) return;

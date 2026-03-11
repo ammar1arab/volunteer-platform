@@ -14,7 +14,8 @@
 
   @include sm {
     flex-direction: column;
-    gap: $sp-sm;
+    align-items: stretch;
+    gap: $sp-md;
 
     > * {
       width: 100%;
@@ -28,15 +29,25 @@
 
   @include sm {
     width: 100%;
-    > *:first-child {
-      flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: $sp-xs;
+
+    > * {
+      width: 100% !important;
     }
   }
 }
 
 .btnCreate {
   @include create-btn;
+  @include sm {
+    font-size: 12px;
+    padding: 8px;
+    white-space: nowrap;
+  }
 }
+
 .grid {
   @include cards-grid;
 }
@@ -73,7 +84,7 @@
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  box-sizing: border-box; 
+  box-sizing: border-box;
   padding: 4px;
 }
 
@@ -138,17 +149,12 @@
 }
 
 .preview {
-  position: relative;
+  @include img-contain($sp-sm);
   width: 100%;
   aspect-ratio: 16 / 8;
   border-radius: $radius-lg;
-  overflow: hidden;
   border: 1px solid $border;
-  background: #fff;
-}
-
-.previewImg {
-  object-fit: cover;
+  overflow: hidden;
 }
 
 .uploadControls {

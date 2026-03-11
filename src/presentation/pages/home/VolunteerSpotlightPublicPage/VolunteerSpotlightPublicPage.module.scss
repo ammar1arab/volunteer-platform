@@ -45,6 +45,20 @@
   }
 }
 
+.toolbar {
+  @include flex(row, center, space-between, $sp-sm);
+  margin-bottom: $sp-xl;
+
+  > :first-child {
+    flex: 1;
+    max-width: 400px;
+  }
+
+  > :last-child {
+    flex-shrink: 0;
+  }
+}
+
 .grid {
   @include grid(2, $sp-sm);
   @include md {

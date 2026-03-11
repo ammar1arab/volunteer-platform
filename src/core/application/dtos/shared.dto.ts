@@ -25,9 +25,16 @@ export interface ActivitySummaryDto {
   endTime: string;
   durationHours: number;
   activityType: string;
-  placeName: string | null;
-  city: string | null;
+  status: string;
   maxVolunteers: number;
   currentVolunteers: number;
-  status: string;
+  // IN_PERSON
+  placeName: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  // ONLINE
+  meetingLink: string | null;
+  meetingPlatform: string | null;
+  externalMeetingId: string | null;
 }

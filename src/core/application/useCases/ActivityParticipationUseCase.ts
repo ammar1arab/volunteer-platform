@@ -17,7 +17,9 @@ import {
   RejectJoinRequestResponse,
   CancelJoinRequestResponse,
   MarkAttendanceRequest,
-  MarkAttendanceResponse
+  MarkAttendanceResponse,
+  BulkMarkAttendanceResponse,
+  BulkMarkAttendanceRequest
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
 import { prisma } from "@/infrastructure/persistence/prisma";
@@ -226,6 +228,25 @@ class ActivityParticipationUseCase {
       return ok({ participation: await this.mapWithRelations(participation) });
     } catch (error) {
       return serviceError(ActivityParticipationUseCase.SCOPE, "markAttendance", error, "حدث خطأ أثناء تسجيل الحضور");
+    }
+  }
+
+  async bulkMarkAttendance(dto: BulkMarkAttendanceRequest): Promise<BulkMarkAttendanceResponse> {
+    try {
+      if (!dto.items?.length) return fail("VALIDATION_ERROR", "لا توجد عناصر للتحديث");
+      await Promise.all(
+        dto.items.map((item) => this.markAttendance({ participationId: item.participationId, attended: item.attended }))
+      );
+
+      logger.info(ActivityParticipationUseCase.SCOPE, "bulkMarkAttendance", `count=${dto.items.length}`);
+      return ok({ count: dto.items.length });
+    } catch (error) {
+      return serviceError(
+        ActivityParticipationUseCase.SCOPE,
+        "bulkMarkAttendance",
+        error,
+        "حدث خطأ أثناء تسجيل الحضور"
+      );
     }
   }
 

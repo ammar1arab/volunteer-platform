@@ -205,12 +205,13 @@ export const useActivitiesPage = () => {
         activityType: formData.activityType as ActivityType,
         categories: formData.categories ?? [],
         maxVolunteers: formData.maxVolunteers,
-        placeName: formData.placeName?.trim() ?? null,
-        city: formData.city ?? null,
-        latitude: formData.latitude ?? null,
-        longitude: formData.longitude ?? null,
-        meetingLink: formData.meetingLink?.trim() ?? null,
-        meetingPlatform: formData.meetingPlatform ?? null
+
+        placeName: formData.activityType === ActivityType.IN_PERSON ? formData.placeName?.trim() || null : null,
+        city: formData.activityType === ActivityType.IN_PERSON ? formData.city || null : null,
+        latitude: formData.activityType === ActivityType.IN_PERSON ? (formData.latitude ?? null) : null,
+        longitude: formData.activityType === ActivityType.IN_PERSON ? (formData.longitude ?? null) : null,
+        meetingLink: formData.activityType === ActivityType.ONLINE ? formData.meetingLink?.trim() || null : null,
+        meetingPlatform: formData.activityType === ActivityType.ONLINE ? formData.meetingPlatform || null : null
       };
 
       try {

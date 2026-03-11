@@ -2,8 +2,13 @@
 @use "@/presentation/styles/mixins" as *;
 
 @keyframes float-pin {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
 }
 
 .card {
@@ -13,29 +18,47 @@
   background: $bg;
   overflow: hidden;
   position: relative;
-  transition: $transition;
-  transition-property: transform, border-color, box-shadow;
+  transition:
+    transform $transition,
+    border-color $transition,
+    box-shadow $transition;
 
   &:hover {
     transform: translateY(-2px);
     border-color: $green;
-    box-shadow: 0 0 0 1px $green, $shadow;
+    box-shadow:
+      0 0 0 1px $green,
+      $shadow;
 
-    .imageInner { border-color: rgba($green, 0.4); }
-    .img { transform: scale(1.04); }
-    .title { color: $green; }
-    .shareBtn { opacity: 1; transform: scale(1); }
-    .metaIcon { background: $green; color: $white; }
-    .mapsBtn svg { animation: float-pin 1.8s ease infinite; }
+    .imageInner img {
+      transform: scale(1.04);
+    }
+    .title {
+      color: $green;
+    }
+    .shareBtn {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .metaIcon {
+      background: $green;
+      color: $white;
+    }
+    .mapsBtn svg {
+      animation: float-pin 1.8s ease infinite;
+    }
   }
 
   &.completed {
     opacity: 0.65;
+
     &:hover {
       transform: none;
       box-shadow: none;
       border-color: $border;
-      .title { color: $text; }
+      .title {
+        color: $text;
+      }
     }
   }
 
@@ -47,42 +70,33 @@
 .imageCol {
   width: 220px;
   flex-shrink: 0;
-  padding: $sp-sm;
   background: $white;
   border-left: 1px solid $border;
-  @include flex-center;
 
   @include sm {
     width: 100%;
     border-left: none;
     border-bottom: 1px solid $border;
-    padding: $sp-sm $sp-sm 0;
   }
 }
 
 .imageWrapper {
-  width: 100%;
-  background: radial-gradient(circle at 50% 50%, rgba($green, 0.04) 0%, transparent 70%);
-  border-radius: $radius-md;
-  overflow: hidden;
-  transition: border-color $transition;
-}
-
-.imageInner {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  @include flex-center;
-  background: $white;
-  transition: border-color $transition;
-}
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, rgba($green, 0.04) 0%, transparent 70%);
 
-.img {
-  object-fit: contain !important;
-  position: relative !important;
-  width: 88% !important;
-  height: 88% !important;
-  transition: transform 0.45s ease;
+  img {
+    object-fit: contain;
+    width: 88% !important;
+    height: 88% !important;
+    position: absolute !important;
+    inset: 0;
+    margin: auto;
+    transition: transform $transition;
+  }
 }
 
 .badge {
@@ -104,8 +118,14 @@
   font-weight: 700;
   letter-spacing: 0.04em;
 
-  &.inPerson { background: $green; color: $white; }
-  &.online    { background: #2563eb; color: $white; }
+  &.inPerson {
+    background: $green;
+    color: $white;
+  }
+  &.online {
+    background: #2563eb;
+    color: $white;
+  }
 }
 
 .shareBtn {
@@ -121,12 +141,16 @@
   background: $white;
   color: $text-muted;
   cursor: pointer;
-  opacity: 0;
   transform: scale(0.8);
   transition: $transition;
 
-  &:hover { border-color: $green; color: $green; }
+  &:hover {
+    border-color: $green;
+    color: $green;
+  }
 }
+
+// ─── Body ─────────────────────────────────────────────────────────────────────
 
 .body {
   @include flex(column, stretch, flex-start, $sp-sm);
@@ -135,7 +159,10 @@
   min-width: 0;
 }
 
-.header { @include flex-col; gap: $sp-xs; }
+.header {
+  @include flex-col;
+  gap: $sp-xs;
+}
 
 .title {
   margin: 0;
@@ -143,9 +170,9 @@
   font-weight: 800;
   color: $text;
   line-height: 1.4;
+  letter-spacing: -0.01em;
   @include line-clamp(2);
   transition: color $transition;
-  letter-spacing: -0.01em;
 }
 
 .description {
@@ -155,6 +182,8 @@
   line-height: 1.6;
   @include line-clamp(2);
 }
+
+// ─── Meta ─────────────────────────────────────────────────────────────────────
 
 .metaGrid {
   display: grid;
@@ -169,7 +198,9 @@
   border: 1px solid $border;
   transition: border-color $transition;
 
-  &:hover { border-color: rgba($green, 0.35); }
+  &:hover {
+    border-color: rgba($green, 0.35);
+  }
 }
 
 .metaIcon {
@@ -184,7 +215,11 @@
   transition: $transition;
 }
 
-.metaContent { @include flex-col; gap: 1px; min-width: 0; }
+.metaContent {
+  @include flex-col;
+  gap: 1px;
+  min-width: 0;
+}
 
 .metaLabel {
   font-size: 9px;
@@ -202,8 +237,16 @@
   @include truncate;
 }
 
-.accent { color: $green; font-weight: 800; }
-.slash  { color: $text-muted; margin: 0 1px; }
+.accent {
+  color: $green;
+  font-weight: 800;
+}
+.slash {
+  color: $text-muted;
+  margin: 0 1px;
+}
+
+// ─── Location ─────────────────────────────────────────────────────────────────
 
 .locationRow {
   @include flex(row, center, space-between, $sp-sm);
@@ -213,7 +256,9 @@
   margin-top: auto;
   transition: border-color $transition;
 
-  &:hover { border-color: rgba($red, 0.3); }
+  &:hover {
+    border-color: rgba($red, 0.3);
+  }
 }
 
 .locationInfo {
@@ -224,8 +269,13 @@
   min-width: 0;
   flex: 1;
 
-  svg { color: $red; flex-shrink: 0; }
-  span { @include truncate; }
+  svg {
+    color: $red;
+    flex-shrink: 0;
+  }
+  span {
+    @include truncate;
+  }
 }
 
 .meetingLink {
@@ -236,7 +286,9 @@
   text-decoration: none;
   transition: opacity $transition;
 
-  &:hover { opacity: 0.7; }
+  &:hover {
+    opacity: 0.7;
+  }
 }
 
 .mapsBtn {
@@ -259,21 +311,29 @@
   }
 }
 
+// ─── Actions ──────────────────────────────────────────────────────────────────
+
 .actions {
   @include flex(row, center, flex-end, $sp-xs);
   padding-top: $sp-xs;
   border-top: 1px solid $border;
   flex-wrap: wrap;
 
-  @include sm { justify-content: flex-start; }
+  @include sm {
+    justify-content: flex-start;
+  }
 }
+
+// ─── Location Modal ───────────────────────────────────────────────────────────
 
 .locActions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $sp-sm;
 
-  @include sm { grid-template-columns: 1fr; }
+  @include sm {
+    grid-template-columns: 1fr;
+  }
 }
 
 .locBtnShare {
@@ -288,7 +348,9 @@
   cursor: pointer;
   transition: background $transition;
 
-  &:hover { background: rgba(#2563eb, 0.1); }
+  &:hover {
+    background: rgba(#2563eb, 0.1);
+  }
 }
 
 .locBtnMaps {
@@ -303,5 +365,7 @@
   text-decoration: none;
   transition: background $transition;
 
-  &:hover { background: rgba($red, 0.1); }
+  &:hover {
+    background: rgba($red, 0.1);
+  }
 }

@@ -157,6 +157,7 @@ class UserUseCase {
         status: p.status as ParticipationStatus,
         requestedAt: p.requestedAt.toISOString(),
         respondedAt: p.respondedAt?.toISOString() ?? null,
+        volunteerHours: p.volunteerHours ?? 0,
         activity: {
           id: p.activity.id,
           title: p.activity.title,

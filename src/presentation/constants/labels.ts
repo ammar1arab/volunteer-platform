@@ -17,7 +17,7 @@ export const GENDER_LABELS: Record<Gender, string> = {
 export const ACTIVITY_STATUS_LABELS: Record<ActivityStatus, string> = {
   [ActivityStatus.DRAFT]: "مسودة",
   [ActivityStatus.PUBLISHED]: "منشور",
-  [ActivityStatus.CANCELLED]: "ملغى",
+  [ActivityStatus.CANCELLED]: "ملغي",
   [ActivityStatus.COMPLETED]: "مكتمل"
 };
 
@@ -36,7 +36,7 @@ export const PARTICIPATION_STATUS_LABELS: Record<ParticipationStatus, string> = 
   [ParticipationStatus.PENDING]: "قيد المراجعة",
   [ParticipationStatus.APPROVED]: "مقبول",
   [ParticipationStatus.REJECTED]: "مرفوض",
-  [ParticipationStatus.CANCELLED]: "ملغى"
+  [ParticipationStatus.CANCELLED]: "ملغي"
 };
 
 export const MEETING_PLATFORM_LABELS: Record<MeetingPlatform, string> = {

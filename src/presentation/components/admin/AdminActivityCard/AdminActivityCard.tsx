@@ -40,25 +40,24 @@ const AdminActivityCard = ({ activity, meta, actions }: AdminActivityCardProps) 
               alt={activity.title}
               fill
               sizes="(max-width: 768px) 100vw, 280px"
-              className={styles.img}
+            />
+            <div className={`${styles.typeChip} ${isInPerson ? styles.inPerson : styles.online}`}>
+              {isInPerson ? <MapPinned size={10} /> : <Wifi size={10} />}
+              <span>{getActivityTypeLabel(activity.activityType)}</span>
+            </div>
+            {meta && <div className={styles.badge}>{meta}</div>}
+            <Share
+              trigger={(openShare) => (
+                <button
+                  className={styles.shareBtn}
+                  onClick={(e) => { e.stopPropagation(); openShare({ title: activity.title, text: shareText }); }}
+                  aria-label="مشاركة"
+                >
+                  <Share2 size={13} />
+                </button>
+              )}
             />
           </div>
-          <div className={`${styles.typeChip} ${isInPerson ? styles.inPerson : styles.online}`}>
-            {isInPerson ? <MapPinned size={10} /> : <Wifi size={10} />}
-            <span>{getActivityTypeLabel(activity.activityType)}</span>
-          </div>
-          {meta && <div className={styles.badge}>{meta}</div>}
-          <Share
-            trigger={(openShare) => (
-              <button
-                className={styles.shareBtn}
-                onClick={(e) => { e.stopPropagation(); openShare({ title: activity.title, text: shareText }); }}
-                aria-label="مشاركة"
-              >
-                <Share2 size={13} />
-              </button>
-            )}
-          />
         </div>
 
         <div className={styles.body}>
@@ -99,7 +98,7 @@ const AdminActivityCard = ({ activity, meta, actions }: AdminActivityCardProps) 
             <div className={styles.metaItem}>
               <div className={styles.metaIcon}><Timer size={12} /></div>
               <div className={styles.metaContent}>
-                <span className={styles.metaLabel}>المدة</span>
+                <span className={styles.metaLabel}>عدد الساعات</span>
                 <span className={styles.metaValue}>{activity.durationHours} ساعة</span>
               </div>
             </div>

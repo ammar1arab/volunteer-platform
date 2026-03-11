@@ -1,0 +1,119 @@
+// ActivityCarousel.module.scss
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.carouselRoot {
+  @include flex-col;
+  gap: $sp-lg;
+  width: 100%;
+}
+
+.carouselHeader {
+  @include flex-center;
+  text-align: center;
+}
+
+.carouselWrapper {
+  display: flex;
+  align-items: center;
+  gap: $sp-sm;
+  position: relative;
+
+  @include sm {
+    gap: 0;
+  }
+}
+
+.arrowBtn {
+  @include flex-center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba($border, 0.6);
+  background: $white;
+  color: $text;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease;
+  z-index: 10;
+
+  &:hover:not(:disabled) {
+    border-color: $green;
+    color: $white;
+    background: $green;
+    box-shadow: 0 6px 16px rgba($green, 0.25);
+    transform: scale(1.06);
+  }
+
+  &:disabled {
+    opacity: 0.2;
+    pointer-events: none;
+  }
+
+  @include sm {
+    display: none; 
+  }
+}
+
+.viewport {
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.carouselTrack {
+  display: flex;
+  margin: 0;
+  padding: $sp-xs 0;
+  list-style: none;
+  backface-visibility: hidden;
+  touch-action: pan-y pinch-zoom;
+}
+
+.carouselItem {
+  flex: 0 0 33.333333%; 
+  min-width: 0;
+  padding: 0 $sp-sm;
+
+  @include md {
+    flex: 0 0 50%;
+  }
+
+  @include sm {
+    flex: 0 0 100%; 
+  }
+}
+
+.dots {
+  @include flex-center;
+  gap: 8px;
+  padding: $sp-xs 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba($text, 0.15);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba($green, 0.5);
+  }
+}
+
+.dotActive {
+  background: $green !important;
+  width: 24px;
+  border-radius: 4px;
+}
+
+.carouselFooter {
+  @include flex-center;
+  margin-top: $sp-md;
+}

@@ -1,6 +1,8 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
+// ─── Page ────────────────────────────────────────────────────────────────────
+
 .container {
   @include container;
   padding-top: 100px;
@@ -12,15 +14,19 @@
   @include flex-center;
   min-height: 100vh;
 }
+
 .empty {
   @include flex-col;
   @include flex-center;
   gap: $sp-md;
   min-height: 100vh;
 }
+
 .backBtn {
   margin-bottom: $sp-lg;
 }
+
+// ─── Layout ──────────────────────────────────────────────────────────────────
 
 .article {
   max-width: 1100px;
@@ -36,10 +42,11 @@
   }
 }
 
+// ─── Image Column ─────────────────────────────────────────────────────────────
+
 .imageCol {
   position: sticky;
   top: 100px;
-  z-index: 10;
 
   @include sm {
     position: relative;
@@ -48,30 +55,14 @@
 }
 
 .hero {
-  position: relative;
-  width: 100%;
+  @include img-contain($sp-sm);
   aspect-ratio: 3 / 4;
   border-radius: $radius-lg;
-  overflow: hidden;
   border: 1px solid $border;
-  background: #f8f9fa;
-  transform: translateZ(0);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   @include sm {
     aspect-ratio: 16 / 9;
   }
-}
-
-.heroImage {
-  width: 100% !important;
-  height: 100% !important;
-  position: relative !important;
-  object-fit: contain !important;
-  padding: $sp-sm;
-  transition: transform 0.5s ease;
 }
 
 .heroBadges {
@@ -146,13 +137,14 @@
   }
 }
 
+// ─── Content Column ───────────────────────────────────────────────────────────
+
 .content {
   @include flex-col;
   gap: $sp-lg;
   padding: $sp-xl;
   border: 1px solid $border;
   border-radius: $radius-lg;
-  background: $bg;
 
   @include sm {
     padding: $sp-md;
@@ -172,6 +164,8 @@
   }
 }
 
+// ─── Chips ────────────────────────────────────────────────────────────────────
+
 .chipsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -189,6 +183,10 @@
   border: 1px solid $border;
   transition: border-color 0.25s ease;
 
+  &:hover {
+    border-color: rgba($green, 0.25);
+  }
+
   &[data-type="date"] .chipIcon {
     background: rgba(#3b82f6, 0.1);
     color: #3b82f6;
@@ -204,10 +202,6 @@
   &[data-type="duration"] .chipIcon {
     background: rgba(#f59e0b, 0.1);
     color: #f59e0b;
-  }
-
-  &:hover {
-    border-color: rgba($green, 0.25);
   }
 }
 
@@ -237,6 +231,8 @@
   color: $text;
   @include line-clamp(1);
 }
+
+// ─── Location ─────────────────────────────────────────────────────────────────
 
 .locationCard {
   @include flex(row, center, space-between, $sp-md);
@@ -308,7 +304,6 @@
   font-size: $font-xs;
   font-weight: 700;
   cursor: pointer;
-  flex-shrink: 0;
   white-space: nowrap;
   transition: all 0.2s ease;
 
@@ -328,7 +323,6 @@
   font-size: $font-xs;
   font-weight: 700;
   text-decoration: none;
-  flex-shrink: 0;
   white-space: nowrap;
   transition: all 0.2s ease;
 
@@ -337,6 +331,8 @@
     color: $white;
   }
 }
+
+// ─── Description ──────────────────────────────────────────────────────────────
 
 .descriptionCard {
   @include flex-col;
@@ -400,11 +396,15 @@
   }
 }
 
+// ─── Action ───────────────────────────────────────────────────────────────────
+
 .actionContainer {
   @include flex-center;
   padding-top: $sp-lg;
   border-top: 1px solid $border;
 }
+
+// ─── Location Modal ───────────────────────────────────────────────────────────
 
 .locBody {
   @include flex-col;
@@ -415,6 +415,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $sp-sm;
+
   @include sm {
     grid-template-columns: 1fr;
   }
@@ -423,14 +424,15 @@
 .locBtnShare {
   @include flex-center;
   padding: $sp-sm;
-  background: rgba(#3b82f6, 0.06);
-  border: 1px solid rgba(#3b82f6, 0.2);
   border-radius: $radius;
+  border: 1px solid rgba(#3b82f6, 0.2);
+  background: rgba(#3b82f6, 0.06);
   color: #3b82f6;
   font-size: $font-sm;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
+
   &:hover {
     background: rgba(#3b82f6, 0.13);
   }
@@ -439,14 +441,15 @@
 .locBtnMaps {
   @include flex-center;
   padding: $sp-sm;
-  background: rgba(#f97316, 0.06);
-  border: 1px solid rgba(#f97316, 0.2);
   border-radius: $radius;
+  border: 1px solid rgba(#f97316, 0.2);
+  background: rgba(#f97316, 0.06);
   color: #f97316;
   font-size: $font-sm;
   font-weight: 600;
   text-decoration: none;
   transition: background 0.2s;
+
   &:hover {
     background: rgba(#f97316, 0.13);
   }

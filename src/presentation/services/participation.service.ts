@@ -6,7 +6,8 @@ import type {
   ApproveJoinRequestResponse,
   RejectJoinRequestResponse,
   MarkAttendanceResponse,
-  CancelJoinRequestResponse
+  CancelJoinRequestResponse,
+  BulkMarkAttendanceResponse
 } from "@/core/application/dtos";
 
 export const participationApi = {
@@ -22,5 +23,7 @@ export const participationApi = {
   markAttendance: (id: string, attended: boolean) =>
     apiClient.post<MarkAttendanceResponse>(API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.MARK_ATTENDANCE(id), {
       attended
-    })
+    }),
+  bulkMarkAttendance: (items: { participationId: string; attended: boolean }[]) =>
+    apiClient.post<BulkMarkAttendanceResponse>(API_ENDPOINTS.ACTIVITY_PARTICIPATIONS.BULK_MARK_ATTENDANCE, { items })
 };

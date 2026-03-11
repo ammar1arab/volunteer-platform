@@ -2,6 +2,55 @@
 @use "@/presentation/styles/_variables" as *;
 
 
+
+@mixin img-cover {
+  position: relative;
+  overflow: hidden;
+  img {
+    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    inset: 0;
+  }
+}
+
+@mixin img-contain($padding: $sp-md) {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $padding;
+  img {
+    object-fit: contain !important;
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: calc(100% - #{$padding * 2});
+    max-height: calc(100% - #{$padding * 2});
+  }
+}
+
+@mixin img-avatar($size: 80px) {
+  position: relative;
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  img {
+    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    inset: 0;
+  }
+}
+
+
+
+
 @mixin respond($break) {
   @media (max-width: map.get($breakpoints, $break)) {
     @content;

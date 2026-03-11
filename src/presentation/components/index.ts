@@ -28,6 +28,7 @@ export { default as HeroSection } from "./home/HeroSection/HeroSection";
 export { default as AboutSection } from "./home/AboutSection/AboutSection";
 export { default as ContactSection } from "./home/ContactSection/ContactSection";
 export { default as ActivityCard } from "./home/ActivityCard/ActivityCard";
+export { default as ActivityCarousel } from "./home/ActivityCarousel/ActivityCarousel";
 export { default as FeaturedPostCard } from "./home/FeaturedPostCard/FeaturedPostCard";
 export { default as VolunteerSpotlightCard } from "./home/VolunteerSpotlightCard/VolunteerSpotlightCard";
 export { default as MagazineCard } from "./home/MagazineCard/MagazineCard";

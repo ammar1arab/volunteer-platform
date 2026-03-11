@@ -1,7 +1,7 @@
 "use client";
 import styles from "./VolunteerActivitiesPage.module.scss";
 import { useVolunteerActivitiesPage } from "./VolunteerActivitiesPage.logic";
-import { ParticipationStatus } from "@/core/domain/enums";
+import { ActivityType, AttendanceStatus, JordanianCity, MeetingPlatform, ParticipationStatus } from "@/core/domain/enums";
 import {
   LoadingState, EmptyState, ToastContainer, Pagination,
   Search, ActivityItem, ConfirmDialog
@@ -25,7 +25,7 @@ const VolunteerActivitiesPage = () => {
     { key: ParticipationStatus.APPROVED, value: stats.approved, label: "موافق عليه", cls: `${styles.statValue} ${styles.green}` },
     { key: ParticipationStatus.PENDING, value: stats.pending, label: "قيد الانتظار", cls: styles.statValue },
     { key: ParticipationStatus.REJECTED, value: stats.rejected, label: "مرفوض", cls: `${styles.statValue} ${styles.red}` },
-    { key: ParticipationStatus.CANCELLED, value: stats.cancelled, label: "ملغى", cls: `${styles.statValue} ${styles.muted}` },
+    { key: ParticipationStatus.CANCELLED, value: stats.cancelled, label: "ملغي", cls: `${styles.statValue} ${styles.muted}` },
   ];
 
   return (
@@ -67,11 +67,20 @@ const VolunteerActivitiesPage = () => {
                   date={p.activity?.date ?? ""}
                   startTime={p.activity?.startTime ?? ""}
                   endTime={p.activity?.endTime ?? ""}
-                  placeName={p.activity?.placeName ?? "إلكتروني"}
+                  placeName={p.activity?.placeName}
+                  city={p.activity?.city as JordanianCity}
+                  latitude={p.activity?.latitude}
+                  longitude={p.activity?.longitude}
+                  activityType={p.activity?.activityType as ActivityType}
+                  meetingLink={p.activity?.meetingLink}
+                  meetingPlatform={p.activity?.meetingPlatform as MeetingPlatform}
                   status={p.status as ParticipationStatus}
+                  activityStatus={p.activity?.status}
                   requestedAt={p.requestedAt}
+                  respondedAt={p.respondedAt}
                   volunteerHours={p.volunteerHours}
-                  activityStatus={p.activity?.status} 
+                  attendanceStatus={p.attendanceStatus as AttendanceStatus}
+                  markedAt={p.markedAt}
                   actionLoading={actionLoading === p.activityId || actionLoading === p.id}
                   onReapply={
                     p.status === ParticipationStatus.REJECTED || p.status === ParticipationStatus.CANCELLED

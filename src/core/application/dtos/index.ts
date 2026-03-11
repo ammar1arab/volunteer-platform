@@ -69,7 +69,9 @@ export type {
   CancelJoinRequestResponse,
   MarkAttendanceRequest,
   MarkAttendanceResponse,
-  ApprovedVolunteerRow
+  ApprovedVolunteerRow,
+  BulkMarkAttendanceRequest,
+  BulkMarkAttendanceResponse
 } from "./participation.dto";
 
 // ─── Featured Post ────────────────────────────────────────────

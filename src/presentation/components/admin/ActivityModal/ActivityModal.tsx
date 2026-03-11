@@ -41,7 +41,14 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
           </div>
           <div className={styles.field}>
             <SelectInput label="نوع النشاط" value={form.activityType} options={ACTIVITY_TYPE_OPTIONS} required
-              onChange={(val) => setForm(p => ({ ...p, activityType: val as ActivityType }))} />
+              onChange={(val) => setForm(p => ({
+                ...p,
+                activityType: val as ActivityType,
+                ...(val === ActivityType.ONLINE
+                  ? { placeName: "", city: "" as "", latitude: 31.9454, longitude: 35.9284 }
+                  : { meetingLink: "", meetingPlatform: "" as "" }
+                )
+              }))} />
           </div>
         </div>
 
@@ -106,8 +113,8 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
 
             <div className={styles.field}>
               <LocationPicker
-                latitude={form.latitude}
-                longitude={form.longitude}
+                latitude={form.latitude ?? 31.9454}
+                longitude={form.longitude ?? 35.9284}
                 onChange={(lat, lng) => setForm((p) => ({ ...p, latitude: lat, longitude: lng }))}
               />
             </div>
@@ -133,7 +140,7 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
           <div className={styles.uploadSection}>
             {(preview || form.imageUrl) && (
               <div className={styles.preview}>
-                <Image src={preview || form.imageUrl} alt="Preview" fill className={styles.previewImg} />
+                <Image src={preview || form.imageUrl} alt="Preview" width={800} height={400} loading="eager" />
               </div>
             )}
             <label className={styles.btnUpload}>

@@ -10,17 +10,38 @@
 .actions {
   @include flex(row, center, space-between, $sp-sm);
   width: 100%;
+  flex-wrap: wrap;
 
   @include sm {
-    flex-direction: row;
-    > *:first-child {
-      flex: 1;
-    }
+    flex-direction: column;
+    align-items: stretch;
+    gap: $sp-md;
+
+    > * { width: 100%; }
+  }
+}
+
+.actionsEnd {
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+
+  @include sm {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: $sp-xs;
+
+    > * { width: 100% !important; }
   }
 }
 
 .btnCreate {
   @include create-btn;
+  @include sm {
+    font-size: 12px;
+    padding: 8px;
+    white-space: nowrap;
+  }
 }
 
 .grid {
