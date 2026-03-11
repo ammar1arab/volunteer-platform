@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = await res.json();
 
     return {
-      title: post.title,
+      title: post.title, 
       description: post.description?.replace(/[#*\n]/g, ' ').slice(0, 160),
       openGraph: {
         title: post.title,
