@@ -119,7 +119,7 @@ textarea.inputBase {
   letter-spacing: 0.3px;
 
   &:hover {
-    background: darken($green, 6%);
+    background: $green, 6%;
     box-shadow: 0 4px 20px rgba($green, 0.35);
     transform: translateY(-1px);
   }
