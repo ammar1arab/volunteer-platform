@@ -23,7 +23,7 @@ const FeaturedPostCard = ({ id, imageUrl, title, description, variant = "base" }
 
       <div className={styles.imageWrapper}>
         <div className={styles.imageInner}>
-          <Image src={imageUrl} alt={title} fill sizes="(max-width: 640px) 100vw, 33vw" />
+          <Image src={imageUrl} alt={title} fill loading="eager" priority sizes="(max-width: 640px) 100vw, 33vw" />
         </div>
       </div>
 

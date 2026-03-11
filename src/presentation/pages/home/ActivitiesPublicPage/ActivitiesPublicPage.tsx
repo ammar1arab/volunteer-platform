@@ -1,8 +1,8 @@
 "use client";
 import styles from "./ActivitiesPublicPage.module.scss";
 import { useActivitiesPublicPage } from "./ActivitiesPublicPage.logic";
-
-import { ActivityCard, LoadingState, Button } from "@/presentation/components";
+import { CalendarX } from "lucide-react";
+import { ActivityCard, LoadingState, Button, EmptyState } from "@/presentation/components";
 
 const ActivitiesPublicPage = () => {
   const { activities, loading, submitting, getActionButton } = useActivitiesPublicPage();
@@ -23,9 +23,11 @@ const ActivitiesPublicPage = () => {
       </header>
 
       {activities.length === 0 ? (
-        <div className={styles.empty}>
-          <p>لا توجد فرص متاحة حالياً</p>
-        </div>
+        <EmptyState
+          icon={CalendarX}
+          title="لا توجد فرص متاحة"
+          message="لا توجد فرص تطوعية متاحة حالياً، تابعنا لاحقاً"
+        />
       ) : (
         <div className={styles.grid}>
           {activities.map((activity) => {

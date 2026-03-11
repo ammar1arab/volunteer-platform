@@ -1,14 +1,13 @@
 'use client';
 
 import styles from './ContactSection.module.scss';
-import { Container, SectionHeader } from '@/presentation/components';
-import { FiMail, FiUser, FiMessageCircle } from 'react-icons/fi';
+import { Container, SectionHeader, Button } from '@/presentation/components';
+import { FiMail, FiUser, FiMessageCircle, FiSend } from 'react-icons/fi';
 
 const ContactSection = () => {
   return (
     <section className={styles.section}>
       <Container>
-
         <SectionHeader
           title="تواصل معنا"
           subtitle="يسعدنا التواصل معك والإجابة على جميع استفساراتك"
@@ -17,41 +16,53 @@ const ContactSection = () => {
         <form className={styles.form}>
 
           <div className={styles.field}>
-            <FiUser className={styles.icon} />
-            <input
-              type="text"
-              aria-label="الاسم الكامل"
-              className={styles.inputBase}
-            />
+            <label className={styles.label}>الاسم الكامل</label>
+            <div className={styles.inputWrapper}>
+              <FiUser size={18} className={styles.icon} />
+              <input
+                type="text"
+                placeholder="اسمك.."
+                className={styles.inputBase}
+              />
+            </div>
           </div>
 
           <div className={styles.field}>
-            <FiMail className={styles.icon} />
-            <input
-              type="email"
-              aria-label="البريد الإلكتروني"
-              className={styles.inputBase}
-            />
+            <label className={styles.label}>البريد الإلكتروني</label>
+            <div className={styles.inputWrapper}>
+              <FiMail size={18} className={styles.icon} />
+              <input
+                type="email"
+                placeholder="بريدك الإلكتروني.."
+                className={styles.inputBase}
+              />
+            </div>
           </div>
+
+          <div className={styles.divider} />
 
           <div className={styles.field}>
-            <FiMessageCircle className={styles.icon} />
-            <textarea
-              aria-label="نص الرسالة"
-              className={styles.inputBase}
-            ></textarea>
+            <label className={styles.label}>رسالتك</label>
+            <div className={styles.inputWrapper}>
+              <FiMessageCircle size={18} className={styles.textareaIcon} />
+              <textarea
+                placeholder="رسالتك.."
+                className={styles.inputBase}
+              />
+            </div>
           </div>
 
-          <button
+          <Button
             type="submit"
-            className={styles.submitBtn}
-            aria-label="إرسال الرسالة"
+            variant="primary"
+            size="md"
+            icon={<FiSend size={16} />}
+            iconPosition="left"
           >
             إرسال الرسالة
-          </button>
+          </Button>
 
         </form>
-
       </Container>
     </section>
   );

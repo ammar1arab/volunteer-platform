@@ -28,6 +28,16 @@ const AboutSection = () => {
           </div>
 
           <div className={styles.visualSection}>
+            <div className={styles.leftStat}>
+              <div className={`${styles.statCard} ${styles.greenVariant}`}>
+                <div className={styles.iconCircle}><Award size={24} /></div>
+                <div className={styles.info}>
+                  <h3>#1</h3>
+                  <p>أفضل مبادرة 2022</p>
+                </div>
+              </div>
+            </div>
+
             <div className={styles.leftBasma}>
               <div className={styles.basmaCircle}>
                 <Fingerprint size={160} strokeWidth={1} />
@@ -35,20 +45,12 @@ const AboutSection = () => {
               </div>
             </div>
 
-            <div className={styles.rightStats}>
+            <div className={styles.rightStat}>
               <div className={styles.statCard}>
                 <div className={styles.iconCircle}><Zap size={24} /></div>
                 <div className={styles.info}>
                   <h3>3700+</h3>
                   <p>متطوع فاعل</p>
-                </div>
-              </div>
-
-              <div className={`${styles.statCard} ${styles.greenVariant}`}>
-                <div className={styles.iconCircle}><Award size={24} /></div>
-                <div className={styles.info}>
-                  <h3>#1</h3>
-                  <p>أفضل مبادرة 2022</p>
                 </div>
               </div>
             </div>

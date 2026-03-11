@@ -2,60 +2,129 @@
 @use "@/presentation/styles/mixins" as *;
 
 .section {
-  padding: 50px 0;
+  padding: 80px 0;
 }
 
 .form {
-  max-width: 650px;
+  max-width: 620px;
   margin: 0 auto;
   display: grid;
-  gap: $sp-lg;
+  gap: $sp-xl;
 }
 
 .field {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-xs;
+}
+
+.label {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text-muted;
+  padding-right: $sp-xs;
+  transition: color 0.2s ease;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .icon {
   position: absolute;
-  right: 14px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 20px;
   color: $text-muted;
+  transition: color 0.25s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.textareaIcon {
+  position: absolute;
+  right: 16px;
+  top: 18px;
+  color: $text-muted;
+  transition: color 0.25s ease;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .inputBase {
   width: 100%;
-  padding: 14px 50px 14px 14px;
+  padding: 14px 48px 14px 16px;
   border-radius: $radius;
-  border: 1px solid $border;
-  background: white;
+  border: 1.5px solid $border;
+  background: transparent;
   font-size: $font-base;
-  transition: 0.2s ease;
+  color: $text;
+  direction: rtl;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 
   &:focus {
     border-color: $green;
-    box-shadow: 0 0 0 3px rgba($green, 0.15);
+    box-shadow: 0 0 0 3px rgba($green, 0.12);
     outline: none;
+
+    ~ .icon,
+    ~ .textareaIcon {
+      color: $green;
+    }
   }
 
   &::placeholder {
-    color: $text-muted;
+    color: rgba($text-muted, 0.55);
+    font-size: $font-sm;
   }
 }
 
-textarea.inputBase {
-  min-height: 130px;
-  resize: none;
+.inputWrapper:focus-within .icon,
+.inputWrapper:focus-within .textareaIcon {
+  color: $green;
 }
 
-/* ------------------------ */
+.inputWrapper:focus-within .label {
+  color: $green;
+}
+
+textarea.inputBase {
+  min-height: 140px;
+  resize: none;
+  padding-top: 16px;
+  line-height: 1.7;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, $border, transparent);
+  margin: $sp-xs 0;
+}
 
 .submitBtn {
-  @include btn-primary;
-  font-size: $font-lg;
+  @include flex(row, center, center, $sp-sm);
   width: 100%;
-  padding: 14px;
+  padding: 15px;
+  border-radius: $radius;
+  background: $green;
   color: white;
+  font-size: $font-base;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  letter-spacing: 0.3px;
+
+  &:hover {
+    background: darken($green, 6%);
+    box-shadow: 0 4px 20px rgba($green, 0.35);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 }

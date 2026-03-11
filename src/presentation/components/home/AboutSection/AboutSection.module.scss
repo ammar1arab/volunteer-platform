@@ -56,24 +56,17 @@
 }
 
 .visualSection {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @include flex(row, center, center);
   width: 100%;
   max-width: 1000px;
   margin: $sp-lg auto;
-  position: relative;
 
   @include md {
-    flex-direction: column;
-    gap: $sp-xl;
   }
 }
 
 .leftBasma {
-  flex: 1;
-  display: flex;
-  justify-content: flex-start;
+  @include flex(row, center, center);
 
   .basmaCircle {
     position: relative;
@@ -86,7 +79,6 @@
 
     &:hover {
       transform: scale(1.05);
-
       .rippleEffect {
         animation: ripple 1.5s infinite;
       }
@@ -94,20 +86,21 @@
   }
 }
 
-.rightStats {
-  display: flex;
-  flex-direction: column;
-  gap: $sp-md;
-  position: relative;
-  right: -40px;
+.leftStat {
+  @include flex(row, center, flex-end);
 
   @include md {
-    right: 0;
-    flex-direction: row;
-    justify-content: center;
+    @include flex(row, center, center);
   }
 }
 
+.rightStat {
+  @include flex(row, center, flex-start);
+
+  @include md {
+    @include flex(row, center, center);
+  }
+}
 .statCard {
   padding: 10px 20px;
   border-radius: $radius-full;
@@ -115,13 +108,13 @@
   align-items: center;
   gap: 12px;
   min-width: 200px;
-  box-shadow: 6px 6px 0 $black;
+  box-shadow: 6px 6px 0 $red;
   transition: all 0.3s ease;
+    border-color: $red;
 
   &:hover {
     transform: translateX(-8px);
     box-shadow: 10px 10px 0 $red;
-    border-color: $red;
   }
 
   .iconCircle {

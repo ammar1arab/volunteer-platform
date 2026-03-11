@@ -19,7 +19,7 @@ const FeaturedPostsPublicPage = () => {
     return (
         <div className={styles.container}>
             <header className={styles.header}>
-                <h1 className={styles.title}>أصداء العطاء</h1>
+                <h1 className={styles.title}>منشورات ملهمة</h1>
                 <p className={styles.subtitle}>توثيق للحظات الإنجاز ودروس مستفادة من قلب العمل التطوعي</p>
             </header>
 

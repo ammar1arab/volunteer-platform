@@ -1,14 +1,13 @@
 "use client";
-
 import styles from "./PostDetailsPage.module.scss";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, FileImage } from "lucide-react";
 import { getCategoryLabel, ROUTES } from "@/presentation/constants";
-import { LoadingState, Button } from "@/presentation/components";
+import { LoadingState, Button, EmptyState } from "@/presentation/components";
 import { usePostDetails } from "@/presentation/hooks";
 import { DomainFeaturedPostCategory } from "@/core/domain/enums";
 
@@ -20,12 +19,14 @@ const PostDetailsPage = () => {
 
   if (error || !post) return (
     <div className={styles.empty}>
-      <p>{error || "المنشور غير موجود"}</p>
+      <EmptyState
+        icon={FileImage}
+        title="المنشور غير موجود"
+        message={error || "لم نتمكن من العثور على هذا المنشور"}
+      />
       <Button onClick={() => router.push(ROUTES.POSTS)}>رجوع للمنشورات</Button>
     </div>
   );
-
-
 
   return (
     <div className={styles.container}>
@@ -38,27 +39,23 @@ const PostDetailsPage = () => {
       >
         رجوع للمنشورات
       </Button>
-
       <article className={styles.article}>
         <div className={styles.hero}>
-          <Image src={post.imageUrl} alt={post.title} fill className={styles.heroImage} priority />
+          <Image src={post.imageUrl} alt={post.title} fill className={styles.heroImage} loading="eager" priority  />
         </div>
-
         <div className={styles.content}>
           <header className={styles.header}>
             <h1 className={styles.title}>{post.title}</h1>
-
             {post.categories?.length > 0 && (
               <div className={styles.categories}>
                 {post.categories.map((cat) => (
                   <span key={cat} className={styles.category}>
                     {getCategoryLabel(cat as DomainFeaturedPostCategory)}
                   </span>
-              ))}
+                ))}
               </div>
             )}
           </header>
-
           <div className={styles.markdownBody}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkBreaks]}

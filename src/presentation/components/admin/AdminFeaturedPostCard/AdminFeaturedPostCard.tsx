@@ -22,7 +22,7 @@ const AdminFeaturedPostCard = ({ imageUrl, title, description, meta, actions }: 
             alt={title}
             fill
             sizes="(max-width: 640px) 100vw, 33vw"
-            priority
+            loading="eager" priority 
           />
         </div>
       </div>

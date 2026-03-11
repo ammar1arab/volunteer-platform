@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Instagram, Facebook } from 'lucide-react';
 import styles from './Footer.module.scss';
+import { ROUTES } from '@/presentation/constants';
 
 const Footer = () => {
   return (
@@ -15,7 +16,7 @@ const Footer = () => {
           </div>
 
           <div className={styles.links}>
-            <Link href="/#opportunities">الفرص المتاحة</Link>
+            <Link href={ROUTES.ACTIVITIES}>الفرص المتاحة</Link>
             <Link href="/#contact">تواصل معنا</Link>
           </div>
 

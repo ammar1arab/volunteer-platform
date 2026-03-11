@@ -1,10 +1,42 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-@keyframes book-float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
-@keyframes ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes ring-spin-r { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
-@keyframes glow-breathe { 0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(0.95); } 50% { opacity: 1; transform: translateX(-50%) scale(1.15); } }
+@keyframes book-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+@keyframes ring-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes ring-spin-r {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateX(-50%) scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.15);
+  }
+}
 
 .card {
   height: 100%;
@@ -16,7 +48,10 @@
   cursor: pointer;
   padding: $sp-lg $sp-lg $sp-md;
   gap: $sp-md;
-  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
 
   &::after {
     content: "";
@@ -32,8 +67,9 @@
     transform: translateY(-7px);
     border-color: rgba($red, 0.5);
     .downloadBtn {
-      box-shadow: 0 6px 20px rgba($red, 0.45);
-      letter-spacing: 0.5px;
+      background-color: $black;
+      color: $white;
+
     }
   }
 
@@ -98,7 +134,9 @@
   border-radius: $radius-full;
   z-index: 1;
   animation: book-float 5s ease-in-out infinite;
-  svg { color: $white; }
+  svg {
+    color: $white;
+  }
 }
 
 .pdfTag {
@@ -144,7 +182,9 @@
   color: $text;
   line-height: 1.4;
   @include line-clamp(2);
-  @include sm { font-size: 12px; }
+  @include sm {
+    font-size: 12px;
+  }
 }
 
 .downloadBtn {
@@ -156,11 +196,6 @@
   font-size: 11px;
   font-weight: 700;
   transition: all 0.3s ease;
-
-  &:hover {
-    background-color: $black;
-    color: $white;
-  }
 
   @include sm {
     font-size: 10px;

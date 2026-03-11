@@ -78,7 +78,7 @@ const MainPage = () => {
       {magazines.length > 0 && (
         <section className={styles.section}>
           <Container>
-            <SectionHeader title="المجلة الشهرية" subtitle="توثيق شامل لإنجازاتنا وفعالياتنا في إصدارات رقمية" />
+            <SectionHeader title="حصاد العطاء" subtitle="توثيق شامل لإنجازاتنا وفعالياتنا في إصدارات رقمية" />
             <div className={styles.magazinesGrid}>
               {magazines.map((m) => (
                 <MagazineCard key={m.id} title={m.title} monthYear={m.monthYear} pdfUrl={m.pdfUrl} />

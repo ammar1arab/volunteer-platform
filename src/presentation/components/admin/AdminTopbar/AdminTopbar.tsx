@@ -8,7 +8,7 @@ import { ROUTES } from "@/presentation/constants";
 const navItems = [
   { href: ROUTES.ADMIN.FEATURED_POSTS, label: "المنشورات" },
   { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: "أبرز المتطوعين" },
-  { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "المجلة الشهرية" },
+  { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "حصاد العطاء" },
   { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية" },
   { href: ROUTES.ADMIN.REQUESTS, label: "طلبات الانضمام" },
   { href: ROUTES.ADMIN.USERS, label: "إدارة المستخدمين" },

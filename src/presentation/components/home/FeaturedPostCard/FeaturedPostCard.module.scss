@@ -100,7 +100,7 @@
   @include line-clamp(3);
 
   @include sm {
-    font-size: $font-xs;
+    font-size: 11px;
     @include line-clamp(2);
   }
 }

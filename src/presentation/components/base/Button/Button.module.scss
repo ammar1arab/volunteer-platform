@@ -28,10 +28,22 @@
     position: absolute;
     top: -30%;
     bottom: -30%;
-    width: 42px;
-    background: rgba(255, 255, 255, 0.35);
-    transform: translateX(-180%) skewX(-22deg);
-    animation: sheen 3.6s ease-in-out infinite;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    transform: translateX(-200%) skewX(-22deg);
+    animation: sheen 2s ease-in-out infinite;
+  }
+
+  @keyframes sheen {
+    0% {
+      transform: translateX(-200%) skewX(-22deg);
+    }
+    40% {
+      transform: translateX(350%) skewX(-22deg);
+    }
+    100% {
+      transform: translateX(350%) skewX(-22deg);
+    }
   }
 
   &:hover:not(:disabled) {
@@ -41,6 +53,18 @@
 
   &:active:not(:disabled) {
     transform: translateY(0);
+  }
+}
+
+@keyframes sheen {
+  0% {
+    transform: translateX(-200%) skewX(-22deg);
+  }
+  55% {
+    transform: translateX(300%) skewX(-22deg);
+  }
+  100% {
+    transform: translateX(300%) skewX(-22deg);
   }
 }
 
