@@ -7,5 +7,6 @@ export const runtime = "nodejs";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [issueCertificates]
+  functions: [issueCertificates],
+  streaming: "allow" 
 });
