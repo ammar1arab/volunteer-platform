@@ -132,3 +132,22 @@
     color: $green;
   }
 }
+.stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: $green;
+  white-space: nowrap;
+
+  svg { color: $green; }
+}

@@ -18,86 +18,52 @@ export function buildCertificateEmail(
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:32px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background-color:#ffffff;border:1px solid #dddddd;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background-color:#ffffff;">
 
-          <!-- Green top bar -->
           <tr>
-            <td style="background-color:${green};height:4px;font-size:0;line-height:0;">&nbsp;</td>
-          </tr>
-
-          <!-- Header -->
-          <tr>
-            <td align="center" style="padding:32px 32px 24px;">
-              <p style="margin:0 0 4px;font-size:12px;color:#999999;font-weight:700;">مبادرة بصمات شبابية</p>
+            <td align="center" style="padding:32px 32px 20px;">
+              <p style="margin:0 0 4px;font-size:11px;color:#999999;font-weight:700;letter-spacing:1px;">مبادرة بصمات شبابية</p>
               <p style="margin:0;font-size:22px;font-weight:800;color:#111111;">شهادتك التطوعية جاهزة</p>
             </td>
           </tr>
 
-          <!-- Divider -->
           <tr>
-            <td style="padding:0 32px;">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr><td style="border-top:1px solid #eeeeee;font-size:0;">&nbsp;</td></tr>
-              </table>
+            <td style="padding:0 32px 24px;text-align:right;">
+              <p style="margin:0 0 10px;font-size:16px;color:#111111;">مرحباً <strong>${volunteerName}</strong>،</p>
+              <p style="margin:0 0 16px;font-size:14px;color:#555555;line-height:1.8;">شكراً لمشاركتك في نشاط:</p>
+              <p style="margin:0;font-size:15px;font-weight:700;color:${green};padding:12px 16px;background-color:#f0fdf4;">${activityTitle}</p>
             </td>
           </tr>
 
-          <!-- Body -->
-          <tr>
-            <td style="padding:28px 32px;text-align:right;">
-              <p style="margin:0 0 12px;font-size:16px;color:#111111;">مرحباً <strong>${volunteerName}</strong>،</p>
-              <p style="margin:0 0 20px;font-size:14px;color:#555555;line-height:1.8;">شكراً لمشاركتك في نشاط:</p>
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="background-color:#f0fdf4;border-right:4px solid ${green};padding:12px 16px;">
-                    <p style="margin:0;font-size:16px;font-weight:700;color:${green};">${activityTitle}</p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Certificate image -->
           <tr>
             <td style="padding:0 32px 28px;">
-              <img src="${pngUrl}" alt="الشهادة" width="496" style="width:100%;height:auto;display:block;border:1px solid #dddddd;" />
+              <img src="${pngUrl}" alt="الشهادة" width="496" style="width:100%;height:auto;display:block;" />
             </td>
           </tr>
 
-          <!-- Divider -->
           <tr>
-            <td style="padding:0 32px;">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr><td style="border-top:1px solid #eeeeee;font-size:0;">&nbsp;</td></tr>
-              </table>
-            </td>
+            <td style="padding:0 32px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-top:1px solid #eeeeee;font-size:0;">&nbsp;</td></tr></table></td>
           </tr>
 
-          <!-- Buttons -->
           <tr>
             <td style="padding:24px 32px 32px;">
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="padding-bottom:12px;">
-                    <a href="${pdfUrl}" target="_blank" style="display:block;background-color:${green};color:#ffffff;text-align:center;padding:14px;font-size:15px;font-weight:700;text-decoration:none;">
-                      تحميل PDF
-                    </a>
+                    <a href="${pdfUrl}" target="_blank" style="display:block;background-color:${green};color:#ffffff;text-align:center;padding:14px;font-size:15px;font-weight:700;text-decoration:none;">تحميل PDF</a>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <a href="${pngUrl}" target="_blank" style="display:block;background-color:#ffffff;color:${green};border:2px solid ${green};text-align:center;padding:12px;font-size:15px;font-weight:700;text-decoration:none;">
-                      حفظ PNG
-                    </a>
+                    <a href="${pngUrl}" target="_blank" style="display:block;background-color:#f5f5f5;color:${green};text-align:center;padding:12px;font-size:15px;font-weight:700;text-decoration:none;">حفظ PNG</a>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- Footer -->
           <tr>
-            <td align="center" style="padding:20px 32px;background-color:#f9f9f9;border-top:1px solid #eeeeee;">
+            <td align="center" style="padding:20px 32px;background-color:#f9f9f9;">
               <p style="margin:0;font-size:12px;color:#aaaaaa;">
                 <a href="mailto:support@youthprints.online" style="color:${green};text-decoration:none;">support@youthprints.online</a>
                 &nbsp;·&nbsp;

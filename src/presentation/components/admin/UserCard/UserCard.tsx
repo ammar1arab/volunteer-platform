@@ -1,10 +1,9 @@
-"use client";
+'use client';
 import styles from "./UserCard.module.scss";
-
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { UserAnalyticsDto } from "@/core/application/dtos";
-import { Mail, Phone, CheckCircle } from "lucide-react";
+import { Mail, Phone, Award, Clock } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 
 interface UserCardProps {
@@ -15,18 +14,11 @@ export default function UserCard({ user }: UserCardProps) {
   const router = useRouter();
   const isVolunteer = user.role === "VOLUNTEER";
 
-  const handleClick = () => {
-    if (isVolunteer) {
-      router.push(ROUTES.ADMIN.USER_DETAILS(user.id));
-    }
-  };
-
   return (
     <div
       className={`${styles.card} ${isVolunteer ? styles.clickable : styles.admin}`}
-      onClick={handleClick}
+      onClick={() => isVolunteer && router.push(ROUTES.ADMIN.USER_DETAILS(user.id))}
     >
-      {/* Avatar */}
       <div className={styles.avatar}>
         {user.volunteerProfile?.profilePictureUrl ? (
           <Image
@@ -43,10 +35,8 @@ export default function UserCard({ user }: UserCardProps) {
         )}
       </div>
 
-      {/* Info */}
       <div className={styles.info}>
         <h3 className={styles.name}>{user.fullName}</h3>
-
         <div className={styles.contact}>
           <div className={styles.contactItem}>
             <Mail size={12} />
@@ -59,11 +49,16 @@ export default function UserCard({ user }: UserCardProps) {
         </div>
       </div>
 
-      {/* Stats Badge */}
       {isVolunteer && (
-        <div className={styles.badge}>
-          <CheckCircle size={16} />
-          <span>{user.stats.approvedActivities}</span>
+        <div className={styles.stats}>
+          <div className={styles.statItem}>
+            <Award size={11} />
+            <span>{user.stats.certificatesCount}</span>
+          </div>
+          <div className={styles.statItem}>
+            <Clock size={11} />
+            <span>{user.stats.totalHours}h</span>
+          </div>
         </div>
       )}
     </div>

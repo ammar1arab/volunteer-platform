@@ -31,6 +31,8 @@ export interface UserAnalyticsDto extends UserDto {
     pendingRequests: number;
     approvedActivities: number;
     rejectedRequests: number;
+    certificatesCount: number; // ← ADD
+    totalHours: number; // ← ADD
   };
 }
 

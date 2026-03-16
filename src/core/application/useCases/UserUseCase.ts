@@ -31,6 +31,10 @@ const USER_WITH_ANALYTICS_INCLUDE = {
   },
   participations: {
     include: { activity: { select: { id: true, title: true, date: true } } }
+  },
+  certificates: {
+    // ← ADD
+    select: { id: true } // ← ADD
   }
 } as const;
 
@@ -57,15 +61,25 @@ function mapVolunteerProfile(
   };
 }
 
-function computeStats(participations: Array<{ status: string }>) {
+// ← UPDATE computeStats to accept participations with volunteerHours + certificatesCount
+function computeStats(
+  participations: Array<{ status: string; volunteerHours?: number | null }>,
+  certificatesCount: number
+) {
   return {
     totalActivities: participations.length,
     pendingRequests: participations.filter((p) => p.status === "PENDING").length,
     approvedActivities: participations.filter((p) => p.status === "APPROVED").length,
-    rejectedRequests: participations.filter((p) => p.status === "REJECTED").length
+    rejectedRequests: participations.filter((p) => p.status === "REJECTED").length,
+    certificatesCount,
+    totalHours:
+      Math.round(
+        participations.filter((p) => p.status === "APPROVED").reduce((sum, p) => sum + (p.volunteerHours ?? 0), 0) * 100
+      ) / 100
   };
 }
 
+// ← UPDATE toUserAnalyticsDto to pass certificates length
 function toUserAnalyticsDto(u: {
   id: string;
   email: string;
@@ -76,7 +90,8 @@ function toUserAnalyticsDto(u: {
   createdAt: Date;
   updatedAt: Date;
   volunteerProfile: Parameters<typeof mapVolunteerProfile>[0];
-  participations: Array<{ status: string }>;
+  participations: Array<{ status: string; volunteerHours?: number | null }>;
+  certificates: Array<{ id: string }>; // ← ADD
 }): UserAnalyticsDto {
   return {
     id: u.id,
@@ -88,7 +103,7 @@ function toUserAnalyticsDto(u: {
     createdAt: u.createdAt.toISOString(),
     updatedAt: u.updatedAt.toISOString(),
     volunteerProfile: mapVolunteerProfile(u.volunteerProfile),
-    stats: computeStats(u.participations)
+    stats: computeStats(u.participations, u.certificates.length) // ← UPDATE
   };
 }
 
