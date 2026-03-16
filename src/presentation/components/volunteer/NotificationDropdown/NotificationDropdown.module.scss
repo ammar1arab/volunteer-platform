@@ -7,8 +7,8 @@
 }
 
 @keyframes pulseUnread {
-  0%, 100% { background: rgba($red, 0.05); }
-  50%       { background: rgba($red, 0.09); }
+  0%, 100% { background: rgba($red, 0.04); }
+  50%       { background: rgba($red, 0.07); }
 }
 
 @keyframes spin {
@@ -23,10 +23,10 @@
   z-index: $z-fixed + 2;
   border-radius: $radius-lg;
   animation: dropdownReveal 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  box-shadow: 0 15px 50px -12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   background: $bg;
-  border: 1px solid rgba($border, 0.6);
+  border: 1px solid rgba($border, 0.5);
 
   @media (max-width: $bp-sm) {
     position: fixed;
@@ -39,29 +39,28 @@
 
 .header {
   @include flex-between;
-  padding: $sp-md;
-  border-bottom: 2px solid $red;
-  background: rgba($red, 0.03);
+  padding: $sp-sm $sp-md;
+  border-bottom: 2px solid $green;
 }
 
 .title {
   font-size: $font-sm;
   font-weight: 800;
-  color: $red;
+  color: $text;
 }
 
 .markAllBtn {
   @include flex(row, center, center, $sp-xs);
-  background: rgba($red, 0.07);
-  border: 1px solid rgba($red, 0.2);
+  background: transparent;
+  border: none;
   cursor: pointer;
   font-size: $font-xs;
   font-weight: 700;
-  color: $red;
-  padding: 4px 10px;
-  border-radius: $radius-full;
+  color: $green;
+  padding: 4px 8px;
+  border-radius: $radius;
   transition: $transition;
-  &:hover { background: rgba($red, 0.14); }
+  &:hover { background: rgba($green, 0.08); }
 }
 
 .list {
@@ -76,37 +75,35 @@
 .item {
   display: flex;
   align-items: flex-start;
-  gap: $sp-md;
+  gap: $sp-sm;
   width: 100%;
   padding: $sp-md;
-  background: transparent;
+  background: $bg;
   border: none;
-  border-bottom: 1px solid rgba($border, 0.3);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease;
   text-align: right;
   position: relative;
-  text-decoration: none;
 
-  &:last-child { border-bottom: none; }
-  &:hover { background: rgba($red, 0.03); transform: translateX(-3px); }
+  &:hover { background: rgba($green, 0.04); }
 
   &.unread {
     background: rgba($red, 0.04);
-    border-right: 3px solid $red;
     animation: pulseUnread 3s infinite;
-    .itemTitle { font-weight: 800; color: $red; }
+    .itemTitle { font-weight: 800; }
+    .iconWrap  { background: rgba($red, 0.08); color: $red; }
   }
 }
 
 .iconWrap {
   position: relative;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba($red, 0.08);
-  color: $red;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius;
+  background: rgba($green, 0.08);
+  color: $green;
+  transition: $transition;
   @include flex-center;
 }
 
@@ -114,8 +111,8 @@
   position: absolute;
   top: -2px;
   right: -2px;
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: $red;
   border: 2px solid $bg;
@@ -145,8 +142,8 @@
 .time {
   @include flex(row, center, flex-start, 4px);
   font-size: 10px;
-  color: rgba($text-muted, 0.7);
-  margin-top: 4px;
+  color: rgba($text-muted, 0.6);
+  margin-top: 3px;
 }
 
 .empty {
@@ -154,7 +151,7 @@
   padding: $sp-2xl;
   color: $text-muted;
   text-align: center;
-  svg { opacity: 0.2; }
+  svg { opacity: 0.15; }
 }
 
 .loadingWrap {
@@ -163,10 +160,10 @@
 }
 
 .spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid rgba($red, 0.12);
-  border-top-color: $red;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba($green, 0.1);
+  border-top-color: $green;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 0.75s linear infinite;
 }
