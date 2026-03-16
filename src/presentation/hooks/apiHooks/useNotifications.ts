@@ -70,9 +70,7 @@ function unlockWithSilentBuffer(ctx: AudioContext): void {
   source.buffer = buffer;
   source.connect(ctx.destination);
   source.start(0);
-  source.onended = () => {
-    _unlocked = true;
-  };
+  _unlocked = true; // ← sync, not in onended
 }
 
 /**
