@@ -26,7 +26,7 @@ class CertificateGeneratorService {
       process.env.CHROME_EXECUTABLE_PATH ??
       await chromium.executablePath(
         // ← must match your installed @sparticuz/chromium version exactly
-        "https://github.com/Sparticuz/chromium/releases/download/v143.0.4/chromium-v143.0.4-pack.tar"
+        "https://github.com/Sparticuz/chromium/releases/download/v143.0.4/chromium-v143.0.4-pack.x64.tar"
       );
 
     const browser = await puppeteer.launch({
