@@ -23,7 +23,11 @@ class CertificateGeneratorService {
     const html = buildCertificateHtml(data, regularB64, boldB64);
 
     const executablePath =
-      process.env.CHROME_EXECUTABLE_PATH ?? (await chromium.executablePath());
+      process.env.CHROME_EXECUTABLE_PATH ??
+      await chromium.executablePath(
+        // ← must match your installed @sparticuz/chromium version exactly
+        "https://github.com/Sparticuz/chromium/releases/download/v143.0.4/chromium-v143.0.4-pack.tar"
+      );
 
     const browser = await puppeteer.launch({
       args: chromium.args,
@@ -34,14 +38,11 @@ class CertificateGeneratorService {
 
     try {
       const page = await browser.newPage();
-
       await page.setContent(html, { waitUntil: "load" });
-
       const screenshot = await page.screenshot({
         type: "png",
         clip: { x: 0, y: 0, width: 1050, height: 750 },
       });
-
       return Buffer.from(screenshot);
     } finally {
       await browser.close();

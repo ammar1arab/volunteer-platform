@@ -17,18 +17,18 @@ export type CompletionState =
   | { phase: "error"; message: string };
 
 const STEP_DURATIONS: Record<string, number> = {
-  generate: 10_000,
-  upload:   12_000,
-  save:     4_000,
-  email:    6_000
+  generate: 60_000, // ← was 10s — Chromium download + PNG generation = ~60s
+  upload: 15_000, // ← was 12s — two R2 uploads in parallel
+  save: 5_000, // ← was 4s  — DB transaction
+  email: 8_000 // ← was 6s  — Resend batch
 };
 
 const INITIAL_STEPS: CompletionStep[] = [
-  { id: "complete", label: "تم تحديث حالة النشاط",              status: "waiting" },
-  { id: "generate", label: "جاري إنشاء الشهادات",                status: "waiting" },
-  { id: "upload",   label: "جاري رفع الملفات إلى التخزين",      status: "waiting" },
-  { id: "save",     label: "جاري حفظ السجلات وإنشاء الإشعارات", status: "waiting" },
-  { id: "email",    label: "جاري إرسال الإيميلات للمتطوعين",    status: "waiting" }
+  { id: "complete", label: "تم تحديث حالة النشاط", status: "waiting" },
+  { id: "generate", label: "جاري إنشاء الشهادات", status: "waiting" },
+  { id: "upload", label: "جاري رفع الملفات إلى التخزين", status: "waiting" },
+  { id: "save", label: "جاري حفظ السجلات وإنشاء الإشعارات", status: "waiting" },
+  { id: "email", label: "جاري إرسال الإيميلات للمتطوعين", status: "waiting" }
 ];
 
 export const useCompleteActivity = () => {
@@ -41,12 +41,12 @@ export const useCompleteActivity = () => {
   };
 
   const setStepStatus = (steps: CompletionStep[], id: string, status: CompletionStepStatus): CompletionStep[] =>
-    steps.map(s => s.id === id ? { ...s, status } : s);
+    steps.map((s) => (s.id === id ? { ...s, status } : s));
 
   const startAnimation = useCallback((issuedCount: number) => {
     clearTimeouts();
 
-    const steps: CompletionStep[] = INITIAL_STEPS.map(s => ({ ...s }));
+    const steps: CompletionStep[] = INITIAL_STEPS.map((s) => ({ ...s }));
 
     steps[0] = { ...steps[0], status: "done" };
     steps[1] = { ...steps[1], status: "running" };
@@ -60,7 +60,7 @@ export const useCompleteActivity = () => {
       const nextStepId = backgroundSteps[i + 1];
 
       const t = setTimeout(() => {
-        setState(prev => {
+        setState((prev) => {
           if (prev.phase !== "running") return prev;
           let updated = setStepStatus(prev.steps, stepId, "done");
           if (nextStepId) updated = setStepStatus(updated, nextStepId, "running");
@@ -76,7 +76,7 @@ export const useCompleteActivity = () => {
     const finalTimeout = setTimeout(() => {
       setState({
         phase: "done",
-        steps: INITIAL_STEPS.map(s => ({ ...s, status: "done" })),
+        steps: INITIAL_STEPS.map((s) => ({ ...s, status: "done" })),
         issuedCount
       });
     }, totalDuration);

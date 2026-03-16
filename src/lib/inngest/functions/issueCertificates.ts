@@ -1,10 +1,13 @@
-import { inngest } from "@/lib/inngest/client";
 import { prisma } from "@/infrastructure/persistence/prisma";
-import { R2StorageService, ResendClient } from "@/infrastructure/external";
-import CertificateGeneratorService from "@/infrastructure/external/certificate/CertificateGeneratorService";
-import CertificatePDFService from "@/infrastructure/external/certificate/CertificatePDFService";
-import { logger } from "@/lib/utils";
+import {
+  R2StorageService,
+  ResendClient,
+  CertificatePDFService,
+  CertificateGeneratorService
+} from "@/infrastructure/external";
+import { inngest } from "@/lib/inngest/client";
 import { buildCertificateEmail } from "@/lib/templates";
+import { logger } from "@/lib/utils";
 
 const SCOPE = "issueCertificates";
 
