@@ -1,0 +1,132 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.page {
+  padding: 80px 0 0;
+  min-height: 100vh;
+}
+
+.container {
+  @include container;
+  @include flex-col;
+  align-items: center;
+  gap: $sp-lg;
+  padding: $sp-xl $sp-md $sp-2xl;
+  max-width: 720px;
+}
+
+.badge {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-xs $sp-md;
+  background: rgba($green, 0.1);
+  color: $green;
+  border: 1px solid rgba($green, 0.3);
+  border-radius: $radius-full;
+  font-size: $font-sm;
+  font-weight: 700;
+}
+
+.preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1050 / 750;
+  border-radius: $radius-md;
+  overflow: hidden;
+  border: 1px solid $border;
+  box-shadow: $shadow;
+}
+
+.previewImg { object-fit: cover; }
+
+.info {
+  @include flex-col;
+  align-items: center;
+  gap: $sp-sm;
+  text-align: center;
+  width: 100%;
+}
+
+.activity {
+  margin: 0;
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $text;
+}
+
+.meta {
+  @include flex(row, center, center, $sp-lg);
+  font-size: $font-sm;
+  color: $text-muted;
+}
+
+.metaItem {
+  @include flex(row, center, center, $sp-xs);
+}
+
+.certId {
+  margin: 0;
+  font-size: $font-xs;
+  color: $text-muted;
+  span {
+    font-family: monospace;
+    color: $green;
+    font-weight: 700;
+  }
+}
+
+.actions {
+  @include flex(row, center, center, $sp-sm);
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+%btn {
+  @include flex(row, center, center, $sp-xs);
+  padding: $sp-sm $sp-lg;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  border: none;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btnPdf {
+  @extend %btn;
+  background: $green;
+  color: $white;
+  &:hover { opacity: 0.88; }
+}
+
+.btnPng {
+  @extend %btn;
+  background: transparent;
+  border: 1px solid $border;
+  color: $text;
+  &:hover { border-color: $green; color: $green; }
+}
+
+.btnShare {
+  @extend %btn;
+  background: transparent;
+  border: 1px solid $border;
+  color: $text;
+  &:hover { border-color: $green; color: $green; }
+}
+
+.notFound {
+  @include flex(column, center, center, $sp-md);
+  padding: $sp-2xl;
+  color: $text-muted;
+  text-align: center;
+}
+
+.homeLink {
+  font-size: $font-xs;
+  color: $text-muted;
+  text-decoration: none;
+  margin-top: $sp-md;
+  &:hover { color: $green; }
+}

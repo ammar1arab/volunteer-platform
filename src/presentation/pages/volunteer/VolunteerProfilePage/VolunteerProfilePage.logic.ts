@@ -1,11 +1,14 @@
 "use client";
 
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useState, useEffect, useCallback } from "react";
 import type { UserProfileDto, Result } from "@/core/application/dtos";
-import { userApi, volunteerProfileApi, participationApi } from "@/presentation/services";
+import { userApi, volunteerProfileApi, certificateApi } from "@/presentation/services";
 
-interface EditingField { field: string; value: unknown; }
+interface EditingField {
+  field: string;
+  value: unknown;
+}
 
 function extractError(result: Result<unknown>): string {
   return !result.success ? result.error.message : "";
@@ -14,13 +17,16 @@ function extractError(result: Result<unknown>): string {
 const USER_FIELDS = ["email", "phone", "fullName"];
 
 export function useProfilePage() {
-  const [user, setUser]                       = useState<UserProfileDto | null>(null);
-  const [totalHours, setTotalHours]           = useState(0);
-  const [isLoading, setIsLoading]             = useState(true);
-  const [error, setError]                     = useState<string | null>(null);
-  const [successMessage, setSuccessMessage]   = useState<string | null>(null);
-  const [editingField, setEditingField]       = useState<EditingField | null>(null);
-  const [isSaving, setIsSaving]               = useState(false);
+  const { update: updateSession } = useSession();
+
+  const [user, setUser]                         = useState<UserProfileDto | null>(null);
+  const [totalHours, setTotalHours]             = useState(0);
+  const [certCount, setCertCount]               = useState(0);
+  const [isLoading, setIsLoading]               = useState(true);
+  const [error, setError]                       = useState<string | null>(null);
+  const [successMessage, setSuccessMessage]     = useState<string | null>(null);
+  const [editingField, setEditingField]         = useState<EditingField | null>(null);
+  const [isSaving, setIsSaving]                 = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const showSuccess = useCallback((msg: string) => {
@@ -32,20 +38,17 @@ export function useProfilePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [userResult, participationsResult] = await Promise.all([
+      const [userResult, certsResult] = await Promise.all([
         userApi.getProfile(),
-        participationApi.getMyRequests(),
+        certificateApi.getByUser()
       ]);
 
       if (!userResult.success) { setError(extractError(userResult)); return; }
       setUser(userResult.data.user);
 
-      // calculate hours from participations (same as activities page)
-      if (participationsResult.success && participationsResult.data?.requests) {
-        const hours = participationsResult.data.requests.reduce(
-          (sum: number, p: any) => sum + (p.volunteerHours ?? 0), 0
-        );
-        setTotalHours(Math.round(hours * 100) / 100);
+      if (certsResult.success && certsResult.data) {
+        setTotalHours(certsResult.data.totalHours ?? 0);
+        setCertCount(certsResult.data.certificates?.length ?? 0);
       }
     } catch {
       setError("حدث خطأ غير متوقع");
@@ -56,9 +59,15 @@ export function useProfilePage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const startEditing  = useCallback((field: string, v: unknown) => { setEditingField({ field, value: v }); setError(null); setSuccessMessage(null); }, []);
-  const cancelEditing = useCallback(() => setEditingField(null), []);
-  const updateFieldValue = useCallback((value: unknown) => { setEditingField(prev => prev ? { ...prev, value } : null); }, []);
+  const startEditing    = useCallback((field: string, v: unknown) => {
+    setEditingField({ field, value: v });
+    setError(null);
+    setSuccessMessage(null);
+  }, []);
+  const cancelEditing   = useCallback(() => setEditingField(null), []);
+  const updateFieldValue = useCallback((value: unknown) => {
+    setEditingField(prev => prev ? { ...prev, value } : null);
+  }, []);
 
   const saveField = useCallback(async () => {
     if (!editingField) return;
@@ -85,19 +94,31 @@ export function useProfilePage() {
     try {
       const result = await volunteerProfileApi.uploadPicture(file);
       if (!result.success) { setError(extractError(result)); return; }
-      showSuccess("تم رفع الصورة بنجاح ✓");
+
+      // refresh page data
       await fetchData();
+
+      // update JWT so header avatar updates immediately without re-login
+      const newUrl = (result as any)?.data?.imageUrl ?? null;
+      if (newUrl) {
+        await updateSession({ profilePictureUrl: newUrl });
+      }
+
+      showSuccess("تم رفع الصورة بنجاح ✓");
     } catch {
       setError("حدث خطأ أثناء رفع الصورة");
     } finally {
       setIsUploadingImage(false);
     }
-  }, [fetchData, showSuccess]);
+  }, [fetchData, showSuccess, updateSession]);
 
-  const handleSignOut = useCallback(async () => { await signOut({ callbackUrl: "/" }); }, []);
+  const handleSignOut = useCallback(async () => {
+    await signOut({ callbackUrl: "/" });
+  }, []);
 
   const calculateAge = useCallback((dob: string): number => {
-    const today = new Date(); const birth = new Date(dob);
+    const today = new Date();
+    const birth = new Date(dob);
     let age = today.getFullYear() - birth.getFullYear();
     const m = today.getMonth() - birth.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
@@ -105,9 +126,10 @@ export function useProfilePage() {
   }, []);
 
   return {
-    user, totalHours, isLoading, error, successMessage,
+    user, isLoading, error, successMessage,
     editingField, isSaving, isUploadingImage,
     startEditing, cancelEditing, updateFieldValue, saveField,
     handleProfilePictureUpload, handleSignOut, calculateAge,
+    totalHours, certCount
   };
 }

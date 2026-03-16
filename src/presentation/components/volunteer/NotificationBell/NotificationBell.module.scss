@@ -1,0 +1,103 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+@keyframes bellPulse {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  15% {
+    transform: rotate(-18deg) scale(1.15);
+  }
+  30% {
+    transform: rotate(14deg) scale(1.1);
+  }
+  45% {
+    transform: rotate(-10deg) scale(1.05);
+  }
+  60% {
+    transform: rotate(6deg) scale(1.02);
+  }
+  75% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.wrapper {
+  position: relative;
+  overflow: visible;
+}
+
+.bell {
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius;
+  color: $text-muted;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: $transition;
+  position: relative;
+  overflow: visible; // ← was hidden, caused badge clipping
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba($green, 0.1);
+    transform: scale(0);
+    border-radius: $radius;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  &:hover {
+    color: $green;
+    border-color: rgba($green, 0.3);
+    &::before {
+      transform: scale(1);
+    }
+  }
+
+  &.pulse {
+    animation: bellPulse 0.9s ease;
+    color: $green;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: $red;
+  color: $white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: $radius-full;
+  @include flex-center;
+  line-height: 1;
+  animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  border: 2px solid $bg;
+}
+.active {
+  color: $green;
+  border-color: rgba($green, 0.3);
+}

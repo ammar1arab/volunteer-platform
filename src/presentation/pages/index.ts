@@ -7,6 +7,7 @@ export { default as AboutPage } from "./home/AboutPage/AboutPage";
 export { default as VolunteerSpotlightPublicPage } from "./home/VolunteerSpotlightPublicPage/VolunteerSpotlightPublicPage";
 export { default as VolunteerSpotlightDetailsPage } from "./home/VolunteerSpotlightDetailsPage/VolunteerSpotlightDetailsPage";
 export { default as MagazinesPublicPage } from "./home/MagazinesPublicPage/MagazinesPublicPage";
+export { default as VerifyPage } from "./home/VerifyPage/VerifyPage";
 
 export { default as ActivitiesPage } from "./admin/ActivitiesPage/ActivitiesPage";
 export { default as UserManagementPage } from "./admin/UserManagementPage/UserManagementPage";
@@ -18,3 +19,4 @@ export { default as MagazinesPage } from "./admin/MagazinesPage/MagazinesPage";
 
 export { default as VolunteerProfilePage } from "./volunteer/VolunteerProfilePage/VolunteerProfilePage";
 export { default as VolunteerActivitiesPage } from "./volunteer/VolunteerActivitiesPage/VolunteerActivitiesPage";
+export { default as VolunteerCertificatesPage } from "./volunteer/VolunteerCertificatesPage/VolunteerCertificatesPage";

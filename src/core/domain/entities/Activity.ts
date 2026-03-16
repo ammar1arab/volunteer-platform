@@ -33,14 +33,6 @@ class Activity extends BaseEntity {
     const endTime = new Time(props.endTime);
     if (!startTime.isBefore(endTime)) throw new Error("Start time must be before end time");
 
-    // if (props.activityType === ActivityType.IN_PERSON) {
-    //   if (!props.placeName?.trim()) throw new Error("Place name is required for in-person activities");
-    //   if (!props.city) throw new Error("City is required for in-person activities");
-    // }
-
-    // if (props.activityType === ActivityType.ONLINE) {
-    //   if (!props.meetingLink?.trim()) throw new Error("Meeting link is required for online activities");
-    // }
 
     this.props = {
       ...props,
@@ -100,7 +92,6 @@ class Activity extends BaseEntity {
 
   complete(): void {
     if (this.props.status !== ActivityStatus.PUBLISHED) throw new Error("Only published activities can be completed");
-    // use case must verify all approved are marked before calling this
     this.props.status = ActivityStatus.COMPLETED;
     this.touch();
   }

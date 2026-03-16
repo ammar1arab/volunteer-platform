@@ -64,7 +64,7 @@ export const useVolunteerActivitiesPage = () => {
     try {
       const res = await participationApi.getMyRequests();
       if (res.success && res.data?.requests) {
-        // console.log(res.data.requests[0]?.activity); 
+        // console.log(res.data.requests[0]?.activity);
         setParticipations(res.data.requests);
       } else {
         setParticipations([]);
@@ -83,7 +83,7 @@ export const useVolunteerActivitiesPage = () => {
   const stats = useMemo(
     () => ({
       total: participations.length,
-      hours: Math.round(participations.reduce((sum, p) => sum + (p.volunteerHours ?? 0), 0) * 100) / 100,
+      completed: participations.filter((p) => p.activity?.status === "COMPLETED").length,
       approved: participations.filter((p) => p.status === ParticipationStatus.APPROVED).length,
       pending: participations.filter((p) => p.status === ParticipationStatus.PENDING).length,
       rejected: participations.filter((p) => p.status === ParticipationStatus.REJECTED).length,
@@ -93,13 +93,23 @@ export const useVolunteerActivitiesPage = () => {
   );
 
   const filtered = useMemo(() => {
-    let result = activeFilter === "all" ? participations : participations.filter((p) => p.status === activeFilter);
+    let result = participations;
+
+    if (activeFilter === "COMPLETED") {
+      result = result.filter((p) => p.activity?.status === "COMPLETED");
+    } else if (activeFilter === ParticipationStatus.CANCELLED) {
+      result = result.filter((p) => p.status === ParticipationStatus.CANCELLED || p.activity?.status === "CANCELLED");
+    } else if (activeFilter !== "all") {
+      result = result.filter((p) => p.status === activeFilter);
+    }
+
     if (appliedSearch.trim()) {
       const q = appliedSearch.toLowerCase();
       result = result.filter(
         (p) => p.activity?.title?.toLowerCase().includes(q) || p.activity?.placeName?.toLowerCase().includes(q)
       );
     }
+
     return result;
   }, [participations, activeFilter, appliedSearch]);
 

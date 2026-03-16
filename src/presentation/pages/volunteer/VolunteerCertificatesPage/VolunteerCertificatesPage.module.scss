@@ -1,0 +1,58 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.page { padding: 80px 0 0; }
+
+.container {
+  @include container;
+  @include flex-col;
+  gap: $sp-lg;
+  padding: $sp-xl $sp-md $sp-2xl;
+}
+
+.statsRow {
+  display: flex;
+  gap: $sp-sm;
+}
+
+.statCard {
+  @include flex-col;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  padding: $sp-md $sp-sm;
+  text-align: center;
+  border-radius: $radius;
+  border: 1.5px solid $border;
+}
+
+.statValue {
+  font-size: $font-lg;
+  font-weight: 800;
+  color: $text;
+  line-height: 1;
+  &.green { color: $green; }
+}
+
+.statLabel {
+  font-size: $font-xs;
+  color: $text-muted;
+  white-space: nowrap;
+}
+
+.toolbar {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+
+  > :first-child { flex: 1; min-width: 200px; }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $sp-md;
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}

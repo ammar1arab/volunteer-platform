@@ -34,7 +34,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
-, "src/lib/constants/gender.constants.ts"  ],
+, "src/lib/constants/gender.constants.ts", "src/presentation/components/volunteer/UserMenuDropdown"  ],
   "exclude": [
     "node_modules"
   ]

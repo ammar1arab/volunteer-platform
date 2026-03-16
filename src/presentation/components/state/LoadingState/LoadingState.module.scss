@@ -42,3 +42,8 @@
     opacity: 1;
   }
 }
+
+.compact {
+  min-height: unset;
+  padding: $sp-2xl 0;
+}

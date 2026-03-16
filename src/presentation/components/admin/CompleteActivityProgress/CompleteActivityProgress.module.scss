@@ -1,0 +1,313 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+// ── Keyframes ─────────────────────────────────────────
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes barShimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes runningPulse {
+  0%   { box-shadow: 0 0 0 0   rgba($green, 0.5); }
+  60%  { box-shadow: 0 0 0 10px rgba($green, 0); }
+  100% { box-shadow: 0 0 0 0   rgba($green, 0); }
+}
+
+@keyframes checkBounce {
+  0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+  55%  { transform: scale(1.25) rotate(8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@keyframes connectorGrow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@keyframes floatBob {
+  0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }
+  50%       { transform: translateY(-12px) rotate(4deg) scale(1.07); }
+}
+
+@keyframes ringBurst {
+  0%   { box-shadow: 0 0 0 0 rgba($green, 0.45), 0 0 0 0 rgba(#c9a84c, 0.25); }
+  70%  { box-shadow: 0 0 0 18px rgba($green, 0), 0 0 0 32px rgba(#c9a84c, 0); }
+  100% { box-shadow: 0 0 0 0 rgba($green, 0), 0 0 0 0 rgba(#c9a84c, 0); }
+}
+
+@keyframes popIn {
+  from { transform: scale(0.55); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes sparkle {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.9; }
+  100% { transform: translateY(50px) rotate(540deg) scale(0); opacity: 0; }
+}
+
+// ── Wrapper ──────────────────────────────────────────
+.wrapper {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-sm 0 $sp-md;
+  min-height: 310px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-xs;
+  color: $text-muted;
+  text-align: center;
+  animation: fadeUp 0.3s ease;
+}
+
+// ── Progress bar ─────────────────────────────────────
+.progressTrack {
+  width: 100%;
+  height: 6px;
+  background: rgba($green, 0.08);
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: $radius-full;
+  background: linear-gradient(
+    90deg,
+    rgba($green, 0.7) 0%,
+    $green 40%,
+    #86efac 60%,
+    $green 80%,
+    rgba($green, 0.7) 100%
+  );
+  background-size: 200% 100%;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: barShimmer 2s linear infinite;
+}
+
+// ── Steps ────────────────────────────────────────────
+.steps {
+  @include flex-col;
+  gap: 0;
+  position: relative;
+}
+
+.step {
+  @include flex(row, center, flex-start, $sp-md);
+  padding: $sp-sm $sp-sm;
+  border-radius: $radius-md;
+  position: relative;
+  transition: background 0.25s ease, transform 0.25s ease;
+  animation: fadeUp 0.35s ease both;
+
+  &.running {
+    background: rgba($green, 0.05);
+    transform: translateX(-3px);
+
+    .iconCircle {
+      background: $green;
+      color: $white;
+      animation: runningPulse 1.3s ease-out infinite;
+    }
+
+    .stepLabel {
+      color: $green;
+      font-weight: 700;
+    }
+  }
+
+  &.done {
+    .iconCircle {
+      background: rgba($green, 0.1);
+      color: $green;
+
+      svg { animation: checkBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+    }
+
+    .stepLabel { color: $text; }
+    .stepSub   { color: $text-muted; }
+  }
+
+  &.waiting {
+    opacity: 0.38;
+    .iconCircle { background: rgba($border, 0.5); color: $text-muted; }
+  }
+}
+
+// Vertical connector between steps
+.connector {
+  position: absolute;
+  top: calc(100% - $sp-xs);
+  right: calc($sp-sm + 16px); // aligns with icon center
+  width: 2px;
+  height: calc($sp-sm + $sp-xs + 6px);
+  background: $border;
+  border-radius: $radius-full;
+  z-index: 0;
+  transform-origin: top;
+  transition: background 0.5s ease;
+
+  &.connectorDone {
+    background: linear-gradient(to bottom, $green 0%, rgba($green, 0.15) 100%);
+    animation: connectorGrow 0.4s ease both;
+  }
+}
+
+.iconCircle {
+  @include flex-center;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+  transition: background 0.3s ease, box-shadow 0.3s ease, color 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.spin { animation: spin 0.85s linear infinite; }
+
+.stepText {
+  @include flex-col;
+  gap: 2px;
+  flex: 1;
+}
+
+.stepLabel {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text-muted;
+  transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.stepSub {
+  font-size: $font-xs;
+  color: rgba($text-muted, 0.5);
+  line-height: 1.4;
+}
+
+.stepIcon {
+  color: rgba($text-muted, 0.2);
+  flex-shrink: 0;
+  transition: color 0.3s ease;
+}
+
+// ── Celebration ──────────────────────────────────────
+.celebration {
+  @include flex(column, center, center, $sp-sm);
+  flex: 1;
+  padding: $sp-xl $sp-md $sp-lg;
+  text-align: center;
+  animation: fadeUp 0.45s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+// Floating sparkle dots
+.celebration::before,
+.celebration::after {
+  content: "✦";
+  position: absolute;
+  pointer-events: none;
+  animation: sparkle 2.4s ease-in-out infinite;
+}
+
+.celebration::before {
+  top: 14%;
+  left: 14%;
+  font-size: 18px;
+  color: rgba(#c9a84c, 0.5);
+  animation-delay: 0.4s;
+}
+
+.celebration::after {
+  top: 10%;
+  right: 16%;
+  font-size: 13px;
+  color: rgba($green, 0.4);
+  animation-delay: 0.9s;
+}
+
+.celebrationIcon {
+  @include flex-center;
+  width: 84px;
+  height: 84px;
+  border-radius: $radius-full;
+  background: linear-gradient(
+    135deg,
+    rgba($green, 0.1) 0%,
+    rgba(#c9a84c, 0.08) 100%
+  );
+  color: $green;
+  margin-bottom: $sp-sm;
+  animation:
+    floatBob 2.8s ease-in-out infinite,
+    popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    ringBurst 1.2s ease 0.4s;
+}
+
+.celebrationTitle {
+  margin: 0;
+  font-size: $font-xl;
+  font-weight: 800;
+  color: $text;
+  animation: popIn 0.4s ease 0.1s both;
+}
+
+.celebrationText {
+  margin: 0;
+  font-size: $font-sm;
+  color: $text-muted;
+  animation: fadeUp 0.4s ease 0.2s both;
+
+  strong {
+    color: $green;
+    font-size: $font-lg;
+    font-weight: 800;
+  }
+}
+
+.celebrationActivity {
+  margin: 0;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+  max-width: 280px;
+  @include line-clamp(2);
+  animation: fadeUp 0.4s ease 0.3s both;
+}
+
+.celebrationNote {
+  margin: 0;
+  font-size: $font-xs;
+  color: $text-muted;
+  max-width: 260px;
+  line-height: 1.6;
+  animation: fadeUp 0.4s ease 0.4s both;
+}
+
+.btnClose {
+  @include btn-primary;
+  margin-top: $sp-sm;
+  padding: $sp-sm $sp-2xl;
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba($green, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

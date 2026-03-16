@@ -1,0 +1,1 @@
+export { buildCertificateEmail } from "./certificateEmail";

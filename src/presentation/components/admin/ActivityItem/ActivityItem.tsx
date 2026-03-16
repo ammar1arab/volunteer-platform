@@ -1,10 +1,12 @@
-import { Calendar, Clock, MapPin, Award, ExternalLink, Wifi, CheckCircle2, XCircle, Navigation, UserCheck } from "lucide-react";
+"use client";
+import { useState } from "react";
+import { Calendar, Clock, MapPin, Wifi, CheckCircle2, XCircle, Navigation, ExternalLink, Award } from "lucide-react";
 import styles from "./ActivityItem.module.scss";
-import { Badge } from "@/presentation/components";
+import { Modal, Share } from "@/presentation/components";
 import {
   getMonthLabel, getParticipationStatusLabel,
-  getActivityTypeLabel, getMeetingPlatformLabel, getAttendanceStatusLabel,
-  getCityLabel
+  getActivityTypeLabel, getMeetingPlatformLabel,
+  getAttendanceStatusLabel, getCityLabel
 } from "@/presentation/constants";
 import { ActivityType, AttendanceStatus, JordanianCity, MeetingPlatform, ParticipationStatus } from "@/core/domain/enums";
 
@@ -19,7 +21,7 @@ type Props = {
   activityType?: ActivityType;
   activityStatus?: string;
   placeName?: string | null;
-  city?: JordanianCity | null | undefined;
+  city?: JordanianCity | null;
   latitude?: number | null;
   longitude?: number | null;
   meetingLink?: string | null;
@@ -33,11 +35,11 @@ type Props = {
   onCancel?: () => void;
 };
 
-const STATUS_VARIANT: Record<ParticipationStatus, "success" | "danger" | "warning"> = {
-  [ParticipationStatus.APPROVED]: "success",
-  [ParticipationStatus.REJECTED]: "danger",
-  [ParticipationStatus.CANCELLED]: "danger",
-  [ParticipationStatus.PENDING]: "warning",
+const STATUS_COLOR: Record<ParticipationStatus, string> = {
+  [ParticipationStatus.APPROVED]: "green",
+  [ParticipationStatus.PENDING]:  "yellow",
+  [ParticipationStatus.REJECTED]: "red",
+  [ParticipationStatus.CANCELLED]: "muted",
 };
 
 const fmt = (d: string) => {
@@ -56,106 +58,146 @@ const ActivityItem = ({
   meetingLink, meetingPlatform, volunteerHours,
   attendanceStatus, actionLoading, onReapply, onCancel,
 }: Props) => {
-  const isOnline = activityType === ActivityType.ONLINE;
-  const hasMap = !isOnline && latitude && longitude;
-  const mapUrl = hasMap ? `https://www.google.com/maps?q=${latitude},${longitude}` : null;
-  const platformLabel = meetingPlatform ? getMeetingPlatformLabel(meetingPlatform) : "رابط الاجتماع";
-  const typeLabel = activityType ? getActivityTypeLabel(activityType) : null;
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
+
+  const isOnline  = activityType === ActivityType.ONLINE;
+  const hasMap    = !isOnline && latitude && longitude;
+  const mapUrl    = hasMap ? `https://www.google.com/maps?q=${latitude},${longitude}` : null;
   const meetingUrl = meetingLink?.startsWith("http") ? meetingLink : meetingLink ? `https://${meetingLink}` : null;
-  const attended = attendanceStatus === AttendanceStatus.ATTENDED;
-  const absent = attendanceStatus === AttendanceStatus.ABSENT;
-  const attendanceLabel = attendanceStatus ? getAttendanceStatusLabel(attendanceStatus as AttendanceStatus) : null;
+  const platformLabel = meetingPlatform ? getMeetingPlatformLabel(meetingPlatform) : "رابط الاجتماع";
+  const attended  = attendanceStatus === AttendanceStatus.ATTENDED;
+  const absent    = attendanceStatus === AttendanceStatus.ABSENT;
 
   return (
-    <div className={styles.item}>
+    <>
+      <div className={styles.card}>
 
-      {/* ── Header ── */}
-      <div className={styles.header}>
-        <h3 className={styles.title}>{title}</h3>
-        <div className={styles.badges}>
-          <Badge variant={STATUS_VARIANT[status]}>{getParticipationStatusLabel(status)}</Badge>
-          {typeLabel && (
-            <span className={isOnline ? styles.typeBadgeOnline : styles.typeBadgeInPerson}>
-              {isOnline ? <Wifi size={10} /> : <MapPin size={10} />}
-              {typeLabel}
-            </span>
-          )}
-        </div>
-      </div>
+        {/* ── Left accent bar ── */}
+        <div className={`${styles.accent} ${styles[STATUS_COLOR[status]]}`} />
 
-      <p className={styles.description}>{description}</p>
+        <div className={styles.body}>
 
-      {/* ── Details grid ── */}
-      <div className={styles.detailsGrid}>
-        <div className={styles.detail}><Calendar size={13} /><span>{fmt(date)}</span></div>
-        <div className={styles.detail}><Clock size={13} /><span>{startTime} – {endTime}</span></div>
+          {/* ── Top row ── */}
+          <div className={styles.topRow}>
+            <div className={styles.chips}>
+              {/* participation status */}
+              <span className={`${styles.statusChip} ${styles[STATUS_COLOR[status]]}`}>
+                {getParticipationStatusLabel(status)}
+              </span>
+              {/* activity type */}
+              {activityType && (
+                <span className={isOnline ? styles.typeBadgeOnline : styles.typeBadgeInPerson}>
+                  {isOnline ? <Wifi size={10} /> : <MapPin size={10} />}
+                  {getActivityTypeLabel(activityType)}
+                </span>
+              )}
+              {/* attendance */}
+              {attended && (
+                <span className={styles.attendedBadge}>
+                  <CheckCircle2 size={10} />
+                  {getAttendanceStatusLabel(AttendanceStatus.ATTENDED)}
+                </span>
+              )}
+              {absent && (
+                <span className={styles.absentBadge}>
+                  <XCircle size={10} />
+                  {getAttendanceStatusLabel(AttendanceStatus.ABSENT)}
+                </span>
+              )}
+            </div>
 
-        {isOnline ? (
-          meetingPlatform && (
-            <div className={styles.detail}><Wifi size={13} /><span>{platformLabel}</span></div>
-          )
-        ) : (
-          <>
-            {placeName && <div className={styles.detail}><MapPin size={13} /><span>{placeName}</span></div>}
-            {city && <div className={styles.detail}><Navigation size={13} /><span>{getCityLabel(city as JordanianCity)}</span></div>}
-          </>
-        )}
-
-        {volunteerHours != null && volunteerHours > 0 && (
-          <div className={`${styles.detail} ${styles.hoursDetail}`}>
-            <Award size={13} /><span>{volunteerHours} ساعة تطوع</span>
+            {/* volunteer hours pill */}
+            {volunteerHours != null && volunteerHours > 0 && (
+              <span className={styles.hoursPill}>
+                <Award size={11} />
+                {volunteerHours} ساعة
+              </span>
+            )}
           </div>
-        )}
+
+          {/* ── Title ── */}
+          <h3 className={styles.title}>{title}</h3>
+          <p className={styles.description}>{description}</p>
+
+          {/* ── Meta row ── */}
+          <div className={styles.metaRow}>
+            <span className={styles.meta}><Calendar size={12} />{fmt(date)}</span>
+            <span className={styles.meta}><Clock size={12} />{startTime} – {endTime}</span>
+            {!isOnline && city && (
+              <span className={styles.meta}><Navigation size={12} />{getCityLabel(city)}</span>
+            )}
+            {!isOnline && placeName && (
+              <span className={styles.meta}><MapPin size={12} />{placeName}</span>
+            )}
+            {isOnline && meetingPlatform && (
+              <span className={styles.meta}><Wifi size={12} />{platformLabel}</span>
+            )}
+          </div>
+
+          {/* ── Actions row ── */}
+          <div className={styles.actionsRow}>
+            {/* left side — links */}
+            <div className={styles.links}>
+              {isOnline && meetingUrl && (
+                <a href={meetingUrl} target="_blank" rel="noopener noreferrer" className={styles.linkBtn}>
+                  <Wifi size={12} />
+                  {platformLabel}
+                  <ExternalLink size={11} />
+                </a>
+              )}
+              {hasMap && mapUrl && (
+                <button type="button" className={styles.mapBtn} onClick={() => setLocationModalOpen(true)}>
+                  <MapPin size={12} />
+                  الموقع
+                </button>
+              )}
+            </div>
+
+            {/* right side — action buttons */}
+            <div className={styles.btnGroup}>
+              {canCancel(status, activityStatus) && onCancel && (
+                <button className={styles.btnCancel} disabled={actionLoading} onClick={onCancel}>
+                  {actionLoading ? "..." : status === ParticipationStatus.APPROVED ? "إلغاء انضمامي" : "إلغاء الطلب"}
+                </button>
+              )}
+              {(status === ParticipationStatus.REJECTED || status === ParticipationStatus.CANCELLED) && onReapply && (
+                <button className={styles.btnReapply} disabled={actionLoading} onClick={onReapply}>
+                  {actionLoading ? "..." : "انضمام مجدداً"}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* ── Footer dates ── */}
+          <div className={styles.footerDates}>
+            <span>طلب: {fmt(requestedAt)}</span>
+            {respondedAt && <span>استجابة: {fmt(respondedAt)}</span>}
+            {markedAt && attended && <span>حضور: {fmt(markedAt)}</span>}
+          </div>
+
+        </div>
       </div>
 
-      {/* ── Attendance chip ── */}
-      {(attended || absent) && attendanceLabel && (
-        <div className={attended ? styles.attendedChip : styles.absentChip}>
-          {attended
-            ? <><CheckCircle2 size={13} />{attendanceLabel}{markedAt ? ` · ${fmt(markedAt)}` : ""}</>
-            : <><XCircle size={13} />{attendanceLabel}</>
-          }
-        </div>
+      {/* ── Location Modal ── */}
+      {hasMap && mapUrl && (
+        <Modal isOpen={locationModalOpen} onClose={() => setLocationModalOpen(false)} title={placeName ?? "الموقع"} size="sm">
+          <div className={styles.locActions}>
+            <Share
+              trigger={(openShare) => (
+                <button type="button" className={styles.locBtnShare}
+                  onClick={() => openShare({ title: placeName ?? "الموقع", text: `${placeName ?? ""}\n${mapUrl}` })}>
+                  مشاركة الموقع
+                </button>
+              )}
+            />
+            <a className={styles.locBtnMaps} href={mapUrl} target="_blank" rel="noopener noreferrer"
+              onClick={() => setLocationModalOpen(false)}>
+              فتح في Google Maps
+            </a>
+          </div>
+        </Modal>
       )}
-
-      {/* ── Action links ── */}
-      {(isOnline && meetingUrl) || (hasMap && mapUrl) ? (
-        <div className={styles.links}>
-          {isOnline && meetingUrl && (
-            <a href={meetingUrl} target="_blank" rel="noopener noreferrer" className={styles.linkBtn}>
-              <Wifi size={12} /><span>{platformLabel}</span><ExternalLink size={11} />
-            </a>
-          )}
-          {hasMap && mapUrl && (
-            <a href={mapUrl} target="_blank" rel="noopener noreferrer" className={styles.mapBtn}>
-              <MapPin size={12} /><span>عرض على الخريطة</span><ExternalLink size={11} />
-            </a>
-          )}
-        </div>
-      ) : null}
-
-      {/* ── Footer ── */}
-      <div className={styles.footer}>
-        <div className={styles.footerDates}>
-          <span className={styles.dateChip}><UserCheck size={11} /> طلب: {fmt(requestedAt)}</span>
-          {respondedAt && (
-            <span className={styles.dateChip}><CheckCircle2 size={11} /> قُبل: {fmt(respondedAt)}</span>
-          )}
-        </div>
-        <div className={styles.footerActions}>
-          {canCancel(status, activityStatus) && onCancel && (
-            <button className={styles.btnCancelRequest} disabled={actionLoading} onClick={onCancel}>
-              {actionLoading ? "..." : status === ParticipationStatus.APPROVED ? "إلغاء انضمامي" : "إلغاء الطلب"}
-            </button>
-          )}
-          {(status === ParticipationStatus.REJECTED || status === ParticipationStatus.CANCELLED) && onReapply && (
-            <button className={styles.btnReapply} disabled={actionLoading} onClick={onReapply}>
-              {actionLoading ? "..." : "انضمام مجدداً"}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 

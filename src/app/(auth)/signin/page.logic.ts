@@ -1,7 +1,8 @@
 "use client";
+
 import { useState } from "react";
 import { signIn, getSession } from "next-auth/react";
-import { ROUTES } from "@/presentation/constants";
+import { ROUTES, redirectByRole } from "@/presentation/constants";
 
 interface UseSigninReturn {
   formData: SigninFormData;
@@ -19,13 +20,13 @@ export interface SigninFormData {
 export const useSignin = (): UseSigninReturn => {
   const [formData, setFormData] = useState<SigninFormData>({
     email: "",
-    password: "",
+    password: ""
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (field: keyof SigninFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
     setError("");
   };
 
@@ -38,7 +39,7 @@ export const useSignin = (): UseSigninReturn => {
       const res = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        redirect: false
       });
 
       if (res?.error) {
@@ -48,7 +49,7 @@ export const useSignin = (): UseSigninReturn => {
       }
 
       const session = await getSession();
-      window.location.href = ROUTES.redirectByRole(session?.user?.role);
+      window.location.href = redirectByRole(session?.user?.role);
     } catch {
       setError("حدث خطأ في الاتصال");
       setLoading(false);

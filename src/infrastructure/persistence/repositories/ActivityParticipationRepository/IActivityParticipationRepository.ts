@@ -3,6 +3,7 @@ import type { ApprovedVolunteerRow } from "@/core/application/dtos";
 
 interface IActivityParticipationRepository {
   findById(id: string): Promise<ActivityParticipation | null>;
+  sumAttendedHours(userId: string): Promise<number>;
   findByActivityAndVolunteer(activityId: string, volunteerId: string): Promise<ActivityParticipation | null>;
   findPendingByActivity(activityId: string): Promise<ActivityParticipation[]>;
   findAllPending(): Promise<ActivityParticipation[]>;

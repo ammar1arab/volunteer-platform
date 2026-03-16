@@ -59,6 +59,14 @@ export type {
   CompleteActivityResponse
 } from "./activity.dto";
 
+// ─── Certification ────────────────────────────────────────────
+export type {
+  CertificateDto,
+  CertificateWithTotalHoursDto,
+  GetCertificateByIdResponse,
+  GetUserCertificatesResponse
+} from "./certificate.dto";
+
 // ─── Participation ────────────────────────────────────────────
 export type {
   ActivityParticipationDto,
@@ -108,3 +116,11 @@ export type {
   UpdateMonthlyMagazineRequest,
   UpdateMonthlyMagazineResponse
 } from "./monthlyMagazine.dto";
+
+// ─── Notification ────────────────────────────────────────────
+export type {
+  GetUnreadNotificationsResponse,
+  MarkAsReadResponse,
+  NotificationDto,
+  UnreadNotificationsDto
+} from "./notification.dto";

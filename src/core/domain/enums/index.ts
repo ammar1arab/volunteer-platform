@@ -1,10 +1,12 @@
 export { UserRole } from "./UserRole";
-export { DayOfWeek } from "./DayOfWeek";
-export { JordanianCity } from "./JordanianCity";
-export { DomainFeaturedPostCategory } from "./DomainFeaturedPostCategory";
 export { Gender } from "./Gender";
+export { JordanianCity } from "./JordanianCity";
+export { DayOfWeek } from "./DayOfWeek";
+export { DomainFeaturedPostCategory } from "./DomainFeaturedPostCategory";
 export { ActivityStatus } from "./ActivityStatus";
 export { ParticipationStatus } from "./ParticipationStatus";
 export { AttendanceStatus } from "./AttendanceStatus";
 export { ActivityType } from "./ActivityType";
 export { MeetingPlatform } from "./MeetingPlatform";
+export { NotificationType } from "./NotificationType";
+export { CertificateStatus } from "./CertificateStatus";

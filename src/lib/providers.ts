@@ -7,7 +7,9 @@ import {
   ActivityParticipationRepository,
   FeaturedPostRepository,
   VolunteerSpotlightRepository,
-  MonthlyMagazineRepository
+  MonthlyMagazineRepository,
+  CertificateRepository,
+  NotificationRepository
 } from "@/infrastructure/persistence/repositories";
 import {
   AuthUseCase,
@@ -17,7 +19,9 @@ import {
   ActivityParticipationUseCase,
   FeaturedPostUseCase,
   VolunteerSpotlightUseCase,
-  MonthlyMagazineUseCase
+  MonthlyMagazineUseCase,
+  CertificateUseCase,
+  NotificationUseCase
 } from "@/core/application/useCases";
 
 export const providers = {
@@ -42,6 +46,15 @@ export const providers = {
   volunteerSpotlight: () => new VolunteerSpotlightUseCase(new VolunteerSpotlightRepository()),
 
   monthlyMagazine: () => new MonthlyMagazineUseCase(new MonthlyMagazineRepository()),
+
+  certificate: () =>
+    new CertificateUseCase(
+      new CertificateRepository(),
+      new ActivityRepository(),
+      new ActivityParticipationRepository()
+    ),
+
+  notification: () => new NotificationUseCase(new NotificationRepository()),
 
   storage: () => new R2StorageService()
 };

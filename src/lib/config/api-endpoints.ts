@@ -33,6 +33,10 @@ export const API_ENDPOINTS = {
     MARK_ATTENDANCE: (id: string) => `/api/activity-participations/${id}/mark-attendance`,
     BULK_MARK_ATTENDANCE: "/api/activity-participations/bulk-mark-attendance"
   },
+  CERTIFICATES: {
+    BASE: "/api/certificates",
+    BY_ID: (id: string) => `/api/certificates/${id}`
+  },
   FEATURED_POSTS: {
     BASE: "/api/featured-posts",
     BY_ID: (id: string) => `/api/featured-posts/${id}`
@@ -49,5 +53,10 @@ export const API_ENDPOINTS = {
   UPLOADS: {
     BY_SCOPE: (scope: "featured-posts" | "activities" | "profiles" | "volunteer-spotlight" | "magazines") =>
       `/api/uploads/${scope}`
+  },
+  NOTIFICATIONS: {
+    BASE: "/api/notifications",
+    MARK_AS_READ: (id: string) => `/api/notifications/${id}/read`,
+    MARK_ALL_AS_READ: "/api/notifications/read-all"
   }
 } as const;

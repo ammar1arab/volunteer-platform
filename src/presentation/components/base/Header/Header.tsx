@@ -3,11 +3,10 @@ import styles from './Header.module.scss';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { ROUTES } from '@/presentation/constants';
-import { Button, ConfirmDialog } from '@/presentation/components';
-import { User, LogOut } from 'lucide-react';
+import { Button, ConfirmDialog, NotificationBell, UserMenuDropdown } from '@/presentation/components';
 import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
 
 const NAV_LINKS = [
@@ -19,19 +18,125 @@ const NAV_LINKS = [
   { href: '/#contact', label: 'تواصل معنا' },
 ];
 
+type OpenMenu = 'notifications' | 'user' | null;
+
+// ── Extracted outside Header — stable component identity ──────
+// Defining this inside Header caused React to unmount/remount
+// NotificationBell on every Header re-render, breaking polling
+interface ActionsProps {
+  isLoading: boolean;
+  isVolunteer: boolean;
+  userName: string;
+  userInitial: string;
+  avatarUrl: string | null;
+  openMenu: OpenMenu;
+  wrapperRef: React.RefObject<HTMLDivElement | null>;
+  onToggle: (menu: OpenMenu) => void;
+  onLogout: () => void;
+  mobile?: boolean;
+}
+
+const VolunteerActions = ({
+  isLoading, isVolunteer, userName, userInitial, avatarUrl,
+  openMenu, wrapperRef, onToggle, onLogout, mobile = false
+}: ActionsProps) => {
+  if (isLoading) {
+    return <div className={styles.authPlaceholder} />;
+  }
+
+  if (!isVolunteer) {
+    return (
+      <Link href={ROUTES.LOGIN}>
+        <Button variant="primary" size={mobile ? 'sm' : 'md'}>تسجيل الدخول</Button>
+      </Link>
+    );
+  }
+
+  return (
+    <>
+      <NotificationBell
+        isOpen={openMenu === 'notifications'}
+        onToggle={() => onToggle('notifications')}
+        onClose={() => onToggle('notifications')}
+      />
+      <div className={styles.userMenuWrapper} ref={wrapperRef}>
+        <button
+          className={[
+            mobile ? styles.avatarBtnSm : styles.avatarBtn,
+            openMenu === 'user' ? styles.avatarBtnActive : ''
+          ].join(' ')}
+          onClick={() => onToggle('user')}
+        >
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt={userName}
+              width={mobile ? 30 : 34}
+              height={mobile ? 30 : 34}
+              className={styles.avatarImg}
+            />
+          ) : (
+            <span className={styles.avatarInitial}>{userInitial}</span>
+          )}
+        </button>
+        {openMenu === 'user' && (
+          <UserMenuDropdown
+            userName={userName}
+            avatarUrl={avatarUrl}
+            onClose={() => onToggle('user')}
+            onLogout={onLogout}
+          />
+        )}
+      </div>
+    </>
+  );
+};
+
+// ── Header ────────────────────────────────────────────────────
 const Header = () => {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [openMenu, setOpenMenu] = useState<OpenMenu>(null);
+  const [showLogout, setShowLogout] = useState(false);
 
-  const isVolunteer = session?.user?.role === 'VOLUNTEER';
+  const desktopRef = useRef<HTMLDivElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
 
+  const isLoading = status === 'loading';
+  const isVolunteer = status === 'authenticated' && session?.user?.role === 'VOLUNTEER';
+  const userName = session?.user?.name ?? '';
+  const userInitial = userName.charAt(0).toUpperCase() || 'أ';
+  const avatarUrl = (session?.user as any)?.profilePictureUrl ?? null;
+
+  // Close everything on route change
+  useEffect(() => { setMenuOpen(false); setOpenMenu(null); }, [pathname]);
+
+  // Close user menu on outside click
   useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+    if (openMenu !== 'user') return;
+    const handler = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (!desktopRef.current?.contains(t) && !mobileRef.current?.contains(t)) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openMenu]);
+
+  const toggle = (menu: OpenMenu) =>
+    setOpenMenu(prev => prev === menu ? null : menu);
+
+  const handleLogout = () => { setOpenMenu(null); setShowLogout(true); };
 
   if (pathname === '/signin' || pathname === '/signup') return null;
+
+  const sharedProps: ActionsProps = {
+    isLoading, isVolunteer, userName, userInitial, avatarUrl,
+    openMenu, onToggle: toggle, onLogout: handleLogout,
+    wrapperRef: desktopRef
+  };
 
   return (
     <>
@@ -40,60 +145,37 @@ const Header = () => {
           <nav className={styles.nav}>
 
             <Link href="/" className={styles.logoDesktop}>
-              <Image src="/images/logo.png" alt="Logo" width={90} height={0} style={{ height: "auto" }} loading="eager" priority />
+              <Image src="/images/logo.png" alt="Logo" width={90} height={0}
+                style={{ height: 'auto' }} loading="eager" priority />
             </Link>
 
             <ul className={styles.navLinks}>
-              {NAV_LINKS.map((link) => (
+              {NAV_LINKS.map(link => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={`${styles.navItem} ${pathname === link.href ? styles.active : ''}`}
-                  >
+                  <Link href={link.href}
+                    className={`${styles.navItem} ${pathname === link.href ? styles.active : ''}`}>
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
 
+            {/* Desktop */}
             <div className={styles.actions}>
-              {isVolunteer ? (
-                <>
-                  <Link href={ROUTES.VOLUNTEER.PROFILE} className={styles.iconBtn} title="الملف الشخصي">
-                    <User size={20} />
-                  </Link>
-                  <button
-                    className={styles.desktopLogoutBtn}
-                    onClick={() => setShowLogoutConfirm(true)}
-                    title="تسجيل الخروج"
-                  >
-                    <LogOut size={20} />
-                  </button>
-                </>
-              ) : (
-                <Link href={ROUTES.LOGIN}>
-                  <Button variant="primary" size="md">تسجيل الدخول</Button>
-                </Link>
-              )}
+              <VolunteerActions {...sharedProps} />
             </div>
 
+            {/* Mobile */}
             <div className={styles.mobileBar}>
               <Link href="/" className={styles.mobileLogo}>
-                <Image src="/images/logo.png" alt="Logo" width={90} height={0} style={{ height: "auto" }} loading="eager" priority />
+                <Image src="/images/logo.png" alt="Logo" width={80} height={0}
+                  style={{ height: 'auto' }} loading="eager" priority />
               </Link>
               <div className={styles.mobileRight}>
-                {isVolunteer ? (
-                  <Link href={ROUTES.VOLUNTEER.PROFILE} className={styles.mobileIconBtn} title="الملف الشخصي">
-                    <User size={18} />
-                  </Link>
-                ) : (
-                  <Link href={ROUTES.LOGIN}>
-                    <Button variant="primary" size="sm">تسجيل الدخول</Button>
-                  </Link>
-                )}
+                <VolunteerActions {...sharedProps} wrapperRef={mobileRef} mobile />
                 <button
                   className={styles.menuBtn}
-                  onClick={() => setMenuOpen(!menuOpen)}
+                  onClick={() => setMenuOpen(p => !p)}
                   aria-expanded={menuOpen}
                 >
                   {menuOpen ? <RxCross2 size={22} /> : <RxHamburgerMenu size={22} />}
@@ -105,30 +187,20 @@ const Header = () => {
 
           {menuOpen && (
             <div className={styles.mobileMenu}>
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`${styles.mobileLink} ${pathname === link.href ? styles.activeMobile : ''}`}
-                >
+              {NAV_LINKS.map(link => (
+                <Link key={link.href} href={link.href}
+                  className={`${styles.mobileLink} ${pathname === link.href ? styles.activeMobile : ''}`}>
                   {link.label}
                 </Link>
               ))}
-              {isVolunteer && (
-                <button className={styles.logoutBtn} onClick={() => setShowLogoutConfirm(true)}>
-                  <LogOut size={18} />
-                  تسجيل الخروج
-                </button>
-              )}
             </div>
           )}
-
         </div>
       </header>
 
       <ConfirmDialog
-        isOpen={showLogoutConfirm}
-        onClose={() => setShowLogoutConfirm(false)}
+        isOpen={showLogout}
+        onClose={() => setShowLogout(false)}
         onConfirm={() => signOut({ callbackUrl: '/' })}
         title="تسجيل الخروج"
         message="هل أنت متأكد أنك تريد تسجيل الخروج؟"

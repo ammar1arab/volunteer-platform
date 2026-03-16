@@ -1,7 +1,7 @@
 "use client";
 import styles from "./VolunteerActivitiesPage.module.scss";
 import { useVolunteerActivitiesPage } from "./VolunteerActivitiesPage.logic";
-import { ActivityType, AttendanceStatus, JordanianCity, MeetingPlatform, ParticipationStatus } from "@/core/domain/enums";
+import { ActivityStatus, ActivityType, AttendanceStatus, JordanianCity, MeetingPlatform, ParticipationStatus } from "@/core/domain/enums";
 import {
   LoadingState, EmptyState, ToastContainer, Pagination,
   Search, ActivityItem, ConfirmDialog
@@ -21,7 +21,7 @@ const VolunteerActivitiesPage = () => {
   if (status === "loading" || loading) return <LoadingState />;
 
   const STAT_CARDS = [
-    { key: "hours", value: stats.hours, label: "ساعات التطوع", cls: `${styles.statValue} ${styles.green}`, noFilter: true },
+    { key: ActivityStatus.COMPLETED, value: stats.completed, label: "مكتمل", cls: `${styles.statValue} ${styles.green}` },
     { key: ParticipationStatus.APPROVED, value: stats.approved, label: "موافق عليه", cls: `${styles.statValue} ${styles.green}` },
     { key: ParticipationStatus.PENDING, value: stats.pending, label: "قيد الانتظار", cls: styles.statValue },
     { key: ParticipationStatus.REJECTED, value: stats.rejected, label: "مرفوض", cls: `${styles.statValue} ${styles.red}` },
@@ -34,15 +34,11 @@ const VolunteerActivitiesPage = () => {
         <ToastContainer toasts={toasts} onRemove={removeToast} />
 
         <div className={styles.statsRow}>
-          {STAT_CARDS.map(({ key, value, label, cls, noFilter }) => (
+          {STAT_CARDS.map(({ key, value, label, cls }) => (
             <div
               key={key}
-              className={[
-                styles.statCard,
-                noFilter ? styles.hoursCard : "",
-                !noFilter && activeFilter === key ? styles.active : "",
-              ].join(" ")}
-              onClick={() => { if (!noFilter) setActiveFilter(activeFilter === key ? "all" : key); }}
+              className={`${styles.statCard} ${activeFilter === key ? styles.active : ""}`}
+              onClick={() => setActiveFilter(activeFilter === key ? "all" : key)}
             >
               <span className={cls}>{value}</span>
               <span className={styles.statLabel}>{label}</span>

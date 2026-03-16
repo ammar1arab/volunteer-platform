@@ -3,9 +3,8 @@
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
 import { UserRole } from "@/core/domain/enums";
-import { ROUTES } from "@/presentation/constants";
+import { ROUTES, redirectByRole } from "@/presentation/constants";
 
 interface UseAuthOptions {
   requireAuth?: boolean;
@@ -31,12 +30,8 @@ export const useAuth = (options: UseAuthOptions = {}) => {
       return;
     }
 
-    if (
-      requireRole &&
-      session?.user?.role &&
-      session.user.role !== requireRole
-    ) {
-      router.replace(ROUTES.redirectByRole(session.user.role));
+    if (requireRole && session?.user?.role && session.user.role !== requireRole) {
+      router.replace(redirectByRole(session.user.role));
     }
   }, [status, session, requireAuth, requireRole, redirectTo, router]);
 

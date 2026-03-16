@@ -40,6 +40,14 @@ class ActivityRepository implements IActivityRepository {
     return rows.map((row) => this.mapToEntity(row));
   }
 
+  async findSummaryById(id: string): Promise<{ title: string; activityType: string; durationHours: number } | null> {
+    const row = await prisma.activity.findUnique({
+      where: { id },
+      select: { title: true, activityType: true, durationHours: true }
+    });
+    return row ?? null;
+  }
+
   async findPublished(): Promise<Activity[]> {
     const rows = await prisma.activity.findMany({
       where: { status: ActivityStatus.PUBLISHED, isActive: true },

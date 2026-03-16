@@ -50,3 +50,9 @@ export { default as ProfileHeader } from "./admin/ProfileHeader/ProfileHeader";
 export { default as InfoCard } from "./admin/InfoCard/InfoCard";
 export { default as EditableField } from "./admin/EditableField/EditableField";
 export { default as ExportUsersButton } from "./admin/ExportUsersButton/ExportUsersButton";
+export { default as CompleteActivityProgress } from "./admin/CompleteActivityProgress/CompleteActivityProgress";
+
+export { default as NotificationBell } from "./volunteer/NotificationBell/NotificationBell";
+export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";
+export { default as CertificateCard } from "./volunteer/CertificateCard/CertificateCard";
+export { default as UserMenuDropdown } from "./volunteer/UserMenuDropdown/UserMenuDropdown.tsx";

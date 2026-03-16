@@ -6,3 +6,5 @@ export * from "./ActivityParticipationProps";
 export * from "./FeaturedPostProps";
 export * from "./VolunteerSpotLightProps";
 export * from "./MonthlyMagazineProps";
+export * from "./CertificateProps";
+export * from "./NotificationProps";

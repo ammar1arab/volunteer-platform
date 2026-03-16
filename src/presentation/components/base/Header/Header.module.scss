@@ -5,33 +5,13 @@
 $mobile-break: 900px;
 
 @keyframes scanline {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-@keyframes sheen {
-  0% {
-    transform: translateX(-180%) skewX(-22deg);
-  }
-  55% {
-    transform: translateX(260%) skewX(-22deg);
-  }
-  100% {
-    transform: translateX(260%) skewX(-22deg);
-  }
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes unfold {
-  0% {
-    clip-path: inset(0 0 100% 0 round $radius);
-  }
-  100% {
-    clip-path: inset(0 0 0% 0 round $radius);
-  }
+  0%   { clip-path: inset(0 0 100% 0 round $radius); }
+  100% { clip-path: inset(0 0 0% 0 round $radius); }
 }
 
 .header {
@@ -41,13 +21,12 @@ $mobile-break: 900px;
   background: $bg;
   border-bottom: 1px solid $border;
   padding: $sp-md 0;
+  overflow: visible;
 
   &::after {
     content: "";
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
+    left: 0; right: 0; bottom: -1px;
     height: 2px;
     background: linear-gradient(90deg, transparent, rgba($green, 0.9), transparent);
     background-size: 200% 100%;
@@ -64,17 +43,13 @@ $mobile-break: 900px;
 
 .logoDesktop {
   display: block;
-  @media (max-width: $mobile-break) {
-    display: none;
-  }
+  @media (max-width: $mobile-break) { display: none; }
 }
 
 .navLinks {
   @include flex(row, center, center, $sp-lg);
   list-style: none;
-  @media (max-width: $mobile-break) {
-    display: none;
-  }
+  @media (max-width: $mobile-break) { display: none; }
 }
 
 .navItem {
@@ -95,135 +70,88 @@ $mobile-break: 900px;
     transition: transform $transition;
   }
 
-  &:hover {
-    color: $text;
-  }
-
-  &.active {
-    color: $green;
-    font-weight: 750;
-  }
+  &:hover { color: $text; }
+  &.active { color: $green; font-weight: 750; }
 }
 
+// ── Auth placeholder (prevents layout shift during loading) ──
+.authPlaceholder {
+  width: 34px;
+  height: 34px;
+  border-radius: $radius-full;
+  background: rgba($border, 0.4);
+}
+
+// ── Desktop actions ───────────────────────────────────
 .actions {
   @include flex(row, center, center, $sp-sm);
-  @media (max-width: $mobile-break) {
-    display: none;
-  }
+  @media (max-width: $mobile-break) { display: none; }
 }
 
-.socialWrapper {
+// ── User menu wrapper ─────────────────────────────────
+.userMenuWrapper {
   position: relative;
+  overflow: visible;
 }
 
-.socialToggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: $text-muted;
-  font-weight: 650;
-  padding: $sp-sm $sp-md;
-  border-radius: $radius;
-  transition: $transition;
-
-  &:hover {
-    color: $green;
-    background: rgba($green, 0.08);
-  }
-}
-
-.socialMenu {
-  position: absolute;
-  top: 46px;
-  left: 0;
-  background: $bg;
-  border: 1px solid $border;
-  border-radius: $radius;
-  min-width: 190px;
-  padding: $sp-xs;
-  @include flex-col;
-  gap: $sp-xs;
-  clip-path: inset(0 0 100% 0 round $radius);
-  animation: unfold 320ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
-}
-
-.socialLink {
-  padding: $sp-sm $sp-md;
-  border-radius: $radius;
-  font-weight: 650;
-  color: $text;
-  transition: $transition;
-
-  &:hover {
-    background: rgba($green, 0.1);
-    color: $green;
-  }
-}
-
-.iconBtn {
+// avatar button — desktop
+.avatarBtn {
   @include flex-center;
-  width: 40px;
-  height: 40px;
-  border-radius: $radius;
-  color: $text-muted;
-  background: transparent;
-  border: 1px solid transparent;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius-full;
+  background: rgba($green, 0.08);
+  border: 2px solid rgba($green, 0.25);
   cursor: pointer;
   transition: $transition;
-  position: relative;
   overflow: hidden;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba($green, 0.1);
-    transform: scale(0);
-    border-radius: $radius;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+  padding: 0;
 
   &:hover {
-    color: $green;
-    border-color: rgba($green, 0.3);
-    &::before {
-      transform: scale(1);
-    }
+    border-color: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.1);
   }
 }
 
-.desktopLogoutBtn {
+// avatar button — mobile
+.avatarBtnSm {
   @include flex-center;
-  width: 40px;
-  height: 40px;
-  border-radius: $radius;
-  color: $text-muted;
-  background: transparent;
-  border: 1px solid transparent;
+  width: 30px;
+  height: 30px;
+  border-radius: $radius-full;
+  background: rgba($green, 0.08);
+  border: 2px solid rgba($green, 0.25);
   cursor: pointer;
   transition: $transition;
-  position: relative;
   overflow: hidden;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba($red, 0.1);
-    transform: scale(0);
-    border-radius: $radius;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+  padding: 0;
 
   &:hover {
-    color: $red;
-    border-color: rgba($red, 0.3);
-    &::before {
-      transform: scale(1);
-    }
+    border-color: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.1);
   }
 }
 
+.avatarBtnActive {
+  border-color: $green !important;
+  box-shadow: 0 0 0 3px rgba($green, 0.12) !important;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: $radius-full;
+}
+
+.avatarInitial {
+  font-size: $font-xs;
+  font-weight: 800;
+  color: $green;
+  line-height: 1;
+}
+
+// ── Mobile bar ────────────────────────────────────────
 .mobileBar {
   display: none;
   @media (max-width: $mobile-break) {
@@ -238,25 +166,25 @@ $mobile-break: 900px;
 
 .mobileRight {
   @include flex(row, center, center, $sp-sm);
+  overflow: visible;
+  position: relative;
 }
 
 .menuBtn {
   background: none;
   border: 1px solid $border;
   cursor: pointer;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: $radius;
   @include flex-center;
   color: $text;
   transition: $transition;
 
-  &:hover {
-    background: rgba($green, 0.08);
-    border-color: rgba($green, 0.35);
-  }
+  &:hover { background: rgba($green, 0.08); border-color: rgba($green, 0.35); }
 }
 
+// ── Mobile dropdown nav ───────────────────────────────
 .mobileMenu {
   display: none;
 
@@ -281,67 +209,13 @@ $mobile-break: 900px;
   border: none;
   cursor: pointer;
   transition: $transition;
+  display: block;
 
-  &:hover {
-    background: rgba($green, 0.1);
-    color: $green;
-  }
-
-  &.activeMobile {
-    color: $green;
-    font-weight: 800;
-  }
-}
-
-.mobileSocialMenu {
-  @include flex-col;
-  gap: $sp-xs;
-  padding: 0 $sp-xs $sp-xs;
-}
-
-.mobileIconBtn {
-  @include flex-center;
-  width: 36px;
-  height: 36px;
-  border-radius: $radius;
-  color: $text-muted;
-  background: transparent;
-  border: 1px solid $border;
-  cursor: pointer;
-  transition: $transition;
-
-  &:hover {
-    color: $green;
-    background: rgba($green, 0.08);
-    border-color: rgba($green, 0.3);
-  }
-}
-
-.logoutBtn {
-  @include flex(row, center, center, $sp-xs);
-  padding: $sp-md;
-  font-weight: 650;
-  border-radius: $radius;
-  color: $red;
-  background: rgba($red, 0.1);
-  border: 1px solid rgba($red, 0.3);
-  cursor: pointer;
-  transition: $transition;
-  margin-top: $sp-sm;
-
-  &:hover {
-    background: rgba($red, 0.2);
-    border-color: $red;
-  }
+  &:hover { background: rgba($green, 0.08); color: $green; }
+  &.activeMobile { color: $green; font-weight: 800; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header::after {
-    animation: none;
-  }
-  .socialMenu,
-  .mobileMenu {
-    animation: none;
-    clip-path: inset(0 0 0 0 round $radius);
-  }
+  .header::after { animation: none; }
+  .mobileMenu { animation: none; clip-path: inset(0 0 0 0 round $radius); }
 }

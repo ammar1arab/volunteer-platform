@@ -1,7 +1,9 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-.page { padding: 80px 0 0; }
+.page {
+  padding: 80px 0 0;
+}
 
 .container {
   @include container;
@@ -10,19 +12,33 @@
   padding: $sp-xl $sp-md $sp-2xl;
 }
 
-.errorAlert   { @include alert-error;   }
-.successAlert { @include alert-success; }
+.errorAlert {
+  @include alert-error;
+}
+.successAlert {
+  @include alert-success;
+}
 
 // ─── Hero ─────────────────────────────────────────────────────
 
 .hero {
   @include flex(row, center, flex-start, $sp-lg);
   flex-wrap: wrap;
-  @include sm { flex-direction: column; text-align: center; }
+  @include sm {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
-.avatarSection { position: relative; flex-shrink: 0; }
-.avatarLabel   { position: relative; display: block; cursor: pointer; }
+.avatarSection {
+  position: relative;
+  flex-shrink: 0;
+}
+.avatarLabel {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
 
 .avatar,
 .avatarPlaceholder {
@@ -31,7 +47,9 @@
   border-radius: 50%;
 }
 
-.avatar { object-fit: cover; }
+.avatar {
+  object-fit: cover;
+}
 
 .avatarPlaceholder {
   @include flex-center;
@@ -41,23 +59,30 @@
 
 .uploadBadge {
   position: absolute;
-  bottom: 2px; right: 2px;
+  bottom: 2px;
+  right: 2px;
   @include flex-center;
-  width: 22px; height: 22px;
+  width: 22px;
+  height: 22px;
   background: $green;
   border-radius: 50%;
   color: $white;
 }
 
 .spinner {
-  width: 11px; height: 11px;
+  width: 11px;
+  height: 11px;
   border: 2px solid rgba($white, 0.3);
   border-top-color: $white;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
-.fileInput { position: absolute; opacity: 0; pointer-events: none; }
+.fileInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
 
 .info {
   @include flex-col;
@@ -77,42 +102,87 @@
   @include flex(row, center, flex-start, $sp-xs);
   font-size: $font-xs;
   color: $text-muted;
-  @include sm { justify-content: center; }
+  @include sm {
+    justify-content: center;
+  }
 }
 
 .heroStats {
   @include flex(row, center, flex-start, $sp-lg);
-  @include sm { justify-content: center; }
+  @include sm {
+    justify-content: center;
+  }
 }
 
-.heroStat { @include flex-col; align-items: center; gap: 1px; }
-.heroStatValue { font-size: $font-lg; font-weight: 700; color: $green; }
-.heroStatLabel { font-size: $font-xs; color: $text-muted; }
+.heroStat {
+  @include flex-col;
+  align-items: center;
+  gap: 1px;
+}
+.heroStatValue {
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $green;
+}
+.heroStatLabel {
+  font-size: $font-xs;
+  color: $text-muted;
+}
 
 // ─── Activities Link ──────────────────────────────────────────
 
-.activitiesLink {
-  @include flex(row, center, space-between, $sp-sm);
-  padding: $sp-sm 0;
+.quickLinks {
+  @include flex(row, center, flex-start, 0);
+  border-top: 1px solid $border;
   border-bottom: 1px solid $border;
+}
+
+.quickLink {
+  @include flex(row, center, center, $sp-xs);
+  flex: 1;
+  padding: $sp-sm $sp-md;
   color: $text;
   text-decoration: none;
   font-size: $font-sm;
   font-weight: 600;
   transition: $transition;
-  &:hover { color: $green; }
+  border-left: 1px solid $border;
+  justify-content: center;
+
+  &:first-child {
+    border-left: none;
+  }
+
+  &:hover {
+    color: $green;
+    background: rgba($green, 0.04);
+  }
 }
 
+.chevron {
+  margin-right: auto;
+  opacity: 0.4;
+}
 // ─── Grid ─────────────────────────────────────────────────────
 
-.grid { @include flex-col; gap: $sp-md; }
+.grid {
+  @include flex-col;
+  gap: $sp-md;
+}
 
 // ─── Card ─────────────────────────────────────────────────────
 
-.card { @include flex-col; gap: $sp-md; padding: $sp-md 0; border-bottom: 1px solid $border; }
+.card {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-md 0;
+  border-bottom: 1px solid $border;
+}
 
-.cardHeader  { @include flex(row, center, space-between, $sp-sm); }
-.cardTitle   {
+.cardHeader {
+  @include flex(row, center, space-between, $sp-sm);
+}
+.cardTitle {
   @include flex(row, center, flex-start, $sp-xs);
   margin: 0;
   font-size: $font-sm;
@@ -124,19 +194,25 @@
 
 .btnEdit {
   @include flex-center;
-  width: 26px; height: 26px;
+  width: 26px;
+  height: 26px;
   background: transparent;
   border: none;
   color: $text-muted;
   cursor: pointer;
   transition: $transition;
   border-radius: $radius;
-  &:hover { color: $green; }
+  &:hover {
+    color: $green;
+  }
 }
 
 // ─── Info List ────────────────────────────────────────────────
 
-.infoList { @include flex-col; gap: $sp-sm; }
+.infoList {
+  @include flex-col;
+  gap: $sp-sm;
+}
 
 .infoRow {
   @include flex(row, flex-start, flex-start, $sp-sm);
@@ -145,7 +221,8 @@
 
 .infoIcon {
   @include flex-center;
-  width: 30px; height: 30px;
+  width: 30px;
+  height: 30px;
   color: $green;
   flex-shrink: 0;
 }
@@ -157,23 +234,39 @@
   min-width: 0;
 }
 
-.infoLabel  { font-size: $font-xs; color: $text-muted; }
-.infoValue  { font-size: $font-sm; font-weight: 500; color: $text; word-break: break-word; }
+.infoLabel {
+  font-size: $font-xs;
+  color: $text-muted;
+}
+.infoValue {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text;
+  word-break: break-word;
+}
 
-.infoValueRow { @include flex(row, center, space-between, $sp-sm); }
+.infoValueRow {
+  @include flex(row, center, space-between, $sp-sm);
+}
 
 .btnEditIcon {
-  background: none; border: none;
-  color: $text-muted; cursor: pointer;
-  padding: 4px; transition: $transition;
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 4px;
+  transition: $transition;
   flex-shrink: 0;
   border-radius: $radius;
-  &:hover { color: $green; }
+  &:hover {
+    color: $green;
+  }
 }
 
 .inlineEdit {
   @include flex(row, center, flex-start, 4px);
-  width: 100%; flex-wrap: wrap;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
 .input {
@@ -184,80 +277,160 @@
   min-width: 80px;
 }
 
-.btnCheck, .btnX {
+.btnCheck,
+.btnX {
   @include flex-center;
-  width: 28px; height: 28px;
+  width: 28px;
+  height: 28px;
   border-radius: $radius;
-  border: none; cursor: pointer;
-  transition: $transition; flex-shrink: 0;
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+  flex-shrink: 0;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
-.btnCheck { background: $green; color: $white; }
+.btnCheck {
+  background: $green;
+  color: $white;
+}
 .btnX {
-  background: transparent; color: $text-muted;
-  &:hover:not(:disabled) { color: $red; }
+  background: transparent;
+  color: $text-muted;
+  &:hover:not(:disabled) {
+    color: $red;
+  }
 }
 
 // ─── Edit Section ─────────────────────────────────────────────
 
-.editSection { @include flex-col; gap: $sp-sm; }
+.editSection {
+  @include flex-col;
+  gap: $sp-sm;
+}
 
 .textarea {
   @include input;
-  resize: vertical; min-height: 80px;
-  font-family: inherit; width: 100%;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  width: 100%;
 }
 
-.bio { margin: 0; font-size: $font-sm; line-height: 1.6; color: $text; word-break: break-word; }
+.bio {
+  margin: 0;
+  font-size: $font-sm;
+  line-height: 1.6;
+  color: $text;
+  word-break: break-word;
+}
 
-.actions { @include flex(row, center, flex-end, $sp-xs); }
+.actions {
+  @include flex(row, center, flex-end, $sp-xs);
+}
 
-.btnSave, .btnCancel {
+.btnSave,
+.btnCancel {
   @include flex(row, center, center, $sp-xs);
   padding: $sp-xs $sp-sm;
   border-radius: $radius;
-  font-size: $font-sm; font-weight: 600;
-  cursor: pointer; transition: $transition;
-  border: none; white-space: nowrap;
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  border: none;
+  white-space: nowrap;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
-.btnSave   { background: $green; color: $white; }
-.btnCancel { background: transparent; color: $text-muted; &:hover:not(:disabled) { color: $red; } }
+.btnSave {
+  background: $green;
+  color: $white;
+}
+.btnCancel {
+  background: transparent;
+  color: $text-muted;
+  &:hover:not(:disabled) {
+    color: $red;
+  }
+}
 
 // ─── Tags ─────────────────────────────────────────────────────
 
-.tagInput { @include flex(row, center, flex-start, $sp-xs); }
+.tagInput {
+  @include flex(row, center, flex-start, $sp-xs);
+}
 
 .btnAdd {
   @include flex-center;
-  width: 34px; height: 34px;
-  background: $green; border: none;
-  border-radius: $radius; color: $white;
-  cursor: pointer; flex-shrink: 0;
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  width: 34px;
+  height: 34px;
+  background: $green;
+  border: none;
+  border-radius: $radius;
+  color: $white;
+  cursor: pointer;
+  flex-shrink: 0;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
-.tags { display: flex; flex-wrap: wrap; gap: $sp-xs; }
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $sp-xs;
+}
 
 .tag {
   @include flex(row, center, center, $sp-xs);
   padding: 3px $sp-sm;
   border-radius: $radius-full;
-  font-size: $font-xs; font-weight: 600;
-  &.green { background: rgba($green, 0.08); color: $green; }
-  &.red   { background: rgba($red, 0.08);   color: $red;   }
+  font-size: $font-xs;
+  font-weight: 600;
+  &.green {
+    background: rgba($green, 0.08);
+    color: $green;
+  }
+  &.red {
+    background: rgba($red, 0.08);
+    color: $red;
+  }
 }
 
 .btnRemove {
   @include flex-center;
-  width: 14px; height: 14px;
-  background: transparent; border: none;
-  color: inherit; cursor: pointer;
-  opacity: 0.6; transition: $transition;
-  &:hover:not(:disabled) { opacity: 1; }
-  &:disabled { opacity: 0.3; cursor: not-allowed; }
+  width: 14px;
+  height: 14px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: $transition;
+  &:hover:not(:disabled) {
+    opacity: 1;
+  }
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.heroStatDivider {
+  width: 1px;
+  height: 28px;
+  background: $border;
+}

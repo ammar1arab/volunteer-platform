@@ -1,9 +1,8 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-
 import { UserRole } from "@/core/domain/enums";
-import { ROUTES } from "./presentation/constants";
+import { ROUTES, redirectByRole } from "./presentation/constants";
 
 interface TokenWithRole {
   role?: UserRole;
@@ -21,14 +20,14 @@ export async function proxy(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
   })) as TokenWithRole | null;
 
-  const isAuthPage = pathname === ROUTES.LOGIN || pathname === ROUTES.SIGNUP;
-  const isAdminRoute = pathname.startsWith(ROUTES.ADMIN.ROOT);
+  const isAuthPage     = pathname === ROUTES.LOGIN || pathname === ROUTES.SIGNUP;
+  const isAdminRoute   = pathname.startsWith(ROUTES.ADMIN.ROOT);
   const isVolunteerRoute = pathname.startsWith(ROUTES.VOLUNTEER.ROOT);
 
   const url = req.nextUrl;
 
   if (isAuthPage && token?.role) {
-    url.pathname = ROUTES.redirectByRole(token.role);
+    url.pathname = redirectByRole(token.role);
     return NextResponse.redirect(url);
   }
 
@@ -37,9 +36,8 @@ export async function proxy(req: NextRequest) {
       url.pathname = ROUTES.LOGIN;
       return NextResponse.redirect(url);
     }
-
     if (token.role !== UserRole.ADMIN) {
-      url.pathname = ROUTES.redirectByRole(token.role);
+      url.pathname = redirectByRole(token.role);
       return NextResponse.redirect(url);
     }
   }

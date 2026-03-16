@@ -1,43 +1,68 @@
 @use "@/presentation/styles/_variables" as *;
 @use "@/presentation/styles/_mixins" as *;
 
-.item {
-  @include flex-col;
-  gap: $sp-sm;
-  padding: $sp-md;
+// ── Card ─────────────────────────────────────────────
+.card {
+  @include flex(row, stretch, flex-start, 0);
   border: 1px solid $border;
   border-radius: $radius-md;
   background: $white;
+  overflow: hidden;
   transition: $transition;
 
   &:hover {
-    border-color: rgba($green, 0.25);
-    box-shadow: 0 4px 16px rgba($green, 0.06);
+    border-color: rgba($green, 0.3);
+    box-shadow: 0 4px 20px rgba($green, 0.06);
   }
 }
 
-// ── Header ──────────────────────────────────────────
-.header {
-  @include flex(row, flex-start, space-between, $sp-sm);
-  flex-wrap: wrap;
+// ── Accent bar ───────────────────────────────────────
+.accent {
+  width: 4px;
+  flex-shrink: 0;
+  border-radius: $radius-md 0 0 $radius-md;
+
+  &.green  { background: $green; }
+  &.yellow { background: #f59e0b; }
+  &.red    { background: $red; }
+  &.muted  { background: $border; }
 }
 
-.title {
-  margin: 0;
-  font-size: $font-md;
-  font-weight: 700;
-  color: $text;
+// ── Body ─────────────────────────────────────────────
+.body {
+  @include flex-col;
+  gap: $sp-sm;
+  padding: $sp-md;
   flex: 1;
   min-width: 0;
-  @include line-clamp(2);
 }
 
-.badges {
-  @include flex(row, center, flex-end, $sp-xs);
-  flex-shrink: 0;
+// ── Top row ──────────────────────────────────────────
+.topRow {
+  @include flex(row, center, space-between, $sp-sm);
   flex-wrap: wrap;
 }
 
+.chips {
+  @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
+}
+
+// participation status chip
+.statusChip {
+  padding: 2px 10px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &.green  { background: rgba($green, 0.1);    color: $green;   border: 1px solid rgba($green, 0.2); }
+  &.yellow { background: rgba(#f59e0b, 0.1);   color: #b45309;  border: 1px solid rgba(#f59e0b, 0.25); }
+  &.red    { background: rgba($red, 0.08);     color: $red;     border: 1px solid rgba($red, 0.2); }
+  &.muted  { background: rgba($border, 0.5);   color: $text-muted; border: 1px solid $border; }
+}
+
+// activity type badges — same as rest of app
 .typeBadgeOnline,
 .typeBadgeInPerson {
   @include flex(row, center, center, 4px);
@@ -47,20 +72,63 @@
   font-weight: 600;
   white-space: nowrap;
 }
-
 .typeBadgeOnline {
   background: rgba(#2563eb, 0.08);
   color: #2563eb;
   border: 1px solid rgba(#2563eb, 0.2);
 }
-
 .typeBadgeInPerson {
   background: rgba($green, 0.08);
   color: $green;
   border: 1px solid rgba($green, 0.2);
 }
 
-// ── Description ──────────────────────────────────────
+// attendance badges
+.attendedBadge {
+  @include flex(row, center, center, 4px);
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba($green, 0.08);
+  color: $green;
+  border: 1px solid rgba($green, 0.2);
+}
+.absentBadge {
+  @include flex(row, center, center, 4px);
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba($red, 0.06);
+  color: $red;
+  border: 1px solid rgba($red, 0.15);
+}
+
+// hours pill
+.hoursPill {
+  @include flex(row, center, center, 4px);
+  padding: 2px 10px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba($green, 0.06);
+  color: $green;
+  border: 1px solid rgba($green, 0.15);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// ── Title & description ───────────────────────────────
+.title {
+  margin: 0;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+  @include line-clamp(2);
+  line-height: 1.4;
+}
+
 .description {
   margin: 0;
   font-size: $font-xs;
@@ -69,125 +137,67 @@
   @include line-clamp(2);
 }
 
-// ── Details grid ─────────────────────────────────────
-.detailsGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px $sp-md;
-
-  @include sm { grid-template-columns: 1fr; }
+// ── Meta row ─────────────────────────────────────────
+.metaRow {
+  @include flex(row, center, flex-start, $sp-md);
+  flex-wrap: wrap;
+  gap: $sp-xs $sp-md;
 }
 
-.detail {
-  @include flex(row, center, flex-start, 6px);
+.meta {
+  @include flex(row, center, flex-start, 5px);
   font-size: $font-xs;
   color: $text-muted;
-  min-width: 0;
+  white-space: nowrap;
 
-  svg {
-    color: $green;
-    flex-shrink: 0;
-  }
-
-  span { @include truncate; }
+  svg { color: $green; flex-shrink: 0; }
 }
 
-.hoursDetail {
-  span {
-    color: $green;
-    font-weight: 700;
-  }
-  svg { opacity: 1; }
+// ── Actions row ──────────────────────────────────────
+.actionsRow {
+  @include flex(row, center, space-between, $sp-sm);
+  flex-wrap: wrap;
+  padding-top: $sp-xs;
+  border-top: 1px solid rgba($border, 0.6);
+  gap: $sp-xs;
 }
 
-// ── Attendance chip ───────────────────────────────────
-.attendedChip,
-.absentChip {
-  @include flex(row, center, flex-start, 6px);
-  width: fit-content;
-  padding: 4px 10px;
-  border-radius: $radius-full;
-  font-size: $font-xs;
-  font-weight: 600;
-}
-
-.attendedChip {
-  background: rgba($green, 0.08);
-  color: $green;
-  border: 1px solid rgba($green, 0.2);
-}
-
-.absentChip {
-  background: rgba($red, 0.06);
-  color: $red;
-  border: 1px solid rgba($red, 0.15);
-}
-
-// ── Link buttons ──────────────────────────────────────
 .links {
   @include flex(row, center, flex-start, $sp-xs);
   flex-wrap: wrap;
 }
 
-.linkBtn,
-.mapBtn {
+.linkBtn {
   @include flex(row, center, center, 5px);
-  padding: 5px 12px;
+  padding: 4px 12px;
   border-radius: $radius;
   font-size: $font-xs;
   font-weight: 600;
   text-decoration: none;
-  transition: $transition;
-  border: 1px solid;
-}
-
-.linkBtn {
+  border: 1px solid rgba(#2563eb, 0.2);
   background: rgba(#2563eb, 0.06);
   color: #2563eb;
-  border-color: rgba(#2563eb, 0.2);
+  transition: $transition;
 
-  &:hover {
-    background: rgba(#2563eb, 0.12);
-    border-color: #2563eb;
-  }
+  &:hover { background: rgba(#2563eb, 0.12); border-color: #2563eb; }
 }
 
 .mapBtn {
+  @include flex(row, center, center, 5px);
+  padding: 4px 12px;
+  border-radius: $radius;
+  font-size: $font-xs;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba($green, 0.2);
   background: rgba($green, 0.06);
   color: $green;
-  border-color: rgba($green, 0.2);
+  transition: $transition;
 
-  &:hover {
-    background: rgba($green, 0.12);
-    border-color: $green;
-  }
+  &:hover { background: rgba($green, 0.12); border-color: $green; }
 }
 
-// ── Footer ───────────────────────────────────────────
-.footer {
-  @include flex(row, center, space-between, $sp-sm);
-  padding-top: $sp-xs;
-  border-top: 1px solid $border;
-  flex-wrap: wrap;
-  gap: $sp-xs;
-  margin-top: 2px;
-}
-
-.footerDates {
-  @include flex(row, center, flex-start, $sp-sm);
-  flex-wrap: wrap;
-  gap: $sp-xs;
-}
-
-.dateChip {
-  @include flex(row, center, flex-start, 4px);
-  font-size: $font-xs;
-  color: $text-muted;
-
-  svg { color: $green; flex-shrink: 0; }
-}
-
-.footerActions {
+.btnGroup {
   @include flex(row, center, flex-end, $sp-xs);
 }
 
@@ -202,14 +212,11 @@
   cursor: pointer;
   transition: $transition;
 
-  &:hover:not(:disabled) {
-    background: rgba($green, 0.12);
-    border-color: $green;
-  }
+  &:hover:not(:disabled) { background: rgba($green, 0.12); border-color: $green; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
-.btnCancelRequest {
+.btnCancel {
   padding: 4px $sp-sm;
   border-radius: $radius;
   border: 1px solid rgba($red, 0.3);
@@ -220,9 +227,55 @@
   cursor: pointer;
   transition: $transition;
 
-  &:hover:not(:disabled) {
-    background: rgba($red, 0.12);
-    border-color: $red;
-  }
+  &:hover:not(:disabled) { background: rgba($red, 0.12); border-color: $red; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ── Footer dates ─────────────────────────────────────
+.footerDates {
+  @include flex(row, center, flex-start, $sp-md);
+  flex-wrap: wrap;
+  gap: $sp-xs $sp-md;
+  font-size: 11px;
+  color: $text-muted;
+}
+
+// ── Location Modal ────────────────────────────────────
+.locActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-sm;
+  padding: $sp-xs 0;
+
+  @include sm { grid-template-columns: 1fr; }
+}
+
+.locBtnShare {
+  @include flex-center;
+  padding: $sp-sm;
+  border-radius: $radius;
+  border: 1px solid $border;
+  background: transparent;
+  color: $text;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover { border-color: $green; color: $green; background: rgba($green, 0.04); }
+}
+
+.locBtnMaps {
+  @include flex-center;
+  padding: $sp-sm;
+  border-radius: $radius;
+  background: $green;
+  color: $white;
+  font-size: $font-sm;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  transition: $transition;
+
+  &:hover { opacity: 0.88; }
 }

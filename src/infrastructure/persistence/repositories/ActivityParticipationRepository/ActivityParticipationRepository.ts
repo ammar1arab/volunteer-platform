@@ -22,6 +22,14 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
     return data ? this.mapToEntity(data) : null;
   }
 
+  async sumAttendedHours(userId: string): Promise<number> {
+    const result = await prisma.activityParticipation.aggregate({
+      where: { volunteerId: userId, attendanceStatus: "ATTENDED" },
+      _sum: { volunteerHours: true }
+    });
+    return result._sum.volunteerHours ?? 0;
+  }
+
   async findByActivityAndVolunteer(activityId: string, volunteerId: string): Promise<ActivityParticipation | null> {
     const data = await prisma.activityParticipation.findUnique({
       where: { activityId_volunteerId: { activityId, volunteerId } }

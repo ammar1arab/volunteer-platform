@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { CITY_OPTIONS, ROUTES, getCityLabel, getGenderLabel, getMonthLabel } from "@/presentation/constants";
 import { LoadingState } from "@/presentation/components";
-import { User, Mail, Phone, MapPin, Calendar, Award, Heart, Edit2, Check, X, Upload, Plus, ChevronLeft } from "lucide-react";
+import { User, Mail, Phone, MapPin, Calendar, Award, FileText, Heart, Edit2, Check, X, Upload, Plus, ChevronLeft } from "lucide-react";
 import { JordanianCity, Gender } from "@/core/domain/enums";
 
 const GENDER_OPTIONS = [
@@ -25,7 +25,7 @@ export default function VolunteerProfilePage() {
     user, isLoading, error, successMessage,
     editingField, isSaving, isUploadingImage,
     startEditing, cancelEditing, updateFieldValue, saveField,
-    handleProfilePictureUpload, calculateAge, totalHours
+    handleProfilePictureUpload, calculateAge, totalHours, certCount
   } = useProfilePage();
 
   if (isLoading) return <LoadingState />;
@@ -78,14 +78,28 @@ export default function VolunteerProfilePage() {
                   <span className={styles.heroStatValue}>{totalHours}</span>
                   <span className={styles.heroStatLabel}>ساعة تطوع</span>
                 </div>
+                <div className={styles.heroStatDivider} />
+                <div className={styles.heroStat}>
+                  <span className={styles.heroStatValue}>{certCount}</span>
+                  <span className={styles.heroStatLabel}>شهادة</span>
+                </div>
               </div>
             )}
           </div>
         </section>
 
-        <Link href={ROUTES.VOLUNTEER.ACTIVITIES} className={styles.activitiesLink}>
-          <Award size={15} /><span>سجل فرصي التطوعية</span><ChevronLeft size={15} />
-        </Link>
+        <div className={styles.quickLinks}>
+          <Link href={ROUTES.VOLUNTEER.ACTIVITIES} className={styles.quickLink}>
+            <Award size={15} />
+            <span>فرصي التطوعية</span>
+            <ChevronLeft size={15} />
+          </Link>
+          <Link href={ROUTES.VOLUNTEER.CERTIFICATES} className={styles.quickLink}>
+            <FileText size={15} />
+            <span>شهاداتي</span>
+            <ChevronLeft size={15} />
+          </Link>
+        </div>
 
         <div className={styles.grid}>
           <Card title="المعلومات الشخصية">
