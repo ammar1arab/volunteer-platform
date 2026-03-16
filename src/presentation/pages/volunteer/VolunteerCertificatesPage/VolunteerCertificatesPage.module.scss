@@ -16,14 +16,13 @@
 }
 
 .statCard {
-  @include flex-col;
+  @include flex-row;
   align-items: center;
   gap: 2px;
   flex: 1;
   padding: $sp-md $sp-sm;
   text-align: center;
   border-radius: $radius;
-  border: 1.5px solid $border;
 }
 
 .statValue {
