@@ -10,34 +10,34 @@
   padding: $sp-xl $sp-md $sp-2xl;
 }
 
-.statsRow {
-  display: flex;
-  gap: $sp-sm;
-}
+// .statsRow {
+//   display: flex;
+//   gap: $sp-sm;
+// }
 
-.statCard {
-  @include flex-row;
-  align-items: center;
-  gap: 2px;
-  flex: 1;
-  padding: $sp-md $sp-sm;
-  text-align: center;
-  border-radius: $radius;
-}
+// .statCard {
+//   @include flex-col;
+//   align-items: center;
+//   gap: 2px;
+//   flex: 1;
+//   padding: $sp-xs $sp-sm;
+//   text-align: center;
+//   border-radius: $radius;
+// }
 
-.statValue {
-  font-size: $font-lg;
-  font-weight: 800;
-  color: $text;
-  line-height: 1;
-  &.green { color: $green; }
-}
+// .statValue {
+//   font-size: $font-lg;
+//   font-weight: 800;
+//   color: $text;
+//   line-height: 1;
+//   &.green { color: $green; }
+// }
 
-.statLabel {
-  font-size: $font-xs;
-  color: $text-muted;
-  white-space: nowrap;
-}
+// .statLabel {
+//   font-size: $font-xs;
+//   color: $text-muted;
+//   white-space: nowrap;
+// }
 
 .toolbar {
   @include flex(row, center, flex-start, $sp-sm);

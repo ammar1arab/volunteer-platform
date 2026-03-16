@@ -1,15 +1,14 @@
-// NotificationDropdown.module.scss
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
 @keyframes dropdownReveal {
-  0%   { opacity: 0; transform: translateY(10px) scale(0.97); }
+  0%   { opacity: 0; transform: translateY(12px) scale(0.96); }
   100% { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
 @keyframes pulseUnread {
-  0%, 100% { background: rgba($red, 0.04); }
-  50%       { background: rgba($red, 0.08); }
+  0%, 100% { background: rgba($red, 0.05); }
+  50%       { background: rgba($red, 0.09); }
 }
 
 @keyframes spin {
@@ -18,29 +17,29 @@
 
 .dropdown {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 25px);
   left: 0;
   width: 340px;
   z-index: $z-fixed + 2;
   border-radius: $radius-lg;
-  animation: dropdownReveal 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  animation: dropdownReveal 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  box-shadow: 0 15px 50px -12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   background: $bg;
-  border: 1px solid $border;
+  border: 1px solid rgba($border, 0.6);
 
   @media (max-width: $bp-sm) {
     position: fixed;
     top: 80px;
-    left: 12px;
-    right: 12px;
+    left: 16px;
+    right: 16px;
     width: auto;
   }
 }
 
 .header {
   @include flex-between;
-  padding: $sp-sm $sp-md;
+  padding: $sp-md;
   border-bottom: 2px solid $red;
   background: rgba($red, 0.03);
 }
@@ -53,7 +52,7 @@
 
 .markAllBtn {
   @include flex(row, center, center, $sp-xs);
-  background: rgba($red, 0.06);
+  background: rgba($red, 0.07);
   border: 1px solid rgba($red, 0.2);
   cursor: pointer;
   font-size: $font-xs;
@@ -62,15 +61,11 @@
   padding: 4px 10px;
   border-radius: $radius-full;
   transition: $transition;
-
-  &:hover {
-    background: rgba($red, 0.12);
-    border-color: $red;
-  }
+  &:hover { background: rgba($red, 0.14); }
 }
 
 .list {
-  max-height: 380px;
+  max-height: 400px;
   overflow-y: auto;
   @include flex-col;
   scrollbar-width: none;
@@ -81,27 +76,25 @@
 .item {
   display: flex;
   align-items: flex-start;
-  gap: $sp-sm;
+  gap: $sp-md;
   width: 100%;
-  padding: $sp-sm $sp-md;
+  padding: $sp-md;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba($border, 0.5);
+  border-bottom: 1px solid rgba($border, 0.3);
   cursor: pointer;
-  transition: $transition;
+  transition: all 0.2s ease;
   text-align: right;
   position: relative;
+  text-decoration: none;
 
   &:last-child { border-bottom: none; }
-
-  &:hover {
-    background: rgba($red, 0.03);
-    .iconWrap { background: rgba($red, 0.12); color: $red; }
-  }
+  &:hover { background: rgba($red, 0.03); transform: translateX(-3px); }
 
   &.unread {
-    animation: pulseUnread 3s infinite;
+    background: rgba($red, 0.04);
     border-right: 3px solid $red;
+    animation: pulseUnread 3s infinite;
     .itemTitle { font-weight: 800; color: $red; }
   }
 }
@@ -109,12 +102,11 @@
 .iconWrap {
   position: relative;
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border-radius: $radius;
-  background: rgba($border, 0.3);
-  color: $text-muted;
-  transition: $transition;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba($red, 0.08);
+  color: $red;
   @include flex-center;
 }
 
@@ -122,8 +114,8 @@
   position: absolute;
   top: -2px;
   right: -2px;
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: $red;
   border: 2px solid $bg;
@@ -153,16 +145,16 @@
 .time {
   @include flex(row, center, flex-start, 4px);
   font-size: 10px;
-  color: rgba($text-muted, 0.6);
-  margin-top: 2px;
+  color: rgba($text-muted, 0.7);
+  margin-top: 4px;
 }
 
 .empty {
-  @include flex(column, center, center, $sp-sm);
+  @include flex(column, center, center, $sp-md);
   padding: $sp-2xl;
   color: $text-muted;
   text-align: center;
-  svg { opacity: 0.15; }
+  svg { opacity: 0.2; }
 }
 
 .loadingWrap {
@@ -171,9 +163,9 @@
 }
 
 .spinner {
-  width: 22px;
-  height: 22px;
-  border: 2px solid rgba($red, 0.15);
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba($red, 0.12);
   border-top-color: $red;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;

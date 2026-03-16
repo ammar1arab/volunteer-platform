@@ -80,10 +80,17 @@ const CertificateCard = ({ certificate }: Props) => {
               PDF
             </a>
           )}
-          
+
+          {certificate.pngUrl && (
+            <a href={certificate.pngUrl} download className={styles.btnPng}>
+              <Download size={14} />
+              PNG
+            </a>
+          )}
+
           <Share
             trigger={(openShare) => (
-              <button 
+              <button
                 className={styles.btnIcon}
                 onClick={() => openShare({ title: certificate.activityTitle, text: shareText })}
               >
@@ -91,7 +98,7 @@ const CertificateCard = ({ certificate }: Props) => {
               </button>
             )}
           />
-          
+
           <Link href={ROUTES.VERIFY(certificate.id)} className={styles.btnVerify}>
             <ShieldCheck size={14} />
             تحقق

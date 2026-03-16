@@ -30,7 +30,7 @@ const VolunteerCertificatesPage = () => {
       <div className={styles.container}>
 
         {/* Stats */}
-        <div className={styles.statsRow}>
+        {/* <div className={styles.statsRow}>
           <div className={styles.statCard}>
             <span className={`${styles.statValue} ${styles.green}`}>{certificates.length}</span>
             <span className={styles.statLabel}>شهادة</span>
@@ -39,7 +39,7 @@ const VolunteerCertificatesPage = () => {
             <span className={`${styles.statValue} ${styles.green}`}>{totalHours}</span>
             <span className={styles.statLabel}>ساعة تطوع</span>
           </div>
-        </div>
+        </div> */}
 
         {/* Toolbar */}
         <div className={styles.toolbar}>

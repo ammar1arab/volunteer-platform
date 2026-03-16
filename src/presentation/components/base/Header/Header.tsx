@@ -1,4 +1,3 @@
-// Header.tsx
 'use client';
 import styles from './Header.module.scss';
 import Link from 'next/link';
@@ -38,7 +37,9 @@ const VolunteerActions = ({
   isLoading, isVolunteer, userName, userInitial, avatarUrl,
   openMenu, wrapperRef, onToggle, onLogout, mobile = false
 }: ActionsProps) => {
-  if (isLoading) return <div className={styles.authPlaceholder} />;
+  if (isLoading) {
+    return <div className={styles.authPlaceholder} />;
+  }
 
   if (!isVolunteer) {
     return (
@@ -64,9 +65,13 @@ const VolunteerActions = ({
           onClick={() => onToggle('user')}
         >
           {avatarUrl ? (
-            <Image src={avatarUrl} alt={userName}
-              width={mobile ? 30 : 34} height={mobile ? 30 : 34}
-              className={styles.avatarImg} />
+            <Image
+              src={avatarUrl}
+              alt={userName}
+              width={mobile ? 30 : 34}
+              height={mobile ? 30 : 34}
+              className={styles.avatarImg}
+            />
           ) : (
             <span className={styles.avatarInitial}>{userInitial}</span>
           )}
@@ -115,12 +120,12 @@ const Header = () => {
   }, [openMenu]);
 
   const toggle = (menu: OpenMenu) => {
-    setMenuOpen(false); // ← close burger when any dropdown opens
+    setMenuOpen(false);
     setOpenMenu(prev => prev === menu ? null : menu);
   };
 
   const toggleBurger = () => {
-    setOpenMenu(null); // ← close all dropdowns when burger opens
+    setOpenMenu(null);
     setMenuOpen(p => !p);
   };
 
@@ -139,6 +144,7 @@ const Header = () => {
       <header className={styles.header}>
         <div className="container">
           <nav className={styles.nav}>
+
             <Link href="/" className={styles.logoDesktop}>
               <Image src="/images/logo.png" alt="Logo" width={90} height={0}
                 style={{ height: 'auto' }} loading="eager" priority />
@@ -175,6 +181,7 @@ const Header = () => {
                 </button>
               </div>
             </div>
+
           </nav>
 
           {menuOpen && (
