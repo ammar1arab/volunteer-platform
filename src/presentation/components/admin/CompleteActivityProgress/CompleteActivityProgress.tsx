@@ -46,7 +46,7 @@ const CompleteActivityProgress = ({ steps, isDone, issuedCount, activityTitle, o
       {!showCelebration ? (
         <>
           <p className={styles.subtitle}>
-            {isDone ? 'اكتمل كل شيء!' : 'يعمل النظام في الخلفية — لا تغلق الصفحة'}
+            {isDone ? 'اكتمل كل شيء!' : 'يعمل النظام في الخلفية لا تغلق الصفحة'}
           </p>
 
           {/* ── Steps ── */}
