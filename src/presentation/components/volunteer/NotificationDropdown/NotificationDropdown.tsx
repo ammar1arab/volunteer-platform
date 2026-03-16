@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Bell, CheckCheck, Clock } from 'lucide-react';
 import styles from './NotificationDropdown.module.scss';
 import type { NotificationDto } from '@/core/application/dtos';
@@ -21,10 +21,16 @@ function relativeTime(dateStr: string): string {
   return `منذ ${Math.floor(diff / 86400)} يوم`;
 }
 
-const NotificationDropdown = ({ list, isLoading, onMarkAsRead, onMarkAllAsRead }: Props) => {
-  console.log("notifications links:", list.map(n => ({ id: n.id, link: n.link, metadata: n.metadata })));
-
+const NotificationDropdown = ({ list, isLoading, onMarkAsRead, onMarkAllAsRead, onClose }: Props) => {
+  const router = useRouter();
   const hasUnread = list.some(n => !n.isRead);
+
+  const handleItemMouseDown = (e: React.MouseEvent, n: NotificationDto) => {
+    e.stopPropagation(); // ← stops the NotificationBell outside-click handler
+    onClose();
+    if (!n.isRead) onMarkAsRead(n.id);
+    router.push(n.link);
+  };
 
   if (isLoading && list.length === 0) {
     return (
@@ -63,13 +69,10 @@ const NotificationDropdown = ({ list, isLoading, onMarkAsRead, onMarkAllAsRead }
           </div>
         ) : (
           list.map(n => (
-            <Link
+            <div
               key={n.id}
-              href={n.link}
               className={`${styles.item} ${!n.isRead ? styles.unread : ''}`}
-              onClick={() => {
-                if (!n.isRead) onMarkAsRead(n.id);
-              }}
+              onMouseDown={(e) => handleItemMouseDown(e, n)}
             >
               <div className={styles.iconWrap}>
                 <Bell size={16} />
@@ -83,7 +86,7 @@ const NotificationDropdown = ({ list, isLoading, onMarkAsRead, onMarkAllAsRead }
                   {relativeTime(n.createdAt)}
                 </span>
               </div>
-            </Link>
+            </div>
           ))
         )}
       </div>

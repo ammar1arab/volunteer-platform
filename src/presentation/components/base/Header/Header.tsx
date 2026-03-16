@@ -1,3 +1,4 @@
+// Header.tsx
 'use client';
 import styles from './Header.module.scss';
 import Link from 'next/link';
@@ -20,9 +21,6 @@ const NAV_LINKS = [
 
 type OpenMenu = 'notifications' | 'user' | null;
 
-// ── Extracted outside Header — stable component identity ──────
-// Defining this inside Header caused React to unmount/remount
-// NotificationBell on every Header re-render, breaking polling
 interface ActionsProps {
   isLoading: boolean;
   isVolunteer: boolean;
@@ -40,9 +38,7 @@ const VolunteerActions = ({
   isLoading, isVolunteer, userName, userInitial, avatarUrl,
   openMenu, wrapperRef, onToggle, onLogout, mobile = false
 }: ActionsProps) => {
-  if (isLoading) {
-    return <div className={styles.authPlaceholder} />;
-  }
+  if (isLoading) return <div className={styles.authPlaceholder} />;
 
   if (!isVolunteer) {
     return (
@@ -68,13 +64,9 @@ const VolunteerActions = ({
           onClick={() => onToggle('user')}
         >
           {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt={userName}
-              width={mobile ? 30 : 34}
-              height={mobile ? 30 : 34}
-              className={styles.avatarImg}
-            />
+            <Image src={avatarUrl} alt={userName}
+              width={mobile ? 30 : 34} height={mobile ? 30 : 34}
+              className={styles.avatarImg} />
           ) : (
             <span className={styles.avatarInitial}>{userInitial}</span>
           )}
@@ -92,7 +84,6 @@ const VolunteerActions = ({
   );
 };
 
-// ── Header ────────────────────────────────────────────────────
 const Header = () => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
@@ -109,10 +100,8 @@ const Header = () => {
   const userInitial = userName.charAt(0).toUpperCase() || 'أ';
   const avatarUrl = (session?.user as any)?.profilePictureUrl ?? null;
 
-  // Close everything on route change
   useEffect(() => { setMenuOpen(false); setOpenMenu(null); }, [pathname]);
 
-  // Close user menu on outside click
   useEffect(() => {
     if (openMenu !== 'user') return;
     const handler = (e: MouseEvent) => {
@@ -125,8 +114,15 @@ const Header = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, [openMenu]);
 
-  const toggle = (menu: OpenMenu) =>
+  const toggle = (menu: OpenMenu) => {
+    setMenuOpen(false); // ← close burger when any dropdown opens
     setOpenMenu(prev => prev === menu ? null : menu);
+  };
+
+  const toggleBurger = () => {
+    setOpenMenu(null); // ← close all dropdowns when burger opens
+    setMenuOpen(p => !p);
+  };
 
   const handleLogout = () => { setOpenMenu(null); setShowLogout(true); };
 
@@ -143,7 +139,6 @@ const Header = () => {
       <header className={styles.header}>
         <div className="container">
           <nav className={styles.nav}>
-
             <Link href="/" className={styles.logoDesktop}>
               <Image src="/images/logo.png" alt="Logo" width={90} height={0}
                 style={{ height: 'auto' }} loading="eager" priority />
@@ -160,12 +155,10 @@ const Header = () => {
               ))}
             </ul>
 
-            {/* Desktop */}
             <div className={styles.actions}>
               <VolunteerActions {...sharedProps} />
             </div>
 
-            {/* Mobile */}
             <div className={styles.mobileBar}>
               <Link href="/" className={styles.mobileLogo}>
                 <Image src="/images/logo.png" alt="Logo" width={80} height={0}
@@ -175,14 +168,13 @@ const Header = () => {
                 <VolunteerActions {...sharedProps} wrapperRef={mobileRef} mobile />
                 <button
                   className={styles.menuBtn}
-                  onClick={() => setMenuOpen(p => !p)}
+                  onClick={toggleBurger}
                   aria-expanded={menuOpen}
                 >
                   {menuOpen ? <RxCross2 size={22} /> : <RxHamburgerMenu size={22} />}
                 </button>
               </div>
             </div>
-
           </nav>
 
           {menuOpen && (

@@ -1,14 +1,15 @@
+// NotificationDropdown.module.scss
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
 @keyframes dropdownReveal {
-  0% { opacity: 0; transform: translateY(12px) scale(0.96); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0%   { opacity: 0; transform: translateY(10px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
 @keyframes pulseUnread {
-  0%, 100% { background: rgba($green, 0.05); }
-  50% { background: rgba($green, 0.08); }
+  0%, 100% { background: rgba($red, 0.04); }
+  50%       { background: rgba($red, 0.08); }
 }
 
 @keyframes spin {
@@ -22,88 +23,98 @@
   width: 340px;
   z-index: $z-fixed + 2;
   border-radius: $radius-lg;
-  animation: dropdownReveal 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  box-shadow: 0 15px 50px -12px rgba(0, 0, 0, 0.2);
+  animation: dropdownReveal 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
   overflow: hidden;
   background: $bg;
-  border: 1px solid rgba($border, 0.6);
+  border: 1px solid $border;
 
   @media (max-width: $bp-sm) {
     position: fixed;
     top: 80px;
-    left: 16px;
-    right: 16px;
+    left: 12px;
+    right: 12px;
     width: auto;
   }
 }
 
 .header {
   @include flex-between;
-  padding: $sp-md;
-  border-bottom: 1px solid rgba($border, 0.5);
+  padding: $sp-sm $sp-md;
+  border-bottom: 2px solid $red;
+  background: rgba($red, 0.03);
 }
 
 .title {
   font-size: $font-sm;
   font-weight: 800;
-  color: $text;
+  color: $red;
 }
 
 .markAllBtn {
   @include flex(row, center, center, $sp-xs);
-  background: transparent;
-  border: none;
+  background: rgba($red, 0.06);
+  border: 1px solid rgba($red, 0.2);
   cursor: pointer;
   font-size: $font-xs;
   font-weight: 700;
-  color: $green;
-  padding: 4px 8px;
-  border-radius: $radius;
-  transition: background 0.2s;
-  &:hover { background: rgba($green, 0.08); }
+  color: $red;
+  padding: 4px 10px;
+  border-radius: $radius-full;
+  transition: $transition;
+
+  &:hover {
+    background: rgba($red, 0.12);
+    border-color: $red;
+  }
 }
 
 .list {
-  max-height: 400px;
+  max-height: 380px;
   overflow-y: auto;
   @include flex-col;
-  &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: rgba($green, 0.2); border-radius: 10px; }
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .item {
   display: flex;
   align-items: flex-start;
-  gap: $sp-md;
+  gap: $sp-sm;
   width: 100%;
-  padding: $sp-md;
+  padding: $sp-sm $sp-md;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba($border, 0.3);
+  border-bottom: 1px solid rgba($border, 0.5);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: $transition;
   text-align: right;
   position: relative;
-  text-decoration: none;
 
   &:last-child { border-bottom: none; }
-  &:hover { background: rgba($green, 0.02); transform: translateX(-3px); }
+
+  &:hover {
+    background: rgba($red, 0.03);
+    .iconWrap { background: rgba($red, 0.12); color: $red; }
+  }
 
   &.unread {
-    background: rgba($green, 0.04);
     animation: pulseUnread 3s infinite;
-    .itemTitle { font-weight: 800; }
+    border-right: 3px solid $red;
+    .itemTitle { font-weight: 800; color: $red; }
   }
 }
 
 .iconWrap {
   position: relative;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba($green, 0.1);
-  color: $green;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius;
+  background: rgba($border, 0.3);
+  color: $text-muted;
+  transition: $transition;
   @include flex-center;
 }
 
@@ -111,8 +122,8 @@
   position: absolute;
   top: -2px;
   right: -2px;
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: $red;
   border: 2px solid $bg;
@@ -142,16 +153,16 @@
 .time {
   @include flex(row, center, flex-start, 4px);
   font-size: 10px;
-  color: rgba($text-muted, 0.7);
-  margin-top: 4px;
+  color: rgba($text-muted, 0.6);
+  margin-top: 2px;
 }
 
 .empty {
-  @include flex(column, center, center, $sp-md);
+  @include flex(column, center, center, $sp-sm);
   padding: $sp-2xl;
   color: $text-muted;
   text-align: center;
-  svg { opacity: 0.2; }
+  svg { opacity: 0.15; }
 }
 
 .loadingWrap {
@@ -160,10 +171,10 @@
 }
 
 .spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid rgba($green, 0.1);
-  border-top-color: $green;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba($red, 0.15);
+  border-top-color: $red;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
