@@ -22,10 +22,14 @@ export const useAdminUserDetailsPage = () => {
     setCurrentPage(1);
   }, [activeFilter]);
 
-  const filteredActivities = useMemo(
-    () => activeFilter === "all" ? activities : activities.filter((a) => a.status === (activeFilter as ParticipationStatus)),
-    [activities, activeFilter]
-  );
+  const filteredActivities = useMemo(() => {
+    const result =
+      activeFilter === "all"
+        ? activities
+        : activities.filter((a) => a.status === (activeFilter as ParticipationStatus));
+
+    return [...result].sort((a, b) => (b.volunteerHours ?? 0) - (a.volunteerHours ?? 0));
+  }, [activities, activeFilter]);
 
   const paginatedActivities = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -34,38 +38,48 @@ export const useAdminUserDetailsPage = () => {
 
   const totalHours = useMemo(() => {
     const hours = activities
-      .filter(a => a.status === ParticipationStatus.APPROVED)
+      .filter((a) => a.status === ParticipationStatus.APPROVED)
       .reduce((sum, a) => sum + ((a as any).volunteerHours ?? 0), 0);
     return Math.round(hours * 100) / 100;
   }, [activities]);
 
   const exportData = useMemo(() => {
     if (!user) return [];
-    return [{
-      fullName: user.fullName,
-      email: user.email,
-      phone: user.phone,
-      city: user.volunteerProfile?.city || "-",
-      dateOfBirth: user.volunteerProfile?.dateOfBirth ? new Date(user.volunteerProfile.dateOfBirth).toLocaleDateString("ar") : "-",
-      gender: user.volunteerProfile?.gender || "-",
-      bio: user.volunteerProfile?.bio || "-",
-      interests: user.volunteerProfile?.interests?.join(", ") || "-",
-      skills: user.volunteerProfile?.skills?.join(", ") || "-",
-      activities: activities.map((a) => a.activity.title).join(", ") || "-",
-      createdAt: new Date(user.createdAt).toLocaleDateString("ar"),
-    }];
+    return [
+      {
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        city: user.volunteerProfile?.city || "-",
+        dateOfBirth: user.volunteerProfile?.dateOfBirth
+          ? new Date(user.volunteerProfile.dateOfBirth).toLocaleDateString("ar")
+          : "-",
+        gender: user.volunteerProfile?.gender || "-",
+        bio: user.volunteerProfile?.bio || "-",
+        interests: user.volunteerProfile?.interests?.join(", ") || "-",
+        skills: user.volunteerProfile?.skills?.join(", ") || "-",
+        activities: activities.map((a) => a.activity.title).join(", ") || "-",
+        createdAt: new Date(user.createdAt).toLocaleDateString("ar")
+      }
+    ];
   }, [user, activities]);
 
   return {
-    status, user,
+    status,
+    user,
     activities: paginatedActivities,
     allActivities: activities,
     totalFilteredItems: filteredActivities.length,
-    loadingUser, loadingActivities,
-    activeFilter, setActiveFilter,
-    currentPage, setCurrentPage,
+    loadingUser,
+    loadingActivities,
+    activeFilter,
+    setActiveFilter,
+    currentPage,
+    setCurrentPage,
     itemsPerPage: ITEMS_PER_PAGE,
-    toasts, removeToast,
-    exportData, totalHours,
+    toasts,
+    removeToast,
+    exportData,
+    totalHours
   };
 };

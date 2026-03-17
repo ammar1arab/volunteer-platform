@@ -6,7 +6,7 @@ import { useUsers, useToast, useAuth } from "@/presentation/hooks";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 import { getCityLabel } from "@/presentation/constants";
 
-type SortOption = "default" | "oldest" | "newest" | "name" | "age" | "most-active";
+type SortOption = "default" | "oldest" | "newest" | "name" | "age" | "most-active" | "most-hours" | "most-certs";
 
 const calculateAge = (dateOfBirth?: string): number => {
   if (!dateOfBirth) return 0;
@@ -45,6 +45,10 @@ const sortUsers = (users: UserAnalyticsDto[], sortBy: SortOption): UserAnalytics
       }
       case "most-active":
         return b.stats.approvedActivities - a.stats.approvedActivities;
+      case "most-hours":
+        return b.stats.totalHours - a.stats.totalHours;
+      case "most-certs":
+        return b.stats.certificatesCount - a.stats.certificatesCount;
       default:
         return 0;
     }

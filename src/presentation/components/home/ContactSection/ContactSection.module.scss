@@ -1,19 +1,23 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-.section {
-  padding: 80px 0;
-}
+.section { padding: 60px 0; }
 
 .form {
   max-width: 620px;
   margin: 0 auto;
   display: grid;
-  gap: $sp-xl;
+  gap: $sp-lg;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-md;
+  @media (max-width: 520px) { grid-template-columns: 1fr; }
 }
 
 .field {
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: $sp-xs;
@@ -23,7 +27,6 @@
   font-size: $font-sm;
   font-weight: 700;
   color: $text-muted;
-  padding-right: $sp-xs;
   transition: color 0.2s ease;
 }
 
@@ -31,100 +34,57 @@
   position: relative;
   display: flex;
   align-items: center;
+  &:focus-within .icon,
+  &:focus-within .textareaIcon { color: $green; }
 }
 
 .icon {
   position: absolute;
-  right: 16px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: $text-muted;
-  transition: color 0.25s ease;
   pointer-events: none;
+  transition: color 0.25s ease;
   z-index: 1;
 }
 
 .textareaIcon {
   position: absolute;
-  right: 16px;
-  top: 18px;
+  right: 14px;
+  top: 16px;
   color: $text-muted;
-  transition: color 0.25s ease;
   pointer-events: none;
+  transition: color 0.25s ease;
   z-index: 1;
 }
 
 .inputBase {
   width: 100%;
-  padding: 14px 48px 14px 16px;
+  padding: 11px 42px 11px 14px;
   border-radius: $radius;
   border: 1.5px solid $border;
   background: transparent;
-  font-size: $font-base;
+  font-size: $font-sm;
   color: $text;
   direction: rtl;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 
   &:focus {
     border-color: $green;
-    box-shadow: 0 0 0 3px rgba($green, 0.12);
+    box-shadow: 0 0 0 3px rgba($green, 0.1);
     outline: none;
-
-    ~ .icon,
-    ~ .textareaIcon {
-      color: $green;
-    }
   }
 
   &::placeholder {
-    color: rgba($text-muted, 0.55);
+    color: rgba($text-muted, 0.5);
     font-size: $font-sm;
   }
 }
 
-.inputWrapper:focus-within .icon,
-.inputWrapper:focus-within .textareaIcon {
-  color: $green;
-}
-
-.inputWrapper:focus-within .label {
-  color: $green;
-}
-
 textarea.inputBase {
-  min-height: 140px;
+  min-height: 110px;
   resize: none;
-  padding-top: 16px;
+  padding-top: 14px;
   line-height: 1.7;
-}
-
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, $border, transparent);
-  margin: $sp-xs 0;
-}
-
-.submitBtn {
-  @include flex(row, center, center, $sp-sm);
-  width: 100%;
-  padding: 15px;
-  border-radius: $radius;
-  background: $green;
-  color: white;
-  font-size: $font-base;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
-  letter-spacing: 0.3px;
-
-  &:hover {
-    background: $green, 6%;
-    box-shadow: 0 4px 20px rgba($green, 0.35);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
 }

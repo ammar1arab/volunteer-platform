@@ -10,7 +10,9 @@ import {
 
 const SORT_OPTIONS = [
   { key: "default", label: "الافتراضي" },
-  { key: "most-active", label: "الأكثر نشاطاً" },
+  { key: "most-active", label: "الفرص" },
+  { key: "most-hours", label: "الساعات" },
+  { key: "most-certs", label: "الشهادات" },
   { key: "oldest", label: "الأقدم" },
   { key: "newest", label: "الأحدث" },
   { key: "name", label: "الاسم" },

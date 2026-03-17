@@ -37,7 +37,7 @@ type Props = {
 
 const STATUS_COLOR: Record<ParticipationStatus, string> = {
   [ParticipationStatus.APPROVED]: "green",
-  [ParticipationStatus.PENDING]:  "yellow",
+  [ParticipationStatus.PENDING]: "yellow",
   [ParticipationStatus.REJECTED]: "red",
   [ParticipationStatus.CANCELLED]: "muted",
 };
@@ -60,13 +60,13 @@ const ActivityItem = ({
 }: Props) => {
   const [locationModalOpen, setLocationModalOpen] = useState(false);
 
-  const isOnline  = activityType === ActivityType.ONLINE;
-  const hasMap    = !isOnline && latitude && longitude;
-  const mapUrl    = hasMap ? `https://www.google.com/maps?q=${latitude},${longitude}` : null;
+  const isOnline = activityType === ActivityType.ONLINE;
+  const hasMap = !isOnline && latitude && longitude;
+  const mapUrl = hasMap ? `https://www.google.com/maps?q=${latitude},${longitude}` : null;
   const meetingUrl = meetingLink?.startsWith("http") ? meetingLink : meetingLink ? `https://${meetingLink}` : null;
   const platformLabel = meetingPlatform ? getMeetingPlatformLabel(meetingPlatform) : "رابط الاجتماع";
-  const attended  = attendanceStatus === AttendanceStatus.ATTENDED;
-  const absent    = attendanceStatus === AttendanceStatus.ABSENT;
+  const attended = attendanceStatus === AttendanceStatus.ATTENDED;
+  const absent = attendanceStatus === AttendanceStatus.ABSENT;
 
   return (
     <>
@@ -176,6 +176,8 @@ const ActivityItem = ({
           </div>
 
         </div>
+        <div className={`${styles.accent} ${styles[STATUS_COLOR[status]]}`} />
+
       </div>
 
       {/* ── Location Modal ── */}

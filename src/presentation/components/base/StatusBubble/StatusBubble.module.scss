@@ -1,0 +1,82 @@
+@use "@/presentation/styles/variables" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.25s ease forwards;
+
+  &.out {
+    animation: fadeOut 0.3s ease forwards;
+
+    .bubble {
+      animation: popOut 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+    }
+  }
+}
+
+.bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $sp-md;
+  padding: $sp-xl $sp-2xl;
+  border-radius: $radius-2xl;
+  background: $white;
+  box-shadow: $shadow-deep;
+  min-width: 200px;
+  max-width: 260px;
+  text-align: center;
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.iconWrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+  animation: iconPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+
+  &.success { background: $green; }
+  &.error   { background: $red; }
+}
+
+.message {
+  margin: 0;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+  line-height: 1.5;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.75); }
+}
+
+@keyframes iconPop {
+  from { transform: scale(0.3) rotate(-20deg); opacity: 0; }
+  to   { transform: scale(1)   rotate(0deg);   opacity: 1; }
+}
