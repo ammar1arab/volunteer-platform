@@ -27,12 +27,17 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await ResendClient.getInstance().emails.send({
-      from: "youthprints <no-reply@youthprints.online>",
+      from: "بصمات شبابية <contact@youthprints.online>",
       to: "contact@youthprints.online",
       replyTo: email,
       subject: `رسالة جديدة من ${name}`,
-      html: buildContactEmail(name.trim(), email.trim(), message.trim()),
+      html: buildContactEmail(name.trim(), email.trim(), message.trim())
     });
+
+    if (result.error) {
+      logger.error("contact", "POST", result.error);
+      return apiError("contact", "POST", result.error);
+    }
 
     logger.info("contact", "POST", { sent: true, id: result.data?.id });
 

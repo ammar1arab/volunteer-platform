@@ -17,7 +17,6 @@ export function buildCertificateHtml(
 ): string {
   const { volunteerName, activityTitle, activityDate, durationHours, issueDate, certificateId, gender } = props;
 
-  const vol = gender === "FEMALE" ? "المتطوعة" : "المتطوع";
   const part = gender === "FEMALE" ? "لمشاركتها" : "لمشاركته";
   const certId = certificateId.slice(0, 10).toUpperCase();
 
@@ -152,7 +151,6 @@ padding: 50px 80px 60px;
     .f-val   { font-size: 10px; font-weight: 700; color: #374151; }
     .f-email { font-size: 8px;  color: #c9a84c; margin-top: 4px; direction: ltr; }
 
-    .sig-line  { width: 140px; height: 1px; background: rgba(21,128,61,0.3); margin-bottom: 8px; }
     .sig-name  { font-size: 26px; font-weight: 800; color: #15803d; text-align: center; }
     .sig-title { font-size: 11px; color: #6b7280; text-align: center; }
 
@@ -193,11 +191,11 @@ padding: 50px 80px 60px;
         <div class="title-line line-l"></div>
       </div>
 
-      <div class="text-c">تُقدِّم مبادرة بصمات الشبابية بكل فخر واعتزاز هذه الشهادة تقديراً لجهود ${vol}:</div>
+      <div class="text-c">تُقدِّم مبادرة بصمات الشبابية بكل فخر واعتزاز هذه الشهادة تقديراً لجهود</div>
 
       <div class="vol-name">${volunteerName}</div>
 
-      <div class="text-c">${part} المتميزة والفاعلة في فرصة التطوع:</div>
+      <div class="text-c">${part} المتميزة والفاعلة في فرصة</div>
 
       <div class="activity-box">
         <div class="activity-title">${activityTitle}</div>
@@ -229,9 +227,8 @@ padding: 50px 80px 60px;
           <div class="f-email">support@youthprints.online</div>
         </div>
         <div class="f-c">
-          <div class="sig-line"></div>
           <div class="sig-name">خالد الدويك</div>
-          <div class="sig-title">مسؤول المبادرة</div>
+          <div class="sig-title">مؤسس المبادرة</div>
         </div>
         <div class="f-r">
           <div class="f-label">للتحقق من الشهادة</div>
@@ -244,8 +241,8 @@ padding: 50px 80px 60px;
 
     <div class="deco-bar">
       <div class="d-green"></div>
-      <div class="d-gold"></div>
       <div class="d-red"></div>
+      <div class="d-green"></div>
     </div>
 
   </div>
