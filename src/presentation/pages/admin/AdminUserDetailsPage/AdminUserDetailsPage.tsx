@@ -4,7 +4,7 @@ import { useAdminUserDetailsPage } from "./AdminUserDetailsPage.logic";
 import Link from "next/link";
 import {
   LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown,
-  InfoCard, ActivityItem, ToastContainer, Pagination, ExportUsersButton
+  InfoCard, ActivityItem, ToastContainer, Pagination, ExportUsersButton,
 } from "@/presentation/components";
 import { ArrowRight, Activity, CheckCircle, Clock, XCircle, Mail, Phone, MapPin, Calendar, User } from "lucide-react";
 import { ROUTES, getCityLabel, getMonthLabel, getParticipationStatusLabel } from "@/presentation/constants";
@@ -12,24 +12,24 @@ import { JordanianCity, ParticipationStatus } from "@/core/domain/enums";
 
 const FILTER_OPTIONS = [
   { key: "all", label: "الكل" },
-  { key: ParticipationStatus.PENDING, label: getParticipationStatusLabel(ParticipationStatus.PENDING) },
-  { key: ParticipationStatus.APPROVED, label: getParticipationStatusLabel(ParticipationStatus.APPROVED) },
-  { key: ParticipationStatus.REJECTED, label: getParticipationStatusLabel(ParticipationStatus.REJECTED) },
+  { key: ParticipationStatus.PENDING,   label: getParticipationStatusLabel(ParticipationStatus.PENDING)   },
+  { key: ParticipationStatus.APPROVED,  label: getParticipationStatusLabel(ParticipationStatus.APPROVED)  },
+  { key: ParticipationStatus.REJECTED,  label: getParticipationStatusLabel(ParticipationStatus.REJECTED)  },
   { key: ParticipationStatus.CANCELLED, label: getParticipationStatusLabel(ParticipationStatus.CANCELLED) },
 ];
 
 const EXPORT_COLUMNS = [
-  { key: "fullName", label: "الاسم" },
-  { key: "email", label: "البريد الإلكتروني" },
-  { key: "phone", label: "رقم الهاتف" },
-  { key: "city", label: "المدينة" },
-  { key: "dateOfBirth", label: "تاريخ الميلاد" },
-  { key: "gender", label: "الجنس" },
-  { key: "bio", label: "النبذة" },
-  { key: "interests", label: "الاهتمامات" },
-  { key: "skills", label: "المهارات" },
-  { key: "activities", label: "الفرص التطوعية" },
-  { key: "createdAt", label: "تاريخ الانضمام" },
+  { key: "fullName",    label: "الاسم"              },
+  { key: "email",       label: "البريد الإلكتروني"  },
+  { key: "phone",       label: "رقم الهاتف"         },
+  { key: "city",        label: "المدينة"             },
+  { key: "dateOfBirth", label: "تاريخ الميلاد"      },
+  { key: "gender",      label: "الجنس"               },
+  { key: "bio",         label: "النبذة"              },
+  { key: "interests",   label: "الاهتمامات"         },
+  { key: "skills",      label: "المهارات"            },
+  { key: "activities",  label: "الفرص التطوعية"      },
+  { key: "createdAt",   label: "تاريخ الانضمام"      },
 ];
 
 const formatDate = (d: string) => {
@@ -42,7 +42,7 @@ const AdminUserDetailsPage = () => {
     status, user, activities, allActivities, totalFilteredItems,
     loadingUser, loadingActivities, activeFilter, setActiveFilter,
     currentPage, setCurrentPage, itemsPerPage, toasts, removeToast,
-    exportData, totalHours
+    exportData, totalHours,
   } = useAdminUserDetailsPage();
 
   if (status === "loading" || loadingUser) return <LoadingState />;
@@ -62,7 +62,9 @@ const AdminUserDetailsPage = () => {
   const vp = user.volunteerProfile;
   const filterItems = FILTER_OPTIONS.map((opt) => ({
     ...opt,
-    count: opt.key === "all" ? allActivities.length : allActivities.filter((a) => a.status === opt.key).length,
+    count: opt.key === "all"
+      ? allActivities.length
+      : allActivities.filter((a) => a.status === opt.key).length,
   }));
 
   return (
@@ -86,10 +88,10 @@ const AdminUserDetailsPage = () => {
       />
 
       <div className={styles.statsGrid}>
-        <StatsCard icon={Activity} value={user.stats.totalActivities} label="إجمالي الفرص" variant="blue" />
-        <StatsCard icon={CheckCircle} value={user.stats.approvedActivities} label="موافق عليه" variant="green" />
-        <StatsCard icon={Clock} value={user.stats.pendingRequests} label="قيد الانتظار" variant="yellow" />
-        <StatsCard icon={XCircle} value={user.stats.rejectedRequests} label="مرفوض" variant="red" />
+        <StatsCard icon={Activity}    value={user.stats.totalActivities}    label="إجمالي الفرص"  variant="blue"   />
+        <StatsCard icon={CheckCircle} value={user.stats.approvedActivities} label="موافق عليه"    variant="green"  />
+        <StatsCard icon={Clock}       value={user.stats.pendingRequests}     label="قيد الانتظار" variant="yellow" />
+        <StatsCard icon={XCircle}     value={user.stats.rejectedRequests}    label="مرفوض"        variant="red"    />
       </div>
 
       <div className={styles.grid}>
@@ -97,10 +99,10 @@ const AdminUserDetailsPage = () => {
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>معلومات التواصل</h3>
             <div className={styles.infoList}>
-              <InfoCard icon={Mail} label="البريد الإلكتروني" value={user.email} />
-              <InfoCard icon={Phone} label="رقم الهاتف" value={user.phone} />
+              <InfoCard icon={Mail}     label="البريد الإلكتروني" value={user.email}                              />
+              <InfoCard icon={Phone}    label="رقم الهاتف"        value={user.phone}                              />
               {vp?.city && <InfoCard icon={MapPin} label="المدينة" value={getCityLabel(vp.city as JordanianCity)} />}
-              <InfoCard icon={Calendar} label="تاريخ الانضمام" value={formatDate(user.createdAt)} />
+              <InfoCard icon={Calendar} label="تاريخ الانضمام"    value={formatDate(user.createdAt)}              />
             </div>
           </div>
 

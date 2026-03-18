@@ -18,6 +18,7 @@ export { default as VolunteerSpotlightPage } from "./admin/VolunteerSpotlightPag
 export { default as MagazinesPage } from "./admin/MagazinesPage/MagazinesPage";
 export { default as NotificationsPage } from "./admin/NotificationsPage/NotificationsPage";
 export { default as EmailsPage } from "./admin/EmailsPage/EmailsPage";
+export { default as PermissionsPage } from "./admin/PermissionsPage/PermissionsPage";
 
 export { default as VolunteerProfilePage } from "./volunteer/VolunteerProfilePage/VolunteerProfilePage";
 export { default as VolunteerActivitiesPage } from "./volunteer/VolunteerActivitiesPage/VolunteerActivitiesPage";

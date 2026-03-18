@@ -1,0 +1,1 @@
+UPDATE "public"."users" SET "isSuperAdmin" = true WHERE "email" = 'YOUR_ADMIN_EMAIL_HERE';

@@ -28,7 +28,10 @@ export type {
   GetUserDetailsResponse,
   GetUserActivitiesResponse,
   UpdateUserRequest,
-  UpdateUserResponse
+  UpdateUserResponse,
+  UpdatePermissionsResponse,
+  CreateAdminRequest,
+  CreateAdminResponse
 } from "./user.dto";
 
 // ─── Otp ────────────────────────────────────────

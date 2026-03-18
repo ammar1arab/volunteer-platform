@@ -1,32 +1,21 @@
-"use client";
-import { useState } from "react";
-import { SessionProvider } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/infrastructure/auth/config";
+import { redirect } from "next/navigation";
+import { UserRole } from "@/core/domain/enums";
+import AdminLayoutClient from "./layout.client";
 
-import styles from "./layout.module.scss";
-import { AdminSidebar, AdminTopbar } from "@/presentation/components";
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  if (!session?.user) redirect("/signin");
+  if (session.user.role !== UserRole.ADMIN) redirect("/");
 
   return (
-    <SessionProvider>
-      <div className={styles.shell}>
-        <AdminSidebar 
-          isOpen={sidebarOpen}
-          isCollapsed={collapsed}
-          onToggleCollapse={() => setCollapsed(!collapsed)}
-          onClose={() => setSidebarOpen(false)}
-        />
-        
-        <div className={styles.main}>
-          <AdminTopbar 
-            onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-            isMenuOpen={sidebarOpen}
-          />
-          <div className={styles.content}>{children}</div>
-        </div>
-      </div>
-    </SessionProvider>
+    <AdminLayoutClient
+      isSuperAdmin={session.user.isSuperAdmin ?? false}
+      permissions={session.user.permissions ?? []}
+    >
+      {children}
+    </AdminLayoutClient>
   );
 }

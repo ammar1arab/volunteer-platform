@@ -8,14 +8,19 @@ import {
   GetAllUsersResponse,
   GetUserDetailsResponse,
   GetUserActivitiesResponse,
+  UpdatePermissionsResponse,
   UserAnalyticsDto,
   UserActivityDto,
   UpdateUserRequest,
   UpdateUserResponse,
-  VolunteerProfileSummaryDto
+  VolunteerProfileSummaryDto,
+  CreateAdminRequest,
+  CreateAdminResponse,
+  Result
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
-import { ParticipationStatus } from "@/core/domain/enums";
+import { ParticipationStatus, ADMIN_PERMISSIONS, UserRole } from "@/core/domain/enums";
+import { User } from "@/core/domain/entities";
 
 const USER_WITH_ANALYTICS_INCLUDE = {
   volunteerProfile: {
@@ -33,8 +38,7 @@ const USER_WITH_ANALYTICS_INCLUDE = {
     include: { activity: { select: { id: true, title: true, date: true } } }
   },
   certificates: {
-    // ← ADD
-    select: { id: true } // ← ADD
+    select: { id: true }
   }
 } as const;
 
@@ -61,7 +65,6 @@ function mapVolunteerProfile(
   };
 }
 
-// ← UPDATE computeStats to accept participations with volunteerHours + certificatesCount
 function computeStats(
   participations: Array<{ status: string; volunteerHours?: number | null }>,
   certificatesCount: number
@@ -79,7 +82,6 @@ function computeStats(
   };
 }
 
-// ← UPDATE toUserAnalyticsDto to pass certificates length
 function toUserAnalyticsDto(u: {
   id: string;
   email: string;
@@ -89,9 +91,10 @@ function toUserAnalyticsDto(u: {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  permissions: string[];
   volunteerProfile: Parameters<typeof mapVolunteerProfile>[0];
   participations: Array<{ status: string; volunteerHours?: number | null }>;
-  certificates: Array<{ id: string }>; // ← ADD
+  certificates: Array<{ id: string }>;
 }): UserAnalyticsDto {
   return {
     id: u.id,
@@ -102,8 +105,9 @@ function toUserAnalyticsDto(u: {
     isActive: u.isActive,
     createdAt: u.createdAt.toISOString(),
     updatedAt: u.updatedAt.toISOString(),
+    permissions: u.permissions ?? [],
     volunteerProfile: mapVolunteerProfile(u.volunteerProfile),
-    stats: computeStats(u.participations, u.certificates.length) // ← UPDATE
+    stats: computeStats(u.participations, u.certificates.length)
   };
 }
 
@@ -196,19 +200,13 @@ class UserUseCase {
       const user = await this.userRepository.findById(userId);
       if (!user) return fail("NOT_FOUND", "المستخدم غير موجود");
 
-      const updates: Partial<{
-        email: string;
-        phone: string;
-        fullName: string;
-      }> = {};
+      const updates: Partial<{ email: string; phone: string; fullName: string }> = {};
 
       if (data.email && data.email !== user.email) {
         const sanitized = InputSanitizer.sanitizeEmail(data.email);
         if (!SecurityValidator.isValidEmail(sanitized)) return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
-
         const existing = await this.userRepository.findByEmail(sanitized);
         if (existing && existing.id !== userId) return fail("CONFLICT", "البريد الإلكتروني مستخدم مسبقاً");
-
         updates.email = sanitized;
       }
 
@@ -226,23 +224,100 @@ class UserUseCase {
         updates.fullName = sanitized;
       }
 
-      if (Object.keys(updates).length > 0) {
-        user.update(updates);
+      if (Object.keys(updates).length > 0) user.update(updates);
+
+      if (data.password?.trim()) {
+        const v = SecurityValidator.isValidPassword(data.password);
+        if (!v.valid) return fail("VALIDATION_ERROR", v.message ?? "كلمة مرور غير صحيحة");
+        user.updatePassword(data.password);
+        user.incrementTokenVersion();
       }
 
       const updated = await this.userRepository.update(user);
       logger.info(UserUseCase.SCOPE, "updateBasicInfo", `User updated: ${userId}`);
 
       return ok({
-        user: {
-          id: updated.id,
-          email: updated.email,
-          fullName: updated.fullName,
-          phone: updated.phone
-        }
+        user: { id: updated.id, email: updated.email, fullName: updated.fullName, phone: updated.phone }
       });
     } catch (error) {
       return serviceError(UserUseCase.SCOPE, "updateBasicInfo", error, "حدث خطأ أثناء تحديث البيانات");
+    }
+  }
+
+  async updatePermissions(
+    requesterId: string,
+    targetUserId: string,
+    permissions: string[]
+  ): Promise<UpdatePermissionsResponse> {
+    try {
+      const requester = await this.userRepository.findById(requesterId);
+      if (!requester) return fail("NOT_FOUND", "المستخدم غير موجود");
+      if (!requester.isSuperAdmin) return fail("FORBIDDEN", "غير مصرح لك بتعديل الصلاحيات");
+
+      const target = await this.userRepository.findById(targetUserId);
+      if (!target) return fail("NOT_FOUND", "المستخدم غير موجود");
+      if (target.isSuperAdmin) return fail("FORBIDDEN", "لا يمكن تعديل صلاحيات السوبر أدمن");
+
+      const validated = permissions.filter((p) => (ADMIN_PERMISSIONS as readonly string[]).includes(p));
+
+      target.updatePermissions(validated);
+      await this.userRepository.update(target);
+
+      logger.info(UserUseCase.SCOPE, "updatePermissions", `Updated permissions for ${targetUserId}`);
+      return ok({ permissions: validated });
+    } catch (error) {
+      return serviceError(UserUseCase.SCOPE, "updatePermissions", error, "حدث خطأ أثناء تحديث الصلاحيات");
+    }
+  }
+
+  async createAdmin(requesterId: string, data: CreateAdminRequest): Promise<CreateAdminResponse> {
+    try {
+      const requester = await this.userRepository.findById(requesterId);
+      if (!requester) return fail("NOT_FOUND", "المستخدم غير موجود");
+      if (!requester.isSuperAdmin) return fail("FORBIDDEN", "غير مصرح لك بإنشاء أدمن");
+
+      const emailStr = InputSanitizer.sanitizeEmail(data.email);
+      if (!SecurityValidator.isValidEmail(emailStr)) return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
+
+      const existing = await this.userRepository.findByEmail(emailStr);
+      if (existing) return fail("CONFLICT", "البريد الإلكتروني مستخدم مسبقاً");
+
+      const nameValidation = SecurityValidator.isValidName(InputSanitizer.sanitizeString(data.fullName));
+      if (!nameValidation.valid) return fail("VALIDATION_ERROR", nameValidation.message ?? "اسم غير صحيح");
+
+      const passwordValidation = SecurityValidator.isValidPassword(data.password);
+      if (!passwordValidation.valid)
+        return fail("VALIDATION_ERROR", passwordValidation.message ?? "كلمة مرور غير صحيحة");
+
+      const newAdmin = User.create({
+        email: emailStr,
+        fullName: InputSanitizer.sanitizeString(data.fullName),
+        phone: InputSanitizer.sanitizePhone(data.phone),
+        password: data.password,
+        role: UserRole.ADMIN,
+        isActive: true
+      });
+
+      const validated = data.permissions.filter((p) => (ADMIN_PERMISSIONS as readonly string[]).includes(p));
+      newAdmin.updatePermissions(validated);
+
+      const created = await this.userRepository.create(newAdmin);
+      logger.info(UserUseCase.SCOPE, "createAdmin", `Admin created: ${created.id}`);
+
+      return ok({ user: { id: created.id, email: created.email, fullName: created.fullName, phone: created.phone } });
+    } catch (error) {
+      return serviceError(UserUseCase.SCOPE, "createAdmin", error, "حدث خطأ أثناء إنشاء الأدمن");
+    }
+  }
+
+  async deleteUser(targetUserId: string): Promise<Result<{ success: boolean }>> {
+    try {
+      const success = await this.userRepository.delete(targetUserId);
+      if (!success) return fail("NOT_FOUND", "المستخدم غير موجود");
+      logger.info(UserUseCase.SCOPE, "deleteUser", `Deleted: ${targetUserId}`);
+      return ok({ success: true });
+    } catch (error) {
+      return serviceError(UserUseCase.SCOPE, "deleteUser", error, "حدث خطأ أثناء الحذف");
     }
   }
 }

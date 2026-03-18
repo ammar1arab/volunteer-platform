@@ -1,0 +1,139 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.panel {
+  @include flex-col;
+  gap: $sp-md;
+  transition: opacity 0.2s;
+
+  &.pending {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+}
+
+.panelTop {
+  @include flex(row, center, space-between, $sp-sm);
+}
+
+.counter {
+  @include flex(row, baseline, flex-start, 2px);
+}
+
+.counterNum {
+  font-size: $font-lg;
+  font-weight: 800;
+  color: $green;
+  line-height: 1;
+}
+
+.counterTotal {
+  font-size: $font-xs;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.bulkActions {
+  @include flex(row, center, flex-end, $sp-xs);
+}
+
+.bulkBtn {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: $radius;
+  border: 1px solid $border;
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover:not(:disabled) {
+    border-color: $green;
+    color: $green;
+    background: rgba($green, 0.06);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.bulkDanger {
+  &:hover:not(:disabled) {
+    border-color: $red;
+    color: $red;
+    background: rgba($red, 0.05);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $sp-xs;
+}
+
+.permBtn {
+  @include flex(row, center, flex-start, $sp-xs);
+  padding: 8px 10px;
+  border-radius: $radius;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: $font-xs;
+  font-weight: 600;
+  text-align: right;
+  transition: all 0.2s ease;
+  width: 100%;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.permOn {
+  background: rgba($green, 0.08);
+  border-color: rgba($green, 0.25);
+  color: $green;
+
+  &:hover:not(:disabled) {
+    background: rgba($green, 0.14);
+    border-color: rgba($green, 0.4);
+  }
+}
+
+.permOff {
+  background: rgba($black, 0.02);
+  border-color: $border;
+  color: $text-muted;
+
+  &:hover:not(:disabled) {
+    background: rgba($black, 0.04);
+    border-color: rgba($black, 0.2);
+    color: $text;
+  }
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.2s;
+
+  .permOn & {
+    background: $green;
+    box-shadow: 0 0 4px rgba($green, 0.5);
+  }
+
+  .permOff & {
+    background: $border;
+  }
+}
+
+.permName {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

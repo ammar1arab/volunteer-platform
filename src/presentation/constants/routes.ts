@@ -27,7 +27,8 @@ export const ROUTES = {
     NOTIFICATIONS: "/admin/dashboard/notifications",
     EMAILS: "/admin/dashboard/emails",
     USERS: "/admin/dashboard/users",
-    USER_DETAILS: (id: string) => `/admin/dashboard/users/${id}`
+    USER_DETAILS: (id: string) => `/admin/dashboard/users/${id}`,
+    PERMISSIONS: "/admin/dashboard/permissions"
   },
   VOLUNTEER: {
     ROOT: "/volunteer",

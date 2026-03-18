@@ -3,8 +3,6 @@ import type { Result } from "./base.dto";
 import type { UserSummaryDto, VolunteerProfileSummaryDto } from "./shared.dto";
 import { VolunteerProfileDto } from "./volunteerProfile.dto";
 
-// ─── User Profile (self-view) ─────────────────────────────────
-
 export interface UserProfileDto extends UserSummaryDto {
   role: UserRole;
   isActive: boolean;
@@ -15,8 +13,6 @@ export interface UserProfileDto extends UserSummaryDto {
 
 export type GetUserProfileResponse = Result<{ user: UserProfileDto }>;
 
-// ─── User Management (admin view) ────────────────────────────
-
 export interface UserDto extends UserSummaryDto {
   role: string;
   isActive: boolean;
@@ -26,13 +22,14 @@ export interface UserDto extends UserSummaryDto {
 }
 
 export interface UserAnalyticsDto extends UserDto {
+  permissions: string[];
   stats: {
     totalActivities: number;
     pendingRequests: number;
     approvedActivities: number;
     rejectedRequests: number;
-    certificatesCount: number; // ← ADD
-    totalHours: number; // ← ADD
+    certificatesCount: number;
+    totalHours: number;
   };
 }
 
@@ -53,18 +50,30 @@ export interface UserActivityDto {
   };
 }
 
+export interface CreateAdminRequest {
+  email: string;
+  fullName: string;
+  phone: string;
+  password: string;
+  permissions: string[];
+}
+
 export type GetAllUsersResponse = Result<{ users: UserAnalyticsDto[] }>;
 export type GetUserDetailsResponse = Result<{ user: UserAnalyticsDto }>;
 export type GetUserActivitiesResponse = Result<{ activities: UserActivityDto[] }>;
-
-// ─── Update User ──────────────────────────────────────────────
 
 export interface UpdateUserRequest {
   email?: string;
   phone?: string;
   fullName?: string;
+  password?: string;
 }
 
 export type UpdateUserResponse = Result<{
   user: Pick<UserSummaryDto, "id" | "email" | "fullName" | "phone">;
+}>;
+
+export type UpdatePermissionsResponse = Result<{ permissions: string[] }>;
+export type CreateAdminResponse = Result<{
+  user: Pick<UserSummaryDto, "id" | "email" | "fullName">;
 }>;

@@ -47,16 +47,7 @@ const NotificationsPage = () => {
         <section className={styles.card}>
           <div className={styles.cardHeader}>
             <Bell size={16} />
-            <h2>سجل الإشعارات المرسلة</h2>
-            {broadcasts.length > 0 && (
-              <button
-                className={styles.clearBtn}
-                onClick={handleClearBroadcasts}
-                disabled={clearingBroadcasts}
-              >
-                {clearingBroadcasts ? "جاري المسح..." : "مسح السجل"}
-              </button>
-            )}
+            <h2>إرسال إشعار جديد</h2>
           </div>
 
           <form onSubmit={handleSubmit} className={styles.form} noValidate>

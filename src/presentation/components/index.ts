@@ -55,6 +55,7 @@ export { default as ExportUsersButton } from "./admin/ExportUsersButton/ExportUs
 export { default as CompleteActivityProgress } from "./admin/CompleteActivityProgress/CompleteActivityProgress";
 export { default as NotificationPreviewModal } from "./admin/NotificationPreviewModal/NotificationPreviewModal";
 export { default as EmailPreviewPane } from "./admin/EmailPreviewPane/EmailPreviewPane";
+export { default as PermissionsPanel } from "./admin/PermissionsPanel/PermissionsPanel";
 
 export { default as NotificationBell } from "./volunteer/NotificationBell/NotificationBell";
 export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";
