@@ -4,7 +4,6 @@ import { CertificateStatus } from "@/core/domain/enums";
 export interface CertificateProps extends BaseEntityProps {
   userId: string;
   activityId: string;
-  pdfUrl: string | null;
   pngUrl: string | null;
   status: CertificateStatus;
   issuedAt: Date;

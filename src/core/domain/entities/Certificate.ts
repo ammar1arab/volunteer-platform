@@ -11,7 +11,6 @@ class Certificate extends BaseEntity {
     if (!props.activityId?.trim()) throw new Error("Activity ID is required");
     this.props = {
       ...props,
-      pdfUrl: props.pdfUrl ?? null,
       pngUrl: props.pngUrl ?? null
     };
   }
@@ -20,7 +19,6 @@ class Certificate extends BaseEntity {
     return new Certificate({
       ...input,
       id: crypto.randomUUID(),
-      pdfUrl: null,
       pngUrl: null,
       status: CertificateStatus.GENERATING,
       issuedAt: new Date(),
@@ -34,12 +32,11 @@ class Certificate extends BaseEntity {
     return new Certificate(props);
   }
 
-  markCompleted(pngUrl: string, pdfUrl: string): void {
+  markCompleted(pngUrl: string): void {
     if (this.props.status !== CertificateStatus.GENERATING)
       throw new Error("Only generating certificates can be marked completed");
     this.props.status = CertificateStatus.COMPLETED;
     this.props.pngUrl = pngUrl;
-    this.props.pdfUrl = pdfUrl;
     this.touch();
   }
 
@@ -62,9 +59,6 @@ class Certificate extends BaseEntity {
   }
   get pngUrl(): string | null {
     return this.props.pngUrl;
-  }
-  get pdfUrl(): string | null {
-    return this.props.pdfUrl;
   }
   get status(): CertificateStatus {
     return this.props.status;

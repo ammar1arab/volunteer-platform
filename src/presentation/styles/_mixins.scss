@@ -1,8 +1,6 @@
 @use "sass:color";
 @use "@/presentation/styles/_variables" as *;
 
-
-
 @mixin img-cover {
   position: relative;
   overflow: hidden;
@@ -48,9 +46,6 @@
   }
 }
 
-
-
-
 @mixin respond($break) {
   @media (max-width: map.get($breakpoints, $break)) {
     @content;
@@ -89,12 +84,11 @@
   max-width: $container-max-width;
   margin-inline: auto;
   padding-inline: map.get($spacings, lg);
-  
+
   @include respond(lg) {
     padding-inline: map.get($spacings, md);
   }
 }
-
 
 @mixin flex($dir: row, $align: center, $justify: center, $gap: 0) {
   display: flex;
@@ -177,7 +171,7 @@
   background: $green;
   color: #fff;
   &:hover {
-    background: color.adjust($green, $lightness: -5%);
+    background: $green;
     transform: translateY(-2px);
     box-shadow: $shadow;
   }
@@ -284,7 +278,7 @@
 @mixin hover-underline($color: $green, $width: 70%) {
   position: relative;
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -325,12 +319,7 @@
 }
 
 @mixin skeleton-loading {
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.06) 25%,
-    rgba(0, 0, 0, 0.12) 50%,
-    rgba(0, 0, 0, 0.06) 75%
-  );
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.06) 25%, rgba(0, 0, 0, 0.12) 50%, rgba(0, 0, 0, 0.06) 75%);
   background-size: 200% 100%;
   animation: loading 1.5s ease-in-out infinite;
 }

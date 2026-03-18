@@ -21,7 +21,8 @@ import {
   VolunteerSpotlightUseCase,
   MonthlyMagazineUseCase,
   CertificateUseCase,
-  NotificationUseCase
+  NotificationUseCase,
+  EmailUseCase
 } from "@/core/application/useCases";
 
 export const providers = {
@@ -55,6 +56,7 @@ export const providers = {
     ),
 
   notification: () => new NotificationUseCase(new NotificationRepository()),
+  email: () => new EmailUseCase(new UserRepository()),
 
   storage: () => new R2StorageService()
 };

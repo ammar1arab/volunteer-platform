@@ -117,10 +117,33 @@ export type {
   UpdateMonthlyMagazineResponse
 } from "./monthlyMagazine.dto";
 
+// ─── Email ────────────────────────────────────────────
+export type {
+  EmailAlias,
+  EmailRecipientDto,
+  EmailRecipientFilters,
+  EmailRecipientsDto,
+  EmailTarget,
+  GetEmailRecipientsResponse,
+  SendBulkEmailApiResponse,
+  SendBulkEmailInput
+} from "./email.dto";
+
 // ─── Notification ────────────────────────────────────────────
 export type {
   GetUnreadNotificationsResponse,
   MarkAsReadResponse,
   NotificationDto,
-  UnreadNotificationsDto
+  UnreadNotificationsDto,
+  BroadcastDto,
+  BroadcastsDto,
+  ClearNotificationsResponse,
+  GetBroadcastsResponse,
+  GetNotificationsResponse,
+  NotificationsDto,
+  SendCustomNotificationInput,
+  SendCustomNotificationResponse,
+  GetNotificationPreviewResponse,
+  PreviewUserDto,
+  PreviewUsersDto
 } from "./notification.dto";

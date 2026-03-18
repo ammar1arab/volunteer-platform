@@ -1,7 +1,7 @@
 @use "@/presentation/styles/_variables" as *;
 @use "@/presentation/styles/_mixins" as *;
 
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap");
 
 *,
 *::before,
@@ -23,7 +23,7 @@ section {
 }
 
 body {
-  font-family: 'Cairo', sans-serif;
+  font-family: "Cairo", sans-serif;
   font-size: $font-base;
   line-height: 1.6;
   color: $text;
@@ -70,6 +70,14 @@ select {
 textarea {
   resize: vertical;
   min-height: 120px;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .container {
@@ -177,18 +185,30 @@ textarea {
   min-width: 0;
 }
 
-
 @keyframes shimmer-line {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 @keyframes orbit {
-  from { transform: rotate(0deg) translateX(5px) rotate(0deg); }
-  to { transform: rotate(360deg) translateX(5px) rotate(-360deg); }
+  from {
+    transform: rotate(0deg) translateX(5px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(5px) rotate(-360deg);
+  }
 }
 
 @keyframes pulse-soft {
-  0%, 100% { box-shadow: 0 0 0 0 rgba($green, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba($green, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba($green, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba($green, 0);
+  }
 }

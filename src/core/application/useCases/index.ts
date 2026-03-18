@@ -8,3 +8,4 @@ export { default as FeaturedPostUseCase } from "./FeaturedPostUseCase";
 export { default as VolunteerSpotlightUseCase } from "./VolunteerSpotlightUseCase";
 export { default as MonthlyMagazineUseCase } from "./MonthlyMagazineUseCase";
 export { default as NotificationUseCase } from "./NotificationUseCase";
+export { default as EmailUseCase } from "./EmailUseCase";

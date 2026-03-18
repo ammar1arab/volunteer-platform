@@ -9,7 +9,6 @@ export interface CertificateDto {
   activityType: string | null;
   durationHours: number | null;
   pngUrl: string | null;
-  pdfUrl: string | null;
   status: CertificateStatus;
   issuedAt: string;
 }

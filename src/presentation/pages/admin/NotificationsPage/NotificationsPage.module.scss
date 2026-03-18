@@ -1,0 +1,163 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+@use "@/presentation/styles/admin-mixins" as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: $sp-xl;
+  align-items: flex-start;
+
+  @media (max-width: $bp-md) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+}
+
+.cardHeader {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: $sp-md $sp-lg;
+  border-bottom: 1px solid $border;
+
+  h2 {
+    margin: 0;
+    font-size: $font-md;
+    font-weight: 800;
+    color: $text;
+  }
+  svg {
+    color: $green;
+  }
+}
+
+.form {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-lg;
+  max-width: 380px;
+
+  @media (max-width: $bp-md) {
+    max-width: 100%;
+  }
+}
+
+.field {
+  @include flex-col;
+  gap: $sp-xs;
+}
+
+.label {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+}
+
+.optional {
+  font-weight: 400;
+  color: $text-muted;
+  font-size: $font-xs;
+}
+
+.input {
+  @include input;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  font-size: $font-sm;
+  background: #fcfcfc;
+
+  &:focus {
+    border-color: $green;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba($green, 0.05);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.textarea {
+  @extend .input;
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.6;
+}
+
+// ── Broadcast Log ──────────────────────────────────────────
+.broadcastItem {
+  @include flex-col;
+  gap: $sp-xs;
+  padding: $sp-md $sp-lg;
+  border-bottom: 1px solid rgba($border, 0.6);
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.broadcastTop {
+  @include flex(row, center, space-between, $sp-sm);
+}
+
+.broadcastTitle {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+  @include truncate;
+}
+
+.broadcastTag {
+  @include flex(row, center, center, 4px);
+  flex-shrink: 0;
+  font-size: 11px;
+  color: $green;
+  background: rgba($green, 0.08);
+  border: 1px solid rgba($green, 0.2);
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  white-space: nowrap;
+}
+
+.broadcastMsg {
+  font-size: $font-xs;
+  color: $text-muted;
+  line-height: 1.6;
+  margin: 0;
+  @include line-clamp(2);
+}
+
+.broadcastBottom {
+  @include flex(row, center, space-between, $sp-sm);
+  margin-top: 2px;
+}
+
+.recipients {
+  @include flex(row, center, flex-start, 4px);
+  font-size: $font-xs;
+  color: $text-muted;
+  font-weight: 600;
+}
+
+.time {
+  font-size: 11px;
+  color: rgba($text-muted, 0.6);
+}
+.clearBtn {
+  margin-right: auto;
+  font-size: $font-xs;
+  font-weight: 700;
+  color: $text-muted;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: $radius;
+  transition: $transition;
+  &:hover:not(:disabled) { color: $red; background: rgba($red, 0.06); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

@@ -1,0 +1,14 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /signin
+Disallow: /signup
+Disallow: /volunteer
+
+# Host
+Host: https://www.youthprints.online
+
+# Sitemaps
+Sitemap: https://www.youthprints.online/sitemap.xml

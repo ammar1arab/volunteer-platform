@@ -1,0 +1,149 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrapper {
+  @include flex-col;
+  min-height: 300px;
+  gap: 0;
+}
+
+.topBar {
+  @include flex(row, center, space-between, $sp-sm);
+  padding: $sp-sm $sp-xs $sp-md;
+  border-bottom: 1px solid $border;
+  margin-bottom: $sp-xs;
+}
+
+.count {
+  font-size: $font-sm;
+  color: $text-muted;
+  strong {
+    color: $green;
+    font-weight: 800;
+  }
+}
+
+.toggleAll {
+  font-size: $font-xs;
+  font-weight: 700;
+  color: $green;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: $radius;
+  transition: $transition;
+  &:hover { background: rgba($green, 0.08); }
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 50vh;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.list {
+  @include flex-col;
+  gap: $sp-xs;
+  padding: $sp-xs 0;
+}
+
+.card {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: $sp-sm $sp-md;
+  border: 1px solid $border;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: $transition;
+  user-select: none;
+
+  &:hover {
+    border-color: rgba($green, 0.3);
+    background: rgba($green, 0.02);
+  }
+
+  &.cardChecked {
+    border-color: rgba($green, 0.35);
+    background: rgba($green, 0.04);
+  }
+}
+
+.checkbox {
+  @include flex-center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid $border;
+  flex-shrink: 0;
+  transition: $transition;
+
+  &.checkboxActive {
+    background: $green;
+    border-color: $green;
+    color: $white;
+  }
+}
+
+.info {
+  @include flex-col;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text;
+  @include truncate;
+}
+
+.meta {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  @include flex(row, center, flex-start, 3px);
+  font-size: $font-xs;
+  color: $text-muted;
+  svg { opacity: 0.6; }
+}
+
+.footer {
+  @include flex(row, center, flex-end, $sp-sm);
+  padding-top: $sp-md;
+  margin-top: $sp-sm;
+  border-top: 1px solid $border;
+}
+
+.btnCancel {
+  padding: 8px 18px;
+  font-size: $font-sm;
+  font-weight: 600;
+  border-radius: $radius;
+  border: 1px solid $border;
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+  &:hover:not(:disabled) { color: $red; border-color: rgba($red, 0.3); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btnSend {
+  padding: 8px 20px;
+  font-size: $font-sm;
+  font-weight: 700;
+  border-radius: $radius;
+  border: none;
+  background: $green;
+  color: $white;
+  cursor: pointer;
+  transition: $transition;
+  &:hover:not(:disabled) { background: $green; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

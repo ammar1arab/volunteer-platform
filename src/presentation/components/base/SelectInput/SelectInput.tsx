@@ -76,9 +76,8 @@ const SelectInput = ({
 
       <div
         ref={containerRef}
-        className={`${styles.container} ${isOpen ? styles.open : ""} ${
-          error ? styles.error : ""
-        } ${disabled ? styles.disabled : ""}`}
+        className={`${styles.container} ${isOpen ? styles.open : ""} ${error ? styles.error : ""
+          } ${disabled ? styles.disabled : ""}`}
       >
         <button
           type="button"
@@ -100,13 +99,12 @@ const SelectInput = ({
         </button>
 
         {isOpen && (
-          <ul className={styles.menu} role="listbox">
+          <ul className={`${styles.menu} no-scrollbar`} role="listbox">
             {options.map((option) => (
               <li
                 key={option.value}
-                className={`${styles.option} ${
-                  option.value === value ? styles.optionActive : ""
-                }`}
+                className={`${styles.option} ${option.value === value ? styles.optionActive : ""
+                  }`}
                 onClick={() => handleSelect(option.value)}
                 role="option"
                 aria-selected={option.value === value}

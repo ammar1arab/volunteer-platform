@@ -52,6 +52,8 @@ export { default as InfoCard } from "./admin/InfoCard/InfoCard";
 export { default as EditableField } from "./admin/EditableField/EditableField";
 export { default as ExportUsersButton } from "./admin/ExportUsersButton/ExportUsersButton";
 export { default as CompleteActivityProgress } from "./admin/CompleteActivityProgress/CompleteActivityProgress";
+export { default as NotificationPreviewModal } from "./admin/NotificationPreviewModal/NotificationPreviewModal";
+export { default as EmailPreviewPane } from "./admin/EmailPreviewPane/EmailPreviewPane";
 
 export { default as NotificationBell } from "./volunteer/NotificationBell/NotificationBell";
 export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";

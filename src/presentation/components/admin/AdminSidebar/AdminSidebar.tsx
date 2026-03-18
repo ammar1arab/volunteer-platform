@@ -6,19 +6,11 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { ROUTES } from "@/presentation/constants";
 import { ConfirmDialog } from "@/presentation/components";
-
-import {
-  LayoutDashboard,
-  FileText,
-  Activity,
-  Users,
-  UserCheck,
-  X,
-  LogOut,
-  Trophy,
-  BookOpen,
-} from "lucide-react";
 import { useState } from "react";
+import {
+  LayoutDashboard, FileText, Activity, Users,
+  UserCheck, X, LogOut, Trophy, BookOpen, Bell, Mail
+} from "lucide-react";
 
 const navItems = [
   { href: ROUTES.ADMIN.FEATURED_POSTS, label: "المنشورات", icon: FileText },
@@ -26,6 +18,8 @@ const navItems = [
   { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "حصاد العطاء", icon: BookOpen },
   { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية", icon: Activity },
   { href: ROUTES.ADMIN.REQUESTS, label: "طلبات الانضمام", icon: UserCheck },
+  { href: ROUTES.ADMIN.NOTIFICATIONS, label: "إدارة الإشعارات", icon: Bell },
+  { href: ROUTES.ADMIN.EMAILS, label: "إدارة الإيميلات", icon: Mail },
   { href: ROUTES.ADMIN.USERS, label: "إدارة المستخدمين", icon: Users },
 ];
 
@@ -54,19 +48,17 @@ const AdminSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }: Props)
           </div>
 
           <nav className={styles.nav}>
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-
+            {navItems.map(({ href, label, icon: Icon }) => {
+              const isActive = pathname === href || pathname.startsWith(`${href}/`);
               return (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  key={href}
+                  href={href}
                   className={`${styles.link} ${isActive ? styles.active : ""}`}
                   onClick={() => { if (window.innerWidth < 1024) onClose(); }}
                 >
                   <Icon size={20} />
-                  <span>{item.label}</span>
+                  <span>{label}</span>
                 </Link>
               );
             })}
@@ -81,6 +73,7 @@ const AdminSidebar = ({ isOpen, isCollapsed, onToggleCollapse, onClose }: Props)
           </nav>
         </div>
       </aside>
+
       <ConfirmDialog
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}

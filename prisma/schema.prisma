@@ -110,7 +110,6 @@ model Certificate {
   userId     String
   activityId String
   pngUrl     String?
-  pdfUrl     String?
   status     CertificateStatus @default(GENERATING)
   issuedAt   DateTime          @default(now())
   isActive   Boolean           @default(true)
@@ -201,6 +200,7 @@ enum CertificateStatus {
 
 enum NotificationType {
   CERTIFICATE_ISSUED
+  ANNOUNCEMENT
 }
 
 enum JordanianCity {

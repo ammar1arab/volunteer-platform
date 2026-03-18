@@ -8,7 +8,7 @@ import { MONTH_LABELS } from "@/presentation/constants/labels";
 const MagazinesPage = () => {
   const {
     status, isLoading, isSubmitting, isUploading, mode, form, showModal,
-    list, paginatedList, filteredByYear, currentPage, itemsPerPage,
+    paginatedList, filteredByYear, currentPage, itemsPerPage,
     toasts, removeToast, confirmDialog, activeYear, setActiveYear, yearFilterOptions,
     setForm, setCurrentPage, resetForm, openCreate, openEdit,
     handlePdfUpload, handleSubmit, handleToggle, handleDelete,

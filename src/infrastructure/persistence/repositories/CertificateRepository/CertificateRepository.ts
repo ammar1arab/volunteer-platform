@@ -15,7 +15,6 @@ class CertificateRepository implements ICertificateRepository {
       ...data,
       status: data.status as CertificateStatus,
       pngUrl: data.pngUrl ?? null,
-      pdfUrl: data.pdfUrl ?? null
     });
   }
 

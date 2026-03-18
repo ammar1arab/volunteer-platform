@@ -4,7 +4,6 @@ export function buildCertificateEmail(
   volunteerName: string,
   activityTitle: string,
   pngUrl: string,
-  pdfUrl: string,
 ): string {
   const green = "#16a34a";
 
@@ -66,15 +65,9 @@ export function buildCertificateEmail(
         <td style="padding:24px 32px 8px;">
           <table width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>
-              <td width="48%" style="padding-left:8px;">
-                <a href="${pdfUrl}" target="_blank" style="display:block;background:${green};color:#fff;text-align:center;padding:13px;font-size:12px;font-weight:700;text-decoration:none;border-radius:8px;">
-                  تحميل PDF
-                </a>
-              </td>
-              <td width="4%"></td>
               <td width="48%">
                 <a href="${pngUrl}" target="_blank" style="display:block;background:#f4f4f5;color:${green};text-align:center;padding:13px;font-size:12px;font-weight:700;text-decoration:none;border-radius:8px;border:1.5px solid ${green};">
-                  حفظ PNG
+                 تحميل الشهادة
                 </a>
               </td>
             </tr>

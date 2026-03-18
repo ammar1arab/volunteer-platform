@@ -15,7 +15,6 @@ export function toCertificateDto(
     activityType: activityType ?? null,
     durationHours: durationHours ?? null,
     pngUrl: cert.pngUrl,
-    pdfUrl: cert.pdfUrl,
     status: cert.status,
     issuedAt: cert.issuedAt.toISOString()
   };

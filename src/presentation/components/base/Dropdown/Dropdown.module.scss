@@ -125,18 +125,11 @@
   overflow-y: auto;
   max-height: 240px;
   animation: slideDown 0.2s ease;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba($green, 0.3);
-    border-radius: $radius-full;
+    display: none;
   }
 }
 

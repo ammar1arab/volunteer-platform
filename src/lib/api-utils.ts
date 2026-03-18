@@ -95,6 +95,10 @@ export async function requireAuth(req: Request, role?: UserRole) {
   } as const;
 }
 
+export function unauthorized(message = "Unauthorized") {
+  return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message } }, { status: 401 });
+}
+
 export async function parseJson<T>(req: Request): Promise<T | null> {
   try {
     return (await req.json()) as T;

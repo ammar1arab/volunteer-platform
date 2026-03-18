@@ -6,4 +6,4 @@ export { toFeaturedPostDto, toFeaturedPostDtoList } from "./featuredPost.mapper"
 export { toVolunteerSpotlightDto, toVolunteerSpotlightDtoList } from "./volunteerSpotlight.mapper";
 export { toMonthlyMagazineDto, toMonthlyMagazineDtoList } from "./monthlyMagazine.mapper";
 export { toCertificateDto } from "./certificate.mapper";
-export { toNotificationDto } from "./notification.mapper";
+export { toNotificationDto, toBroadcastDto } from "./notification.mapper";

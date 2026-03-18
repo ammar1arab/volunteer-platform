@@ -1,0 +1,208 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+@keyframes shimmer {
+  0%   { opacity: 0.35; }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0.35; }
+}
+
+.pane {
+  @include flex-col;
+  height: 100%;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.chrome {
+  @include flex(row, center, space-between, $sp-sm);
+  padding: 10px $sp-md;
+  background: #f8f9fa;
+  border-bottom: 1px solid $border;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: $sp-xs;
+}
+
+.chromeDots {
+  @include flex(row, center, flex-start, 5px);
+  flex-shrink: 0;
+
+  span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    &:nth-child(1) { background: #ff5f57; }
+    &:nth-child(2) { background: #ffbd2e; }
+    &:nth-child(3) { background: #28ca42; }
+  }
+
+  @include sm { display: none; }
+}
+
+.chromeBar {
+  flex: 1;
+  @include flex-center;
+
+  @include sm { justify-content: flex-start; }
+}
+
+.chromeLabel {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-full;
+  padding: 3px 14px;
+  white-space: nowrap;
+}
+
+.deviceSwitch {
+  @include flex(row, center, center, 2px);
+  background: $border;
+  border-radius: $radius-full;
+  padding: 2px;
+  flex-shrink: 0;
+
+  @include sm { display: none; }
+}
+
+.switchBtn {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-muted;
+  background: transparent;
+  border: none;
+  border-radius: $radius-full;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: $transition;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.switchActive {
+  background: $bg;
+  color: $text;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.emailHeader {
+  @include flex-col;
+  border-bottom: 1px solid $border;
+  background: $bg;
+  flex-shrink: 0;
+}
+
+.emailField {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: 7px $sp-md;
+  min-width: 0;
+}
+
+.emailDivider {
+  height: 1px;
+  background: rgba($border, 0.5);
+  margin: 0 $sp-md;
+}
+
+.emailFieldLabel {
+  font-size: $font-xs;
+  font-weight: 700;
+  color: $text-muted;
+  width: 44px;
+  flex-shrink: 0;
+}
+
+.emailFieldValue {
+  font-size: $font-xs;
+  color: $text;
+  @include truncate;
+  flex: 1;
+  min-width: 0;
+}
+
+.viewport {
+  flex: 1;
+  overflow-y: auto;
+  background: #e8eaed;
+  padding: $sp-md;
+  @include flex(row, flex-start, center, 0);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.viewportInner {
+  width: 100%;
+  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+}
+
+.iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  border: none;
+  border-radius: $radius;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 8px 20px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  display: block;
+}
+
+.empty {
+  @include flex(column, center, center, $sp-lg);
+  height: 100%;
+  min-height: 320px;
+  width: 100%;
+  background: $bg;
+  border-radius: $radius;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: $sp-2xl $sp-lg;
+}
+
+.emptyLines {
+  @include flex-col;
+  gap: 12px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.emptyLine {
+  height: 10px;
+  border-radius: 5px;
+  background: rgba($border, 0.9);
+  display: block;
+  animation: shimmer 2.2s ease-in-out infinite;
+
+  &:nth-child(2) { animation-delay: 0.15s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.45s; }
+  &:nth-child(5) { animation-delay: 0.6s; }
+}
+
+.emptyText {
+  font-size: $font-xs;
+  color: rgba($text-muted, 0.55);
+  text-align: center;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.sampleNote {
+  padding: 7px $sp-md;
+  font-size: 11px;
+  color: rgba($text-muted, 0.45);
+  text-align: center;
+  border-top: 1px solid $border;
+  background: #f8f9fa;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

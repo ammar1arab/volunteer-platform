@@ -4,25 +4,27 @@
 .page {
   padding: 80px 0 0;
   min-height: 100vh;
+  @include flex-center;
 }
 
 .container {
-  @include container;
   @include flex-col;
   align-items: center;
-  gap: $sp-lg;
+  gap: $sp-md;
+  width: 100%;
+  max-width: 700px;
   padding: $sp-xl $sp-md $sp-2xl;
-  max-width: 720px;
+  margin: 0 auto;
 }
 
-.badge {
-  @include flex(row, center, center, $sp-xs);
-  padding: $sp-xs $sp-md;
-  background: rgba($green, 0.1);
+.verified {
+  @include flex(row, center, center, 6px);
+  padding: 5px 14px;
+  background: rgba($green, 0.08);
   color: $green;
-  border: 1px solid rgba($green, 0.3);
+  border: 1px solid rgba($green, 0.25);
   border-radius: $radius-full;
-  font-size: $font-sm;
+  font-size: $font-xs;
   font-weight: 700;
 }
 
@@ -33,74 +35,71 @@
   border-radius: $radius-md;
   overflow: hidden;
   border: 1px solid $border;
-  box-shadow: $shadow;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 16px 40px rgba(0, 0, 0, 0.08);
 }
 
-.previewImg { object-fit: cover; }
-
-.info {
-  @include flex-col;
-  align-items: center;
-  gap: $sp-sm;
-  text-align: center;
-  width: 100%;
-}
-
-.activity {
-  margin: 0;
-  font-size: $font-xl;
-  font-weight: 700;
-  color: $text;
-}
+.img { object-fit: cover; }
 
 .meta {
-  @include flex(row, center, center, $sp-lg);
-  font-size: $font-sm;
-  color: $text-muted;
+  @include flex(row, center, center, $sp-md);
+  flex-wrap: wrap;
+  gap: $sp-sm;
 }
 
 .metaItem {
-  @include flex(row, center, center, $sp-xs);
+  @include flex(row, center, center, 5px);
+  font-size: $font-xs;
+  color: $text-muted;
 }
 
 .certId {
-  margin: 0;
   font-size: $font-xs;
-  color: $text-muted;
-  span {
-    font-family: monospace;
-    color: $green;
-    font-weight: 700;
-  }
+  font-family: monospace;
+  color: $green;
+  font-weight: 700;
+  background: rgba($green, 0.06);
+  padding: 2px 8px;
+  border-radius: $radius-full;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $text;
+  text-align: center;
+
+  @include sm { font-size: $font-md; }
 }
 
 .actions {
   @include flex(row, center, center, $sp-sm);
   flex-wrap: wrap;
-  width: 100%;
 }
 
 %btn {
   @include flex(row, center, center, $sp-xs);
-  padding: $sp-sm $sp-lg;
+  padding: 10px $sp-lg;
   border-radius: $radius;
   font-size: $font-sm;
   font-weight: 600;
   cursor: pointer;
   transition: $transition;
   border: none;
-  text-decoration: none;
   white-space: nowrap;
+  font-family: inherit;
 }
 
-.btnPdf {
+.btnPrimary {
   @extend %btn;
   background: $green;
   color: $white;
   &:hover { opacity: 0.88; }
 }
 
-.btnPng {
+.btnSecondary {
   @extend %btn;
   background: transparent;
   border: 1px solid $border;
@@ -108,25 +107,26 @@
   &:hover { border-color: $green; color: $green; }
 }
 
-.btnShare {
-  @extend %btn;
-  background: transparent;
-  border: 1px solid $border;
-  color: $text;
-  &:hover { border-color: $green; color: $green; }
+.brand {
+  font-size: $font-xs;
+  color: rgba($text-muted, 0.5);
+  text-decoration: none;
+  margin-top: $sp-sm;
+  &:hover { color: $green; }
 }
 
 .notFound {
   @include flex(column, center, center, $sp-md);
-  padding: $sp-2xl;
+  min-height: 60vh;
   color: $text-muted;
   text-align: center;
-}
 
-.homeLink {
-  font-size: $font-xs;
-  color: $text-muted;
-  text-decoration: none;
-  margin-top: $sp-md;
-  &:hover { color: $green; }
+  p { margin: 0; font-size: $font-sm; }
+
+  a {
+    font-size: $font-sm;
+    font-weight: 600;
+    color: $green;
+    text-decoration: none;
+  }
 }

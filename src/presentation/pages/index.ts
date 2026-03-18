@@ -16,6 +16,8 @@ export { default as ParticipationRequestsPage } from "./admin/ParticipationReque
 export { default as FeaturedPostsPage } from "./admin/FeaturedPostsPage/FeaturedPostsPage";
 export { default as VolunteerSpotlightPage } from "./admin/VolunteerSpotlightPage/VolunteerSpotlightPage";
 export { default as MagazinesPage } from "./admin/MagazinesPage/MagazinesPage";
+export { default as NotificationsPage } from "./admin/NotificationsPage/NotificationsPage";
+export { default as EmailsPage } from "./admin/EmailsPage/EmailsPage";
 
 export { default as VolunteerProfilePage } from "./volunteer/VolunteerProfilePage/VolunteerProfilePage";
 export { default as VolunteerActivitiesPage } from "./volunteer/VolunteerActivitiesPage/VolunteerActivitiesPage";

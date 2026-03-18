@@ -22,6 +22,8 @@ export const ROUTES = {
     MONTHLY_MAGAZINE: "/admin/dashboard/monthly-magazine",
     ACTIVITIES: "/admin/dashboard/activities",
     REQUESTS: "/admin/dashboard/requests",
+    NOTIFICATIONS: "/admin/dashboard/notifications",
+    EMAILS: "/admin/dashboard/emails",
     USERS: "/admin/dashboard/users",
     USER_DETAILS: (id: string) => `/admin/dashboard/users/${id}`
   },

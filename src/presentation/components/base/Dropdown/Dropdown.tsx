@@ -61,7 +61,7 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
       </button>
 
       {isOpen && (
-        <div className={styles.menu}>
+        <div className={`${styles.menu} no-scrollbar`}>
           {items.map((item) => (
             <button
               key={item.key}
