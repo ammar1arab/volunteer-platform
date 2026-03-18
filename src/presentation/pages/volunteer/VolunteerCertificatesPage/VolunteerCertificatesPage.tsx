@@ -7,9 +7,9 @@ import { CertificateCard } from "@/presentation/components";
 import { Award } from "lucide-react";
 
 const FILTER_OPTIONS = [
-  { key: "all",       label: "الكل" },
+  { key: "all", label: "الكل" },
   { key: "IN_PERSON", label: "وجاهي" },
-  { key: "ONLINE",    label: "إلكتروني" }
+  { key: "ONLINE", label: "إلكتروني" }
 ];
 
 const VolunteerCertificatesPage = () => {
@@ -64,7 +64,7 @@ const VolunteerCertificatesPage = () => {
             message={
               appliedSearch
                 ? "لا توجد نتائج مطابقة"
-                : "لا توجد شهادات بعد — شارك في الأنشطة لتحصل على شهاداتك"
+                : "لا توجد شهادات بعد "
             }
           />
         ) : (
