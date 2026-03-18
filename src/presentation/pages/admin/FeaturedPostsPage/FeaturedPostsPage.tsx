@@ -1,9 +1,8 @@
 "use client";
 import styles from "./FeaturedPostsPage.module.scss";
 import { useFeaturedPostsPage } from "./FeaturedPostsPage.logic";
-import Image from "next/image";
 import { DomainFeaturedPostCategory } from "@/core/domain/enums";
-import { AdminFeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, MultiSelectInput, Dropdown, Search } from "@/presentation/components";
+import { AdminFeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, MultiSelectInput, Dropdown, Search, SelectInput } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, FileImage } from "lucide-react";
 
 const FeaturedPostsPage = () => {
@@ -14,7 +13,6 @@ const FeaturedPostsPage = () => {
     isUploading,
     mode,
     form,
-    preview,
     showModal,
     filteredList,
     paginatedList,
@@ -37,7 +35,10 @@ const FeaturedPostsPage = () => {
     handleDelete,
     searchQuery,
     setSearchQuery,
-    setAppliedSearch
+    setAppliedSearch,
+    yearOptions,
+    dayOptions,
+    monthOptions
   } = useFeaturedPostsPage();
 
   if (status === "loading") return <LoadingState />;
@@ -81,6 +82,7 @@ const FeaturedPostsPage = () => {
                 imageUrl={post.imageUrl}
                 title={post.title}
                 description={post.description}
+                publishedAt={post.publishedAt}
                 meta={
                   <span className={`${styles.badge} ${post.isActive ? styles.active : styles.inactive}`}>
                     {post.isActive ? "نشط" : "مخفي"}
@@ -147,6 +149,33 @@ const FeaturedPostsPage = () => {
           </div>
 
           <div className={styles.field}>
+            <label className={styles.label}>تاريخ النشر</label>
+            <div className={styles.row}>
+              <SelectInput
+                label=""
+                value={form.day}
+                options={dayOptions}
+                onChange={(val) => setForm((p) => ({ ...p, day: val }))}
+                disabled={isSubmitting || isUploading}
+              />
+              <SelectInput
+                label=""
+                value={form.month}
+                options={monthOptions}
+                onChange={(val) => setForm((p) => ({ ...p, month: val }))}
+                disabled={isSubmitting || isUploading}
+              />
+              <SelectInput
+                label=""
+                value={form.year}
+                options={yearOptions}
+                onChange={(val) => setForm((p) => ({ ...p, year: val }))}
+                disabled={isSubmitting || isUploading}
+              />
+            </div>
+          </div>
+
+          <div className={styles.field}>
             <label className={styles.label}>صورة الغلاف</label>
             <div className={styles.uploadSection}>
               <div className={styles.uploadControls}>
@@ -183,7 +212,11 @@ const FeaturedPostsPage = () => {
             <button className={styles.btnCancel} onClick={resetForm} disabled={isSubmitting || isUploading}>
               إلغاء
             </button>
-            <button className={styles.btnSubmit} onClick={handleSubmit} disabled={isSubmitting || isUploading || !form.imageUrl || !form.title.trim()}>
+            <button
+              className={styles.btnSubmit}
+              onClick={handleSubmit}
+              disabled={isSubmitting || isUploading || !form.imageUrl || !form.title.trim() || !form.day || !form.month || !form.year}
+            >
               {isSubmitting ? "جاري الحفظ..." : mode === "create" ? "إنشاء" : "حفظ التعديلات"}
             </button>
           </div>

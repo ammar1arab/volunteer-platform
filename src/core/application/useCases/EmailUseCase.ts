@@ -48,21 +48,22 @@ class EmailUseCase {
 
       const resend = ResendClient.getInstance();
 
-      const emails = recipients.map((r) => ({
-        from:    input.fromAlias,
-        to:      r.email,
-        subject: applyVariables(input.subject, r),
-        html:    buildBulkEmail({
-          subject:   applyVariables(input.subject, r),
-          body:      applyVariables(input.body, r),
-          fromAlias: input.fromAlias,
-        }),
-      }));
+      const emails = recipients.map((r) => {
+        const vars = { name: r.name, city: r.city, hours: r.hours, activityLink: input.activityLink };
+        return {
+          from:    input.fromAlias,
+          to:      r.email,
+          subject: applyVariables(input.subject, vars),
+          html:    buildBulkEmail({
+            subject:   applyVariables(input.subject, vars),
+            body:      applyVariables(input.body, vars),
+            fromAlias: input.fromAlias,
+          }),
+        };
+      });
 
-      const batches = chunkArray(emails, BATCH_SIZE);
       let sent = 0;
-
-      for (const batch of batches) {
+      for (const batch of chunkArray(emails, BATCH_SIZE)) {
         await resend.batch.send(batch as Parameters<typeof resend.batch.send>[0]);
         sent += batch.length;
       }

@@ -186,3 +186,23 @@
     border-radius: $radius-md;
   }
 }
+.metaRow {
+  @include flex(row, center, flex-start, $sp-md);
+  flex-wrap: wrap;
+  gap: $sp-md;
+}
+
+.fullDate {
+  font-size: $font-sm;
+  color: $text-muted;
+  font-weight: 500;
+  padding-left: $sp-md;
+  border-left: 1px solid rgba($green, 0.2);
+
+  @include sm {
+    border-left: none;
+    padding-left: 0;
+    width: 100%; 
+    margin-bottom: $sp-xs;
+  }
+}

@@ -16,6 +16,9 @@ type Props = {
   activityId: string;
   activityTitle: string;
   activityStatus: string;
+  activityDate: string;
+  activityType: string;
+  durationHours: number;
   isOpen: boolean;
   onClose: () => void;
   onComplete?: () => Promise<boolean>;
@@ -38,6 +41,10 @@ const STEP_ICONS: Record<string, React.ReactNode> = {
 };
 
 const EXPORT_COLUMNS = [
+  { key: "activityTitle", label: "اسم النشاط" },
+  { key: "activityDate", label: "تاريخ النشاط" },
+  { key: "activityType", label: "نوع النشاط" },
+  { key: "durationHours", label: "ساعات النشاط" },
   { key: "fullName", label: "الاسم" },
   { key: "email", label: "البريد الإلكتروني" },
   { key: "phone", label: "رقم الهاتف" },
@@ -47,13 +54,13 @@ const EXPORT_COLUMNS = [
   { key: "attendanceStatus", label: "حالة الحضور" },
 ];
 
-const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, onClose, onComplete }: Props) => {
+const VolunteersModal = ({ activityId, activityTitle, activityStatus, activityDate, activityType, durationHours, isOpen, onClose, onComplete }: Props) => {
   const {
     volunteers, loading, rejecting, confirmStep, attendanceWarning, unmarkedCount,
     toasts, removeToast,
     setAttendance, rejectVolunteer, requestComplete, confirmStep1, cancelConfirm,
     confirmComplete, dismissWarning, calculateAge, exportData,
-  } = useVolunteersModal(activityId, isOpen);
+  } = useVolunteersModal(activityId, isOpen, activityTitle, activityStatus, activityDate, activityType, durationHours);
 
   const { state: completeState, startAnimation, reset: resetComplete } = useCompleteActivity();
 
@@ -68,16 +75,13 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, on
 
   const handleFinalComplete = () => {
     if (!onComplete) return;
-    // confirmComplete flushes attendance then calls our callback
     confirmComplete(async () => {
-      // API call happens ONCE here via onComplete prop
       const success = await onComplete();
       if (success) {
-        // start animation AFTER successful API call — no second API call
         startAnimation(attendedCount);
       }
       return success;
-    }, onClose); // ← pass real onClose so modal closes on success
+    }, onClose);
   };
 
   const handleProgressClose = () => {
@@ -94,11 +98,11 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, on
       <Modal isOpen={isOpen && !isProgressOpen} onClose={onClose} title="المتطوعون" size="md">
         <div className={styles.wrapper}>
 
-            <ExportUsersButton
-              data={exportData}
-              columns={EXPORT_COLUMNS}
-              buttonText="Export Excel"
-            />
+          <ExportUsersButton
+            data={exportData}
+            columns={EXPORT_COLUMNS}
+            buttonText="Export Excel"
+          />
 
           {attendanceWarning && (
             <div className={styles.warning}>
@@ -229,7 +233,6 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, on
         </div>
       </Modal>
 
-      {/* ── Progress Modal ── */}
       <Modal
         isOpen={isProgressOpen}
         onClose={() => { }}

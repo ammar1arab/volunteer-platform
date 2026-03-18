@@ -56,6 +56,7 @@ const FeaturedPostsPublicPage = () => {
                                 imageUrl={post.imageUrl}
                                 title={post.title}
                                 description={post.description}
+                                publishedAt={post.publishedAt}
                                 variant="glass"
                             />
                         ))}

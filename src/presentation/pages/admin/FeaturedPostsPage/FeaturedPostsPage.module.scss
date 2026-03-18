@@ -257,3 +257,18 @@
   font-weight: 600;
   min-width: 120px;
 }
+.row {
+  display: grid !important;
+  grid-template-columns: 1fr 1.5fr 1.2fr; 
+  width: 100%;
+  align-items: flex-end;
+
+  @include sm {
+    grid-template-columns: 1fr 1fr 1fr; 
+    gap: 4px;
+  }
+
+  > * {
+    min-width: 0; 
+  }
+}

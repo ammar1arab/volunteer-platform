@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import { ArrowRight, FileImage } from "lucide-react";
-import { getCategoryLabel, ROUTES } from "@/presentation/constants";
+import { getCategoryLabel, getMonthLabel, ROUTES } from "@/presentation/constants";
 import { LoadingState, Button, EmptyState } from "@/presentation/components";
 import { usePostDetails } from "@/presentation/hooks";
 import { DomainFeaturedPostCategory } from "@/core/domain/enums";
@@ -14,6 +14,8 @@ import { DomainFeaturedPostCategory } from "@/core/domain/enums";
 const PostDetailsPage = () => {
   const router = useRouter();
   const { post, loading, error } = usePostDetails(useParams()?.id as string);
+  const date = post?.publishedAt ? new Date(post.publishedAt) : null;
+  const dateLabel = date ? `${date.getDate()} ${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}` : null;
 
   if (loading) return <div className={styles.loadingContainer}><LoadingState /></div>;
 
@@ -41,11 +43,13 @@ const PostDetailsPage = () => {
       </Button>
       <article className={styles.article}>
         <div className={styles.hero}>
-          <Image src={post.imageUrl} alt={post.title} fill className={styles.heroImage} loading="eager" priority  />
+          <Image src={post.imageUrl} alt={post.title} fill className={styles.heroImage} loading="eager" priority />
         </div>
         <div className={styles.content}>
           <header className={styles.header}>
             <h1 className={styles.title}>{post.title}</h1>
+            {dateLabel && <span className={styles.fullDate}>{dateLabel}</span>}
+
             {post.categories?.length > 0 && (
               <div className={styles.categories}>
                 {post.categories.map((cat) => (

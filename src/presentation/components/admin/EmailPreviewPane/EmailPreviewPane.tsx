@@ -5,21 +5,25 @@ import styles from "./EmailPreviewPane.module.scss";
 import { buildBulkEmail, applyVariables } from "@/lib/templates/emails/bulkEmail";
 
 interface Props {
-  subject:   string;
-  body:      string;
+  subject: string;
+  body: string;
   fromAlias: string;
 }
 
-const SAMPLE = { name: "أحمد محمد", city: "عمان", hours: 24 };
-
+const SAMPLE = {
+  name: "أحمد محمد",
+  city: "عمان",
+  hours: 24,
+  activityLink: "https://youthprints.online/activities/مثال",
+};
 const EmailPreviewPane = ({ subject, body, fromAlias }: Props) => {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const resolvedSubject = applyVariables(subject || "موضوع الإيميل", SAMPLE);
-  const resolvedBody    = applyVariables(body    || "", SAMPLE);
-  const html            = buildBulkEmail({ subject: resolvedSubject, body: resolvedBody, fromAlias });
-  const isEmpty         = !subject.trim() && !body.trim();
+  const resolvedBody = applyVariables(body || "", SAMPLE);
+  const html = buildBulkEmail({ subject: resolvedSubject, body: resolvedBody, fromAlias });
+  const isEmpty = !subject.trim() && !body.trim();
 
   useEffect(() => {
     const iframe = iframeRef.current;

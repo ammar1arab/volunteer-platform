@@ -26,13 +26,16 @@ class FeaturedPost extends BaseEntity {
       ...input,
       id: crypto.randomUUID(),
       createdAt: new Date(),
+      publishedAt: input.publishedAt ?? new Date(),
       updatedAt: new Date(),
       isActive: input.isActive ?? true
     });
   }
 
   update(
-    input: Partial<Pick<FeaturedPostProps, "imageUrl" | "title" | "description" | "isActive" | "categories">>
+    input: Partial<
+      Pick<FeaturedPostProps, "imageUrl" | "title" | "description" | "isActive" | "categories" | "publishedAt">
+    >
   ): void {
     let changed = false;
 
@@ -68,6 +71,11 @@ class FeaturedPost extends BaseEntity {
       changed = true;
     }
 
+    if (input.publishedAt !== undefined) {
+      this.props.publishedAt = input.publishedAt;
+      changed = true;
+    }
+
     if (changed) {
       this.touch();
     }
@@ -89,12 +97,17 @@ class FeaturedPost extends BaseEntity {
     return this.props.categories;
   }
 
+  get publishedAt(): Date {
+    return this.props.publishedAt;
+  }
+
   toObject(): FeaturedPostProps {
     return {
       ...this.props,
       id: this.id,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
+      publishedAt: this.props.publishedAt,
       isActive: this.isActive
     };
   }

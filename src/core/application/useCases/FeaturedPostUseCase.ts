@@ -32,7 +32,8 @@ class FeaturedPostUseCase {
       title: input.title ? InputSanitizer.sanitizeString(input.title) : undefined,
       description: input.description ? input.description.trim() : undefined,
       categories: input.categories,
-      isActive: input.isActive
+      isActive: input.isActive,
+      publishedAt: input.publishedAt
     };
   }
 
@@ -71,6 +72,7 @@ class FeaturedPostUseCase {
         title: payload.title,
         description: payload.description,
         categories: payload.categories,
+        publishedAt: payload.publishedAt ?? new Date(),
         isActive: payload.isActive ?? true
       });
 

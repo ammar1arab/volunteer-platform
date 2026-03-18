@@ -1,16 +1,10 @@
 import { buildEmailFooter } from "./emailFooter";
 
-const ALIAS_LABELS: Record<string, string> = {
-  "contact@youthprints.online":      "فريق بصمات شبابية",
-  "support@youthprints.online":      "دعم بصمات شبابية",
-  "noreply@youthprints.online":      "بصمات شبابية",
-  "certificates@youthprints.online": "شهادات بصمات شبابية",
-};
-
 export interface RecipientVars {
-  name:  string;
-  city:  string | null;
-  hours: number;
+  name:          string;
+  city:          string | null;
+  hours:         number;
+  activityLink?: string;
 }
 
 export function applyVariables(text: string, vars: RecipientVars): string {
@@ -21,7 +15,8 @@ export function applyVariables(text: string, vars: RecipientVars): string {
     .replace(/{اسم_المتطوع}/g,  vars.name)
     .replace(/{المدينة}/g,       vars.city ?? "")
     .replace(/{ساعات_التطوع}/g,  String(Math.round(vars.hours)))
-    .replace(/{التاريخ}/g,       today);
+    .replace(/{التاريخ}/g,       today)
+    .replace(/{رابط_النشاط}/g,   vars.activityLink ?? "");
 }
 
 export function buildBulkEmail(params: {
@@ -42,20 +37,17 @@ export function buildBulkEmail(params: {
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f5;padding:32px 16px;">
   <tr><td align="center">
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;background:#fff;border-radius:12px;overflow:hidden;">
-
       <tr>
         <td align="center" style="background:${green};padding:32px 32px 28px;">
           <p style="margin:0 0 8px;font-size:11px;color:rgba(255,255,255,0.7);font-weight:700;letter-spacing:1.5px;">YOUTHPRINTS · بصمات شبابية</p>
           <p style="margin:0;font-size:22px;font-weight:800;color:#ffffff;line-height:1.4;">${params.subject}</p>
         </td>
       </tr>
-
       <tr>
         <td style="padding:32px 32px 20px;">
-          <div style="font-size:15px;color:#333;line-height:2.1;">${params.body.replace(/\n/g, "<br>")}</div>
+          <div style="font-size:15px;color:#333;line-height:2.1;white-space:pre-line;">${params.body.replace(/\n/g, "<br>")}</div>
         </td>
       </tr>
-
       <tr>
         <td style="padding:0 32px 32px;">
           <a href="https://youthprints.online" style="display:block;background:${green};color:#fff;text-align:center;padding:14px;font-size:15px;font-weight:700;text-decoration:none;border-radius:8px;">
@@ -63,9 +55,7 @@ export function buildBulkEmail(params: {
           </a>
         </td>
       </tr>
-
       ${buildEmailFooter({ showPhone: false })}
-
     </table>
   </td></tr>
 </table>

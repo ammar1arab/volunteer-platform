@@ -168,7 +168,7 @@
 }
 
 .varPill {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   color: $green;
   background: rgba($green, 0.07);
@@ -224,14 +224,15 @@
   }
 }
 
-.templateOn {
-  border-color: $green;
-  background: rgba($green, 0.06);
-  .templateName {
-    color: $green;
+.templates {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $sp-xs;
+
+  @media (max-width: 520px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
-
 .templateName {
   font-size: $font-xs;
   font-weight: 800;
@@ -495,4 +496,72 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+}
+.extraFilters {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-md;
+  background: rgba($border, 0.08);
+  border-radius: $radius;
+  border: 1px solid rgba($border, 0.6);
+}
+
+.extraFiltersLabel {
+  font-size: $font-xs;
+  font-weight: 800;
+  color: $text-muted;
+  letter-spacing: 0.5px;
+}
+
+.inputHint {
+  font-size: 11px;
+  color: rgba($text-muted, 0.6);
+  line-height: 1.5;
+}
+
+.varBadge {
+  font-size: 10px;
+  font-weight: 700;
+  color: $green;
+  background: rgba($green, 0.08);
+  border: 1px solid rgba($green, 0.2);
+  padding: 1px 6px;
+  border-radius: $radius-full;
+  font-family: monospace;
+  margin-right: $sp-xs;
+}
+
+.expToggle {
+  @include flex(row, center, flex-start, 4px);
+}
+
+.expBtn {
+  flex: 1;
+  padding: 7px 6px;
+  border-radius: $radius;
+  border: 1px solid $border;
+  background: transparent;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+  font-family: inherit;
+  white-space: nowrap;
+  text-align: center;
+
+  &:hover:not(:disabled) {
+    border-color: rgba($green, 0.4);
+    color: $text;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.expBtnOn {
+  border-color: $green;
+  background: rgba($green, 0.08);
+  color: $green;
 }

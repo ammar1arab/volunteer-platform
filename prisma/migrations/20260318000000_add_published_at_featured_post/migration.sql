@@ -1,0 +1,1 @@
+ALTER TABLE "featured_posts" ADD COLUMN "publishedAt" TIMESTAMP(3) NOT NULL DEFAULT NOW();

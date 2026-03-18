@@ -12,7 +12,15 @@ const getCache = (activityId: string) => {
   return cache.get(activityId)!;
 };
 
-export const useVolunteersModal = (activityId: string, isOpen: boolean) => {
+export const useVolunteersModal = (
+  activityId: string,
+  isOpen: boolean,
+  activityTitle: string,
+  activityStatus: string,
+  activityDate: string,
+  activityType: string,
+  durationHours: number
+) => {
   const [volunteers, setVolunteers] = useState<ActivityVolunteerDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [completing, setCompleting] = useState(false);
@@ -173,6 +181,10 @@ export const useVolunteersModal = (activityId: string, isOpen: boolean) => {
   const exportData = useMemo(
     () =>
       volunteers.map((v) => ({
+        activityTitle,
+        activityDate,
+        activityType,
+        durationHours,
         fullName: v.fullName,
         email: v.email,
         phone: v.phone,
@@ -181,7 +193,7 @@ export const useVolunteersModal = (activityId: string, isOpen: boolean) => {
         gender: v.gender ? getGenderLabel(v.gender as Gender) : "-",
         attendanceStatus: getAttendanceStatusLabel(v.attendanceStatus)
       })),
-    [volunteers]
+    [volunteers, activityTitle, activityDate, activityType, durationHours]
   );
 
   return {

@@ -66,6 +66,7 @@ model Activity {
   externalMeetingId String?
   maxVolunteers     Int
   currentVolunteers Int                     @default(0)
+  deletedAt         DateTime?
   status            String                  @default("DRAFT")
   activityType      String                  @default("IN_PERSON")
   categories        String[]                @default([])
@@ -146,6 +147,7 @@ model FeaturedPost {
   imageUrl    String
   title       String
   description String                 @db.Text
+  publishedAt   DateTime   @default(now())
   isActive    Boolean                @default(true)
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt

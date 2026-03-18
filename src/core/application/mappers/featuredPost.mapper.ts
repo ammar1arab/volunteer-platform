@@ -9,6 +9,7 @@ export const toFeaturedPostDto = (entity: FeaturedPost): FeaturedPostDto => {
     title: p.title,
     description: p.description,
     categories: p.categories,
+    publishedAt: p.publishedAt.toISOString(),
     isActive: p.isActive,
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString()

@@ -26,31 +26,35 @@ class ActivityRepository implements IActivityRepository {
       meetingLink: data.meetingLink ?? null,
       meetingPlatform: (data.meetingPlatform as MeetingPlatform) ?? null,
       externalMeetingId: data.externalMeetingId ?? null,
-      durationHours: data.durationHours ?? 0
+      durationHours: data.durationHours ?? 0,
+      deletedAt: data.deletedAt ?? null
     });
   }
 
   async findById(id: string): Promise<Activity | null> {
-    const data = await prisma.activity.findUnique({ where: { id } });
+    const data = await prisma.activity.findUnique({ where: { id, deletedAt: null } });
     return data ? this.mapToEntity(data) : null;
-  }
-
-  async findAll(): Promise<Activity[]> {
-    const rows = await prisma.activity.findMany({ orderBy: { date: "asc" } });
-    return rows.map((row) => this.mapToEntity(row));
   }
 
   async findSummaryById(id: string): Promise<{ title: string; activityType: string; durationHours: number } | null> {
     const row = await prisma.activity.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
       select: { title: true, activityType: true, durationHours: true }
     });
     return row ?? null;
   }
 
+  async findAll(): Promise<Activity[]> {
+    const rows = await prisma.activity.findMany({
+      where: { deletedAt: null },
+      orderBy: { date: "asc" }
+    });
+    return rows.map((row) => this.mapToEntity(row));
+  }
+
   async findPublished(): Promise<Activity[]> {
     const rows = await prisma.activity.findMany({
-      where: { status: ActivityStatus.PUBLISHED, isActive: true },
+      where: { status: ActivityStatus.PUBLISHED, isActive: true, deletedAt: null },
       orderBy: { date: "asc" }
     });
     return rows.map((row) => this.mapToEntity(row));
@@ -58,7 +62,7 @@ class ActivityRepository implements IActivityRepository {
 
   async findByCreator(creatorId: string): Promise<Activity[]> {
     const rows = await prisma.activity.findMany({
-      where: { createdBy: creatorId },
+      where: { createdBy: creatorId, deletedAt: null },
       orderBy: { createdAt: "desc" }
     });
     return rows.map((row) => this.mapToEntity(row));
@@ -86,12 +90,11 @@ class ActivityRepository implements IActivityRepository {
         isActive: props.isActive,
         createdAt: props.createdAt,
         updatedAt: props.updatedAt,
-        // IN_PERSON
+        deletedAt: null,
         placeName: props.placeName ?? null,
         city: props.city ?? null,
         latitude: props.latitude ?? null,
         longitude: props.longitude ?? null,
-        // ONLINE
         meetingLink: props.meetingLink ?? null,
         meetingPlatform: props.meetingPlatform ?? null,
         externalMeetingId: props.externalMeetingId ?? null
@@ -119,13 +122,12 @@ class ActivityRepository implements IActivityRepository {
         activityType: props.activityType,
         categories: props.categories,
         isActive: props.isActive,
+        deletedAt: props.deletedAt,
         updatedAt: new Date(),
-        // IN_PERSON
         placeName: props.placeName ?? null,
         city: props.city ?? null,
         latitude: props.latitude ?? null,
         longitude: props.longitude ?? null,
-        // ONLINE
         meetingLink: props.meetingLink ?? null,
         meetingPlatform: props.meetingPlatform ?? null,
         externalMeetingId: props.externalMeetingId ?? null
@@ -136,7 +138,10 @@ class ActivityRepository implements IActivityRepository {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await prisma.activity.delete({ where: { id } });
+      await prisma.activity.update({
+        where: { id, deletedAt: null },
+        data: { deletedAt: new Date(), updatedAt: new Date() }
+      });
       return true;
     } catch {
       return false;

@@ -33,7 +33,6 @@ class Activity extends BaseEntity {
     const endTime = new Time(props.endTime);
     if (!startTime.isBefore(endTime)) throw new Error("Start time must be before end time");
 
-
     this.props = {
       ...props,
       title: props.title.trim(),
@@ -41,7 +40,8 @@ class Activity extends BaseEntity {
       placeName: props.placeName?.trim() ?? null,
       meetingLink: props.meetingLink?.trim() ?? null,
       categories: props.categories ?? [],
-      externalMeetingId: props.externalMeetingId ?? null
+      externalMeetingId: props.externalMeetingId ?? null,
+      deletedAt: props.deletedAt ?? null
     };
   }
 
@@ -93,6 +93,11 @@ class Activity extends BaseEntity {
   complete(): void {
     if (this.props.status !== ActivityStatus.PUBLISHED) throw new Error("Only published activities can be completed");
     this.props.status = ActivityStatus.COMPLETED;
+    this.touch();
+  }
+
+  softDelete(): void {
+    this.props.deletedAt = new Date();
     this.touch();
   }
 
@@ -290,7 +295,8 @@ class Activity extends BaseEntity {
       id: this.id,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      isActive: this.isActive
+      isActive: this.isActive,
+      deletedAt: this.props.deletedAt ?? null
     };
   }
 }

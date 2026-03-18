@@ -9,6 +9,7 @@ export interface FeaturedPostDto {
   title: string;
   description: string;
   categories: DomainFeaturedPostCategory[];
+  publishedAt: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -21,6 +22,7 @@ export interface CreateFeaturedPostRequest {
   title: string;
   description: string;
   categories: DomainFeaturedPostCategory[];
+  publishedAt?: Date;
   isActive?: boolean;
 }
 

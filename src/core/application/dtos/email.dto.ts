@@ -9,10 +9,15 @@ export type EmailAlias =
 export type EmailTarget = "ALL" | "CITY" | "GENDER";
 
 export interface EmailRecipientFilters {
-  target:        EmailTarget;
-  targetValue?:  string;
-  minHours?:     number;
-  skillFilter?:  string;
+  target:          EmailTarget;
+  targetValue?:    string;
+  genderFilter?:   string;
+  cityFilter?:     string;
+  minHours?:       number;
+  minAge?:         number;
+  maxAge?:         number;
+  interests?:      string[];
+  hasExperience?:  boolean;
 }
 
 export interface EmailRecipientDto {
@@ -34,6 +39,7 @@ export interface SendBulkEmailInput {
   body:          string;
   filters:       EmailRecipientFilters;
   recipientIds?: string[];
+  activityLink?: string;
 }
 
 export type GetEmailRecipientsResponse = Result<EmailRecipientsDto>;

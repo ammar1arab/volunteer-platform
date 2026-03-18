@@ -6,4 +6,5 @@ export interface FeaturedPostProps extends BaseEntityProps {
   title: string;
   categories: DomainFeaturedPostCategory[];
   description: string;
+  publishedAt: Date;
 }

@@ -87,6 +87,7 @@ class ActivityUseCase {
         maxVolunteers: dto.maxVolunteers,
         createdBy: userId,
         isActive: true,
+        deletedAt: null,
         placeName: sanitized.placeName ?? null,
         city: (dto.city as JordanianCity) ?? null,
         latitude: dto.latitude ?? null,
@@ -145,12 +146,10 @@ class ActivityUseCase {
 
   async delete(id: string): Promise<DeleteActivityResponse> {
     try {
-      guard(id, "المعرف مطلوب");
-      const existing = await this.activityRepository.findById(id);
-      if (existing) await this.tryDeleteImage(existing.imageUrl);
-      const deleted = await this.activityRepository.delete(id);
-      if (!deleted) return fail("NOT_FOUND", "الفرصة غير موجود");
-      logger.info(ActivityUseCase.SCOPE, "delete", `Activity deleted: ${id}`);
+      const activity = await this.findOrFail(id);
+      activity.softDelete();
+      await this.activityRepository.update(activity);
+      logger.info(ActivityUseCase.SCOPE, "delete", `Activity soft-deleted: ${id}`);
       return ok({ deleted: true });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "delete", error, "حدث خطأ أثناء حذف الفرصة");

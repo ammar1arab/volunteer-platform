@@ -23,6 +23,7 @@ export interface ActivityProps extends BaseEntityProps {
   activityType: ActivityType;
   categories: DomainFeaturedPostCategory[];
   createdBy: string;
+  deletedAt: Date | null;
 
   // IN_PERSON
   placeName: string | null;

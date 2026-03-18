@@ -4,19 +4,15 @@ import type {
   GetEmailRecipientsResponse,
   SendBulkEmailApiResponse,
   SendBulkEmailInput,
+  EmailRecipientFilters
 } from "@/core/application/dtos";
 
 export const emailApi = {
-  previewRecipients: (params: {
-    target:       string;
-    targetValue?: string;
-    minHours?:    number;
-    skillFilter?: string;
-  }): Promise<GetEmailRecipientsResponse> =>
-    apiClient.get<GetEmailRecipientsResponse>(
-      API_ENDPOINTS.EMAILS.PREVIEW(params.target, params.targetValue, params.minHours, params.skillFilter)
-    ),
+  previewRecipients: (
+    filters: Omit<EmailRecipientFilters, "interests"> & { interests?: string[] }
+  ): Promise<GetEmailRecipientsResponse> =>
+    apiClient.get<GetEmailRecipientsResponse>(API_ENDPOINTS.EMAILS.PREVIEW(filters)),
 
   sendBulk: (body: SendBulkEmailInput): Promise<SendBulkEmailApiResponse> =>
-    apiClient.post<SendBulkEmailApiResponse>(API_ENDPOINTS.EMAILS.BASE, body),
+    apiClient.post<SendBulkEmailApiResponse>(API_ENDPOINTS.EMAILS.BASE, body)
 };

@@ -36,6 +36,7 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
         description: props.description,
         isActive: props.isActive,
         categories: props.categories as FeaturedPostCategory[],
+        publishedAt: props.publishedAt,
         createdAt: props.createdAt,
         updatedAt: props.updatedAt
       }
@@ -52,6 +53,7 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
         imageUrl: props.imageUrl,
         title: props.title,
         description: props.description,
+        publishedAt: props.publishedAt,
         isActive: props.isActive,
         categories: props.categories as FeaturedPostCategory[],
         updatedAt: new Date()

@@ -61,16 +61,31 @@ export const API_ENDPOINTS = {
     MARK_ALL_AS_READ: "/api/notifications/read-all",
     CLEAR:         "/api/notifications",
   },
-  EMAILS: {
-    BASE: "/api/emails",
-    PREVIEW: (target: string, targetValue?: string, minHours?: number, skillFilter?: string) => {
-      const q = new URLSearchParams({ target });
-      if (targetValue) q.set("targetValue", targetValue);
-      if (minHours)    q.set("minHours",    String(minHours));
-      if (skillFilter) q.set("skillFilter", skillFilter);
-      return `/api/emails?${q.toString()}`;
-    },
+ EMAILS: {
+  BASE: "/api/emails",
+  PREVIEW: (filters: {
+    target:          string;
+    targetValue?:    string;
+    genderFilter?:   string;
+    cityFilter?:     string;
+    minHours?:       number;
+    minAge?:         number;
+    maxAge?:         number;
+    interests?:      string[];
+    hasExperience?:  boolean;
+  }) => {
+    const q = new URLSearchParams({ target: filters.target });
+    if (filters.targetValue)              q.set("targetValue",   filters.targetValue);
+    if (filters.genderFilter)             q.set("genderFilter",  filters.genderFilter);
+    if (filters.cityFilter)               q.set("cityFilter",    filters.cityFilter);
+    if (filters.minHours)                 q.set("minHours",      String(filters.minHours));
+    if (filters.minAge)                   q.set("minAge",        String(filters.minAge));
+    if (filters.maxAge)                   q.set("maxAge",        String(filters.maxAge));
+    if (filters.interests?.length)        q.set("interests",     filters.interests.join(","));
+    if (filters.hasExperience !== undefined) q.set("hasExperience", String(filters.hasExperience));
+    return `/api/emails?preview=1&${q.toString()}`;
   },
+},
   DOWNLOAD: {
     PRESIGN: (key: string) => `/api/download?key=${encodeURIComponent(key)}`,
   },

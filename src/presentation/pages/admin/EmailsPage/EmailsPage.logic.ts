@@ -7,7 +7,8 @@ import type { EmailAlias, EmailRecipientDto } from "@/core/application/dtos";
 import { emailApi } from "@/presentation/services/email.service";
 import { CITY_OPTIONS, GENDER_OPTIONS } from "@/presentation/constants";
 
-export type EmailTarget = "ALL" | "CITY" | "GENDER";
+export type EmailTarget       = "ALL" | "CITY" | "GENDER";
+export type ExperienceFilter  = "all" | "yes" | "no";
 
 export const ALIAS_OPTIONS = [
   { value: "contact@youthprints.online",      label: "contact@youthprints.online"      },
@@ -27,6 +28,7 @@ export const VARS = [
   { label: "المدينة",      value: "{المدينة}"       },
   { label: "ساعات التطوع", value: "{ساعات_التطوع}"  },
   { label: "التاريخ",      value: "{التاريخ}"       },
+  { label: "رابط النشاط",  value: "{رابط_النشاط}"   },
 ] as const;
 
 export interface EmailTemplate {
@@ -53,11 +55,11 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
     body:        "أهلاً {اسم_المتطوع}،\n\nيسعدنا مشاركتك بأخبار مهمة من مبادرة بصمات شبابية.\n\n[أضف تفاصيل الإعلان هنا]\n\nنحن ممتنون لتطوعك ودعمك المستمر.\n\nمع أطيب التحيات،\nفريق بصمات شبابية",
   },
   {
-    id:          "invitation",
-    label:       "دعوة",
-    description: "نشاط تطوعي قادم",
-    subject:     "فرصة تطوعية جديدة تنتظرك",
-    body:        "مرحباً {اسم_المتطوع}،\n\nيسعدنا دعوتك للمشاركة في نشاطنا التطوعي القادم.\n\n[أضف تفاصيل النشاط: الاسم، التاريخ، المكان]\n\nسجّل اهتمامك من خلال منصتنا.\n\nنتطلع لمشاركتك!",
+    id:          "activity_invite",
+    label:       "دعوة نشاط",
+    description: "رابط تسجيل مباشر",
+    subject:     "دعوة للتسجيل في نشاط تطوعي",
+    body:        "مرحباً {اسم_المتطوع}،\n\nيسعدنا دعوتك للمشاركة في نشاطنا التطوعي القادم.\n\n[أضف وصف النشاط هنا]\n\nللتسجيل المباشر اضغط الرابط:\n{رابط_النشاط}\n\nلا تفوّت هذه الفرصة!",
   },
   {
     id:          "appreciation",
@@ -73,30 +75,49 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
     subject:     "تذكير: نشاطك التطوعي القادم",
     body:        "مرحباً {اسم_المتطوع}،\n\nهذا تذكير بنشاطك التطوعي القادم مع بصمات شبابية.\n\n[أضف تفاصيل النشاط والموعد]\n\nللاستفسار: support@youthprints.online",
   },
+  {
+  id:          "welcome",
+  label:       "ترحيب",
+  description: "استقبال متطوع جديد",
+  subject:     "أهلاً بك في بصمات شبابية يا {اسم_المتطوع}",
+  body:        "مرحباً {اسم_المتطوع}،\n\nيسعدنا انضمامك لعائلة بصمات الشبابية!\n\nأنت الآن جزء من مجتمع من المتطوعين المتميزين الذين يصنعون فرقاً حقيقياً.\n\nابدأ رحلتك بتصفح الفرص التطوعية المتاحة وسجّل في النشاط الذي يناسب اهتماماتك.\n\nنتطلع للقائك!",
+},
 ];
 
 export { CITY_OPTIONS, GENDER_OPTIONS };
 
 export interface EmailForm {
-  fromAlias:   EmailAlias;
-  templateId:  string;
-  subject:     string;
-  body:        string;
-  target:      EmailTarget;
-  targetValue: string;
-  minHours:    string;
-  skillFilter: string;
+  fromAlias:     EmailAlias;
+  templateId:    string;
+  subject:       string;
+  body:          string;
+  target:        EmailTarget;
+  targetValue:   string;
+  genderFilter:  string;
+  cityFilter:    string;
+  minHours:      string;
+  minAge:        string;
+  maxAge:        string;
+  interests:     string;
+  hasExperience: ExperienceFilter;
+  activityLink:  string;
 }
 
 const EMPTY_FORM: EmailForm = {
-  fromAlias:   "contact@youthprints.online",
-  templateId:  "custom",
-  subject:     "",
-  body:        "",
-  target:      "ALL",
-  targetValue: "",
-  minHours:    "",
-  skillFilter: "",
+  fromAlias:     "contact@youthprints.online",
+  templateId:    "custom",
+  subject:       "",
+  body:          "",
+  target:        "ALL",
+  targetValue:   "",
+  genderFilter:  "",
+  cityFilter:    "",
+  minHours:      "",
+  minAge:        "",
+  maxAge:        "",
+  interests:     "",
+  hasExperience: "all",
+  activityLink:  "",
 };
 
 export function useEmailsPageLogic() {
@@ -115,7 +136,7 @@ export function useEmailsPageLogic() {
     setFormState((p) => ({
       ...p,
       [key]: value,
-      ...(key === "target" ? { targetValue: "" } : {}),
+      ...(key === "target" ? { targetValue: "", genderFilter: "", cityFilter: "" } : {}),
     }));
   }, []);
 
@@ -125,6 +146,26 @@ export function useEmailsPageLogic() {
     setFormState((p) => ({ ...p, templateId, subject: t.subject, body: t.body }));
   }, []);
 
+  const buildFilters = useCallback(() => {
+    const interestsArr = form.interests.trim()
+      ? form.interests.split(",").map((s) => s.trim()).filter(Boolean)
+      : undefined;
+    const hasExp = form.hasExperience === "yes" ? true
+                 : form.hasExperience === "no"  ? false
+                 : undefined;
+    return {
+      target:         form.target,
+      targetValue:    form.targetValue   || undefined,
+      genderFilter:   form.genderFilter  || undefined,
+      cityFilter:     form.cityFilter    || undefined,
+      minHours:       form.minHours      ? Number(form.minHours) : undefined,
+      minAge:         form.minAge        ? Number(form.minAge)   : undefined,
+      maxAge:         form.maxAge        ? Number(form.maxAge)   : undefined,
+      interests:      interestsArr,
+      hasExperience:  hasExp,
+    };
+  }, [form]);
+
   const handlePreview = useCallback(async () => {
     if (!form.subject.trim() || !form.body.trim()) {
       showToast("يرجى إدخال العنوان والمحتوى", "error");
@@ -132,12 +173,7 @@ export function useEmailsPageLogic() {
     }
     setLoading(true);
     try {
-      const res   = await emailApi.previewRecipients({
-        target:      form.target,
-        targetValue: form.targetValue || undefined,
-        minHours:    form.minHours ? Number(form.minHours) : undefined,
-        skillFilter: form.skillFilter || undefined,
-      });
+      const res   = await emailApi.previewRecipients(buildFilters());
       const users = (res as { data?: { recipients?: EmailRecipientDto[] } })?.data?.recipients ?? [];
       if (!users.length) {
         showToast("لا يوجد متطوعون يطابقون هذا الاستهداف", "error");
@@ -151,7 +187,7 @@ export function useEmailsPageLogic() {
     } finally {
       setLoading(false);
     }
-  }, [form, showToast]);
+  }, [form, buildFilters, showToast]);
 
   const toggleUser = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -177,13 +213,9 @@ export function useEmailsPageLogic() {
         fromAlias:    form.fromAlias,
         subject:      form.subject.trim(),
         body:         form.body.trim(),
-        filters: {
-          target:      form.target,
-          targetValue: form.targetValue || undefined,
-          minHours:    form.minHours ? Number(form.minHours) : undefined,
-          skillFilter: form.skillFilter || undefined,
-        },
+        filters:      buildFilters(),
         recipientIds: [...selectedIds],
+        activityLink: form.activityLink.trim() || undefined,
       });
       const sent = (res as { data?: { sent?: number } })?.data?.sent ?? 0;
       showToast(`تم الإرسال بنجاح لـ ${sent} متطوع`, "success");
@@ -196,7 +228,7 @@ export function useEmailsPageLogic() {
     } finally {
       setIsSending(false);
     }
-  }, [form, selectedIds, showToast]);
+  }, [form, buildFilters, selectedIds, showToast]);
 
   const closePreview = useCallback(() => {
     setShowPreview(false);
@@ -204,10 +236,13 @@ export function useEmailsPageLogic() {
     setSelectedIds(new Set());
   }, []);
 
+  const hasActivityLinkVar = form.body.includes("{رابط_النشاط}") || form.subject.includes("{رابط_النشاط}");
+
   return {
     status,
     form,
     isFormValid: form.subject.trim().length > 0 && form.body.trim().length > 0,
+    hasActivityLinkVar,
     previewUsers, selectedIds,
     showPreview, showConfirm,
     loadingPreview, isSending,

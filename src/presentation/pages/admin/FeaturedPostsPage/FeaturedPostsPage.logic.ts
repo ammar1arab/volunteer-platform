@@ -6,7 +6,7 @@ import { DomainFeaturedPostCategory, UserRole } from "@/core/domain/enums";
 import { useFeaturedPosts, useToast, useAuth } from "@/presentation/hooks";
 import { FeaturedPostDto } from "@/core/application/dtos";
 import { normalizeWhitespace, processImageForUpload, revokeImagePreview } from "@/lib/utils";
-import { CATEGORY_OPTIONS } from "@/presentation/constants";
+import { CATEGORY_OPTIONS, MONTH_LABELS } from "@/presentation/constants";
 
 type ConfirmOptions = {
   title?: string;
@@ -23,15 +23,22 @@ interface FormState {
   description: string;
   isActive: boolean;
   categories: DomainFeaturedPostCategory[];
+  day: string;
+  month: string;
+  year: string;
 }
 
+const now = new Date();
 const EMPTY_FORM: FormState = {
   id: "",
   imageUrl: "",
   title: "",
   description: "",
   isActive: true,
-  categories: [DomainFeaturedPostCategory.EDUCATION]
+  categories: [DomainFeaturedPostCategory.EDUCATION],
+  day: String(now.getDate()).padStart(2, "0"),
+  month: String(now.getMonth() + 1).padStart(2, "0"),
+  year: String(now.getFullYear())
 };
 
 export const useFeaturedPostsPage = () => {
@@ -134,14 +141,20 @@ export const useFeaturedPostsPage = () => {
   const openEdit = useCallback(
     (post: FeaturedPostDto) => {
       if (preview) revokeImagePreview(preview);
+      const date = new Date(post.publishedAt);
+
       setMode("edit");
-      setForm({ ...post });
       setPreview("");
       setShowModal(true);
+      setForm({
+        ...post,
+        day: String(date.getDate()).padStart(2, "0"),
+        month: String(date.getMonth() + 1).padStart(2, "0"),
+        year: String(date.getFullYear())
+      });
     },
     [preview]
   );
-
   const handleFileChange = useCallback(
     async (file: File | null) => {
       if (!file) return;
@@ -172,7 +185,8 @@ export const useFeaturedPostsPage = () => {
       title: normalizeWhitespace(form.title),
       description: form.description.trim(),
       isActive: form.isActive,
-      categories: form.categories
+      categories: form.categories,
+      publishedAt: new Date(Number(form.year), Number(form.month) - 1, Number(form.day))
     };
 
     try {
@@ -199,7 +213,8 @@ export const useFeaturedPostsPage = () => {
         title: post.title,
         description: post.description,
         categories: post.categories,
-        isActive: !post.isActive
+        isActive: !post.isActive,
+        publishedAt: new Date(post.publishedAt)
       };
 
       const success = await update(post.id, payload);
@@ -227,6 +242,16 @@ export const useFeaturedPostsPage = () => {
     },
     [confirm, form.id, remove, resetForm, showToast]
   );
+
+  const dayOptions = Array.from({ length: 31 }, (_, i) => {
+    const d = String(i + 1).padStart(2, "0");
+    return { value: d, label: d };
+  });
+  const monthOptions = Object.entries(MONTH_LABELS).map(([value, label]) => ({ value, label }));
+  const yearOptions = Array.from({ length: 10 }, (_, i) => {
+    const y = String(new Date().getFullYear() - 2 + i);
+    return { value: y, label: y };
+  });
 
   return {
     status,
@@ -264,6 +289,9 @@ export const useFeaturedPostsPage = () => {
     handleDelete,
     searchQuery,
     setSearchQuery,
-    setAppliedSearch
+    setAppliedSearch,
+    yearOptions,
+    dayOptions,
+    monthOptions
   };
 };

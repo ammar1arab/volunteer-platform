@@ -2,9 +2,10 @@
 import styles from "./ActivitiesPage.module.scss";
 import { useActivitiesPage, FILTERS, STATUS_MAP } from "./ActivitiesPage.logic";
 
-import { ActivityStatus } from "@/core/domain/enums";
+import { ActivityStatus, ActivityType } from "@/core/domain/enums";
 import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown, Search } from "@/presentation/components";
 import { Plus, Edit2, Trash2, CalendarDays, Send, Ban, UsersIcon, RotateCcw } from "lucide-react";
+import { getActivityTypeLabel } from "@/presentation/constants";
 
 const ActivitiesPage = () => {
   const {
@@ -109,6 +110,9 @@ const ActivitiesPage = () => {
         activityId={selectedActivity?.id || ""}
         activityTitle={selectedActivity?.title || ""}
         activityStatus={selectedActivity?.status || ""}
+        activityDate={selectedActivity ? new Date(selectedActivity.date).toLocaleDateString("ar-JO") : ""}
+        activityType={selectedActivity ? getActivityTypeLabel(selectedActivity.activityType as ActivityType) : ""}
+        durationHours={selectedActivity?.durationHours ?? 0}
         isOpen={showVolunteersModal}
         onClose={() => setShowVolunteersModal(false)}
         onComplete={selectedActivity ? () => completeActivity(selectedActivity.id) : undefined}
