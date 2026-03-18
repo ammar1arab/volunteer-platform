@@ -8,8 +8,10 @@ import {
   EmailRecipientFilters,
   SendBulkEmailInput,
   GetEmailRecipientsResponse,
-  SendBulkEmailApiResponse,
+  SendBulkEmailApiResponse
 } from "@/core/application/dtos";
+import { buildOtpEmail } from "@/lib/templates/emails";
+import { OtpType } from "@prisma/client";
 
 const BATCH_SIZE = 100;
 
@@ -34,13 +36,34 @@ class EmailUseCase {
     }
   }
 
+  private async sendRawEmail(to: string, subject: string, html: string): Promise<void> {
+    const resend = ResendClient.getInstance();
+    await resend.emails.send({
+      from: "بصمات شبابية <noreply@youthprints.online>",
+      to,
+      subject,
+      html
+    });
+  }
+
+  async sendOtpEmail(email: string, code: string, type: OtpType): Promise<void> {
+    const subject =
+      type === OtpType.EMAIL_VERIFY
+        ? "رمز تفعيل بريدك الإلكتروني - بصمات شبابية"
+        : "رمز إعادة تعيين كلمة المرور - بصمات شبابية";
+
+    const html = buildOtpEmail(email, code, type);
+
+    await this.sendRawEmail(email, subject, html);
+  }
+
   async sendBulk(input: SendBulkEmailInput): Promise<SendBulkEmailApiResponse> {
     try {
       guard(input.subject, "العنوان مطلوب");
-      guard(input.body,    "المحتوى مطلوب");
+      guard(input.body, "المحتوى مطلوب");
 
       const allRecipients = await this.userRepo.findEmailRecipients(input.filters);
-      const recipients    = input.recipientIds?.length
+      const recipients = input.recipientIds?.length
         ? allRecipients.filter((r) => input.recipientIds!.includes(r.id))
         : allRecipients;
 
@@ -51,14 +74,14 @@ class EmailUseCase {
       const emails = recipients.map((r) => {
         const vars = { name: r.name, city: r.city, hours: r.hours, activityLink: input.activityLink };
         return {
-          from:    input.fromAlias,
-          to:      r.email,
+          from: input.fromAlias,
+          to: r.email,
           subject: applyVariables(input.subject, vars),
-          html:    buildBulkEmail({
-            subject:   applyVariables(input.subject, vars),
-            body:      applyVariables(input.body, vars),
-            fromAlias: input.fromAlias,
-          }),
+          html: buildBulkEmail({
+            subject: applyVariables(input.subject, vars),
+            body: applyVariables(input.body, vars),
+            fromAlias: input.fromAlias
+          })
         };
       });
 

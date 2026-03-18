@@ -4,116 +4,198 @@
 .page {
   min-height: 100svh;
   @include flex-center;
-  padding: $sp-lg;
+  padding: $sp-md;
 }
 
 .card {
   position: relative;
-  width: min(580px, 100%);
+  width: min(460px, 100%);
   border: 1px solid $border;
   border-radius: $radius-lg;
   box-shadow: $shadow-deep;
-  padding: $sp-2xl $sp-xl;
-  animation: cardAppear 0.4s ease;
-  
+  padding: $sp-lg $sp-lg $sp-md;
+  @include animate-scaleIn(0.35s);
+
   &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      $green 50%, 
-      transparent 100%
-    );
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, $green, transparent);
     border-radius: $radius-lg $radius-lg 0 0;
   }
 
   @media (max-width: $bp-sm) {
-    padding: $sp-xl $sp-lg;
+    padding: $sp-md $sp-sm $sp-sm;
+    border-radius: $radius-md;
   }
 }
 
-@keyframes cardAppear {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.progress {
+  margin-bottom: $sp-lg;
 }
 
-.header {
-  text-align: center;
-  margin-bottom: $sp-xl;
+.progressTrack {
+  height: 3px;
+  background: $border;
+  border-radius: 2px;
+  margin-bottom: $sp-sm;
+  overflow: hidden;
 }
 
-.title {
-  font-size: $font-2xl;
-  font-weight: 800;
+.progressFill {
+  height: 100%;
   background: $green;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.2;
-  
-  @media (max-width: $bp-sm) {
-    font-size: $font-xl;
+  border-radius: 2px;
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.steps {
+  display: flex;
+  justify-content: space-between;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  .dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid $border;
+    background: $bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: $text-muted;
+    transition: all 0.3s ease;
+  }
+
+  &.current .dot {
+    border-color: $green;
+    color: $green;
+    transform: scale(1.1);
+  }
+
+  &.done .dot {
+    background: $green;
+    border-color: $green;
+    color: #fff;
   }
 }
 
-.form {
-  @include flex-col;
-  gap: 0;
+.stepLabel {
+  font-size: 9px;
+  color: $text-muted;
+  white-space: nowrap;
+  transition: color 0.3s;
+
+  .current & { color: $green; font-weight: 600; }
+  .done &    { color: $green; }
+}
+
+.stepContent {
+  animation: slideIn 0.22s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(10px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .error {
   @include alert-error;
-  margin-bottom: $sp-md;
-  animation: shake 0.3s ease;
+  margin-bottom: $sp-sm;
+  font-size: $font-sm;
+  @include animate-shake;
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: $sp-sm;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  gap: $sp-xs;
+  align-items: flex-start;
+  margin-bottom: $sp-sm;
+
+  .field {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+  }
+}
+
+.fieldError {
+  font-size: 11px;
+  color: $red;
+  padding-right: 2px;
+  animation: fadeIn 0.18s ease;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: $sp-xs;
+  margin-top: $sp-md;
+
+  > :last-child { flex: 1; }
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: 9px $sp-sm;
+  color: $text-muted;
+  font-size: $font-sm;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover { border-color: $green; color: $green; }
 }
 
 .footer {
-  margin-top: $sp-xl;
-  padding-top: $sp-xl;
+  margin-top: $sp-sm;
+  padding-top: $sp-sm;
   border-top: 1px solid $border;
-  @include flex(row, center, center);
-  gap: $sp-sm;
-  flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $sp-xs;
 }
 
-.footerText {
-  color: $text-muted;
-  font-size: $font-sm;
-}
+.footerText { color: $text-muted; font-size: $font-sm; }
 
 .footerLink {
   color: $green;
   font-weight: 700;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-1px);
-    opacity: 0.8;
-  }
+  font-size: $font-sm;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card { 
-    animation: none !important;
-  }
-  
-  .error {
-    animation: none !important;
-  }
+  .card, .stepContent { animation: none !important; }
+  .progressFill, .dot { transition: none !important; }
 }

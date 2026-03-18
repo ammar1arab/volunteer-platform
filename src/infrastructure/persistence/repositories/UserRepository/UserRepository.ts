@@ -8,7 +8,14 @@ import type { EmailRecipientDto, EmailRecipientFilters } from "@/core/applicatio
 
 class UserRepository implements IUserRepository {
   private mapToEntity(data: PrismaUser): User {
-    return new User({ ...data, role: data.role as UserRole });
+    return new User({
+      ...data,
+      role: data.role as UserRole,
+      emailVerified: data.emailVerified ?? false,
+      tokenVersion: data.tokenVersion ?? 0,
+      isSuperAdmin: data.isSuperAdmin ?? false,
+      permissions: data.permissions ?? [],
+    });
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -19,6 +26,11 @@ class UserRepository implements IUserRepository {
   async findById(id: string): Promise<User | null> {
     const data = await prisma.user.findUnique({ where: { id } });
     return data ? this.mapToEntity(data) : null;
+  }
+
+  async findAllAdmins(): Promise<User[]> {
+    const rows = await prisma.user.findMany({ where: { role: UserRole.ADMIN } });
+    return rows.map((r) => this.mapToEntity(r));
   }
 
   async create(user: User): Promise<User> {
@@ -35,9 +47,14 @@ class UserRepository implements IUserRepository {
         email: props.email,
         fullName: props.fullName,
         phone: props.phone,
+        password: props.password,
         isActive: props.isActive,
-        updatedAt: new Date()
-      }
+        emailVerified: props.emailVerified,
+        tokenVersion: props.tokenVersion,
+        isSuperAdmin: props.isSuperAdmin,
+        permissions: props.permissions,
+        updatedAt: new Date(),
+      },
     });
     return this.mapToEntity(updated);
   }
@@ -53,41 +70,42 @@ class UserRepository implements IUserRepository {
 
   async findEmailRecipients(filters: EmailRecipientFilters): Promise<EmailRecipientDto[]> {
     const now = new Date();
-
     const profileWhere: Prisma.VolunteerProfileWhereInput = { isActive: true };
 
-    if (filters.target === "CITY" && filters.targetValue) profileWhere.city = filters.targetValue as JordanianCity;
-    if (filters.target === "GENDER" && filters.targetValue) profileWhere.gender = filters.targetValue as Gender;
+    if (filters.target === "CITY" && filters.targetValue)
+      profileWhere.city = filters.targetValue as JordanianCity;
+    if (filters.target === "GENDER" && filters.targetValue)
+      profileWhere.gender = filters.targetValue as Gender;
     if (filters.genderFilter) profileWhere.gender = filters.genderFilter as Gender;
     if (filters.cityFilter) profileWhere.city = filters.cityFilter as JordanianCity;
-
     if (filters.minHours) profileWhere.totalVolunteerHours = { gte: filters.minHours };
-
-    if (filters.hasExperience !== undefined) profileWhere.hasVolunteerExperience = filters.hasExperience;
+    if (filters.hasExperience !== undefined)
+      profileWhere.hasVolunteerExperience = filters.hasExperience;
 
     const dobFilter: Prisma.DateTimeFilter = {};
-    if (filters.minAge) dobFilter.lte = new Date(now.getFullYear() - filters.minAge, now.getMonth(), now.getDate());
-    if (filters.maxAge) dobFilter.gte = new Date(now.getFullYear() - filters.maxAge, now.getMonth(), now.getDate());
+    if (filters.minAge)
+      dobFilter.lte = new Date(now.getFullYear() - filters.minAge, now.getMonth(), now.getDate());
+    if (filters.maxAge)
+      dobFilter.gte = new Date(now.getFullYear() - filters.maxAge, now.getMonth(), now.getDate());
     if (Object.keys(dobFilter).length) profileWhere.dateOfBirth = dobFilter;
 
     if (filters.interests?.length) {
-      profileWhere.OR = [{ interests: { hasSome: filters.interests } }, { skills: { hasSome: filters.interests } }];
+      profileWhere.OR = [
+        { interests: { hasSome: filters.interests } },
+        { skills: { hasSome: filters.interests } },
+      ];
     }
 
     const rows = await prisma.user.findMany({
-      where: {
-        role: UserRole.VOLUNTEER,
-        isActive: true,
-        volunteerProfile: profileWhere
-      },
+      where: { role: UserRole.VOLUNTEER, isActive: true, volunteerProfile: profileWhere },
       select: {
         id: true,
         fullName: true,
         email: true,
         volunteerProfile: {
-          select: { city: true, gender: true, totalVolunteerHours: true }
-        }
-      }
+          select: { city: true, gender: true, totalVolunteerHours: true },
+        },
+      },
     });
 
     return rows.map((r) => ({
@@ -96,7 +114,7 @@ class UserRepository implements IUserRepository {
       email: r.email,
       city: r.volunteerProfile?.city ?? null,
       gender: r.volunteerProfile?.gender ?? null,
-      hours: r.volunteerProfile?.totalVolunteerHours ?? 0
+      hours: r.volunteerProfile?.totalVolunteerHours ?? 0,
     }));
   }
 }

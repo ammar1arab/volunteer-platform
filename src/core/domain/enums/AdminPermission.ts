@@ -1,0 +1,12 @@
+export const ADMIN_PERMISSIONS = [
+  "MANAGE_ACTIVITIES",
+  "MANAGE_REQUESTS",
+  "MANAGE_USERS",
+  "MANAGE_POSTS",
+  "MANAGE_SPOTLIGHT",
+  "MANAGE_MAGAZINE",
+  "MANAGE_NOTIFICATIONS",
+  "MANAGE_EMAILS"
+] as const;
+
+export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];

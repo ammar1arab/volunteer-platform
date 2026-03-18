@@ -14,6 +14,21 @@ interface BirthDateInputProps {
   allowFuture?: boolean;
 }
 
+const MONTHS = [
+  { value: "01", label: "يناير" },
+  { value: "02", label: "فبراير" },
+  { value: "03", label: "مارس" },
+  { value: "04", label: "أبريل" },
+  { value: "05", label: "مايو" },
+  { value: "06", label: "يونيو" },
+  { value: "07", label: "يوليو" },
+  { value: "08", label: "أغسطس" },
+  { value: "09", label: "سبتمبر" },
+  { value: "10", label: "أكتوبر" },
+  { value: "11", label: "نوفمبر" },
+  { value: "12", label: "ديسمبر" },
+];
+
 const BirthDateInput = ({
   label,
   value,
@@ -24,127 +39,115 @@ const BirthDateInput = ({
   maxAge = 100,
   allowFuture = false,
 }: BirthDateInputProps) => {
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth() + 1;
-  const currentDay = today.getDate();
-
-  const MIN_YEAR = allowFuture ? currentYear : currentYear - maxAge;
-  const MAX_YEAR = allowFuture ? currentYear + 2 : currentYear - minAge;
+  const currentYear = new Date().getFullYear();
+  
+  const range = useMemo(() => {
+    if (allowFuture) {
+      return {
+        min: currentYear,
+        max: currentYear + 10 
+      };
+    }
+    return {
+      min: currentYear - maxAge,
+      max: currentYear - minAge
+    };
+  }, [currentYear, minAge, maxAge, allowFuture]);
 
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
 
   useEffect(() => {
-    if (value) {
-      const [y, m, d] = value.split("-");
-      setYear(y || "");
-      setMonth(m || "");
-      setDay(d || "");
+    if (!value) {
+      setYear("");
+      setMonth("");
+      setDay("");
+      return;
     }
+    const [y, m, d] = value.split("-");
+    setYear(y ?? "");
+    setMonth(m ?? "");
+    setDay(d ?? "");
   }, [value]);
 
-  const years = useMemo(
-    () =>
-      Array.from({ length: MAX_YEAR - MIN_YEAR + 1 }, (_, i) => {
-        const y = allowFuture ? MIN_YEAR + i : MAX_YEAR - i;
-        return { value: String(y), label: String(y) };
-      }),
-    [MIN_YEAR, MAX_YEAR, allowFuture]
-  );
-
-  const ALL_MONTHS = [
-    { value: "01", label: "يناير" },
-    { value: "02", label: "فبراير" },
-    { value: "03", label: "مارس" },
-    { value: "04", label: "أبريل" },
-    { value: "05", label: "مايو" },
-    { value: "06", label: "يونيو" },
-    { value: "07", label: "يوليو" },
-    { value: "08", label: "أغسطس" },
-    { value: "09", label: "سبتمبر" },
-    { value: "10", label: "أكتوبر" },
-    { value: "11", label: "نوفمبر" },
-    { value: "12", label: "ديسمبر" },
-  ];
-
-  const months = useMemo(() => {
-    if (!allowFuture && Number(year) === MAX_YEAR) {
-      return ALL_MONTHS.filter((m) => Number(m.value) <= currentMonth);
-    }
-    return ALL_MONTHS;
-  }, [year, MAX_YEAR, currentMonth, allowFuture]);
-
-  const daysInMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
+  const years = useMemo(() =>
+    Array.from({ length: range.max - range.min + 1 }, (_, i) => {
+      const y = allowFuture ? range.min + i : range.max - i;
+      return { value: String(y), label: String(y) };
+    }),
+  [range, allowFuture]);
 
   const days = useMemo(() => {
     if (!year || !month) return [];
-    const count = daysInMonth(Number(year), Number(month));
-    const maxDay =
-      !allowFuture && Number(year) === MAX_YEAR && Number(month) === currentMonth
-        ? currentDay
-        : count;
-    return Array.from({ length: maxDay }, (_, i) => {
+    const count = new Date(Number(year), Number(month), 0).getDate();
+    return Array.from({ length: count }, (_, i) => {
       const d = String(i + 1).padStart(2, "0");
       return { value: d, label: d };
     });
-  }, [year, month, MAX_YEAR, currentMonth, currentDay, allowFuture]);
+  }, [year, month]);
+
+  const emit = (y: string, m: string, d: string) => {
+    if (y && m && d) {
+      onChange(`${y}-${m}-${d}`);
+    }
+  };
 
   const handleYearChange = (y: string) => {
     setYear(y);
-    if (y && month && day) {
-      const maxDays = daysInMonth(Number(y), Number(month));
-      const validDay = Number(day) <= maxDays ? day : "";
-      if (validDay) onChange(`${y}-${month}-${validDay}`);
-    }
+    const maxDays = month ? new Date(Number(y), Number(month), 0).getDate() : 0;
+    const validDay = maxDays && Number(day) <= maxDays ? day : "";
+    if (!validDay) setDay("");
+    emit(y, month, validDay);
   };
 
   const handleMonthChange = (m: string) => {
     setMonth(m);
-    if (year && m && day) {
-      const maxDays = daysInMonth(Number(year), Number(m));
-      const validDay = Number(day) <= maxDays ? day : "";
-      if (validDay) onChange(`${year}-${m}-${validDay}`);
-    }
+    const maxDays = year ? new Date(Number(year), Number(m), 0).getDate() : 0;
+    const validDay = maxDays && Number(day) <= maxDays ? day : "";
+    if (!validDay) setDay("");
+    emit(year, m, validDay);
   };
 
   const handleDayChange = (d: string) => {
     setDay(d);
-    if (year && month && d) onChange(`${year}-${month}-${d}`);
+    emit(year, month, d);
   };
 
   return (
     <div className={styles.wrapper}>
-      <label className={styles.label}>
-        {label}
-        {required && <span className={styles.required}>*</span>}
-      </label>
+      {label && (
+        <label className={styles.label}>
+          {label}
+          {required && <span className={styles.required}>*</span>}
+        </label>
+      )}
       <div className={styles.row}>
         <div className={styles.col}>
           <SelectInput
             label=""
+            placeholder="السنة"
             value={year}
             options={years}
-            placeholder="السنة"
             onChange={handleYearChange}
           />
         </div>
         <div className={styles.col}>
           <SelectInput
             label=""
-            value={month}
-            options={months}
             placeholder="الشهر"
+            value={month}
+            options={MONTHS}
             onChange={handleMonthChange}
+            disabled={!year}
           />
         </div>
         <div className={styles.col}>
           <SelectInput
             label=""
+            placeholder="اليوم"
             value={day}
             options={days}
-            placeholder="اليوم"
             onChange={handleDayChange}
             disabled={!year || !month}
           />

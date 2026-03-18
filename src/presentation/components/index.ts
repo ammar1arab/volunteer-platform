@@ -24,6 +24,7 @@ export { default as Share } from "./base/Share/Share";
 export { default as LocationPicker } from "./base/LocationPicker/LocationPicker";
 export { default as Search } from "./base/Search/Search";
 export { default as StatusBubble } from "./base/StatusBubble/StatusBubble";
+export { default as OtpInput } from "./base/OtpInput/OtpInput";
 
 export { default as HeroSection } from "./home/HeroSection/HeroSection";
 export { default as AboutSection } from "./home/AboutSection/AboutSection";

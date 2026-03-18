@@ -7,4 +7,8 @@ export interface UserProps extends BaseEntityProps {
   phone: string;
   password: string;
   role: UserRole;
+  emailVerified?: boolean;
+  tokenVersion?: number;
+  isSuperAdmin?: boolean;
+  permissions?: string[];
 }

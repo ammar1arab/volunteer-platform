@@ -4,7 +4,20 @@ import { User, VolunteerProfile } from "@/core/domain/entities";
 import { UserRole } from "@/core/domain/enums";
 import { Email } from "@/core/domain/valueObjects";
 import { serviceError } from "@/core/application/common";
-import { ok, fail, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse } from "@/core/application/dtos";
+import { OtpUseCase } from "@/core/application/useCases";
+import { OtpType } from "@prisma/client";
+import {
+  ok,
+  fail,
+  SignInRequest,
+  SignInResponse,
+  SignUpRequest,
+  SignUpResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse
+} from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
 
 class AuthUseCase {
@@ -12,7 +25,8 @@ class AuthUseCase {
 
   constructor(
     private userRepository: UserRepository,
-    private volunteerProfileRepository: VolunteerProfileRepository
+    private volunteerProfileRepository: VolunteerProfileRepository,
+    private otpUseCase: OtpUseCase
   ) {}
 
   async signIn(dto: SignInRequest): Promise<SignInResponse> {
@@ -33,11 +47,10 @@ class AuthUseCase {
         try {
           const bcrypt = require("bcryptjs");
           isValid = await bcrypt.compare(dto.password, user.password);
-
           if (isValid) {
-            const updatedUser = new User({ ...user.toObject(), password: dto.password });
-            await this.userRepository.update(updatedUser);
-            logger.info(AuthUseCase.SCOPE, "signIn", `Migrated bcrypt password for user: ${user.id}`);
+            user.updatePassword(dto.password);
+            await this.userRepository.update(user);
+            logger.info(AuthUseCase.SCOPE, "signIn", `Migrated bcrypt password for: ${user.id}`);
           }
         } catch (err) {
           logger.error(AuthUseCase.SCOPE, "signIn", `Bcrypt comparison failed: ${err}`);
@@ -48,8 +61,13 @@ class AuthUseCase {
 
       if (!isValid) return fail("INVALID_CREDENTIALS", "البريد الإلكتروني أو كلمة المرور غير صحيحة");
 
-      logger.info(AuthUseCase.SCOPE, "signIn", `User signed in: ${user.id}`);
+      if (user.role === UserRole.VOLUNTEER && !user.emailVerified) {
+        await this.otpUseCase.send({ email: emailStr, type: OtpType.EMAIL_VERIFY });
+        logger.info(AuthUseCase.SCOPE, "signIn", `OTP required for unverified user: ${user.id}`);
+        return fail("EMAIL_NOT_VERIFIED", "يجب تفعيل بريدك الإلكتروني. تم إرسال رمز التحقق إلى بريدك");
+      }
 
+      logger.info(AuthUseCase.SCOPE, "signIn", `User signed in: ${user.id}`);
       return ok({
         user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role }
       });
@@ -100,7 +118,7 @@ class AuthUseCase {
         city: dto.city,
         dateOfBirth: dto.dateOfBirth,
         profilePictureUrl: null,
-        gender: null,
+        gender: dto.gender ?? null,
         bio: null,
         skills: [],
         interests: [],
@@ -111,14 +129,94 @@ class AuthUseCase {
 
       await this.volunteerProfileRepository.create(profile);
 
-      logger.info(AuthUseCase.SCOPE, "signUp", `User registered: ${createdUser.id}`);
+      await this.otpUseCase.send({ email: emailObj.getValue(), type: OtpType.EMAIL_VERIFY });
 
+      logger.info(AuthUseCase.SCOPE, "signUp", `User registered: ${createdUser.id}`);
       return ok({
         user: { id: createdUser.id, email: createdUser.email, fullName: createdUser.fullName }
       });
     } catch (error) {
       return serviceError(AuthUseCase.SCOPE, "signUp", error, "حدث خطأ أثناء إنشاء الحساب");
     }
+  }
+
+  async forgotPassword(dto: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    try {
+      const emailStr = InputSanitizer.sanitizeEmail(dto.email);
+
+      if (!SecurityValidator.isValidEmail(emailStr)) {
+        return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
+      }
+
+      const user = await this.userRepository.findByEmail(emailStr);
+
+      if (!user || user.role !== UserRole.VOLUNTEER) {
+        return fail("NOT_FOUND", "لا يوجد حساب مرتبط بهذا البريد الإلكتروني");
+      }
+
+      if (!user.isActiveAccount()) {
+        return fail("FORBIDDEN", "هذا الحساب موقوف، يرجى التواصل مع الدعم");
+      }
+
+      const result = await this.otpUseCase.send({
+        email: emailStr,
+        type: OtpType.FORGOT_PASSWORD
+      });
+
+      if (!result.success) return result as ForgotPasswordResponse;
+
+      logger.info(AuthUseCase.SCOPE, "forgotPassword", `OTP sent for: ${emailStr}`);
+      return ok({ cooldownSeconds: result.data!.cooldownSeconds });
+    } catch (error) {
+      return serviceError(AuthUseCase.SCOPE, "forgotPassword", error, "حدث خطأ أثناء إرسال الرمز");
+    }
+  }
+
+  async resetPassword(dto: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    try {
+      const emailStr = InputSanitizer.sanitizeEmail(dto.email);
+
+      const passwordValidation = SecurityValidator.isValidPassword(dto.newPassword);
+      if (!passwordValidation.valid) {
+        return fail("VALIDATION_ERROR", passwordValidation.message ?? "كلمة المرور غير صالحة");
+      }
+
+      const verifyResult = await this.otpUseCase.verify({
+        email: emailStr,
+        code: dto.code,
+        type: OtpType.FORGOT_PASSWORD
+      });
+
+      if (!verifyResult.success) return verifyResult as ResetPasswordResponse;
+
+      const user = await this.userRepository.findByEmail(emailStr);
+      if (!user) return fail("NOT_FOUND", "المستخدم غير موجود");
+
+      user.updatePassword(dto.newPassword);
+      user.incrementTokenVersion();
+      await this.userRepository.update(user);
+
+      logger.info(AuthUseCase.SCOPE, "resetPassword", `Password reset for: ${user.id}`);
+      return ok({ success: true });
+    } catch (error) {
+      return serviceError(AuthUseCase.SCOPE, "resetPassword", error, "حدث خطأ أثناء إعادة تعيين كلمة المرور");
+    }
+  }
+
+  async checkVerified(email: string): Promise<{ needsVerification: boolean; message?: string }> {
+    const emailStr = InputSanitizer.sanitizeEmail(email);
+    const user = await this.userRepository.findByEmail(emailStr);
+
+    if (!user) {
+      return { needsVerification: false, message: "بريد إلكتروني أو كلمة مرور غير صحيحة" };
+    }
+    if (!user.isActiveAccount()) {
+      return { needsVerification: false, message: "هذا الحساب موقوف، يرجى التواصل مع الدعم" };
+    }
+    if (user.role === UserRole.VOLUNTEER && !user.emailVerified) {
+      return { needsVerification: true };
+    }
+    return { needsVerification: false, message: "بريد إلكتروني أو كلمة مرور غير صحيحة" };
   }
 }
 

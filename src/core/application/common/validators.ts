@@ -60,10 +60,10 @@ export class SecurityValidator {
       age--;
     }
 
-    if (age < 15) {
+    if (age < 10) {
       return {
         valid: false,
-        message: "يجب أن يكون عمرك 15 سنة على الأقل"
+        message: "يجب أن يكون عمرك 10 سنة على الأقل"
       };
     }
 

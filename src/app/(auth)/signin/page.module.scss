@@ -4,149 +4,116 @@
 .page {
   min-height: 100svh;
   @include flex-center;
-  padding: $sp-lg;
-  position: relative;
-  overflow: hidden;
-
-
-  &::before {
-    width: 350px;
-    height: 350px;
-    background: radial-gradient(circle, rgba($green, 0.12) 0%, transparent 70%);
-    top: -175px;
-    left: -175px;
-    animation: float 18s ease-in-out infinite;
-  }
-
-  &::after {
-    width: 250px;
-    height: 250px;
-    background: radial-gradient(circle, rgba($green, 0.1) 0%, transparent 70%);
-    bottom: -125px;
-    right: -125px;
-    animation: float 12s ease-in-out infinite reverse;
-  }
-}
-
-@keyframes float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(15px, -15px) scale(1.03); }
+  padding: $sp-md;
 }
 
 .card {
   position: relative;
-  z-index: 1;
-  width: min(500px, 100%);
+  width: min(400px, 100%);
   border: 1px solid $border;
   border-radius: $radius-lg;
-  box-shadow: 
-    $shadow-deep,
-    0 0 0 1px rgba($green, 0.05);
-  padding: $sp-2xl $sp-xl;
-  transform-origin: 50% 12%;
-  @include animate-scaleIn(0.5s);
-  
+  box-shadow: $shadow-deep;
+  padding: $sp-lg $sp-lg $sp-md;
+  @include animate-scaleIn(0.35s);
+
   &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      $green 50%, 
-      transparent 100%
-    );
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, $green, transparent);
     border-radius: $radius-lg $radius-lg 0 0;
   }
 
   @media (max-width: $bp-sm) {
-    padding: $sp-xl $sp-lg;
+    padding: $sp-md $sp-sm $sp-sm;
+    border-radius: $radius-md;
   }
 }
 
 .header {
   text-align: center;
-  margin-bottom: $sp-xl;
-  @include animate-fadeIn(0.6s, 0.2s);
+  margin-bottom: $sp-md;
 }
 
 .title {
-  font-size: $font-2xl;
+  font-size: $font-xl;
   font-weight: 800;
-  background: $green;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.2;
-  margin-bottom: $sp-xs;
-  
-  @media (max-width: $bp-sm) {
-    font-size: $font-xl;
-  }
+  color: $green;
+  margin-bottom: 2px;
 }
 
 .subtitle {
   color: $text-muted;
-  font-size: $font-md;
-  font-weight: 500;
-}
-
-.form {
-  @include flex-col;
-  gap: $sp-md;
-  
-  > * {
-    @include animate-slideUp(0.5s);
-    
-    &:nth-child(1) { animation-delay: 0.1s; }
-    &:nth-child(2) { animation-delay: 0.15s; }
-    &:nth-child(3) { animation-delay: 0.2s; }
-  }
+  font-size: $font-sm;
 }
 
 .error {
   @include alert-error;
+  margin-bottom: $sp-sm;
+  font-size: $font-sm;
   @include animate-shake;
 }
 
-.footer {
-  margin-top: $sp-xl;
-  padding-top: $sp-xl;
-  border-top: 1px solid $border;
-  @include flex(row, center, center);
+.form {
+  display: flex;
+  flex-direction: column;
   gap: $sp-sm;
-  flex-wrap: wrap;
-  @include animate-fadeIn(0.6s, 0.6s);
 }
 
-.footerText {
-  color: $text-muted;
-  font-size: $font-sm;
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
+
+.fieldError {
+  font-size: 11px;
+  color: $red;
+  padding-right: 2px;
+  animation: fadeIn 0.18s ease;
+}
+
+.forgotRow {
+  display: flex;
+  justify-content: center;
+  margin-top: -$sp-xs;
+}
+
+.forgotLink {
+  font-size: $font-xs;
+  color: $text-muted;
+  text-decoration: none;
+  transition: color 0.2s;
+  &:hover { color: $green; }
+}
+
+.footer {
+  margin-top: $sp-sm;
+  padding-top: $sp-sm;
+  border-top: 1px solid $border;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $sp-xs;
+}
+
+.footerText { color: $text-muted; font-size: $font-sm; }
 
 .footerLink {
   color: $green;
   font-weight: 700;
-  position: relative;
-  @include hover-underline($green, 100%);
-  
-  &:hover {
-    transform: translateY(-1px);
-  }
+  font-size: $font-sm;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card,
-  .header,
-  .form > *,
-  .footer { 
-    animation: none !important;
-  }
-  
-  .page::before,
-  .page::after {
-    animation: none !important;
-  }
+  .card { animation: none !important; }
 }

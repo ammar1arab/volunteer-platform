@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { providers } from "@/lib/providers";
 import { ROUTES } from "@/presentation/constants/routes";
@@ -15,7 +16,7 @@ export const authOptions: NextAuthOptions = {
       name: "credentials",
       credentials: {
         email:    { label: "Email",    type: "text" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         const email    = credentials?.email    ?? "";
@@ -23,53 +24,83 @@ export const authOptions: NextAuthOptions = {
         if (!email || !password) return null;
 
         const result = await providers.auth().signIn({ email, password });
-        if (!result.success || !result.data?.user) return null;
+        if (!result.success) return null;
 
-        const user = result.data.user;
+        const user = result.data!.user;
 
-        const profile = await prisma.volunteerProfile.findUnique({
-          where: { userId: user.id },
-          select: { profilePictureUrl: true }
-        });
+        const [profile, dbUser] = await Promise.all([
+          prisma.volunteerProfile.findUnique({
+            where:  { userId: user.id },
+            select: { profilePictureUrl: true },
+          }),
+          prisma.user.findUnique({
+            where:  { id: user.id },
+            select: { isSuperAdmin: true, permissions: true, tokenVersion: true },
+          }),
+        ]);
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.fullName,
-          role: user.role as UserRole,
-          profilePictureUrl: profile?.profilePictureUrl ?? null
+          id:                user.id,
+          email:             user.email,
+          name:              user.fullName,
+          role:              user.role as UserRole,
+          profilePictureUrl: profile?.profilePictureUrl ?? null,
+          isSuperAdmin:      dbUser?.isSuperAdmin  ?? false,
+          permissions:       dbUser?.permissions   ?? [],
+          tokenVersion:      dbUser?.tokenVersion  ?? 0,
         };
-      }
-    })
+      },
+    }),
   ],
 
   callbacks: {
     async jwt({ token, user, trigger, session: sessionUpdate }) {
       if (user) {
-        token.id   = user.id;
-        token.role = user.role as UserRole;
+        token.id                = user.id;
+        token.role              = user.role as UserRole;
         token.profilePictureUrl = user.profilePictureUrl ?? null;
+        token.isSuperAdmin      = user.isSuperAdmin;
+        token.permissions       = user.permissions;
+        token.tokenVersion      = user.tokenVersion;
       }
-      // called when update() is triggered from the client
+
       if (trigger === "update" && sessionUpdate?.profilePictureUrl !== undefined) {
         token.profilePictureUrl = sessionUpdate.profilePictureUrl;
       }
+
+      if (token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where:  { id: token.id as string },
+          select: { tokenVersion: true },
+        });
+
+        if (dbUser && dbUser.tokenVersion > (token.tokenVersion as number)) {
+          return null as unknown as JWT;
+        }
+      }
+
       return token;
     },
 
     async session({ session, token }) {
+      if (!token?.id) return { ...session, user: undefined as any };
+
       if (session.user) {
-        session.user.id   = token.id as string;
-        session.user.role = token.role as UserRole;
+        session.user.id                = token.id as string;
+        session.user.role              = token.role as UserRole;
         session.user.profilePictureUrl = (token.profilePictureUrl as string) ?? null;
+        session.user.isSuperAdmin      = token.isSuperAdmin as boolean;
+        session.user.permissions       = token.permissions as string[];
+        session.user.tokenVersion      = token.tokenVersion as number;
       }
+
       return session;
     },
 
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
+      if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
-    }
-  }
+    },
+  },
 };

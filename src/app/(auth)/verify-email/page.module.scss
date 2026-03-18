@@ -1,0 +1,135 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.page {
+  min-height: 100svh;
+  @include flex-center;
+  padding: $sp-md;
+}
+
+.card {
+  position: relative;
+  width: min(400px, 100%);
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-deep;
+  padding: $sp-lg $sp-lg $sp-md;
+  @include animate-scaleIn(0.35s);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, $green, transparent);
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
+
+  @media (max-width: $bp-sm) {
+    padding: $sp-md $sp-sm $sp-sm;
+    border-radius: $radius-md;
+  }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: $sp-md;
+}
+
+.title {
+  font-size: $font-xl;
+  font-weight: 800;
+  color: $green;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: $text-muted;
+  font-size: $font-sm;
+  line-height: 1.6;
+}
+
+.email {
+  display: block;
+  font-weight: 700;
+  color: $text;
+  font-size: $font-sm;
+  direction: ltr;
+  margin-top: 2px;
+  word-break: break-all;
+}
+
+.error {
+  @include alert-error;
+  margin-bottom: $sp-sm;
+  font-size: $font-sm;
+  @include animate-shake;
+}
+
+.resend {
+  text-align: center;
+  margin-top: $sp-sm;
+}
+
+.cooldown {
+  color: $text-muted;
+  font-size: $font-xs;
+}
+
+.resendBtn {
+  background: none;
+  border: none;
+  color: $green;
+  font-weight: 700;
+  font-size: $font-xs;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.support {
+  margin-top: $sp-md;
+  padding-top: $sp-md;
+  border-top: 1px solid $border;
+  text-align: center;
+  color: $text-muted;
+  font-size: $font-xs;
+
+  p { margin-bottom: 4px; }
+}
+
+.supportLinks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $sp-xs;
+
+  a {
+    color: $text-muted;
+    text-decoration: none;
+    transition: color 0.2s;
+    &:hover { color: $green; }
+  }
+
+  span { color: $border; }
+}
+
+.footer {
+  margin-top: $sp-sm;
+  padding-top: $sp-sm;
+  border-top: 1px solid $border;
+  text-align: center;
+}
+
+.footerLink {
+  color: $green;
+  font-weight: 700;
+  font-size: $font-sm;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none !important; }
+}

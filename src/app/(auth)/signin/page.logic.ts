@@ -1,60 +1,89 @@
 "use client";
-
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
-import { ROUTES, redirectByRole } from "@/presentation/constants";
-
-interface UseSigninReturn {
-  formData: SigninFormData;
-  error: string;
-  loading: boolean;
-  handleChange: (field: keyof SigninFormData, value: string) => void;
-  handleSubmit: (e: React.FormEvent) => Promise<void>;
-}
+import { redirectByRole } from "@/presentation/constants";
 
 export interface SigninFormData {
   email: string;
   password: string;
 }
 
-export const useSignin = (): UseSigninReturn => {
-  const [formData, setFormData] = useState<SigninFormData>({
-    email: "",
-    password: ""
+type FieldErrors = Partial<SigninFormData>;
+
+const validate = (field: keyof SigninFormData, value: string): string => {
+  if (field === "email") {
+    if (!value.trim()) return "البريد الإلكتروني مطلوب";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "صيغة البريد غير صحيحة";
+  }
+  if (field === "password" && !value) return "كلمة المرور مطلوبة";
+  return "";
+};
+
+export const useSignin = () => {
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+
+  const [formData,    setFormData]    = useState<SigninFormData>({
+    email:    decodeURIComponent(searchParams.get("email") ?? ""),
+    password: "",
   });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [error,       setError]       = useState("");
+  const [loading,     setLoading]     = useState(false);
 
   const handleChange = (field: keyof SigninFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError("");
+    if (fieldErrors[field]) setFieldErrors(prev => ({ ...prev, [field]: "" }));
+  };
+
+  const handleBlur = (field: keyof SigninFormData) => {
+    setFieldErrors(prev => ({ ...prev, [field]: validate(field, formData[field]) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
+    const errors = Object.fromEntries(
+      (Object.keys(formData) as (keyof SigninFormData)[])
+        .map(f => [f, validate(f, formData[f])])
+        .filter(([, v]) => v)
+    ) as FieldErrors;
+
+    if (Object.keys(errors).length) { setFieldErrors(errors); return; }
+
+    setLoading(true);
     try {
-      const res = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false
-      });
+      const res = await signIn("credentials", { ...formData, redirect: false });
 
       if (res?.error) {
-        setError("بريد إلكتروني أو كلمة مرور غير صحيحة");
-        setLoading(false);
+        const check = await fetch("/api/auth/check-verified", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ email: formData.email }),
+        });
+        const data = await check.json();
+
+        if (data.needsVerification) {
+          router.push(
+            `/verify-email?email=${encodeURIComponent(formData.email)}&flow=signin&password=${encodeURIComponent(formData.password)}`
+          );
+          return;
+        }
+
+        setError(data.message ?? "بريد إلكتروني أو كلمة مرور غير صحيحة");
         return;
       }
 
       const session = await getSession();
       window.location.href = redirectByRole(session?.user?.role);
     } catch {
-      setError("حدث خطأ في الاتصال");
+      setError("حدث خطأ في الاتصال، يرجى المحاولة لاحقاً");
+    } finally {
       setLoading(false);
     }
   };
 
-  return { formData, error, loading, handleChange, handleSubmit };
+  return { formData, fieldErrors, error, loading, handleChange, handleBlur, handleSubmit };
 };

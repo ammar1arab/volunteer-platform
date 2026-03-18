@@ -1,51 +1,55 @@
-'use client';
-import styles from './page.module.scss';
-import { useSignin } from './page.logic';
+"use client";
+import { Suspense } from "react";
+import styles from "./page.module.scss";
+import { useSignin } from "./page.logic";
+import Link from "next/link";
+import { Input, Button } from "@/presentation/components";
 
-import Link from 'next/link';
-import { Input, Button } from '@/presentation/components';
-
-const SigninPage = () => {
-  const { formData, error, loading, handleChange, handleSubmit } = useSignin();
+const SigninContent = () => {
+  const { formData, fieldErrors, error, loading, handleChange, handleBlur, handleSubmit } = useSignin();
 
   return (
     <div className={styles.page}>
-      <main className={styles.card} aria-labelledby="signin-title">
+      <main className={styles.card}>
         <header className={styles.header}>
-          <h1 id="signin-title" className={styles.title}>تسجيل الدخول</h1>
+          <h1 className={styles.title}>تسجيل الدخول</h1>
           <p className={styles.subtitle}>مرحباً بعودتك</p>
         </header>
 
-        {error && <div className={styles.error} role="alert" aria-live="polite">{error}</div>}
+        {error && <div className={styles.error} role="alert">{error}</div>}
 
-        <form onSubmit={handleSubmit} className={styles.form} noValidate autoComplete="on">
-          <Input
-            label="البريد الإلكتروني"
-            type="email"
-            name="email"
-            autoComplete="username"
-            dir="rtl"
-            value={formData.email}
-            onChange={(e: { target: { value: string; }; }) => handleChange('email', e.target.value)}
-            required
-            aria-required="true"
-          />
+        <form onSubmit={handleSubmit} className={styles.form} noValidate>
+          <div className={styles.field}>
+            <Input
+              label="البريد الإلكتروني"
+              type="email" dir="ltr" autoComplete="email"
+              value={formData.email}
+              onChange={e => handleChange("email", e.target.value)}
+              onBlur={() => handleBlur("email")}
+            />
+            {fieldErrors.email && <span className={styles.fieldError}>{fieldErrors.email}</span>}
+          </div>
 
-          <Input
-            label="كلمة المرور"
-            type="password"
-            name="password"
-            autoComplete="current-password"
-            dir="rtl"
-            value={formData.password}
-            onChange={(e: { target: { value: string; }; }) => handleChange('password', e.target.value)}
-            required
-            aria-required="true"
-          />
+          <div className={styles.field}>
+            <Input
+              label="كلمة المرور"
+              type="password" dir="ltr" autoComplete="current-password"
+              value={formData.password}
+              onChange={e => handleChange("password", e.target.value)}
+              onBlur={() => handleBlur("password")}
+            />
+            {fieldErrors.password && <span className={styles.fieldError}>{fieldErrors.password}</span>}
+          </div>
 
-          <Button type="submit" loading={loading} aria-busy={loading} disabled={loading}>
+          <Button type="submit" loading={loading} disabled={loading}>
             تسجيل الدخول
           </Button>
+
+          <div className={styles.forgotRow}>
+            <Link href="/forgot-password" className={styles.forgotLink}>
+              نسيت كلمة المرور؟
+            </Link>
+          </div>
         </form>
 
         <footer className={styles.footer}>
@@ -54,6 +58,14 @@ const SigninPage = () => {
         </footer>
       </main>
     </div>
+  );
+};
+
+const SigninPage = () => {
+  return (
+    <Suspense>
+      <SigninContent />
+    </Suspense>
   );
 };
 

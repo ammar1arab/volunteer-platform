@@ -1,4 +1,5 @@
 export { default as UserRepository } from "./UserRepository/UserRepository";
+export { default as OtpRepository } from "./OtpRepository/OtpRepository";
 export { default as VolunteerProfileRepository } from "./VolunteerProfileRepository/VolunteerProfileRepository";
 export { default as ActivityRepository } from "./ActivityRepository/ActivityRepository";
 export { default as ActivityParticipationRepository } from "./ActivityParticipationRepository/ActivityParticipationRepository";

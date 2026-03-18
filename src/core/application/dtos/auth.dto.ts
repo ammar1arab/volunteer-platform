@@ -1,4 +1,4 @@
-import { UserRole, JordanianCity } from "@/core/domain/enums";
+import { UserRole, JordanianCity, Gender } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 
 export interface SignInRequest {
@@ -22,6 +22,7 @@ export interface SignUpRequest {
   phone: string;
   city: JordanianCity;
   dateOfBirth: Date;
+  gender: Gender;
 }
 
 export interface SignUpUserDto {

@@ -1,5 +1,4 @@
 import { R2StorageService } from "@/infrastructure/external";
-
 import {
   UserRepository,
   VolunteerProfileRepository,
@@ -9,7 +8,8 @@ import {
   VolunteerSpotlightRepository,
   MonthlyMagazineRepository,
   CertificateRepository,
-  NotificationRepository
+  NotificationRepository,
+  OtpRepository,
 } from "@/infrastructure/persistence/repositories";
 import {
   AuthUseCase,
@@ -22,11 +22,17 @@ import {
   MonthlyMagazineUseCase,
   CertificateUseCase,
   NotificationUseCase,
-  EmailUseCase
+  EmailUseCase,
+  OtpUseCase,
 } from "@/core/application/useCases";
 
+const makeEmailUseCase = () => new EmailUseCase(new UserRepository());
+const makeOtpUseCase   = () => new OtpUseCase(new OtpRepository(), new UserRepository(), makeEmailUseCase());
+
 export const providers = {
-  auth: () => new AuthUseCase(new UserRepository(), new VolunteerProfileRepository()),
+  auth: () => new AuthUseCase(new UserRepository(), new VolunteerProfileRepository(), makeOtpUseCase()),
+
+  otp: () => makeOtpUseCase(),
 
   user: () => new UserUseCase(new UserRepository()),
 
@@ -42,11 +48,9 @@ export const providers = {
       new VolunteerProfileRepository()
     ),
 
-  featuredPost: () => new FeaturedPostUseCase(new FeaturedPostRepository()),
-
+  featuredPost:       () => new FeaturedPostUseCase(new FeaturedPostRepository()),
   volunteerSpotlight: () => new VolunteerSpotlightUseCase(new VolunteerSpotlightRepository()),
-
-  monthlyMagazine: () => new MonthlyMagazineUseCase(new MonthlyMagazineRepository()),
+  monthlyMagazine:    () => new MonthlyMagazineUseCase(new MonthlyMagazineRepository()),
 
   certificate: () =>
     new CertificateUseCase(
@@ -56,7 +60,6 @@ export const providers = {
     ),
 
   notification: () => new NotificationUseCase(new NotificationRepository()),
-  email: () => new EmailUseCase(new UserRepository()),
-
-  storage: () => new R2StorageService()
+  email:        () => makeEmailUseCase(),
+  storage:      () => new R2StorageService(),
 };

@@ -51,11 +51,6 @@
   display: flex;
   align-items: center;
   gap: 4px;
-
-  &::before {
-    content: '⚠';
-    font-size: 14px;
-  }
 }
 
 @keyframes errorSlide {

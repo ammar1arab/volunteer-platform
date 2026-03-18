@@ -1,3 +1,4 @@
+export * from "./AdminPermission";
 export { UserRole } from "./UserRole";
 export { Gender } from "./Gender";
 export { JordanianCity } from "./JordanianCity";

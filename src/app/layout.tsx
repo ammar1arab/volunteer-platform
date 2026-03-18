@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Providers } from './providers';
-import { AnimatedBackground } from '@/presentation/components';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.youthprints.online'),
@@ -124,7 +123,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <AnimatedBackground />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -31,6 +31,18 @@ export type {
   UpdateUserResponse
 } from "./user.dto";
 
+// ─── Otp ────────────────────────────────────────
+export type {
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  SendOtpRequest,
+  SendOtpResponse,
+  VerifyOtpRequest,
+  VerifyOtpResponse
+} from "./otp.dto";
+
 // ─── Volunteer Profile ────────────────────────────────────────
 export type {
   VolunteerProfileDto,

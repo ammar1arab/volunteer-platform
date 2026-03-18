@@ -6,13 +6,18 @@ declare module "next-auth" {
     id: string;
     role: UserRole;
     profilePictureUrl?: string | null;
+    isSuperAdmin: boolean;
+    permissions: string[];
+    tokenVersion: number;
   }
-
   interface Session {
     user: {
       id: string;
       role: UserRole;
       profilePictureUrl?: string | null;
+      isSuperAdmin: boolean;
+      permissions: string[];
+      tokenVersion: number;
     } & DefaultSession["user"];
   }
 }
@@ -22,5 +27,8 @@ declare module "next-auth/jwt" {
     id: string;
     role: UserRole;
     profilePictureUrl?: string | null;
+    isSuperAdmin: boolean;
+    permissions: string[];
+    tokenVersion: number;
   }
 }

@@ -14,6 +14,10 @@ model User {
   fullName          String
   phone             String
   role              UserRole
+  emailVerified     Boolean                 @default(false)
+  tokenVersion      Int                     @default(0)
+  isSuperAdmin      Boolean                 @default(false)
+  permissions       String[]                @default([])
   isActive          Boolean                 @default(true)
   createdAt         DateTime                @default(now())
   updatedAt         DateTime                @updatedAt
@@ -147,7 +151,7 @@ model FeaturedPost {
   imageUrl    String
   title       String
   description String                 @db.Text
-  publishedAt   DateTime   @default(now())
+  publishedAt DateTime               @default(now())
   isActive    Boolean                @default(true)
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
@@ -184,9 +188,27 @@ model MonthlyMagazine {
   @@map("monthly_magazines")
 }
 
+model OtpCode {
+  id        String    @id @default(uuid())
+  email     String
+  code      String
+  type      OtpType
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email, type])
+  @@map("otp_codes")
+}
+
 enum UserRole {
   ADMIN
   VOLUNTEER
+}
+
+enum OtpType {
+  EMAIL_VERIFY
+  FORGOT_PASSWORD
 }
 
 enum Gender {
