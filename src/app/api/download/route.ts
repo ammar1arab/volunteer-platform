@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const storage   = new R2StorageService();
     const signedUrl = await storage.getPresignedDownloadUrl(key);
 
-    return Response.redirect(signedUrl, 302);
+    return Response.json({ url: signedUrl });
   } catch (error) {
     return apiError("API", "GET /download", error);
   }

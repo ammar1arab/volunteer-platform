@@ -14,38 +14,55 @@ interface Props {
 }
 
 const LINKS = [
-  { href: ROUTES.VOLUNTEER.PROFILE,      icon: <User size={15} />,        label: 'الملف الشخصي' },
+  { href: ROUTES.VOLUNTEER.PROFILE,     icon: <User size={15} />,         label: 'الملف الشخصي' },
   { href: ROUTES.VOLUNTEER.ACTIVITIES,   icon: <CalendarDays size={15} />, label: 'فرصي التطوعية' },
-  { href: ROUTES.VOLUNTEER.CERTIFICATES, icon: <Award size={15} />,        label: 'شهاداتي' },
+  { href: ROUTES.VOLUNTEER.CERTIFICATES, icon: <Award size={15} />,         label: 'شهاداتي' },
 ];
 
-const UserMenuDropdown = ({ userName, avatarUrl, onLogout }: Props) => {
+const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => {
   return (
     <div className={styles.dropdown}>
 
-      {/* ── User info ── */}
-      <div className={styles.userInfo}>
-        <div className={styles.avatarWrap}>
-          {avatarUrl ? (
-            <Image src={avatarUrl} alt={userName} width={38} height={38} className={styles.avatarImg} />
-          ) : (
-            <span className={styles.avatarInitial}>
-              {userName.charAt(0).toUpperCase() || 'أ'}
-            </span>
-          )}
+      {/* ── User info (Now Clickable) ── */}
+      <Link 
+        href={ROUTES.VOLUNTEER.PROFILE} 
+        className={styles.userInfoLink} 
+        onClick={onClose}
+      >
+        <div className={styles.userInfo}>
+          <div className={styles.avatarWrap}>
+            {avatarUrl ? (
+              <Image 
+                src={avatarUrl} 
+                alt={userName} 
+                width={38} 
+                height={38} 
+                className={styles.avatarImg} 
+              />
+            ) : (
+              <span className={styles.avatarInitial}>
+                {userName.charAt(0).toUpperCase() || 'أ'}
+              </span>
+            )}
+          </div>
+          <div className={styles.userMeta}>
+            <span className={styles.userName}>{userName}</span>
+            <span className={styles.userRole}>متطوع</span>
+          </div>
         </div>
-        <div className={styles.userMeta}>
-          <span className={styles.userName}>{userName}</span>
-          <span className={styles.userRole}>متطوع</span>
-        </div>
-      </div>
+      </Link>
 
       <div className={styles.divider} />
 
       {/* ── Links ── */}
       <div className={styles.list}>
         {LINKS.map(link => (
-          <Link key={link.href} href={link.href} className={styles.item}>
+          <Link 
+            key={link.href} 
+            href={link.href} 
+            className={styles.item}
+            onClick={onClose} // Added onClose here to improve UX
+          >
             <span className={styles.itemIcon}>{link.icon}</span>
             <span>{link.label}</span>
           </Link>

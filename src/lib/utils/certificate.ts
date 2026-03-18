@@ -1,7 +1,15 @@
-export async function downloadCertificateAsPng(downloadUrl: string, name: string): Promise<void> {
-  const res  = await fetch(downloadUrl, { credentials: "include" });
-  if (!res.ok) throw new Error("Download failed");
-  const blob = await res.blob();
+export async function downloadCertificateAsPng(apiEndpoint: string, name: string): Promise<void> {
+  // 1. Fetch the presigned URL from our API (needs auth credentials)
+  const apiRes = await fetch(apiEndpoint, { credentials: "include" });
+  if (!apiRes.ok) throw new Error("Failed to get download URL");
+  
+  const { url } = await apiRes.json();
+
+  // 2. Fetch the actual file from Cloudflare R2 (NO credentials needed)
+  const fileRes = await fetch(url); 
+  if (!fileRes.ok) throw new Error("Download failed from storage");
+  
+  const blob = await fileRes.blob();
   const a    = document.createElement("a");
   a.href     = URL.createObjectURL(blob);
   a.download = `${name}.png`;
@@ -11,11 +19,18 @@ export async function downloadCertificateAsPng(downloadUrl: string, name: string
   URL.revokeObjectURL(a.href);
 }
 
-export async function downloadCertificateAsPdf(downloadUrl: string, name: string): Promise<void> {
-  const res    = await fetch(downloadUrl, { credentials: "include" });
-  if (!res.ok) throw new Error("Download failed");
-  const blob   = await res.blob();
+export async function downloadCertificateAsPdf(apiEndpoint: string, name: string): Promise<void> {
+  // 1. Fetch the presigned URL from our API (needs auth credentials)
+  const apiRes = await fetch(apiEndpoint, { credentials: "include" });
+  if (!apiRes.ok) throw new Error("Failed to get download URL");
+  
+  const { url } = await apiRes.json();
 
+  // 2. Fetch the actual file from Cloudflare R2 (NO credentials needed)
+  const fileRes = await fetch(url);
+  if (!fileRes.ok) throw new Error("Download failed from storage");
+  
+  const blob   = await fileRes.blob();
   const imgUrl = URL.createObjectURL(blob);
   const img    = new window.Image();
   img.src      = imgUrl;
