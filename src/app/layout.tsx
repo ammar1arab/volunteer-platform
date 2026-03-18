@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.youthprints.online'),
 
   title: {
-    default: 'مبادرة بصمات شبابية | التطوع في الأردن',
+    default: 'مبادرة بصمات شبابية',
     template: '%s | مبادرة بصمات شبابية',
   },
 
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     locale: 'ar_JO',
     url: 'https://www.youthprints.online',
     siteName: 'مبادرة بصمات شبابية',
-    title: 'مبادرة بصمات شبابية | التطوع في الأردن',
+    title: 'مبادرة بصمات شبابية',
     description: 'منصة تطوعية أردنية تجمع الشباب لصنع أثر حقيقي. اكتشف الفرص التطوعية وانضم إلينا.',
     images: [
       {
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
 
   twitter: {
     card: 'summary_large_image',
-    title: 'مبادرة بصمات شبابية | التطوع في الأردن',
+    title: 'مبادرة بصمات شبابية',
     description: 'منصة تطوعية أردنية تجمع الشباب لصنع أثر حقيقي.',
     images: ['/images/og-preview.jpg'],
   },

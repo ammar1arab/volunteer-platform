@@ -2,18 +2,33 @@
 @use "@/presentation/styles/mixins" as *;
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25%       { transform: translateX(-4px); }
-  75%       { transform: translateX(4px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .wrapper {
@@ -28,7 +43,9 @@
   border-radius: $radius;
   border: 1px solid rgba($red, 0.3);
   background: rgba($red, 0.04);
-  animation: slideDown 0.2s ease, shake 0.3s ease 0.05s;
+  animation:
+    slideDown 0.2s ease,
+    shake 0.3s ease 0.05s;
 
   strong {
     display: block;
@@ -70,7 +87,9 @@
   opacity: 0.6;
   transition: opacity $transition;
 
-  &:hover { opacity: 1; }
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .loading {
@@ -82,9 +101,15 @@
   flex: 1;
   overflow-y: auto;
   max-height: 52vh;
-  padding-bottom: $sp-xs;
+  padding: 0 2px;
 
-  &::-webkit-scrollbar { display: none; }
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
 }
 
 .list {
@@ -162,7 +187,9 @@
   font-size: $font-xs;
   color: $text-muted;
 
-  svg { opacity: 0.6; }
+  svg {
+    opacity: 0.6;
+  }
 }
 
 .attendanceRow {
@@ -255,7 +282,10 @@
   font-size: $font-sm;
   color: $text-muted;
 
-  strong { color: $green; font-weight: 700; }
+  strong {
+    color: $green;
+    font-weight: 700;
+  }
 }
 
 .countWarn {
@@ -302,7 +332,22 @@
   flex-shrink: 0;
   transition: $transition;
 
-  .card:hover & { opacity: 1; }
-  &:hover { background: rgba($red, 0.08); border-color: $red; }
-  &:disabled { opacity: 0.4; cursor: not-allowed; }
+  .card:hover & {
+    opacity: 1;
+  }
+  &:hover {
+    background: rgba($red, 0.08);
+    border-color: $red;
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.topActions {
+  @include flex(row, center, flex-end, $sp-sm);
+  padding-bottom: $sp-xs;
+  margin-bottom: $sp-xs;
+  border-bottom: 1px solid rgba($border, 0.4);
 }

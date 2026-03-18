@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { AttendanceStatus, ActivityStatus } from "@/core/domain/enums";
-import { Modal, LoadingState, EmptyState, ConfirmDialog, ToastContainer, CompleteActivityProgress } from "@/presentation/components";
+import { Modal, LoadingState, EmptyState, ConfirmDialog, ToastContainer, CompleteActivityProgress, ExportUsersButton } from "@/presentation/components";
 import { ROUTES, getCityLabel, getAttendanceStatusLabel } from "@/presentation/constants";
 import { useCompleteActivity } from "@/presentation/hooks";
 import { MapPin, Calendar, Users as UsersIcon, Archive, Check, X, AlertTriangle, UserMinus, Database, Cpu, Upload, Mail } from "lucide-react";
@@ -24,33 +24,43 @@ type Props = {
 const STEP_SUBLABELS: Record<string, string> = {
   complete: "تحديث حالة النشاط في قاعدة البيانات",
   generate: "توليد ملفات PNG و PDF لكل متطوع",
-  upload:   "رفع الشهادات إلى التخزين السحابي",
-  save:     "تسجيل الشهادات وإنشاء الإشعارات",
-  email:    "إرسال الشهادات لجميع المتطوعين",
+  upload: "رفع الشهادات إلى التخزين السحابي",
+  save: "تسجيل الشهادات وإنشاء الإشعارات",
+  email: "إرسال الشهادات لجميع المتطوعين",
 };
 
 const STEP_ICONS: Record<string, React.ReactNode> = {
   complete: <Database size={14} />,
   generate: <Cpu size={14} />,
-  upload:   <Upload size={14} />,
-  save:     <Database size={14} />,
-  email:    <Mail size={14} />,
+  upload: <Upload size={14} />,
+  save: <Database size={14} />,
+  email: <Mail size={14} />,
 };
+
+const EXPORT_COLUMNS = [
+  { key: "fullName", label: "الاسم" },
+  { key: "email", label: "البريد الإلكتروني" },
+  { key: "phone", label: "رقم الهاتف" },
+  { key: "age", label: "العمر" },
+  { key: "city", label: "المدينة" },
+  { key: "gender", label: "الجنس" },
+  { key: "attendanceStatus", label: "حالة الحضور" },
+];
 
 const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, onClose, onComplete }: Props) => {
   const {
     volunteers, loading, rejecting, confirmStep, attendanceWarning, unmarkedCount,
     toasts, removeToast,
     setAttendance, rejectVolunteer, requestComplete, confirmStep1, cancelConfirm,
-    confirmComplete, dismissWarning, calculateAge,
+    confirmComplete, dismissWarning, calculateAge, exportData,
   } = useVolunteersModal(activityId, isOpen);
 
   const { state: completeState, startAnimation, reset: resetComplete } = useCompleteActivity();
 
-  const router      = useRouter();
+  const router = useRouter();
   const isCompleted = activityStatus === ActivityStatus.COMPLETED;
   const canComplete = activityStatus === ActivityStatus.PUBLISHED && !!onComplete;
-  const canReject   = activityStatus === ActivityStatus.PUBLISHED;
+  const canReject = activityStatus === ActivityStatus.PUBLISHED;
 
   const [rejectTarget, setRejectTarget] = useState<{ participationId: string; name: string } | null>(null);
 
@@ -84,6 +94,12 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, on
       <Modal isOpen={isOpen && !isProgressOpen} onClose={onClose} title="المتطوعون" size="md">
         <div className={styles.wrapper}>
 
+            <ExportUsersButton
+              data={exportData}
+              columns={EXPORT_COLUMNS}
+              buttonText="Export Excel"
+            />
+
           {attendanceWarning && (
             <div className={styles.warning}>
               <div className={styles.warningIcon}><AlertTriangle size={16} /></div>
@@ -105,9 +121,9 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, on
             ) : (
               <div className={styles.list}>
                 {volunteers.map((volunteer) => {
-                  const attended    = volunteer.attendanceStatus === AttendanceStatus.ATTENDED;
-                  const absent      = volunteer.attendanceStatus === AttendanceStatus.ABSENT;
-                  const unmarked    = volunteer.attendanceStatus === AttendanceStatus.NOT_MARKED;
+                  const attended = volunteer.attendanceStatus === AttendanceStatus.ATTENDED;
+                  const absent = volunteer.attendanceStatus === AttendanceStatus.ABSENT;
+                  const unmarked = volunteer.attendanceStatus === AttendanceStatus.NOT_MARKED;
                   const isRejecting = rejecting === volunteer.participationId;
 
                   return (
@@ -184,7 +200,7 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, on
                         {isCompleted && (
                           <div className={styles.attendanceResult}>
                             {attended && <span className={styles.resultAttended}><Check size={11} /> حضر</span>}
-                            {absent   && <span className={styles.resultAbsent}><X size={11} /> غائب</span>}
+                            {absent && <span className={styles.resultAbsent}><X size={11} /> غائب</span>}
                             {unmarked && <span className={styles.notMarked}>{getAttendanceStatusLabel(AttendanceStatus.NOT_MARKED)}</span>}
                           </div>
                         )}
@@ -216,7 +232,7 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, on
       {/* ── Progress Modal ── */}
       <Modal
         isOpen={isProgressOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         title={completeState.phase === 'done' ? "اكتمل النشاط!" : "جارٍ إكمال النشاط..."}
         size="md"
       >
@@ -224,12 +240,12 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, isOpen, on
           steps={
             (completeState.phase === 'running' || completeState.phase === 'done')
               ? completeState.steps.map(s => ({
-                  id: s.id,
-                  label: s.label,
-                  sublabel: STEP_SUBLABELS[s.id] ?? "",
-                  icon: STEP_ICONS[s.id] ?? null,
-                  status: s.status
-                }))
+                id: s.id,
+                label: s.label,
+                sublabel: STEP_SUBLABELS[s.id] ?? "",
+                icon: STEP_ICONS[s.id] ?? null,
+                status: s.status
+              }))
               : []
           }
           isDone={completeState.phase === 'done'}

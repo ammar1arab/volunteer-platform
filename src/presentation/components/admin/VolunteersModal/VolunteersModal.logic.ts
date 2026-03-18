@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { ActivityVolunteerDto } from "@/core/application/dtos";
 import { activityApi, participationApi } from "@/presentation/services";
-import { AttendanceStatus } from "@/core/domain/enums";
+import { AttendanceStatus, Gender } from "@/core/domain/enums";
 import { useToast } from "@/presentation/hooks";
+import { getAttendanceStatusLabel, getCityLabel, getGenderLabel } from "@/presentation/constants";
 
 const cache = new Map<string, Record<string, boolean | null>>();
 
@@ -169,8 +170,23 @@ export const useVolunteersModal = (activityId: string, isOpen: boolean) => {
 
   const unmarkedCount = volunteers.filter((v) => v.attendanceStatus === AttendanceStatus.NOT_MARKED).length;
 
+  const exportData = useMemo(
+    () =>
+      volunteers.map((v) => ({
+        fullName: v.fullName,
+        email: v.email,
+        phone: v.phone,
+        age: v.dateOfBirth ? calculateAge(v.dateOfBirth) : "-",
+        city: v.city ? getCityLabel(v.city) : "-",
+        gender: v.gender ? getGenderLabel(v.gender as Gender) : "-",
+        attendanceStatus: getAttendanceStatusLabel(v.attendanceStatus)
+      })),
+    [volunteers]
+  );
+
   return {
     volunteers,
+    exportData,
     loading,
     completing,
     rejecting,

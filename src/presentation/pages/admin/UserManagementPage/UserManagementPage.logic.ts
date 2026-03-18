@@ -133,11 +133,13 @@ export const useUserManagementPage = () => {
         age: calculateAge(user.volunteerProfile?.dateOfBirth),
         phone: user.phone,
         email: user.email,
-        city: user.volunteerProfile?.city || "-",
+        city: getCityLabel(user.volunteerProfile?.city as any) || "-",
+        totalHours: user.stats.totalHours || 0,
+        approvedActivities: user.stats.approvedActivities || 0,
         skills: user.volunteerProfile?.skills?.join(", ") || "-",
         interests: user.volunteerProfile?.interests?.join(", ") || "-",
-        approvedActivities: user.stats.approvedActivities,
-        createdAt: new Date(user.createdAt).toLocaleDateString("ar")
+        createdAt: new Date(user.createdAt).toLocaleDateString("ar"),
+        certificatesCount: user.stats.certificatesCount || 0,
       })),
     [volunteers]
   );

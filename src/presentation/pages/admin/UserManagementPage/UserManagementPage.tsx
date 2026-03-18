@@ -24,9 +24,11 @@ const EXPORT_COLUMNS = [
   { key: "phone", label: "رقم الهاتف" },
   { key: "email", label: "البريد الإلكتروني" },
   { key: "city", label: "المدينة" },
+  { key: "totalHours", label: "إجمالي الساعات" },
+  { key: "approvedActivities", label: "الفرص المكتملة" },
   { key: "skills", label: "المهارات" },
-  { key: "approvedActivities", label: "عدد الفرص الموافق عليها" },
   { key: "createdAt", label: "تاريخ الانضمام" },
+  { key: "certificatesCount", label: "عدد الشهادات" },
 ];
 
 const ExportBtn = ({ data }: { data: any[] }) => (
