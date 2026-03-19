@@ -13,13 +13,7 @@
 
 html {
   scroll-behavior: smooth;
-}
-
-header,
-footer,
-section {
-  position: relative;
-  z-index: 1;
+  height: -webkit-fill-available;
 }
 
 body {
@@ -29,6 +23,16 @@ body {
   color: $text;
   background-color: $bg;
   overflow-x: hidden;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overscroll-behavior: none;
+}
+
+header,
+footer,
+section {
+  position: relative;
+  z-index: 1;
 }
 
 #__next {
