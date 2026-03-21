@@ -12,7 +12,6 @@ export const useVerifyEmail = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
-  const password = decodeURIComponent(searchParams.get("password") ?? "");
 
   const [code, setCode] = useState<string[]>(Array(6).fill(""));
   const [error, setError] = useState("");
@@ -43,7 +42,7 @@ export const useVerifyEmail = () => {
       const result = await authApi.verifyOtp({
         email,
         code: codeStr,
-        type: OtpType.EMAIL_VERIFY
+        type: OtpType.EMAIL_VERIFY,
       });
 
       if (!result.success) {
@@ -51,6 +50,9 @@ export const useVerifyEmail = () => {
         setCode(Array(6).fill(""));
         return;
       }
+
+      const password = sessionStorage.getItem("_vp") ?? "";
+      sessionStorage.removeItem("_vp");
 
       if (password) {
         const res = await signIn("credentials", { email, password, redirect: false });

@@ -1,156 +1,192 @@
 "use client";
+
 import styles from "./page.module.scss";
 import { useSignup } from "./page.logic";
 import Link from "next/link";
+import { useState } from "react";
 import { Input, Button, SelectInput, BirthDateInput } from "@/presentation/components";
 import { CITY_OPTIONS, GENDER_OPTIONS } from "@/presentation/constants";
-import { ChevronRight } from "lucide-react";
 
-const STEPS = ["البيانات الأساسية", "معلومات إضافية", "كلمة المرور"];
+const EyeIcon = ({ visible }: { visible: boolean }) => (
+  <svg
+    className={`${styles.eyeSvg} ${visible ? styles.eyeOpen : ""}`}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={styles.eyeLid}
+    />
+    <circle cx="12" cy="12" r="3" className={styles.eyePupil} />
+    <line
+      x1="4" y1="4" x2="20" y2="20"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      className={`${styles.eyeSlash} ${visible ? styles.eyeSlashGone : ""}`}
+    />
+  </svg>
+);
+
+const PasswordField = ({
+  label,
+  value,
+  onChange,
+  onBlur,
+}: {
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur: () => void;
+}) => {
+  const [show, setShow] = useState(false);
+
+  return (
+    <div className={styles.pwWrap}>
+      <Input
+        label={label}
+        type={show ? "text" : "password"}
+        dir="ltr"
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+      />
+      <button
+        type="button"
+        className={styles.eyeBtn}
+        onClick={() => setShow((s) => !s)}
+        aria-label={show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+        tabIndex={-1}
+      >
+        <span className={styles.ripple} />
+        <EyeIcon visible={show} />
+      </button>
+    </div>
+  );
+};
 
 const SignupPage = () => {
   const {
-    step, formData, fieldErrors, error, loading,
-    emailChecking, handleChange, handleBlur,
-    handleSelectChange, nextStep, prevStep, handleSubmit,
+    form, errors, serverError, loading, emailStatus,
+    handleChange, handleBlur, handleSubmit,
   } = useSignup();
 
-  const F = (f: string) => fieldErrors[f as keyof typeof fieldErrors];
-  const pct = ((step - 1) / (STEPS.length - 1)) * 100;
+  const E = (f: string) => errors[f as keyof typeof errors];
 
   return (
     <div className={styles.page}>
       <main className={styles.card}>
+        {serverError && (
+          <div className={styles.error} role="alert">{serverError}</div>
+        )}
 
-        <div className={styles.progress}>
-          <div className={styles.progressTrack}>
-            <div className={styles.progressFill} style={{ width: `${pct}%` }} />
+        <form onSubmit={handleSubmit} noValidate className={styles.form}>
+
+          <div className={styles.field}>
+            <Input
+              label="الاسم الكامل"
+              value={form.fullName}
+              onChange={(e) => handleChange("fullName", e.target.value)}
+              onBlur={() => handleBlur("fullName")}
+            />
+            {E("fullName") && <span className={styles.fieldError}>{E("fullName")}</span>}
           </div>
-          <div className={styles.steps}>
-            {STEPS.map((label, i) => {
-              const s       = i + 1;
-              const done    = s < step;
-              const current = s === step;
-              return (
-                <div key={i} className={`${styles.step} ${current ? styles.current : ""} ${done ? styles.done : ""}`}>
-                  <div className={styles.dot}>{done ? "✓" : s}</div>
-                  <span className={styles.stepLabel}>{label}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {error && <div className={styles.error} role="alert">{error}</div>}
-
-        <form
-          onSubmit={step === 3 ? handleSubmit : e => { e.preventDefault(); nextStep(); }}
-          noValidate
-        >
-          {step === 1 && (
-            <div className={styles.stepContent}>
-              <div className={styles.field}>
-                <Input
-                  label="الاسم الكامل" type="text" autoComplete="name" autoFocus
-                  value={formData.fullName}
-                  onChange={e => handleChange("fullName", e.target.value)}
-                  onBlur={() => handleBlur("fullName")}
-                />
-                {F("fullName") && <span className={styles.fieldError}>{F("fullName")}</span>}
-              </div>
-              <div className={styles.field}>
-                <Input
-                  label="البريد الإلكتروني" type="email" dir="ltr" autoComplete="email"
-                  value={formData.email}
-                  onChange={e => handleChange("email", e.target.value)}
-                  onBlur={() => handleBlur("email")}
-                />
-                {F("email") && <span className={styles.fieldError}>{F("email")}</span>}
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className={styles.stepContent}>
-              <div className={styles.field}>
-                <Input
-                  label="رقم الهاتف" type="tel" dir="ltr" inputMode="tel" autoComplete="tel" autoFocus
-                  value={formData.phone}
-                  onChange={e => handleChange("phone", e.target.value)}
-                  onBlur={() => handleBlur("phone")}
-                />
-                {F("phone") && <span className={styles.fieldError}>{F("phone")}</span>}
-              </div>
-              <div className={styles.row}>
-                <div className={styles.field}>
-                  <SelectInput
-                    label="المدينة" placeholder="المدينة"
-                    value={formData.city} options={CITY_OPTIONS}
-                    onChange={v => handleSelectChange("city", v)}
-                  />
-                  {F("city") && <span className={styles.fieldError}>{F("city")}</span>}
-                </div>
-                <div className={styles.field}>
-                  <SelectInput
-                    label="الجنس" placeholder="الجنس"
-                    value={formData.gender} options={GENDER_OPTIONS}
-                    onChange={v => handleSelectChange("gender", v)}
-                  />
-                  {F("gender") && <span className={styles.fieldError}>{F("gender")}</span>}
-                </div>
-              </div>
-              <div className={styles.field}>
-                <BirthDateInput
-                  label="تاريخ الميلاد" minAge={10}
-                  value={formData.dateOfBirth}
-                  onChange={v => handleSelectChange("dateOfBirth", v)}
-                  error={F("dateOfBirth")}
-                />
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className={styles.stepContent}>
-              <div className={styles.field}>
-                <Input
-                  label="كلمة المرور" type="password" dir="ltr" autoComplete="new-password" autoFocus
-                  value={formData.password}
-                  onChange={e => handleChange("password", e.target.value)}
-                  onBlur={() => handleBlur("password")}
-                />
-                {F("password") && <span className={styles.fieldError}>{F("password")}</span>}
-              </div>
-              <div className={styles.field}>
-                <Input
-                  label="تأكيد كلمة المرور" type="password" dir="ltr" autoComplete="new-password"
-                  value={formData.confirmPassword}
-                  onChange={e => handleChange("confirmPassword", e.target.value)}
-                  onBlur={() => handleBlur("confirmPassword")}
-                />
-                {F("confirmPassword") && <span className={styles.fieldError}>{F("confirmPassword")}</span>}
-              </div>
-            </div>
-          )}
-
-          <div className={styles.actions}>
-            {step > 1 && (
-              <button type="button" className={styles.backBtn} onClick={prevStep}>
-                <ChevronRight size={15} /> رجوع
-              </button>
+          <div className={styles.field}>
+            <Input
+              label="البريد الإلكتروني"
+              type="email"
+              dir="ltr"
+              value={form.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              onBlur={() => handleBlur("email")}
+            />
+            {E("email") && <span className={styles.fieldError}>{E("email")}</span>}
+            {!E("email") && emailStatus === "checking" && (
+              <span className={styles.hint}>جاري التحقق...</span>
             )}
-            <Button
-              type="submit"
-              loading={loading || (step === 1 && emailChecking)}
-              disabled={loading || (step === 1 && emailChecking)}
-            >
-              {step === 1 && emailChecking
-                ? "جارٍ التحقق..."
-                : step === 3
-                ? "إنشاء الحساب"
-                : "التالي"}
-            </Button>
+            {!E("email") && emailStatus === "ok" && (
+              <span className={`${styles.hint} ${styles.hintOk}`}>البريد متاح ✓</span>
+            )}
           </div>
+
+          <div className={styles.field}>
+            <Input
+              label="رقم الهاتف"
+              type="tel"
+              dir="ltr"
+              value={form.phone}
+              onChange={(e) => handleChange("phone", e.target.value)}
+              onBlur={() => handleBlur("phone")}
+            />
+            {E("phone") && <span className={styles.fieldError}>{E("phone")}</span>}
+          </div>
+
+          <div className={styles.field}>
+            <BirthDateInput
+              label="تاريخ الميلاد"
+              minAge={10}
+              value={form.dateOfBirth}
+              onChange={(v) => handleChange("dateOfBirth", v)}
+              error={E("dateOfBirth")}
+            />
+          </div>
+
+          <div className={styles.rowFixed}>
+            <div className={styles.field}>
+              <SelectInput
+                label="المدينة"
+                value={form.city}
+                options={CITY_OPTIONS}
+                onChange={(v) => handleChange("city", v)}
+              />
+              {E("city") && <span className={styles.fieldError}>{E("city")}</span>}
+            </div>
+            <div className={styles.field}>
+              <SelectInput
+                label="الجنس"
+                value={form.gender}
+                options={GENDER_OPTIONS}
+                onChange={(v) => handleChange("gender", v)}
+              />
+              {E("gender") && <span className={styles.fieldError}>{E("gender")}</span>}
+            </div>
+          </div>
+
+          <div className={styles.row}>
+            <div className={styles.field}>
+              <PasswordField
+                label="كلمة المرور"
+                value={form.password}
+                onChange={(e) => handleChange("password", e.target.value)}
+                onBlur={() => handleBlur("password")}
+              />
+              {E("password") && <span className={styles.fieldError}>{E("password")}</span>}
+            </div>
+            <div className={styles.field}>
+              <PasswordField
+                label="تأكيد كلمة المرور"
+                value={form.confirmPassword}
+                onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                onBlur={() => handleBlur("confirmPassword")}
+              />
+              {E("confirmPassword") && (
+                <span className={styles.fieldError}>{E("confirmPassword")}</span>
+              )}
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            loading={loading || emailStatus === "checking"}
+            disabled={loading || emailStatus === "checking" || emailStatus === "taken"}
+          >
+            {loading ? "جاري الإنشاء..." : "إنشاء الحساب"}
+          </Button>
         </form>
 
         <footer className={styles.footer}>
