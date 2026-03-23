@@ -9,7 +9,7 @@
 
 .card {
   position: relative;
-  width: min(460px, 100%); // or min(400px, 100%) depending on page
+  width: min(460px, 100%); 
   box-sizing: border-box;
   border: 1px solid $border;
   border-radius: $radius-lg;
@@ -53,7 +53,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: $sp-xs;
+  gap: $sp-md;
 
   & > * {
     animation: fieldSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;

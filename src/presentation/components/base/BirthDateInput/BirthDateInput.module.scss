@@ -4,7 +4,6 @@
 .wrapper {
   @include flex-col;
   gap: $sp-xs;
-  margin-bottom: $sp-md;
 }
 
 .label {
