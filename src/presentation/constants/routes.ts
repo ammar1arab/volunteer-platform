@@ -7,6 +7,7 @@ export const ROUTES = {
   VERIFY_EMAIL: "/verify-email",
   FORGOT_PASSWORD: "/forgot-password",
   ABOUT: "/about",
+  CONTACT: "/contact",
   POSTS: "/posts",
   MAGAZINES: "/magazines",
   POST_DETAILS: (id: string) => `/posts/${id}`,

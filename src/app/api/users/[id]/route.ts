@@ -27,13 +27,21 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     const auth = await requirePermission(req, "MANAGE_USERS");
     if ("error" in auth) return auth.error;
     const { id } = await ctx.params;
-    const body = await parseJson<UpdateUserRequest & { permissions?: string[] }>(req);
+    const body = await parseJson<UpdateUserRequest & { permissions?: string[]; isActive?: boolean }>(req);
     if (!body) return toResponse({ success: false, error: { code: "BAD_REQUEST", message: "Invalid body" } });
+
     if (body.permissions !== undefined) {
       if (!auth.session.user.isSuperAdmin) return forbidden("فقط السوبر أدمن يمكنه تعديل الصلاحيات");
       logger.info("API", "PATCH /users/[id]", `permissions update by=${auth.session.user.id} target=${id}`);
       return toResponse(await providers.user().updatePermissions(auth.session.user.id, id, body.permissions));
     }
+
+    if (body.isActive !== undefined) {
+      if (!auth.session.user.isSuperAdmin) return forbidden("فقط السوبر أدمن يمكنه تغيير حالة المستخدم");
+      logger.info("API", "PATCH /users/[id]", `toggle active by=${auth.session.user.id} target=${id}`);
+      return toResponse(await providers.user().toggleActive(auth.session.user.id, id, body.isActive));
+    }
+
     logger.info("API", "PATCH /users/[id]", `info update by=${auth.session.user.id} target=${id}`);
     return toResponse(await providers.user().updateBasicInfo(id, body));
   } catch (error) {

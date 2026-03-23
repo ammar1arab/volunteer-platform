@@ -17,7 +17,7 @@ export const useFeaturedPostsPublicPage = () => {
     const months = new Map<string, string>();
 
     list.forEach((post) => {
-      const date = new Date(post.createdAt);
+      const date = new Date(post.publishedAt);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       const label = `${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}`;
       months.set(key, label);
@@ -44,7 +44,7 @@ export const useFeaturedPostsPublicPage = () => {
 
     if (selectedMonth !== "all") {
       result = result.filter((post) => {
-        const date = new Date(post.createdAt);
+        const date = new Date(post.publishedAt);
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
         return key === selectedMonth;
       });

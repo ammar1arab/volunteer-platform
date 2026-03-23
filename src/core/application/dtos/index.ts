@@ -31,7 +31,8 @@ export type {
   UpdateUserResponse,
   UpdatePermissionsResponse,
   CreateAdminRequest,
-  CreateAdminResponse
+  CreateAdminResponse,
+  ToggleUserActiveResponse
 } from "./user.dto";
 
 // ─── Otp ────────────────────────────────────────

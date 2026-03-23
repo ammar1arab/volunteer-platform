@@ -2,179 +2,191 @@
 @use "@/presentation/styles/mixins" as *;
 
 .wrapper {
-  padding: 100px 0;
+  padding: 110px 0;
   position: relative;
   overflow: hidden;
 }
 
-.mainContent {
-  display: flex;
-  flex-direction: column;
+.inner {
+  @include flex-col;
+  align-items: center;
+  gap: $sp-2xl;
 }
 
 .header {
-  text-align: center;
-  max-width: 850px;
-  margin: 0 auto $sp-xl;
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: $green;
-    padding: 6px 14px;
-    border-radius: $radius-full;
-    font-weight: 900;
-    font-size: 11px;
-    margin-bottom: $sp-md;
-    border: 1px solid rgba($green, 0.2);
-  }
-
-  .title {
-    font-size: clamp(2.2rem, 5.5vw, 4.5rem);
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: $sp-md;
-    color: $black;
-
-    .greenText {
-      color: $green;
-    }
-
-    .redText {
-      color: $red;
-    }
-  }
-
-  .leadText {
-    font-size: 17px;
-    color: $text-muted;
-    line-height: 1.6;
-    max-width: 650px;
-    margin: 0 auto;
-  }
-}
-
-.visualSection {
-  @include flex(row, center, center);
-  width: 100%;
-  max-width: 1000px;
-  margin: $sp-lg auto;
-
-  @include md {
-  }
-}
-
-.leftBasma {
-  @include flex(row, center, center);
-
-  .basmaCircle {
-    position: relative;
-    width: 160px;
-    height: 160px;
-    border-radius: $radius-2xl;
-    @include flex-center;
-    color: $green;
-    transition: all 0.4s ease;
-
-    &:hover {
-      transform: scale(1.05);
-      .rippleEffect {
-        animation: ripple 1.5s infinite;
-      }
-    }
-  }
-}
-
-.leftStat {
-  @include flex(row, center, flex-end);
-
-  @include md {
-    @include flex(row, center, center);
-  }
-}
-
-.rightStat {
-  @include flex(row, center, flex-start);
-
-  @include md {
-    @include flex(row, center, center);
-  }
-}
-.statCard {
-  padding: 10px 20px;
-  border-radius: $radius-full;
-  display: flex;
+  @include flex-col;
   align-items: center;
-  gap: 12px;
+  text-align: center;
+  gap: $sp-lg;
+  max-width: 820px;
+}
+
+.badge {
+  @include flex-center;
+  gap: $sp-xs;
+  padding: $sp-xs $sp-lg;
+  background: rgba($green, 0.08);
+  border: 1px solid rgba($green, 0.25);
+  border-radius: $radius-full;
+  color: $green;
+  font-size: $font-sm;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(-14px);
+  transition:
+    opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s,
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
+
+  @include sm {
+    font-size: $font-xs;
+    padding: $sp-xs $sp-md;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 900;
+  line-height: 1.2;
+  color: $text;
+  letter-spacing: -0.025em;
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s ease 0.25s,
+    transform 0.7s ease 0.25s;
+}
+
+// .subtitle {
+//   margin: 0;
+//   font-size: clamp(1rem, 1.4vw, 1.25rem);
+//   line-height: 1.75;
+//   color: $text-muted;
+//   font-weight: 500;
+//   max-width: 660px;
+//   opacity: 0;
+//   transform: translateY(18px);
+//   transition:
+//     opacity 0.7s ease 0.4s,
+//     transform 0.7s ease 0.4s;
+
+//   @include sm {
+//     font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+//   }
+// }
+
+.greenText {
+  color: $green;
+}
+.redText {
+  color: $red;
+}
+
+.visual {
+  @include flex(row, center, center, $sp-2xl);
+  width: 100%;
+  max-width: 900px;
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s ease 0.55s,
+    transform 0.8s ease 0.55s;
+  flex-wrap: wrap;
+}
+
+.statLeft {
+  @include flex(row, center, flex-end);
+}
+.statRight {
+  @include flex(row, center, flex-start);
+}
+
+.card {
+  @include flex(row, center, flex-start, $sp-md);
+  padding: $sp-sm $sp-lg;
+  border-radius: $radius-full;
+  border: 1px solid rgba($red, 0.2);
   min-width: 200px;
-  box-shadow: 6px 6px 0 $red;
-  transition: all 0.3s ease;
-    border-color: $red;
+  box-shadow: 5px 5px 0 $red;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 
   &:hover {
-    transform: translateX(-8px);
-    box-shadow: 10px 10px 0 $red;
-  }
-
-  .iconCircle {
-    width: 40px;
-    height: 40px;
-    background: $black;
-    color: white;
-    border-radius: $radius-full;
-    @include flex-center;
+    transform: translateX(-5px) translateY(-2px);
+    box-shadow: 8px 8px 0 $red;
   }
 
   h3 {
-    font-size: 20px;
+    font-size: 1.35rem;
     font-weight: 900;
     margin: 0;
+    color: $text;
   }
-
   p {
-    font-size: 11px;
+    font-size: $font-xs;
     color: $text-muted;
     margin: 0;
     font-weight: 700;
   }
-}
 
-.greenVariant:hover {
-  box-shadow: 10px 10px 0 $green;
-  border-color: $green;
-}
-
-.actionArea {
-  text-align: center;
-  margin-top: $sp-xl;
-  display: flex;
-  justify-content: center;
-}
-
-@keyframes ripple {
-  0% {
-    box-shadow: 0 0 0 0 rgba($green, 0.4);
-  }
-  100% {
-    box-shadow: 0 0 0 20px rgba($green, 0);
+  @include sm {
+    min-width: 175px;
+    padding: $sp-xs $sp-md;
   }
 }
 
-@include sm {
-  .leftBasma .basmaCircle {
-    width: 140px;
-    height: 140px;
-    margin: 0 auto;
-  }
+.cardGreen {
+  border-color: rgba($green, 0.2);
+  box-shadow: 5px 5px 0 $green;
 
-  .rightStats {
-    right: 0;
-    gap: 10px;
+  &:hover {
+    box-shadow: 8px 8px 0 $green;
   }
+}
 
-  .statCard {
-    min-width: 100%;
-    padding: 8px 15px;
+.iconWrap {
+  width: 42px;
+  height: 42px;
+  background: $black;
+  color: white;
+  border-radius: 50%;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.center {
+  @include flex-center;
+}
+
+.fingerprint {
+  color: $green;
+  opacity: 0.8;
+  transition:
+    transform 0.4s ease,
+    opacity 0.4s ease;
+
+  &:hover {
+    transform: scale(1.06) rotate(4deg);
+    opacity: 1;
+  }
+}
+
+.cta {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s ease 0.7s,
+    transform 0.7s ease 0.7s;
+}
+
+.visible {
+  .badge,
+  .title,
+  .subtitle,
+  .visual,
+  .cta {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

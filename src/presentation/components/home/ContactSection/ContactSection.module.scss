@@ -1,10 +1,26 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-.section { padding: 60px 0; }
+.section {
+  padding: 80px 0;
+}
+
+.badge {
+  @include flex-center;
+  gap: $sp-xs;
+  padding: $sp-xs $sp-lg;
+  background: rgba($green, 0.08);
+  border: 1px solid rgba($green, 0.25);
+  border-radius: $radius-full;
+  color: $green;
+  font-size: $font-sm;
+  font-weight: 700;
+  width: fit-content;
+  margin: 0 auto $sp-lg;
+}
 
 .form {
-  max-width: 620px;
+  max-width: 860px;
   margin: 0 auto;
   display: grid;
   gap: $sp-lg;
@@ -14,7 +30,10 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $sp-md;
-  @media (max-width: 520px) { grid-template-columns: 1fr; }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .field {
@@ -34,8 +53,11 @@
   position: relative;
   display: flex;
   align-items: center;
+
   &:focus-within .icon,
-  &:focus-within .textareaIcon { color: $green; }
+  &:focus-within .textareaIcon {
+    color: $green;
+  }
 }
 
 .icon {
@@ -61,7 +83,7 @@
 
 .inputBase {
   width: 100%;
-  padding: 11px 42px 11px 14px;
+  padding: 12px 42px 12px 14px;
   border-radius: $radius;
   border: 1.5px solid $border;
   background: transparent;
@@ -83,7 +105,7 @@
 }
 
 textarea.inputBase {
-  min-height: 110px;
+  min-height: 140px;
   resize: none;
   padding-top: 14px;
   line-height: 1.7;

@@ -64,3 +64,32 @@
     padding: $sp-lg 0 $sp-sm;
   }
 }
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+
+  &.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.revealStagger {
+  > * {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+
+    @for $i from 1 through 12 {
+      &:nth-child(#{$i}) {
+        transition-delay: #{($i - 1) * 0.08}s;
+      }
+    }
+  }
+
+  &.revealed > * {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

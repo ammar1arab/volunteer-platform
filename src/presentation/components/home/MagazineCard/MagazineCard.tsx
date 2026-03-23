@@ -2,22 +2,51 @@
 import styles from "./MagazineCard.module.scss";
 import { BookOpen, Download } from "lucide-react";
 import { getMonthLabel } from "@/presentation/constants/labels";
+import { useSession } from "next-auth/react";
+import { useToast } from "@/presentation/hooks/uiHooks/useToast";
 
 type Props = { title: string; monthYear: string; pdfUrl: string; };
 
 const MagazineCard = ({ title, monthYear, pdfUrl }: Props) => {
-  const date  = new Date(monthYear);
+  const date = new Date(monthYear);
   const month = getMonthLabel(date.getMonth() + 1);
-  const year  = date.getFullYear();
+  const year = date.getFullYear();
 
-  const handleClick = async () => {
+  const { status } = useSession();
+  const { showToast } = useToast();
+
+  const handleClick = async (e: React.MouseEvent) => {
+    e.stopPropagation(); 
+
+    if (status === "loading") {
+      showToast("جاري التحقق من الحساب، يرجى الانتظار...", "info");
+      return;
+    }
+
+    if (status !== "authenticated") {
+      showToast("يرجى تسجيل الدخول لتحميل المجلة", "error");
+      return;
+    }
+
     try {
-      const blob = await (await fetch(pdfUrl)).blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = Object.assign(document.createElement("a"), { href: url, download: `${title}.pdf` });
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a); URL.revokeObjectURL(url);
-    } catch { window.open(pdfUrl, "_blank", "noopener,noreferrer"); }
+      showToast("بدأ التحميل...", "info");
+      const response = await fetch(pdfUrl);
+      if (!response.ok) throw new Error();
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement("a"), {
+        href: url,
+        download: `${title}.pdf`
+      });
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      window.open(pdfUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   return (

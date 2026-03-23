@@ -1,5 +1,5 @@
 "use client";
-
+import { useEffect, useRef } from "react";
 import styles from "./AboutSection.module.scss";
 import { Container, Button } from "@/presentation/components";
 import { ROUTES } from "@/presentation/constants";
@@ -8,47 +8,64 @@ import { useRouter } from "next/navigation";
 
 const AboutSection = () => {
   const router = useRouter();
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add(styles.visible);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section className={styles.wrapper}>
+    <section ref={sectionRef} className={styles.wrapper}>
       <Container>
-        <div className={styles.mainContent}>
+        <div className={styles.inner}>
           <div className={styles.header}>
             <div className={styles.badge}>
-              <Star size={14} fill="currentColor" />
-              <span>منذ عام 2012 وبصمتنا تكبر</span>
+              <Star size={13} fill="currentColor" />
+              منذ عام 2012 وبصمتنا تكبر
             </div>
             <h2 className={styles.title}>
-              نحن لا نتطوع فقط، نحن <span className={styles.greenText}>نصنع أثراً</span> <br />
+              نحن لا نتطوع فقط، نحن <span className={styles.greenText}>نصنع أثراً</span>
+              <br />
               يخلد في <span className={styles.redText}>بصمة الأردن</span>
             </h2>
-            <p className={styles.leadText}>
+            {/* <p className={styles.subtitle}>
               مبادرة بدأت بحلم شبابي بسيط، واليوم نصل لكل محافظات المملكة لنرسم خارطة جديدة من العطاء المستدام والتمكين الحقيقي.
-            </p>
+            </p> */}
           </div>
 
-          <div className={styles.visualSection}>
-            <div className={styles.leftStat}>
-              <div className={`${styles.statCard} ${styles.greenVariant}`}>
-                <div className={styles.iconCircle}><Award size={24} /></div>
-                <div className={styles.info}>
+          <div className={styles.visual}>
+            <div className={styles.statLeft}>
+              <div className={`${styles.card} ${styles.cardGreen}`}>
+                <div className={styles.iconWrap}><Award size={22} /></div>
+                <div>
                   <h3>#1</h3>
                   <p>أفضل مبادرة 2022</p>
                 </div>
               </div>
             </div>
 
-            <div className={styles.leftBasma}>
-              <div className={styles.basmaCircle}>
-                <Fingerprint size={160} strokeWidth={1} />
-                <div className={styles.rippleEffect}></div>
+            <div className={styles.center}>
+              <div className={styles.fingerprint}>
+                <Fingerprint size={148} strokeWidth={1} />
               </div>
             </div>
 
-            <div className={styles.rightStat}>
-              <div className={styles.statCard}>
-                <div className={styles.iconCircle}><Zap size={24} /></div>
-                <div className={styles.info}>
+            <div className={styles.statRight}>
+              <div className={styles.card}>
+                <div className={styles.iconWrap}><Zap size={22} /></div>
+                <div>
                   <h3>3700+</h3>
                   <p>متطوع فاعل</p>
                 </div>
@@ -56,12 +73,8 @@ const AboutSection = () => {
             </div>
           </div>
 
-          <div className={styles.actionArea}>
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => router.push(ROUTES.ABOUT)}
-            >
+          <div className={styles.cta}>
+            <Button variant="primary" size="md" onClick={() => router.push(ROUTES.ABOUT)}>
               تعرف على رحلتنا الكاملة
             </Button>
           </div>

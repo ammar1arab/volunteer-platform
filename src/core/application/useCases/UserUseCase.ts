@@ -16,6 +16,7 @@ import {
   VolunteerProfileSummaryDto,
   CreateAdminRequest,
   CreateAdminResponse,
+  ToggleUserActiveResponse,
   Result
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
@@ -241,6 +242,26 @@ class UserUseCase {
       });
     } catch (error) {
       return serviceError(UserUseCase.SCOPE, "updateBasicInfo", error, "حدث خطأ أثناء تحديث البيانات");
+    }
+  }
+
+  async toggleActive(requesterId: string, targetUserId: string, isActive: boolean): Promise<ToggleUserActiveResponse> {
+    try {
+      const requester = await this.userRepository.findById(requesterId);
+      if (!requester) return fail("NOT_FOUND", "المستخدم غير موجود");
+      if (!requester.isSuperAdmin) return fail("FORBIDDEN", "غير مصرح لك بتغيير حالة المستخدم");
+
+      const target = await this.userRepository.findById(targetUserId);
+      if (!target) return fail("NOT_FOUND", "المستخدم غير موجود");
+      if (target.isSuperAdmin) return fail("FORBIDDEN", "لا يمكن تعديل حالة السوبر أدمن");
+
+      target.update({ isActive });
+      await this.userRepository.update(target);
+
+      logger.info(UserUseCase.SCOPE, "toggleActive", `User ${targetUserId} isActive=${isActive} by=${requesterId}`);
+      return ok({ isActive });
+    } catch (error) {
+      return serviceError(UserUseCase.SCOPE, "toggleActive", error, "حدث خطأ أثناء تغيير حالة المستخدم");
     }
   }
 

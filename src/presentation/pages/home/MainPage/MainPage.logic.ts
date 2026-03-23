@@ -13,7 +13,7 @@ import {
 import type { ActivityDto } from "@/core/application/dtos";
 import { ROUTES } from "@/presentation/constants";
 
-const ACTIVITIES_LIMIT = 8;
+const ACTIVITIES_LIMIT = 12;
 const POSTS_LIMIT = 8;
 const SPOTLIGHT_LIMIT = 8;
 const MAGAZINES_LIMIT = 10;

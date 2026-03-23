@@ -8,6 +8,7 @@ export { default as VolunteerSpotlightPublicPage } from "./home/VolunteerSpotlig
 export { default as VolunteerSpotlightDetailsPage } from "./home/VolunteerSpotlightDetailsPage/VolunteerSpotlightDetailsPage";
 export { default as MagazinesPublicPage } from "./home/MagazinesPublicPage/MagazinesPublicPage";
 export { default as VerifyPage } from "./home/VerifyPage/VerifyPage";
+export { default as ContactPage } from "./home/ConatctPage/ContactPage";
 
 export { default as ActivitiesPage } from "./admin/ActivitiesPage/ActivitiesPage";
 export { default as UserManagementPage } from "./admin/UserManagementPage/UserManagementPage";

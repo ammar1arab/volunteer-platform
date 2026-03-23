@@ -77,3 +77,4 @@ export type UpdatePermissionsResponse = Result<{ permissions: string[] }>;
 export type CreateAdminResponse = Result<{
   user: Pick<UserSummaryDto, "id" | "email" | "fullName">;
 }>;
+export type ToggleUserActiveResponse = Result<{ isActive: boolean }>;

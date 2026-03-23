@@ -15,7 +15,7 @@ const NAV_LINKS = [
   { href: ROUTES.SPOTLIGHT.BASE, label: 'أبرز المتطوعين' },
   { href: ROUTES.MAGAZINES, label: 'حصاد العطاء' },
   { href: ROUTES.ABOUT, label: 'من نحن' },
-  { href: '/#contact', label: 'تواصل معنا' },
+  { href: ROUTES.CONTACT, label: 'تواصل معنا' },
 ];
 
 type OpenMenu = 'notifications' | 'user' | null;

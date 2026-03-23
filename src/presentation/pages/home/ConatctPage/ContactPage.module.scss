@@ -1,0 +1,7 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.page {
+  min-height: 100vh;
+  padding-top: 80px;
+}

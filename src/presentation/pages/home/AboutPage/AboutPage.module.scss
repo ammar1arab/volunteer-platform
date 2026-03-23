@@ -19,14 +19,17 @@
 }
 
 .badge {
-  display: inline-block;
-  padding: 6px 14px;
+  @include flex-center;
+  gap: $sp-xs;
+  padding: $sp-xs $sp-lg;
+  background: rgba($green, 0.08);
+  border: 1px solid rgba($green, 0.25);
+  border-radius: $radius-full;
   color: $green;
-  font-weight: 800;
-  font-size: $font-xs;
-  border: 1px solid $green;
-  border-radius: 20px;
-  margin-bottom: 16px;
+  font-size: $font-sm;
+  font-weight: 700;
+  width: fit-content;
+  margin-bottom: $sp-md;
 }
 
 .title {
@@ -36,12 +39,8 @@
   margin: 0 0 24px;
   color: $text;
 
-  .green {
-    color: $green;
-  }
-  .red {
-    color: $red;
-  }
+  .green { color: $green; }
+  .red   { color: $red; }
 }
 
 .desc {
@@ -50,9 +49,7 @@
   color: $text-muted;
   max-width: 600px;
 
-  @include sm {
-    font-size: $font-md;
-  }
+  @include sm { font-size: $font-md; }
 
   strong {
     color: $text;
@@ -88,15 +85,10 @@
     color: $text-muted;
     margin-bottom: 16px;
 
-    @include sm {
-      font-size: $font-md;
-    }
+    @include sm { font-size: $font-md; }
   }
 
-  strong {
-    color: $green;
-    font-weight: 700;
-  }
+  strong { color: $green; font-weight: 700; }
 }
 
 .stats {
@@ -104,14 +96,12 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 
-  @include sm {
-    grid-template-columns: 1fr;
-  }
+  @include sm { grid-template-columns: 1fr; }
 }
 
 .stat {
   padding: 24px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba($border, 0.6);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -131,9 +121,7 @@
   margin-bottom: 4px;
   line-height: 1;
 
-  .stat:nth-child(2) & {
-    color: $red;
-  }
+  .stat:nth-child(2) & { color: $red; }
 }
 
 .statLabel {
@@ -153,17 +141,11 @@
 
   .card {
     padding: 32px;
-    border: 2px solid #e0e0e0;
+    border: 1.5px solid rgba($border, 0.6);
     border-radius: 16px;
 
-    svg {
-      color: $green;
-      margin-bottom: 16px;
-    }
-
-    &:last-child svg {
-      color: $red;
-    }
+    svg { color: $green; margin-bottom: 16px; }
+    &:last-child svg { color: $red; }
 
     h3 {
       font-size: $font-2xl;
@@ -200,28 +182,19 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
 
-    @include lg {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @include sm {
-      grid-template-columns: 1fr;
-    }
+    @include lg { grid-template-columns: repeat(2, 1fr); }
+    @include sm { grid-template-columns: 1fr; }
   }
 
   .goalCard {
     padding: 20px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid rgba($border, 0.6);
     border-radius: 12px;
     display: flex;
     align-items: flex-start;
     gap: 12px;
 
-    svg {
-      color: $green;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
+    svg { color: $green; flex-shrink: 0; margin-top: 2px; }
 
     p {
       margin: 0;
@@ -247,10 +220,7 @@
       margin-bottom: 8px;
     }
 
-    p {
-      color: $text-muted;
-      font-size: $font-md;
-    }
+    p { color: $text-muted; font-size: $font-md; }
   }
 
   .activitiesGrid {
@@ -258,25 +228,17 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
 
-    @include lg {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @include sm {
-      grid-template-columns: 1fr;
-    }
+    @include lg { grid-template-columns: repeat(2, 1fr); }
+    @include sm { grid-template-columns: 1fr; }
   }
 
   .activityCard {
     text-align: center;
     padding: 28px 20px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid rgba($border, 0.6);
     border-radius: 20px;
 
-    svg {
-      color: $green;
-      margin: 0 auto 16px;
-    }
+    svg { color: $green; margin: 0 auto 16px; }
 
     h3 {
       font-size: $font-lg;
@@ -324,6 +286,7 @@
     border-radius: 50px;
     text-decoration: none;
     font-size: $font-lg;
+    transition: color 0.25s ease, background 0.25s ease;
 
     &:hover {
       color: #fff;
