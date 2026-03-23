@@ -214,3 +214,28 @@
     animation: none !important;
   }
 }
+.timerRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $sp-xs;
+}
+
+.timerLabel {
+  font-size: $font-xs;
+  color: $text-muted;
+}
+
+.resendSuccess {
+  font-size: $font-xs;
+  font-weight: 700;
+  color: $green;
+  animation: fadeInOut 2s ease forwards;
+}
+
+@keyframes fadeInOut {
+  0%   { opacity: 0; transform: translateY(-4px); }
+  15%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
+}

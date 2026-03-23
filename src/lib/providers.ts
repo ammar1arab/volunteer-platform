@@ -10,6 +10,7 @@ import {
   CertificateRepository,
   NotificationRepository,
   OtpRepository,
+  PendingRegistrationRepository,
 } from "@/infrastructure/persistence/repositories";
 import {
   AuthUseCase,
@@ -26,26 +27,42 @@ import {
   OtpUseCase,
 } from "@/core/application/useCases";
 
-const makeEmailUseCase = () => new EmailUseCase(new UserRepository());
-const makeOtpUseCase   = () => new OtpUseCase(new OtpRepository(), new UserRepository(), makeEmailUseCase());
+const makeEmailUseCase   = () => new EmailUseCase(new UserRepository());
+const makePendingRepo    = () => new PendingRegistrationRepository();
+const makeProfileRepo    = () => new VolunteerProfileRepository();
+const makeOtpRepo        = () => new OtpRepository();
+const makeUserRepo       = () => new UserRepository();
+
+const makeOtpUseCase = () =>
+  new OtpUseCase(
+    makeOtpRepo(),
+    makeUserRepo(),
+    makeEmailUseCase(),
+    makePendingRepo(),
+    makeProfileRepo(),
+  );
+
+const makeAuthUseCase = () =>
+  new AuthUseCase(
+    makeUserRepo(),
+    makeOtpUseCase(),
+    makePendingRepo(),
+  );
 
 export const providers = {
-  auth: () => new AuthUseCase(new UserRepository(), new VolunteerProfileRepository(), makeOtpUseCase()),
+  auth:  makeAuthUseCase,
+  otp:   makeOtpUseCase,
 
-  otp: () => makeOtpUseCase(),
-
-  user: () => new UserUseCase(new UserRepository()),
-
+  user:             () => new UserUseCase(new UserRepository()),
   volunteerProfile: () => new VolunteerProfileUseCase(new VolunteerProfileRepository(), new R2StorageService()),
-
-  activity: () => new ActivityUseCase(new ActivityRepository(), new ActivityParticipationRepository()),
+  activity:         () => new ActivityUseCase(new ActivityRepository(), new ActivityParticipationRepository()),
 
   participation: () =>
     new ActivityParticipationUseCase(
       new ActivityParticipationRepository(),
       new ActivityRepository(),
       new UserRepository(),
-      new VolunteerProfileRepository()
+      new VolunteerProfileRepository(),
     ),
 
   featuredPost:       () => new FeaturedPostUseCase(new FeaturedPostRepository()),
@@ -56,7 +73,7 @@ export const providers = {
     new CertificateUseCase(
       new CertificateRepository(),
       new ActivityRepository(),
-      new ActivityParticipationRepository()
+      new ActivityParticipationRepository(),
     ),
 
   notification: () => new NotificationUseCase(new NotificationRepository()),

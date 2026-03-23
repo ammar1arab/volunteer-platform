@@ -2,15 +2,22 @@
 import { Suspense } from "react";
 import styles from "./page.module.scss";
 import { useVerifyEmail } from "./page.logic";
-import { OtpInput, Button } from "@/presentation/components";
 import Link from "next/link";
+import { OtpInput, Button, OtpSuccessOverlay, OtpCircularTimer } from "@/presentation/components";
+
 
 const VerifyEmailContent = () => {
-  const { code, setCode, error, loading, cooldown, handleSubmit, handleResend, email, isResending } = useVerifyEmail();
+  const {
+    code, setCode, error, loading,
+    cooldown, total,
+    showSuccess, resendSent,
+    handleSubmit, handleResend, email, isResending,
+  } = useVerifyEmail();
 
   return (
     <div className={styles.page}>
       <main className={styles.card}>
+        {showSuccess && <OtpSuccessOverlay />}
 
         <header className={styles.header}>
           <h1 className={styles.title}>تأكيد البريد الإلكتروني</h1>
@@ -30,12 +37,23 @@ const VerifyEmailContent = () => {
         </form>
 
         <div className={styles.resend}>
-          {cooldown > 0
-            ? <p className={styles.cooldown}>إعادة الإرسال بعد {cooldown} ثانية</p>
-            : <button type="button" className={styles.resendBtn} onClick={handleResend} disabled={isResending}>
+          {resendSent ? (
+            <p className={styles.resendSuccess}>تم الإرسال ✓</p>
+          ) : cooldown > 0 ? (
+            <div className={styles.timerRow}>
+              <OtpCircularTimer seconds={cooldown} total={total} />
+              <span className={styles.timerLabel}>إعادة الإرسال بعد {cooldown}ث</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={styles.resendBtn}
+              onClick={handleResend}
+              disabled={isResending}
+            >
               {isResending ? "جارٍ الإرسال..." : "إعادة إرسال الرمز"}
             </button>
-          }
+          )}
         </div>
 
         <div className={styles.support}>
@@ -55,12 +73,10 @@ const VerifyEmailContent = () => {
   );
 };
 
-const VerifyEmailPage = () => {
-  return (
-    <Suspense>
-      <VerifyEmailContent />
-    </Suspense>
-  );
-};
+const VerifyEmailPage = () => (
+  <Suspense>
+    <VerifyEmailContent />
+  </Suspense>
+);
 
 export default VerifyEmailPage;

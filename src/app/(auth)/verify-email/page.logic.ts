@@ -3,7 +3,9 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
 import { OtpType } from "@prisma/client";
+
 import { authApi } from "@/presentation/services";
+import { useOtpTimer } from "@/presentation/hooks";
 import { redirectByRole } from "@/presentation/constants";
 
 const NETWORK_ERROR = "لا يوجد اتصال بالإنترنت، يرجى التحقق من اتصالك والمحاولة مجدداً";
@@ -17,17 +19,14 @@ export const useVerifyEmail = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
+
+  const { cooldown, total, start } = useOtpTimer();
 
   useEffect(() => {
     if (!email) router.replace("/signin");
   }, [email, router]);
-
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setInterval(() => setCooldown((p) => p - 1), 1000);
-    return () => clearInterval(t);
-  }, [cooldown]);
 
   useEffect(() => {
     const full = code.join("");
@@ -35,15 +34,45 @@ export const useVerifyEmail = () => {
     submitCode(full);
   }, [code]);
 
+  const doRedirect = async (password: string) => {
+    const res = await signIn("credentials", { email, password, redirect: false });
+    if (res?.ok) {
+      const session = await getSession();
+      window.location.href = redirectByRole(session?.user?.role);
+      return;
+    }
+    router.replace(`/signin?email=${encodeURIComponent(email)}`);
+  };
+
   const submitCode = async (codeStr: string) => {
     setError("");
     setLoading(true);
     try {
-      const result = await authApi.verifyOtp({
-        email,
-        code: codeStr,
-        type: OtpType.EMAIL_VERIFY,
-      });
+      const flow = searchParams.get("flow");
+
+      if (flow === "signup") {
+        const password = sessionStorage.getItem("_vp") ?? "";
+
+        const result = await authApi.verifyOtp({
+          email,
+          code: codeStr,
+          type: OtpType.EMAIL_VERIFY
+        });
+
+        if (!result.success) {
+          setError(result.error?.message ?? "الرمز غير صحيح");
+          setCode(Array(6).fill(""));
+          return;
+        }
+
+        sessionStorage.removeItem("_vp");
+        sessionStorage.removeItem("_pd");
+        setShowSuccess(true);
+        setTimeout(() => doRedirect(password), 1500);
+        return;
+      }
+
+      const result = await authApi.verifyOtp({ email, code: codeStr, type: OtpType.EMAIL_VERIFY });
 
       if (!result.success) {
         setError(result.error?.message ?? "الرمز غير صحيح أو منتهي الصلاحية");
@@ -54,16 +83,11 @@ export const useVerifyEmail = () => {
       const password = sessionStorage.getItem("_vp") ?? "";
       sessionStorage.removeItem("_vp");
 
-      if (password) {
-        const res = await signIn("credentials", { email, password, redirect: false });
-        if (res?.ok) {
-          const session = await getSession();
-          window.location.href = redirectByRole(session?.user?.role);
-          return;
-        }
-      }
-
-      router.replace(`/signin?email=${encodeURIComponent(email)}`);
+      setShowSuccess(true);
+      setTimeout(() => {
+        if (password) doRedirect(password);
+        else router.replace(`/signin?email=${encodeURIComponent(email)}`);
+      }, 1500);
     } catch {
       setError(NETWORK_ERROR);
     } finally {
@@ -88,7 +112,9 @@ export const useVerifyEmail = () => {
     try {
       const result = await authApi.sendOtp({ email, type: OtpType.EMAIL_VERIFY });
       if (result.success) {
-        setCooldown(result.data?.cooldownSeconds ?? 60);
+        start(result.data?.cooldownSeconds ?? 60);
+        setResendSent(true);
+        setTimeout(() => setResendSent(false), 2000);
       } else {
         setError(result.error?.message ?? "حدث خطأ أثناء إعادة إرسال الرمز");
       }
@@ -97,7 +123,20 @@ export const useVerifyEmail = () => {
     } finally {
       setIsResending(false);
     }
-  }, [email]);
+  }, [email, start]);
 
-  return { code, setCode, error, loading, cooldown, handleSubmit, handleResend, email, isResending };
+  return {
+    code,
+    setCode,
+    error,
+    loading,
+    cooldown,
+    total,
+    showSuccess,
+    resendSent,
+    handleSubmit,
+    handleResend,
+    email,
+    isResending
+  };
 };

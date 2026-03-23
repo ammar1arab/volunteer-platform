@@ -1,6 +1,5 @@
-import { UserRepository, VolunteerProfileRepository } from "@/infrastructure/persistence/repositories";
+import { UserRepository, PendingRegistrationRepository } from "@/infrastructure/persistence/repositories";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
-import { User, VolunteerProfile } from "@/core/domain/entities";
 import { UserRole } from "@/core/domain/enums";
 import { Email } from "@/core/domain/valueObjects";
 import { serviceError } from "@/core/application/common";
@@ -15,34 +14,31 @@ import {
   SignUpResponse,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
-  ResetPasswordRequest,
   ResetPasswordResponse
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
+
+const PENDING_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
 class AuthUseCase {
   private static readonly SCOPE = "AuthUseCase";
 
   constructor(
     private userRepository: UserRepository,
-    private volunteerProfileRepository: VolunteerProfileRepository,
-    private otpUseCase: OtpUseCase
+    private otpUseCase: OtpUseCase,
+    private pendingRepository: PendingRegistrationRepository
   ) {}
 
   async signIn(dto: SignInRequest): Promise<SignInResponse> {
     try {
       const emailStr = InputSanitizer.sanitizeEmail(dto.email);
-
-      if (!SecurityValidator.isValidEmail(emailStr)) {
-        return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
-      }
+      if (!SecurityValidator.isValidEmail(emailStr)) return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
 
       const user = await this.userRepository.findByEmail(emailStr);
       if (!user) return fail("INVALID_CREDENTIALS", "البريد الإلكتروني أو كلمة المرور غير صحيحة");
       if (!user.isActiveAccount()) return fail("FORBIDDEN", "الحساب غير مفعل");
 
       let isValid = false;
-
       if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
         try {
           const bcrypt = require("bcryptjs");
@@ -68,9 +64,7 @@ class AuthUseCase {
       }
 
       logger.info(AuthUseCase.SCOPE, "signIn", `User signed in: ${user.id}`);
-      return ok({
-        user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role }
-      });
+      return ok({ user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role } });
     } catch (error) {
       return serviceError(AuthUseCase.SCOPE, "signIn", error, "حدث خطأ أثناء تسجيل الدخول");
     }
@@ -89,52 +83,32 @@ class AuthUseCase {
         SecurityValidator.isValidCity(dto.city),
         SecurityValidator.isValidDateOfBirth(dto.dateOfBirth)
       ];
-
       for (const v of validations) {
         if (!v.valid) return fail("VALIDATION_ERROR", v.message ?? "خطأ في التحقق");
       }
-
-      if (!SecurityValidator.isValidEmail(emailStr)) {
-        return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
-      }
+      if (!SecurityValidator.isValidEmail(emailStr)) return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
 
       const emailObj = new Email(emailStr);
       const existing = await this.userRepository.findByEmail(emailObj.getValue());
       if (existing) return fail("CONFLICT", "البريد الإلكتروني مستخدم مسبقاً");
 
-      const user = User.create({
-        email: emailObj.getValue(),
-        password: dto.password,
-        fullName,
-        phone,
-        role: UserRole.VOLUNTEER,
-        isActive: true
-      });
-
-      const createdUser = await this.userRepository.create(user);
-
-      const profile = VolunteerProfile.create({
-        userId: createdUser.id,
-        city: dto.city,
-        dateOfBirth: dto.dateOfBirth,
-        profilePictureUrl: null,
-        gender: dto.gender ?? null,
-        bio: null,
-        skills: [],
-        interests: [],
-        hasVolunteerExperience: false,
-        totalVolunteerHours: 0,
-        isActive: true
-      });
-
-      await this.volunteerProfileRepository.create(profile);
+      await this.pendingRepository.upsert(
+        {
+          email: emailObj.getValue(),
+          password: dto.password,
+          fullName,
+          phone,
+          city: dto.city,
+          dateOfBirth: dto.dateOfBirth,
+          gender: dto.gender ?? null
+        },
+        new Date(Date.now() + PENDING_EXPIRY_MS)
+      );
 
       await this.otpUseCase.send({ email: emailObj.getValue(), type: OtpType.EMAIL_VERIFY });
 
-      logger.info(AuthUseCase.SCOPE, "signUp", `User registered: ${createdUser.id}`);
-      return ok({
-        user: { id: createdUser.id, email: createdUser.email, fullName: createdUser.fullName }
-      });
+      logger.info(AuthUseCase.SCOPE, "signUp", `Pending registration saved for: ${emailObj.getValue()}`);
+      return ok({ user: { id: "", email: emailObj.getValue(), fullName } });
     } catch (error) {
       return serviceError(AuthUseCase.SCOPE, "signUp", error, "حدث خطأ أثناء إنشاء الحساب");
     }
@@ -143,26 +117,17 @@ class AuthUseCase {
   async forgotPassword(dto: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
     try {
       const emailStr = InputSanitizer.sanitizeEmail(dto.email);
-
-      if (!SecurityValidator.isValidEmail(emailStr)) {
-        return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
-      }
+      if (!SecurityValidator.isValidEmail(emailStr)) return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
 
       const user = await this.userRepository.findByEmail(emailStr);
 
-      if (!user || user.role !== UserRole.VOLUNTEER) {
-        return fail("NOT_FOUND", "لا يوجد حساب مرتبط بهذا البريد الإلكتروني");
+      // Always return success — never reveal if email exists
+      if (!user || user.role !== UserRole.VOLUNTEER || !user.isActiveAccount()) {
+        logger.info(AuthUseCase.SCOPE, "forgotPassword", `Account not found/inactive for: ${emailStr}`);
+        return ok({ cooldownSeconds: 60 });
       }
 
-      if (!user.isActiveAccount()) {
-        return fail("FORBIDDEN", "هذا الحساب موقوف، يرجى التواصل مع الدعم");
-      }
-
-      const result = await this.otpUseCase.send({
-        email: emailStr,
-        type: OtpType.FORGOT_PASSWORD
-      });
-
+      const result = await this.otpUseCase.send({ email: emailStr, type: OtpType.FORGOT_PASSWORD });
       if (!result.success) return result as ForgotPasswordResponse;
 
       logger.info(AuthUseCase.SCOPE, "forgotPassword", `OTP sent for: ${emailStr}`);
@@ -172,27 +137,19 @@ class AuthUseCase {
     }
   }
 
-  async resetPassword(dto: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+  // Token verified at API layer — this only resets the password
+  async resetPassword(email: string, newPassword: string): Promise<ResetPasswordResponse> {
     try {
-      const emailStr = InputSanitizer.sanitizeEmail(dto.email);
+      const emailStr = InputSanitizer.sanitizeEmail(email);
 
-      const passwordValidation = SecurityValidator.isValidPassword(dto.newPassword);
-      if (!passwordValidation.valid) {
+      const passwordValidation = SecurityValidator.isValidPassword(newPassword);
+      if (!passwordValidation.valid)
         return fail("VALIDATION_ERROR", passwordValidation.message ?? "كلمة المرور غير صالحة");
-      }
-
-      const verifyResult = await this.otpUseCase.verify({
-        email: emailStr,
-        code: dto.code,
-        type: OtpType.FORGOT_PASSWORD
-      });
-
-      if (!verifyResult.success) return verifyResult as ResetPasswordResponse;
 
       const user = await this.userRepository.findByEmail(emailStr);
       if (!user) return fail("NOT_FOUND", "المستخدم غير موجود");
 
-      user.updatePassword(dto.newPassword);
+      user.updatePassword(newPassword);
       user.incrementTokenVersion();
       await this.userRepository.update(user);
 
@@ -206,16 +163,10 @@ class AuthUseCase {
   async checkVerified(email: string): Promise<{ needsVerification: boolean; message?: string }> {
     const emailStr = InputSanitizer.sanitizeEmail(email);
     const user = await this.userRepository.findByEmail(emailStr);
-
-    if (!user) {
+    // Unified message — never reveal suspended vs non-existent
+    if (!user || !user.isActiveAccount())
       return { needsVerification: false, message: "بريد إلكتروني أو كلمة مرور غير صحيحة" };
-    }
-    if (!user.isActiveAccount()) {
-      return { needsVerification: false, message: "هذا الحساب موقوف، يرجى التواصل مع الدعم" };
-    }
-    if (user.role === UserRole.VOLUNTEER && !user.emailVerified) {
-      return { needsVerification: true };
-    }
+    if (user.role === UserRole.VOLUNTEER && !user.emailVerified) return { needsVerification: true };
     return { needsVerification: false, message: "بريد إلكتروني أو كلمة مرور غير صحيحة" };
   }
 }

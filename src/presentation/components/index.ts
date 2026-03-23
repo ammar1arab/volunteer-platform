@@ -25,6 +25,10 @@ export { default as LocationPicker } from "./base/LocationPicker/LocationPicker"
 export { default as Search } from "./base/Search/Search";
 export { default as StatusBubble } from "./base/StatusBubble/StatusBubble";
 export { default as OtpInput } from "./base/OtpInput/OtpInput";
+export { default as OtpSuccessOverlay } from "./base/OtpSuccessOverlay/OtpSuccessOverlay";
+export { default as OtpCircularTimer } from "./base/OtpCircularTimer/OtpCircularTimer";
+export { default as PasswordStrength } from "./base/PasswordStrength/PasswordStrength";
+export { default as PasswordField } from "./base/PasswordField/PasswordField";
 
 export { default as HeroSection } from "./home/HeroSection/HeroSection";
 export { default as AboutSection } from "./home/AboutSection/AboutSection";

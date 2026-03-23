@@ -1,4 +1,5 @@
 import { JordanianCity } from "@/core/domain/enums";
+import { isValidPhoneNumber } from "libphonenumber-js";
 
 export class SecurityValidator {
   static isValidEmail(email: string): boolean {
@@ -16,19 +17,6 @@ export class SecurityValidator {
     return { valid: true };
   }
 
-  static isValidPhone(phone: string): { valid: boolean; message?: string } {
-    const cleanPhone = phone.replace(/\s/g, "");
-    
-    if (cleanPhone.length < 10) {
-      return {
-        valid: false,
-        message: "رقم الهاتف يجب أن يكون 10 أرقام على الأقل"
-      };
-    }
-    
-    return { valid: true };
-  }
-
   static isValidName(name: string): { valid: boolean; message?: string } {
     if (name.trim().length < 3) {
       return {
@@ -36,6 +24,17 @@ export class SecurityValidator {
         message: "الاسم يجب أن يكون 3 أحرف على الأقل"
       };
     }
+    return { valid: true };
+  }
+
+  static isValidPhone(phone: string): { valid: boolean; message?: string } {
+    const cleaned = phone.trim();
+    if (!cleaned) return { valid: false, message: "رقم الهاتف مطلوب" };
+
+    const isValid = isValidPhoneNumber(cleaned, "JO") || (cleaned.startsWith("+") && isValidPhoneNumber(cleaned));
+
+    if (!isValid) return { valid: false, message: "رقم الهاتف غير صحيح" };
+
     return { valid: true };
   }
 
@@ -53,7 +52,7 @@ export class SecurityValidator {
   static isValidDateOfBirth(dateOfBirth: Date): { valid: boolean; message?: string } {
     const today = new Date();
     const birthDate = new Date(dateOfBirth);
-    
+
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {

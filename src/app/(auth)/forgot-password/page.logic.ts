@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { OtpType } from "@prisma/client";
 import { authApi } from "@/presentation/services";
+import { useOtpTimer } from "@/presentation/hooks";
 
 type Step = "email" | "otp" | "password";
 
@@ -21,6 +22,7 @@ export const useForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [code, setCode] = useState<string[]>(Array(6).fill(""));
+  const [resetToken, setResetToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -28,14 +30,13 @@ export const useForgotPassword = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setInterval(() => setCooldown((p) => p - 1), 1000);
-    return () => clearInterval(t);
-  }, [cooldown]);
+  // Use the timer hook
+  const { cooldown, total, start } = useOtpTimer();
 
+  // Auto-verify when all 6 digits filled
   useEffect(() => {
     if (step !== "otp") return;
     const full = code.join("");
@@ -47,14 +48,25 @@ export const useForgotPassword = () => {
     setLoading(true);
     setError("");
     try {
-      const result = await authApi.checkOtp({ email, code: codeStr, type: OtpType.FORGOT_PASSWORD });
+      const result = await authApi.verifyOtp({
+        email,
+        code: codeStr,
+        type: OtpType.FORGOT_PASSWORD
+      });
+
       if (!result.success) {
         setError(result.error?.message ?? "الرمز غير صحيح أو منتهي الصلاحية");
         setCode(Array(6).fill(""));
         return;
       }
+
+      const token = (result as any).data?.resetToken ?? "";
+      if (!token) {
+        setError("حدث خطأ في إصدار رمز إعادة التعيين");
+        return;
+      }
+      setResetToken(token);
       setStep("password");
-      setError("");
     } catch {
       setError(NETWORK_ERROR);
     } finally {
@@ -73,6 +85,16 @@ export const useForgotPassword = () => {
     setConfirmError(val !== newPassword ? "كلمات المرور غير متطابقة" : "");
   };
 
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    const full = code.join("");
+    if (full.length < 6) {
+      setError("يرجى إدخال جميع أرقام الرمز");
+      return;
+    }
+    verifyCode(full);
+  };
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) {
@@ -84,56 +106,12 @@ export const useForgotPassword = () => {
     setLoading(true);
     try {
       const result = await authApi.forgotPassword({ email });
-      if (!result.success) {
-        const msg = result.error?.message ?? "حدث خطأ أثناء إرسال الرمز";
-        const errCode = result.error?.code;
-        if (errCode === "NOT_FOUND" || errCode === "FORBIDDEN" || errCode === "VALIDATION_ERROR") {
-          setEmailError(msg);
-        } else {
-          setError(msg);
-        }
-        return;
+      if (result.success) {
+        start(result.data?.cooldownSeconds ?? 60);
+        setStep("otp");
+      } else {
+        setError(result.error?.message ?? "فشل إرسال الرمز");
       }
-      setCooldown(result.data?.cooldownSeconds ?? 60);
-      setStep("otp");
-    } catch {
-      setError(NETWORK_ERROR);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    const full = code.join("");
-    if (full.length < 6) {
-      setError("يرجى إدخال جميع أرقام الرمز");
-      return;
-    }
-    verifyCode(full);
-  };
-
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    const pwErr = validatePassword(newPassword);
-    if (pwErr) {
-      setPasswordError(pwErr);
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setConfirmError("كلمات المرور غير متطابقة");
-      return;
-    }
-    setLoading(true);
-    try {
-      const result = await authApi.resetPassword({ email, code: code.join(""), newPassword });
-      if (!result.success) {
-        setError(result.error?.message ?? "حدث خطأ أثناء تغيير كلمة المرور");
-        return;
-      }
-      router.replace("/signin?reset=success");
     } catch {
       setError(NETWORK_ERROR);
     } finally {
@@ -148,37 +126,57 @@ export const useForgotPassword = () => {
     try {
       const result = await authApi.forgotPassword({ email });
       if (result.success) {
-        setCooldown(result.data?.cooldownSeconds ?? 60);
-      } else {
-        setError(result.error?.message ?? "حدث خطأ أثناء إعادة إرسال الرمز");
+        start(result.data?.cooldownSeconds ?? 60);
+        setResendSent(true);
+        setTimeout(() => setResendSent(false), 2000);
       }
     } catch {
       setError(NETWORK_ERROR);
     } finally {
       setIsResending(false);
     }
-  }, [email]);
+  }, [email, start]);
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    const pwErr = validatePassword(newPassword);
+    if (pwErr) {
+      setPasswordError(pwErr);
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setConfirmError("كلمات المرور غير متطابقة");
+      return;
+    }
+    if (!resetToken) {
+      setError("انتهت صلاحية الجلسة، يرجى البدء من جديد");
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await authApi.resetPassword({ resetToken, newPassword });
+      if (!result.success) {
+        setError(result.error?.message ?? "حدث خطأ");
+        return;
+      }
+      setShowSuccess(true);
+      setTimeout(() => router.replace("/signin?reset=success"), 1500);
+    } catch {
+      setError(NETWORK_ERROR);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
-    step,
-    email,
-    setEmail,
-    emailError,
-    code,
-    setCode,
-    newPassword,
-    handlePasswordChange,
-    confirmPassword,
-    handleConfirmChange,
-    passwordError,
-    confirmError,
-    error,
-    loading,
-    cooldown,
-    isResending,
-    handleSendOtp,
-    handleVerifyOtp,
-    handleResetPassword,
-    handleResend
+    step, email, setEmail, emailError,
+    code, setCode,
+    newPassword, handlePasswordChange,
+    confirmPassword, handleConfirmChange,
+    passwordError, confirmError,
+    error, loading, cooldown, total, // Added total
+    isResending, resendSent, showSuccess, // Added resendSent and showSuccess
+    handleSendOtp, handleVerifyOtp, handleResetPassword, handleResend
   };
 };

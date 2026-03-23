@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Gender, JordanianCity } from "@/core/domain/enums";
@@ -9,14 +8,17 @@ interface FormData {
   fullName: string;
   email: string;
   phone: string;
+  dateOfBirth: string;
   city: string;
   gender: string;
-  dateOfBirth: string;
   password: string;
   confirmPassword: string;
 }
 
 type FieldErrors = Partial<Record<keyof FormData, string>>;
+
+const STEP1_FIELDS: (keyof FormData)[] = ["fullName", "email", "phone", "dateOfBirth"];
+const STEP2_FIELDS: (keyof FormData)[] = ["city", "gender", "password", "confirmPassword"];
 
 const validate = (field: keyof FormData, value: string, all: FormData): string => {
   switch (field) {
@@ -31,7 +33,6 @@ const validate = (field: keyof FormData, value: string, all: FormData): string =
       return "";
     case "phone":
       if (!value.trim()) return "رقم الهاتف مطلوب";
-      if (value.replace(/\s/g, "").length < 10) return "10 أرقام على الأقل";
       return "";
     case "city":
       return value ? "" : "اختر المدينة";
@@ -60,17 +61,18 @@ const EMPTY: FormData = {
   fullName: "",
   email: "",
   phone: "",
+  dateOfBirth: "",
   city: "",
   gender: "",
-  dateOfBirth: "",
   password: "",
-  confirmPassword: "",
+  confirmPassword: ""
 };
 
 export const useSignup = () => {
   const router = useRouter();
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<FormData>(EMPTY);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
@@ -91,7 +93,7 @@ export const useSignup = () => {
       const res = await fetch("/api/auth/check-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email })
       });
       const data = await res.json();
       setEmailStatus(data.taken ? "taken" : "ok");
@@ -104,25 +106,17 @@ export const useSignup = () => {
   const handleChange = (field: keyof FormData, value: string) => {
     setForm((prev) => {
       const next = { ...prev, [field]: value };
-
-      // FIX: re-validate confirmPassword live the moment password changes
       if (field === "password" && prev.confirmPassword) {
         const msg = validate("confirmPassword", prev.confirmPassword, next);
         setErrors((p) => ({ ...p, confirmPassword: msg }));
       }
-
-      // FIX: selects have no blur event — validate immediately on change
       if (field === "city" || field === "gender") {
-        const msg = validate(field, value, next);
-        setErrors((p) => ({ ...p, [field]: msg }));
+        setErrors((p) => ({ ...p, [field]: validate(field, value, next) }));
       }
-
       return next;
     });
-
     setServerError("");
     if (errors[field]) setErrors((p) => ({ ...p, [field]: "" }));
-
     if (field === "email") {
       setEmailStatus("idle");
       if (timer.current) clearTimeout(timer.current);
@@ -136,24 +130,37 @@ export const useSignup = () => {
     if (field === "email" && !msg) checkEmail(form.email);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // FIX: re-surface the error instead of silently returning
+  const handleNext = () => {
     if (emailStatus === "taken") {
       setErrors((p) => ({ ...p, email: "البريد مستخدم مسبقاً" }));
       return;
     }
     if (emailStatus === "checking") return;
 
-    const allErrors: FieldErrors = {};
-    (Object.keys(EMPTY) as (keyof FormData)[]).forEach((f) => {
+    const stepErrors: FieldErrors = {};
+    STEP1_FIELDS.forEach((f) => {
       const msg = validate(f, form[f], form);
-      if (msg) allErrors[f] = msg;
+      if (msg) stepErrors[f] = msg;
     });
+    if (Object.keys(stepErrors).length) {
+      setErrors(stepErrors);
+      return;
+    }
+    setStep(2);
+  };
 
-    if (Object.keys(allErrors).length) {
-      setErrors(allErrors);
+  const handleBack = () => setStep(1);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const stepErrors: FieldErrors = {};
+    STEP2_FIELDS.forEach((f) => {
+      const msg = validate(f, form[f], form);
+      if (msg) stepErrors[f] = msg;
+    });
+    if (Object.keys(stepErrors).length) {
+      setErrors(stepErrors);
       return;
     }
 
@@ -166,16 +173,22 @@ export const useSignup = () => {
         phone: form.phone,
         city: form.city as JordanianCity,
         dateOfBirth: new Date(form.dateOfBirth),
-        gender: form.gender as Gender,
+        gender: form.gender as Gender
       });
 
       if (res.success) {
-        // SECURITY FIX: never put passwords in the URL (browser history / server logs).
-        // sessionStorage is scoped to the tab and cleared when it closes.
         sessionStorage.setItem("_vp", form.password);
-        router.replace(
-          `/verify-email?email=${encodeURIComponent(form.email)}&flow=signup`
+        sessionStorage.setItem(
+          "_pd",
+          JSON.stringify({
+            fullName: form.fullName,
+            phone: form.phone,
+            city: form.city,
+            gender: form.gender,
+            dateOfBirth: form.dateOfBirth
+          })
         );
+        router.replace(`/verify-email?email=${encodeURIComponent(form.email)}&flow=signup`);
         return;
       }
       setServerError(res.error?.message ?? "حدث خطأ، يرجى المحاولة مجدداً");
@@ -187,6 +200,7 @@ export const useSignup = () => {
   };
 
   return {
+    step,
     form,
     errors,
     serverError,
@@ -194,6 +208,8 @@ export const useSignup = () => {
     emailStatus,
     handleChange,
     handleBlur,
-    handleSubmit,
+    handleNext,
+    handleBack,
+    handleSubmit
   };
 };

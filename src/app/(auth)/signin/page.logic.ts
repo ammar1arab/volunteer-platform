@@ -5,7 +5,7 @@ import { signIn, getSession } from "next-auth/react";
 import { redirectByRole } from "@/presentation/constants";
 
 export interface SigninFormData {
-  email: string;
+  email:    string;
   password: string;
 }
 
@@ -47,7 +47,7 @@ export const useSignin = () => {
 
     const errors = Object.fromEntries(
       (Object.keys(formData) as (keyof SigninFormData)[])
-        .map(f => [f, validate(f, formData[f])])
+        .map(f  => [f, validate(f, formData[f])])
         .filter(([, v]) => v)
     ) as FieldErrors;
 
@@ -66,9 +66,9 @@ export const useSignin = () => {
         const data = await check.json();
 
         if (data.needsVerification) {
-          router.push(
-            `/verify-email?email=${encodeURIComponent(formData.email)}&flow=signin&password=${encodeURIComponent(formData.password)}`
-          );
+          // Fix #1: password in sessionStorage, never in URL
+          sessionStorage.setItem("_vp", formData.password);
+          router.push(`/verify-email?email=${encodeURIComponent(formData.email)}&flow=signin`);
           return;
         }
 

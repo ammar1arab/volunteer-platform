@@ -17,12 +17,11 @@ export interface ForgotPasswordRequest {
 }
 
 export interface ResetPasswordRequest {
-  email: string;
-  code: string;
+  resetToken: string;
   newPassword: string;
 }
 
 export type SendOtpResponse = Result<{ cooldownSeconds: number }>;
-export type VerifyOtpResponse = Result<{ verified: true }>;
+export type VerifyOtpResponse = Result<{ verified: true; resetToken?: string }>;
 export type ForgotPasswordResponse = Result<{ cooldownSeconds: number }>;
 export type ResetPasswordResponse = Result<{ success: true }>;

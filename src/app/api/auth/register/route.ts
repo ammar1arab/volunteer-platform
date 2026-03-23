@@ -1,11 +1,14 @@
+import { providers } from "@/lib/providers";
+import { toResponse, parseJson, badRequest, apiError, csrfCheck } from "@/lib/api-utils";
 import { logger } from "@/lib/utils";
 import { SignUpRequest } from "@/core/application/dtos";
-import { providers } from "@/lib/providers";
-import { toResponse, parseJson, badRequest, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  const csrf = csrfCheck(req);
+  if (csrf) return csrf;
+
   try {
     const body = await parseJson<SignUpRequest>(req);
     if (!body) return badRequest("بيانات غير صالحة");

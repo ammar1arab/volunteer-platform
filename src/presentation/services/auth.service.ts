@@ -9,7 +9,6 @@ import type {
   VerifyOtpResponse,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
-  ResetPasswordRequest,
   ResetPasswordResponse
 } from "@/core/application/dtos";
 
@@ -20,6 +19,6 @@ export const authApi = {
   checkOtp: (data: VerifyOtpRequest) => apiClient.post<VerifyOtpResponse>(API_ENDPOINTS.AUTH.CHECK_OTP, data),
   forgotPassword: (data: ForgotPasswordRequest) =>
     apiClient.post<ForgotPasswordResponse>(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
-  resetPassword: (data: ResetPasswordRequest) =>
-    apiClient.post<ResetPasswordResponse>(API_ENDPOINTS.AUTH.RESET_PASSWORD, data)
+  resetPassword: (body: { resetToken: string; newPassword: string }) =>
+    apiClient.post<ResetPasswordResponse>(API_ENDPOINTS.AUTH.RESET_PASSWORD, body)
 };

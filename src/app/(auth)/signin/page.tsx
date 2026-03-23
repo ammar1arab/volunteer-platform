@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import styles from "./page.module.scss";
 import { useSignin } from "./page.logic";
 import Link from "next/link";
-import { Input, Button } from "@/presentation/components";
+import { Input, Button, PasswordField } from "@/presentation/components";
 
 const SigninContent = () => {
   const { formData, fieldErrors, error, loading, handleChange, handleBlur, handleSubmit } = useSignin();
@@ -31,12 +31,12 @@ const SigninContent = () => {
           </div>
 
           <div className={styles.field}>
-            <Input
+            <PasswordField
               label="كلمة المرور"
-              type="password" dir="ltr" autoComplete="current-password"
               value={formData.password}
               onChange={e => handleChange("password", e.target.value)}
               onBlur={() => handleBlur("password")}
+              autoComplete="current-password"
             />
             {fieldErrors.password && <span className={styles.fieldError}>{fieldErrors.password}</span>}
           </div>
@@ -61,12 +61,10 @@ const SigninContent = () => {
   );
 };
 
-const SigninPage = () => {
-  return (
-    <Suspense>
-      <SigninContent />
-    </Suspense>
-  );
-};
+const SigninPage = () => (
+  <Suspense>
+    <SigninContent />
+  </Suspense>
+);
 
 export default SigninPage;

@@ -1,0 +1,39 @@
+@use "@/presentation/styles/variables" as *;
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg {
+  display: block;
+}
+
+.track {
+  fill: none;
+  stroke: $border;
+  stroke-width: 3;
+}
+
+.arc {
+  fill: none;
+  stroke: $green;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.9s linear;
+}
+
+.label {
+  position: absolute;
+  font-size: $font-xs;
+  font-weight: 700;
+  color: $green;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arc {
+    transition: none !important;
+  }
+}

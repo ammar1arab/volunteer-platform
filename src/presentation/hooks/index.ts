@@ -1,4 +1,6 @@
 export * from "./uiHooks/useToast";
+export * from "./uiHooks/usePasswordValidation";
+export * from "./uiHooks/useOtpTimer";
 
 export * from "./apiHooks/useAuth";
 export * from "./apiHooks/useUsers";

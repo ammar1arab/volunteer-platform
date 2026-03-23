@@ -14,18 +14,18 @@ model User {
   fullName          String
   phone             String
   role              UserRole
+  isActive          Boolean                 @default(true)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
   emailVerified     Boolean                 @default(false)
   tokenVersion      Int                     @default(0)
   isSuperAdmin      Boolean                 @default(false)
   permissions       String[]                @default([])
-  isActive          Boolean                 @default(true)
-  createdAt         DateTime                @default(now())
-  updatedAt         DateTime                @updatedAt
   createdActivities Activity[]              @relation("ActivityCreator")
   participations    ActivityParticipation[] @relation("VolunteerParticipations")
-  volunteerProfile  VolunteerProfile?
   certificates      Certificate[]
   notifications     Notification[]
+  volunteerProfile  VolunteerProfile?
 
   @@map("users")
 }
@@ -41,10 +41,10 @@ model VolunteerProfile {
   skills                 String[]      @default([])
   interests              String[]      @default([])
   hasVolunteerExperience Boolean       @default(false)
-  totalVolunteerHours    Float         @default(0)
   isActive               Boolean       @default(true)
   createdAt              DateTime      @default(now())
   updatedAt              DateTime      @updatedAt
+  totalVolunteerHours    Float         @default(0)
   user                   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -60,24 +60,24 @@ model Activity {
   date              DateTime
   startTime         String
   endTime           String
-  durationHours     Float                   @default(0)
   placeName         String?
-  city              String?
   latitude          Float?
   longitude         Float?
-  meetingLink       String?
-  meetingPlatform   String?
-  externalMeetingId String?
   maxVolunteers     Int
   currentVolunteers Int                     @default(0)
-  deletedAt         DateTime?
   status            String                  @default("DRAFT")
-  activityType      String                  @default("IN_PERSON")
-  categories        String[]                @default([])
   createdBy         String
   isActive          Boolean                 @default(true)
   createdAt         DateTime                @default(now())
   updatedAt         DateTime                @updatedAt
+  activityType      String                  @default("IN_PERSON")
+  categories        String[]                @default([])
+  city              String?
+  durationHours     Float                   @default(0)
+  externalMeetingId String?
+  meetingLink       String?
+  meetingPlatform   String?
+  deletedAt         DateTime?
   creator           User                    @relation("ActivityCreator", fields: [createdBy], references: [id])
   participations    ActivityParticipation[]
   certificates      Certificate[]
@@ -94,12 +94,12 @@ model ActivityParticipation {
   status           String    @default("PENDING")
   requestedAt      DateTime  @default(now())
   respondedAt      DateTime?
-  attendanceStatus String    @default("NOT_MARKED")
-  volunteerHours   Float?
-  markedAt         DateTime?
   isActive         Boolean   @default(true)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  attendanceStatus String    @default("NOT_MARKED")
+  markedAt         DateTime?
+  volunteerHours   Float?
   activity         Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
   volunteer        User      @relation("VolunteerParticipations", fields: [volunteerId], references: [id])
 
@@ -120,8 +120,8 @@ model Certificate {
   isActive   Boolean           @default(true)
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
-  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity   Activity          @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, activityId])
   @@index([userId])
@@ -150,12 +150,12 @@ model FeaturedPost {
   id          String                 @id @default(uuid())
   imageUrl    String
   title       String
-  description String                 @db.Text
-  publishedAt DateTime               @default(now())
+  description String
   isActive    Boolean                @default(true)
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
   categories  FeaturedPostCategory[] @default([])
+  publishedAt DateTime               @default(now())
 
   @@index([title])
   @@map("featured_posts")
@@ -165,12 +165,12 @@ model VolunteerSpotlight {
   id            String        @id @default(uuid())
   imageUrl      String
   name          String
-  description   String        @db.Text
+  description   String
   spotlightDate DateTime
   city          JordanianCity
-  isActive      Boolean       @default(true)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  isActive      Boolean       @default(true)
 
   @@index([name])
 }
@@ -196,9 +196,25 @@ model OtpCode {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+  attempts  Int       @default(0)
 
   @@index([email, type])
   @@map("otp_codes")
+}
+
+model PendingRegistration {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  fullName    String
+  phone       String
+  city        String
+  dateOfBirth DateTime
+  gender      String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@map("pending_registrations")
 }
 
 enum UserRole {
