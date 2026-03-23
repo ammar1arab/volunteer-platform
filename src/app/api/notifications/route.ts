@@ -24,8 +24,9 @@ export async function GET(req: NextRequest) {
       if (session.user.role !== UserRole.ADMIN) return unauthorized();
       const target      = params.get("target") ?? "ALL";
       const targetValue = params.get("targetValue") ?? undefined;
-      if (!["ALL", "CITY", "GENDER"].includes(target)) return badRequest("نوع الاستهداف غير صحيح");
+      if (!["ALL", "CITY", "GENDER", "HOURS", "USERS"].includes(target)) return badRequest("نوع الاستهداف غير صحيح");
       if ((target === "CITY" || target === "GENDER") && !targetValue) return badRequest("القيمة مطلوبة");
+      if (target === "HOURS" && (!targetValue || isNaN(parseFloat(targetValue)))) return badRequest("قيمة الساعات غير صحيحة");
       logger.info("notifications", "GET preview", `adminId=${session.user.id} target=${target}`);
       const result = await providers.notification().previewTargets(target, targetValue);
       return Response.json(result);
@@ -48,8 +49,10 @@ export async function POST(req: NextRequest) {
     const { title, message, target, targetValue, link, userIds } = body ?? {};
 
     if (!title?.trim() || !message?.trim() || !target) return badRequest("البيانات ناقصة");
-    if (!["ALL", "CITY", "GENDER"].includes(target)) return badRequest("نوع الاستهداف غير صحيح");
+    if (!["ALL", "CITY", "GENDER", "HOURS", "USERS"].includes(target)) return badRequest("نوع الاستهداف غير صحيح");
     if ((target === "CITY" || target === "GENDER") && !targetValue && !userIds?.length) return badRequest("القيمة مطلوبة");
+    if (target === "HOURS" && (!targetValue || isNaN(parseFloat(targetValue)))) return badRequest("قيمة الساعات غير صحيحة");
+    if (target === "USERS" && (!Array.isArray(userIds) || !userIds.length)) return badRequest("يجب تحديد مستخدم واحد على الأقل");
 
     let targetUserIds: string[] = [];
 

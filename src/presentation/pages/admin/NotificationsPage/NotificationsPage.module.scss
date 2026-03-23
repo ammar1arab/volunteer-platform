@@ -1,49 +1,53 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
-@use "@/presentation/styles/admin-mixins" as *;
 
 .grid {
   display: grid;
   grid-template-columns: 420px 1fr;
-  gap: $sp-xl;
+  gap: $sp-lg;
   align-items: flex-start;
 
-  @media (max-width: $bp-md) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; }
 }
 
 .card {
-  background: $bg;
-  border: 1px solid $border;
-  border-radius: $radius-md;
+  @include card;
+  @include flex-col;
+  gap: $sp-md;
 }
 
 .cardHeader {
   @include flex(row, center, flex-start, $sp-sm);
-  padding: $sp-md $sp-lg;
-  border-bottom: 1px solid $border;
 
   h2 {
+    font-size: $font-sm;
+    font-weight: 700;
     margin: 0;
-    font-size: $font-md;
-    font-weight: 800;
-    color: $text;
+    flex: 1;
   }
-  svg {
-    color: $green;
-  }
+
+  svg { color: $green; flex-shrink: 0; }
+}
+
+.clearBtn {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: $red;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: $radius;
+  transition: background $transition;
+  flex-shrink: 0;
+
+  &:hover   { background: rgba($red, 0.08); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .form {
   @include flex-col;
   gap: $sp-md;
-  padding: $sp-lg;
-  max-width: 380px;
-
-  @media (max-width: $bp-md) {
-    max-width: 100%;
-  }
 }
 
 .field {
@@ -52,112 +56,235 @@
 }
 
 .label {
-  font-size: $font-sm;
-  font-weight: 700;
-  color: $text;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
 }
 
 .optional {
   font-weight: 400;
   color: $text-muted;
-  font-size: $font-xs;
 }
 
 .input {
   @include input;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px 14px;
   font-size: $font-sm;
-  background: #fcfcfc;
-
-  &:focus {
-    border-color: $green;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba($green, 0.05);
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 }
 
 .textarea {
-  @extend .input;
+  @include input;
+  font-size: $font-sm;
   resize: vertical;
-  min-height: 90px;
-  line-height: 1.6;
+  min-height: 100px;
 }
 
-// ── Broadcast Log ──────────────────────────────────────────
-.broadcastItem {
-  @include flex-col;
-  gap: $sp-xs;
-  padding: $sp-md $sp-lg;
-  border-bottom: 1px solid rgba($border, 0.6);
-  &:last-child {
-    border-bottom: none;
+.usersHeader {
+  @include flex-between;
+}
+
+.selectedBadge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba($green, 0.12);
+  color: $green;
+  border: 1px solid rgba($green, 0.25);
+  border-radius: $radius-full;
+  padding: 0.1rem 0.55rem;
+}
+
+.userSearchWrap {
+  position: relative;
+
+  .searchIcon {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+    pointer-events: none;
   }
 }
 
+.userSearchInput {
+  @include input;
+  font-size: $font-sm;
+  padding-right: 2rem;
+}
+
+.volunteersLoading {
+  height: 80px;
+  @include flex-center;
+}
+
+.userList {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid $border;
+  border-radius: $radius;
+  @include flex-col;
+}
+
+.userItem {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: 0.5rem 0.7rem;
+  cursor: pointer;
+  border-bottom: 1px solid $border;
+  transition: background $transition;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: rgba($green, 0.04); }
+}
+
+.userItemSelected { background: rgba($green, 0.07); }
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid $border;
+  flex-shrink: 0;
+  @include flex-center;
+  transition: all $transition;
+}
+
+.checkboxActive {
+  background: $green;
+  border-color: $green;
+  color: #fff;
+}
+
+.userInfo {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: $font-sm;
+  color: $text;
+  @include truncate;
+  flex: 1;
+}
+
+.userHours {
+  font-size: 0.7rem;
+  color: $text-muted;
+  flex-shrink: 0;
+  background: rgba($green, 0.08);
+  color: $green;
+  padding: 0.1rem 0.4rem;
+  border-radius: $radius-full;
+}
+
+.noResults {
+  font-size: $font-sm;
+  color: $text-muted;
+  text-align: center;
+  padding: $sp-md;
+  margin: 0;
+}
+
+.broadcastList {
+  @include flex-col;
+  gap: $sp-sm;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.broadcastItem {
+  @include flex-col;
+  gap: 0.4rem;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  border: 1px solid $border;
+  transition: border-color $transition;
+
+  &:hover { border-color: rgba($green, 0.3); }
+}
+
 .broadcastTop {
-  @include flex(row, center, space-between, $sp-sm);
+  @include flex-between;
+  gap: $sp-sm;
 }
 
 .broadcastTitle {
   font-size: $font-sm;
-  font-weight: 700;
+  font-weight: 600;
   color: $text;
   @include truncate;
+  flex: 1;
 }
 
 .broadcastTag {
-  @include flex(row, center, center, 4px);
-  flex-shrink: 0;
-  font-size: 11px;
-  color: $green;
-  background: rgba($green, 0.08);
-  border: 1px solid rgba($green, 0.2);
-  padding: 2px 8px;
+  @include flex(row, center, center, 0.25rem);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: $text-muted;
+  background: rgba(0, 0, 0, 0.04);
   border-radius: $radius-full;
+  padding: 0.15rem 0.5rem;
+  flex-shrink: 0;
   white-space: nowrap;
 }
 
 .broadcastMsg {
   font-size: $font-xs;
   color: $text-muted;
-  line-height: 1.6;
   margin: 0;
   @include line-clamp(2);
 }
 
 .broadcastBottom {
-  @include flex(row, center, space-between, $sp-sm);
-  margin-top: 2px;
+  @include flex-between;
+  gap: $sp-sm;
+  flex-wrap: wrap;
+}
+
+.broadcastMeta {
+  @include flex(row, center, flex-start, $sp-sm);
 }
 
 .recipients {
-  @include flex(row, center, flex-start, 4px);
-  font-size: $font-xs;
+  @include flex(row, center, center, 0.25rem);
+  font-size: 0.7rem;
   color: $text-muted;
-  font-weight: 600;
 }
 
 .time {
-  font-size: 11px;
-  color: rgba($text-muted, 0.6);
-}
-.clearBtn {
-  margin-right: auto;
-  font-size: $font-xs;
-  font-weight: 700;
+  font-size: 0.7rem;
   color: $text-muted;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 4px 8px;
+}
+
+.broadcastActions {
+  @include flex(row, center, flex-end, $sp-xs);
+}
+
+.btnRecipients {
+  @include flex(row, center, center, 0.3rem);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.25rem 0.6rem;
   border-radius: $radius;
-  transition: $transition;
-  &:hover:not(:disabled) { color: $red; background: rgba($red, 0.06); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  background: rgba($green, 0.08);
+  color: $green;
+  border: 1px solid rgba($green, 0.2);
+  cursor: pointer;
+  transition: background $transition;
+  white-space: nowrap;
+
+  &:hover { background: rgba($green, 0.15); }
+}
+
+.btnDeleteBroadcast {
+  @include flex-center;
+  width: 26px;
+  height: 26px;
+  border-radius: $radius;
+  background: rgba($red, 0.07);
+  color: $red;
+  border: 1px solid rgba($red, 0.2);
+  cursor: pointer;
+  transition: background $transition;
+
+  &:hover { background: rgba($red, 0.15); }
 }

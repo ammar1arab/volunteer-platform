@@ -8,18 +8,24 @@ import {
   AttendanceStatus,
   ActivityType,
   ActivityStatus,
-  AdminPermission
+  AdminPermission,
+  UserRole
 } from "@/core/domain/enums";
 
+export const USER_ROLE_LABELS: Record<UserRole, string> = {
+  [UserRole.VOLUNTEER]: "متطوع",
+  [UserRole.ADMIN]: "مشرف"
+};
+
 export const PERMISSION_LABELS: Record<AdminPermission, string> = {
-  MANAGE_POSTS:         "المنشورات",
-  MANAGE_SPOTLIGHT:     "أبرز المتطوعين",
-  MANAGE_MAGAZINE:      "حصاد العطاء",
-  MANAGE_ACTIVITIES:    "الفرص التطوعية",
-  MANAGE_REQUESTS:      "طلبات الانضمام",
+  MANAGE_POSTS: "المنشورات",
+  MANAGE_SPOTLIGHT: "أبرز المتطوعين",
+  MANAGE_MAGAZINE: "حصاد العطاء",
+  MANAGE_ACTIVITIES: "الفرص التطوعية",
+  MANAGE_REQUESTS: "طلبات الانضمام",
   MANAGE_NOTIFICATIONS: "إدارة الإشعارات",
-  MANAGE_EMAILS:        "إدارة الإيميلات",
-  MANAGE_USERS:         "إدارة المستخدمين",
+  MANAGE_EMAILS: "إدارة الإيميلات",
+  MANAGE_USERS: "إدارة المستخدمين"
 };
 
 export const GENDER_LABELS: Record<Gender, string> = {
@@ -138,5 +144,5 @@ export const CITY_OPTIONS = Object.entries(CITY_LABELS).map(([value, label]) => 
 export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 export const DAY_OPTIONS = Object.entries(DAY_LABELS).map(([value, label]) => ({ value, label }));
 
-export const getPermissionLabel = (permission: AdminPermission) =>
-  PERMISSION_LABELS[permission] ?? permission;
+export const getPermissionLabel = (permission: AdminPermission) => PERMISSION_LABELS[permission] ?? permission;
+export const getUserRoleLabel = (role: UserRole | string) => USER_ROLE_LABELS[role as UserRole] ?? role;

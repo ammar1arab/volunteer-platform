@@ -1,41 +1,31 @@
 import { apiClient } from "./client.service";
-import { API_ENDPOINTS } from "@/lib/config";
 import type {
   GetNotificationsResponse,
   GetBroadcastsResponse,
   GetNotificationPreviewResponse,
+  GetBroadcastRecipientsResponse,
   MarkAsReadResponse,
   ClearNotificationsResponse,
   SendCustomNotificationResponse,
-  SendCustomNotificationInput,
+  DeleteBroadcastResponse,
+  SendCustomNotificationInput
 } from "@/core/application/dtos";
 
 export const notificationApi = {
-  getRecent: () =>
-    apiClient.get<GetNotificationsResponse>(API_ENDPOINTS.NOTIFICATIONS.BASE),
-
-  getBroadcasts: () =>
-    apiClient.get<GetBroadcastsResponse>(API_ENDPOINTS.NOTIFICATIONS.BROADCASTS),
-
-  previewTargets: (target: string, targetValue?: string) => {
-    const q = targetValue ? `&targetValue=${encodeURIComponent(targetValue)}` : "";
-    return apiClient.get<GetNotificationPreviewResponse>(
-      `${API_ENDPOINTS.NOTIFICATIONS.BASE}?preview=1&target=${target}${q}`
-    );
-  },
-
-  markAsRead: (id: string) =>
-    apiClient.post<MarkAsReadResponse>(API_ENDPOINTS.NOTIFICATIONS.MARK_AS_READ(id)),
-
-  markAllAsRead: () =>
-    apiClient.post<MarkAsReadResponse>(API_ENDPOINTS.NOTIFICATIONS.MARK_ALL_AS_READ),
-
-  clearHistory: () =>
-    apiClient.delete<ClearNotificationsResponse>(API_ENDPOINTS.NOTIFICATIONS.CLEAR),
-
-  clearBroadcasts: () =>
-    apiClient.delete<ClearNotificationsResponse>(`${API_ENDPOINTS.NOTIFICATIONS.BASE}?clearBroadcasts=1`),
-
-  sendCustom: (body: SendCustomNotificationInput) =>
-    apiClient.post<SendCustomNotificationResponse>(API_ENDPOINTS.NOTIFICATIONS.BASE, body),
+  getRecent: () => apiClient.get<GetNotificationsResponse>("/api/notifications"),
+  markAsRead: (id: string) => apiClient.post<MarkAsReadResponse>(`/api/notifications/${id}/read`, {}),
+  markAllAsRead: () => apiClient.post<MarkAsReadResponse>("/api/notifications/read-all", {}),
+  clearHistory: () => apiClient.delete<ClearNotificationsResponse>("/api/notifications"),
+  getBroadcasts: () => apiClient.get<GetBroadcastsResponse>("/api/notifications?broadcasts=1"),
+  clearBroadcasts: () => apiClient.delete<ClearNotificationsResponse>("/api/notifications?clearBroadcasts=1"),
+  previewTargets: (target: string, value?: string) =>
+    apiClient.get<GetNotificationPreviewResponse>(
+      `/api/notifications?preview=1&target=${target}${value ? `&targetValue=${encodeURIComponent(value)}` : ""}`
+    ),
+  sendCustom: (data: SendCustomNotificationInput) =>
+    apiClient.post<SendCustomNotificationResponse>("/api/notifications", data),
+  getBroadcastRecipients: (broadcastId: string) =>
+    apiClient.get<GetBroadcastRecipientsResponse>(`/api/notifications/broadcasts/${broadcastId}`),
+  deleteBroadcast: (broadcastId: string) =>
+    apiClient.delete<DeleteBroadcastResponse>(`/api/notifications/broadcasts/${broadcastId}`)
 };

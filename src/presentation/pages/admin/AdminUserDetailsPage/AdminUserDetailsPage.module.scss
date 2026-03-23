@@ -1,170 +1,285 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-.pageWrapper {
-  width: 100%;
-  max-width: 100vw;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
+.page {
+  @include flex-col;
+  gap: $sp-lg;
+}
+
+.notFound {
+  @include flex(column, center, center, $sp-md);
+  min-height: 40vh;
+  color: $text-muted;
+
+  h2 {
+    font-size: 1.1rem;
+    color: $text;
+    margin: 0;
+  }
+}
+
+.backLink {
+  @include flex(row, center, center, $sp-sm);
+  font-size: $font-sm;
+  color: $green;
+  text-decoration: none;
+  font-weight: 500;
 }
 
 .header {
-  @include flex(row, center, space-between, $sp-sm);
-  margin-bottom: $sp-md;
+  @include flex-between;
   flex-wrap: wrap;
+  gap: $sp-sm;
 }
 
 .back {
-  display: inline-flex;
-  align-items: center;
-  gap: $sp-xs;
-  padding: $sp-sm $sp-md;
-  background: $bg;
-  border: 1px solid $border;
-  border-radius: $radius;
-  color: $text;
-  text-decoration: none;
+  @include flex(row, center, center, $sp-sm);
   font-size: $font-sm;
-  font-weight: 600;
-  transition: $transition;
+  color: $text-muted;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color $transition;
 
   &:hover {
-    border-color: $green;
-    transform: translateX(4px);
+    color: $text;
   }
+}
+
+.actions {
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-wrap: wrap;
+}
+
+%action-btn {
+  @include flex(row, center, center, $sp-xs);
+  padding: 0.4rem 0.85rem;
+  border-radius: $radius;
+  font-size: $font-sm;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: opacity $transition;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.btnActivate {
+  @extend %action-btn;
+  background: rgba($green, 0.1);
+  color: $green;
+  border-color: $green;
+}
+
+.btnDeactivate {
+  @extend %action-btn;
+  background: white;
+  color: #b45309;
+  border-color: #f59e0b;
+}
+
+.btnDanger {
+  @extend %action-btn;
+  background:white;
+  color: $red;
+  border-color: $red;
 }
 
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: $sp-sm;
-  margin-bottom: $sp-lg;
-  width: 100%;
+  gap: $sp-md;
 
-  @media (max-width: 768px) {
+  @media (max-width: $bp-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: $bp-sm) {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+  grid-template-columns: 340px 1fr;
   gap: $sp-lg;
-  width: 100%;
+  align-items: flex-start;
 
-  @media (max-width: 1024px) {
+  @media (max-width: $bp-md) {
     grid-template-columns: 1fr;
   }
 }
 
-.leftColumn,
-.rightColumn {
-  display: flex;
-  flex-direction: column;
+.left,
+.right {
+  @include flex-col;
   gap: $sp-md;
-  min-width: 0;
 }
 
 .section {
-  display: flex;
-  flex-direction: column;
+  @include card;
+  @include flex-col;
   gap: $sp-md;
-  padding: $sp-md;
-  border: 1px solid $border;
-  border-radius: $radius;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .sectionHeader {
-  @include flex(row, center, space-between, $sp-sm);
-  flex-wrap: wrap;
-
-  @media (max-width: 640px) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: $sp-md;
-  }
+  @include flex-between;
+  gap: $sp-sm;
 }
 
 .sectionTitle {
-  margin: 0;
-  font-size: $font-md;
+  font-size: $font-sm;
   font-weight: 700;
   color: $text;
-  word-break: break-word;
+  margin: 0;
+  letter-spacing: 0.01em;
 }
 
 .infoList {
-  display: flex;
-  flex-direction: column;
-  gap: $sp-sm;
+  @include flex-col;
+  gap: 0;
 }
 
-.bio {
-  margin: 0;
-  font-size: $font-sm;
-  line-height: 1.6;
-  color: $text;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+.infoRow {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: 0.55rem 0;
+  border-bottom: 1px solid $border;
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $sp-xs;
+.infoIcon {
+  color: $text-muted;
+  flex-shrink: 0;
+  width: 18px;
+  @include flex-center;
 }
 
-.tag {
-  padding: 4px $sp-sm;
-  background: rgba($green, 0.1);
-  border: 1px solid rgba($green, 0.3);
-  border-radius: $radius-full;
-  font-size: $font-xs;
-  font-weight: 600;
-  color: $green;
-}
-
-.listWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: $sp-md;
-  width: 100%;
+.infoContent {
+  @include flex-col;
+  gap: 0.15rem;
+  flex: 1;
   min-width: 0;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: $sp-sm;
-  width: 100%;
+.infoLabel {
+  font-size: 0.7rem;
+  color: $text-muted;
+  font-weight: 500;
 }
 
-.error {
-  @include flex(column, center, center, $sp-lg);
-  min-height: 60vh;
-  text-align: center;
-  padding: $sp-md;
-
-  h2 { font-size: $font-xl; font-weight: 700; color: $text; margin: 0; }
-  svg { color: $red; }
+.infoValueRow {
+  @include flex(row, center, flex-start, $sp-sm);
 }
 
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: $sp-xs;
-  padding: $sp-sm $sp-lg;
-  background: $green;
+.infoText {
+  font-size: $font-sm;
+  color: $text;
+  word-break: break-all;
+  flex: 1;
+}
+
+.inlineEdit {
+  @include flex(row, center, flex-start, 0.3rem);
+  flex: 1;
+}
+
+.input {
+  @include input;
+  height: 30px;
+  padding: 0.25rem 0.5rem;
+  font-size: $font-sm;
+}
+
+.btnEditIcon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $text-muted;
+  padding: 3px;
   border-radius: $radius;
-  text-decoration: none;
-  font-weight: 600;
-  transition: $transition;
+  @include flex-center;
+  transition: color $transition;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba($green, 0.2);
+    color: $green;
   }
+}
+
+.btnCheck {
+  @include flex-center;
+  padding: 0.28rem;
+  border-radius: $radius;
+  border: none;
+  cursor: pointer;
+  background: rgba($green, 0.12);
+  color: $green;
+  flex-shrink: 0;
+  transition: opacity $transition;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btnX {
+  @include flex-center;
+  padding: 0.28rem;
+  border-radius: $radius;
+  border: none;
+  cursor: pointer;
+  background: rgba($red, 0.1);
+  color: $red;
+  flex-shrink: 0;
+  transition: opacity $transition;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.bio {
+  font-size: $font-sm;
+  color: $text-muted;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.tags {
+  @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 0.25rem 0.65rem;
+  border-radius: $radius-full;
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: rgba($green, 0.08);
+  color: $green;
+  border: 1px solid rgba($green, 0.2);
+}
+
+.listWrapper {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.list {
+  @include flex-col;
+  gap: $sp-sm;
+}
+
+.spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  @include animate-spin;
 }

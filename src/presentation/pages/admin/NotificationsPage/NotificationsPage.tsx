@@ -1,46 +1,81 @@
 "use client";
-
 import styles from "./NotificationsPage.module.scss";
-import { Send, Bell, Users, MapPin, User2 } from "lucide-react";
-import { LoadingState, EmptyState, ToastContainer, SelectInput, Button, NotificationPreviewModal } from "@/presentation/components";
+import {
+  Send, Bell, Users, MapPin, User2, Clock, UserCheck,
+  Eye, Trash2, Search, CheckSquare,
+} from "lucide-react";
+import {
+  LoadingState, EmptyState, ToastContainer, SelectInput,
+  Button, NotificationPreviewModal, ConfirmDialog,
+} from "@/presentation/components";
 import {
   useNotificationsPageLogic,
   CITY_OPTIONS, TARGET_OPTIONS, GENDER_OPTIONS, relativeTime,
 } from "./NotificationsPage.logic";
+import { BroadcastRecipientsModal } from "@/presentation/components";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
+import type { BroadcastDto } from "@/core/application/dtos";
 import { Gender, JordanianCity } from "@/core/domain/enums";
 
 const TARGET_ICON: Record<string, React.ReactNode> = {
-  ALL: <Users size={11} />,
-  CITY: <MapPin size={11} />,
-  GENDER: <User2 size={11} />,
+  ALL:    <Users     size={11} />,
+  CITY:   <MapPin    size={11} />,
+  GENDER: <User2     size={11} />,
+  HOURS:  <Clock     size={11} />,
+  USERS:  <UserCheck size={11} />,
+};
+
+const getTargetLabel = (b: BroadcastDto) => {
+  if (b.target === "ALL")    return "الجميع";
+  if (b.target === "CITY")   return getCityLabel(b.targetValue as JordanianCity);
+  if (b.target === "GENDER") return getGenderLabel(b.targetValue as Gender);
+  if (b.target === "HOURS")  return `أكثر من ${b.targetValue} ساعة`;
+  if (b.target === "USERS")  return "مختارون يدوياً";
+  return b.targetValue ?? "";
 };
 
 const NotificationsPage = () => {
   const {
-    status, form, submitStatus, loadingPreview,
-    broadcasts, loadingBroadcasts,
+    status, form, submitStatus, loadingPreview, isFormInvalid,
+    broadcasts, loadingBroadcasts, clearingBroadcasts,
     toasts, removeToast,
     previewUsers, selectedIds, showPreview, showConfirm,
-    setField, handleSubmit,
-    toggleUser, toggleAll,
-    setShowConfirm, handleSendConfirmed, closePreview,
-    handleClearBroadcasts, clearingBroadcasts
+    setField, handleSubmit, toggleUser, toggleAll,
+    setShowConfirm, handleSendConfirmed, closePreview, handleClearBroadcasts,
+    filteredVolunteers, loadingVolunteers,
+    volunteerSearch, setVolunteerSearch,
+    directSelectedIds, toggleDirectUser, toggleAllDirect,
+    recipientsState, openRecipientsModal, closeRecipientsModal,
+    showDeleteConfirm, deletingId,
+    requestDeleteBroadcast, cancelDeleteBroadcast, confirmDeleteBroadcast,
   } = useNotificationsPageLogic();
 
   if (status === "loading") return <LoadingState />;
 
-  const isSubmitting = submitStatus === "loading";
-  const isDisabled =
-    isSubmitting ||
-    loadingPreview ||
-    !form.title.trim() ||
-    !form.message.trim() ||
-    ((form.target === "CITY" || form.target === "GENDER") && !form.targetValue);
+  const isSubmitting    = submitStatus === "loading";
+  const allDirectVisible = filteredVolunteers.length > 0 && filteredVolunteers.every(v => directSelectedIds.has(v.id));
 
   return (
     <>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={cancelDeleteBroadcast}
+        onConfirm={confirmDeleteBroadcast}
+        title="حذف الإشعار"
+        message="سيتم حذف هذا الإشعار من قائمة جميع المستقبلين فوراً."
+        confirmText={deletingId ? "جارٍ الحذف..." : "حذف"}
+        variant="danger"
+      />
+
+      <BroadcastRecipientsModal
+        isOpen={recipientsState.open}
+        onClose={closeRecipientsModal}
+        broadcastTitle={recipientsState.title}
+        recipients={recipientsState.recipients}
+        loading={recipientsState.loading}
+      />
 
       <div className={styles.grid}>
 
@@ -56,7 +91,8 @@ const NotificationsPage = () => {
               <input
                 className={styles.input}
                 value={form.title}
-                onChange={(e) => setField("title", e.target.value)}
+                onChange={e => setField("title", e.target.value)}
+                maxLength={200}
                 disabled={isSubmitting || loadingPreview}
               />
             </div>
@@ -66,8 +102,9 @@ const NotificationsPage = () => {
               <textarea
                 className={styles.textarea}
                 value={form.message}
-                onChange={(e) => setField("message", e.target.value)}
-                rows={3}
+                onChange={e => setField("message", e.target.value)}
+                rows={5}
+                maxLength={1000}
                 disabled={isSubmitting || loadingPreview}
               />
             </div>
@@ -77,7 +114,7 @@ const NotificationsPage = () => {
                 label="الاستهداف"
                 value={form.target}
                 options={TARGET_OPTIONS}
-                onChange={(val) => setField("target", val)}
+                onChange={val => setField("target", val)}
                 disabled={isSubmitting || loadingPreview}
               />
             </div>
@@ -88,7 +125,7 @@ const NotificationsPage = () => {
                   label="المدينة"
                   value={form.targetValue ?? ""}
                   options={[{ value: "", label: "اختر مدينة" }, ...CITY_OPTIONS]}
-                  onChange={(val) => setField("targetValue", val)}
+                  onChange={val => setField("targetValue", val)}
                   disabled={isSubmitting || loadingPreview}
                 />
               </div>
@@ -100,9 +137,78 @@ const NotificationsPage = () => {
                   label="الجنس"
                   value={form.targetValue ?? ""}
                   options={[{ value: "", label: "اختر" }, ...GENDER_OPTIONS]}
-                  onChange={(val) => setField("targetValue", val)}
+                  onChange={val => setField("targetValue", val)}
                   disabled={isSubmitting || loadingPreview}
                 />
+              </div>
+            )}
+
+            {form.target === "HOURS" && (
+              <div className={styles.field}>
+                <label className={styles.label}>الحد الأدنى من الساعات</label>
+                <input
+                  type="number"
+                  min={0}
+                  step={0.5}
+                  className={styles.input}
+                  value={form.targetValue ?? ""}
+                  onChange={e => setField("targetValue", e.target.value)}
+                  disabled={isSubmitting || loadingPreview}
+                />
+              </div>
+            )}
+
+            {form.target === "USERS" && (
+              <div className={styles.field}>
+                <div className={styles.usersHeader}>
+                  <label className={styles.label}>اختر المتطوعين</label>
+                  {directSelectedIds.size > 0 && (
+                    <span className={styles.selectedBadge}>{directSelectedIds.size} محدد</span>
+                  )}
+                </div>
+                <div className={styles.userSearchWrap}>
+                  <Search size={13} className={styles.searchIcon} />
+                  <input
+                    type="text"
+                    className={styles.userSearchInput}
+                    value={volunteerSearch}
+                    onChange={e => setVolunteerSearch(e.target.value)}
+                    placeholder="ابحث بالاسم..."
+                    disabled={loadingVolunteers}
+                  />
+                </div>
+                {loadingVolunteers ? (
+                  <div className={styles.volunteersLoading}><LoadingState compact /></div>
+                ) : (
+                  <div className={styles.userList}>
+                    {filteredVolunteers.length > 0 && (
+                      <div className={styles.userItem} onClick={toggleAllDirect}>
+                        <span className={`${styles.checkbox} ${allDirectVisible ? styles.checkboxActive : ""}`}>
+                          {allDirectVisible && <CheckSquare size={11} />}
+                        </span>
+                        <span className={styles.userName}>تحديد الكل ({filteredVolunteers.length})</span>
+                      </div>
+                    )}
+                    {filteredVolunteers.map(v => (
+                      <div
+                        key={v.id}
+                        className={`${styles.userItem} ${directSelectedIds.has(v.id) ? styles.userItemSelected : ""}`}
+                        onClick={() => toggleDirectUser(v.id)}
+                      >
+                        <span className={`${styles.checkbox} ${directSelectedIds.has(v.id) ? styles.checkboxActive : ""}`} />
+                        <div className={styles.userInfo}>
+                          <span className={styles.userName}>{v.name}</span>
+                          {v.hours !== undefined && (
+                            <span className={styles.userHours}>{v.hours} ساعة</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {filteredVolunteers.length === 0 && (
+                      <p className={styles.noResults}>لا توجد نتائج</p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -113,7 +219,7 @@ const NotificationsPage = () => {
               <input
                 className={styles.input}
                 value={form.link ?? ""}
-                onChange={(e) => setField("link", e.target.value)}
+                onChange={e => setField("link", e.target.value)}
                 type="url"
                 dir="ltr"
                 disabled={isSubmitting || loadingPreview}
@@ -126,7 +232,7 @@ const NotificationsPage = () => {
               size="md"
               icon={<Send size={14} />}
               iconPosition="left"
-              disabled={isDisabled}
+              disabled={isFormInvalid || isSubmitting || loadingPreview}
             >
               {loadingPreview ? "جاري التحميل..." : isSubmitting ? "جاري الإرسال..." : "معاينة ثم إرسال"}
             </Button>
@@ -143,7 +249,7 @@ const NotificationsPage = () => {
                 onClick={handleClearBroadcasts}
                 disabled={clearingBroadcasts}
               >
-                {clearingBroadcasts ? "جاري المسح..." : "مسح السجل"}
+                {clearingBroadcasts ? "جاري المسح..." : "مسح الكل"}
               </button>
             )}
           </div>
@@ -154,30 +260,44 @@ const NotificationsPage = () => {
             <EmptyState icon={Bell} message="لم يُرسل أي إشعار بعد" />
           ) : (
             <div className={styles.broadcastList}>
-              {broadcasts.map((b) => (
+              {broadcasts.map(b => (
                 <div key={b.broadcastId} className={styles.broadcastItem}>
                   <div className={styles.broadcastTop}>
                     <span className={styles.broadcastTitle}>{b.title}</span>
                     <span className={styles.broadcastTag}>
                       {TARGET_ICON[b.target]}
-                      {b.target === "ALL" ? "الجميع" :
-                        b.target === "CITY" ? getCityLabel(b.targetValue as JordanianCity) :
-                          b.target === "GENDER" ? getGenderLabel(b.targetValue as Gender) :
-                            b.targetValue}
+                      {getTargetLabel(b)}
                     </span>
                   </div>
                   <p className={styles.broadcastMsg}>{b.message}</p>
                   <div className={styles.broadcastBottom}>
-                    <span className={styles.recipients}>
-                      <Users size={11} /> {b.totalRecipients} متطوع
-                    </span>
-                    <span className={styles.time}>{relativeTime(b.createdAt)}</span>
+                    <div className={styles.broadcastMeta}>
+                      <span className={styles.recipients}>
+                        <Users size={11} /> {b.totalRecipients} متطوع
+                      </span>
+                      <span className={styles.time}>{relativeTime(b.createdAt)}</span>
+                    </div>
+                    <div className={styles.broadcastActions}>
+                      <button
+                        className={styles.btnRecipients}
+                        onClick={() => openRecipientsModal(b.broadcastId, b.title)}
+                      >
+                        <Eye size={12} /> المستقبلون
+                      </button>
+                      <button
+                        className={styles.btnDeleteBroadcast}
+                        onClick={() => requestDeleteBroadcast(b.broadcastId)}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </section>
+
       </div>
 
       <NotificationPreviewModal

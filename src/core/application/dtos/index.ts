@@ -161,5 +161,8 @@ export type {
   SendCustomNotificationResponse,
   GetNotificationPreviewResponse,
   PreviewUserDto,
-  PreviewUsersDto
+  PreviewUsersDto,
+  BroadcastRecipientDto,
+  DeleteBroadcastResponse,
+  GetBroadcastRecipientsResponse
 } from "./notification.dto";

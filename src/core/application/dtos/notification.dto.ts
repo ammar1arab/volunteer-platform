@@ -29,6 +29,14 @@ export interface BroadcastDto {
   createdAt:       string;
 }
 
+export interface BroadcastRecipientDto {
+  id:     string;
+  name:   string;
+  city:   string | null;
+  gender: string | null;
+  hours:  number;
+}
+
 export interface BroadcastsDto {
   broadcasts: BroadcastDto[];
 }
@@ -38,6 +46,7 @@ export interface PreviewUserDto {
   name:   string;
   city:   string | null;
   gender: string | null;
+  hours?: number;
 }
 
 export interface PreviewUsersDto {
@@ -47,17 +56,19 @@ export interface PreviewUsersDto {
 export interface SendCustomNotificationInput {
   title:        string;
   message:      string;
-  target:       "ALL" | "CITY" | "GENDER";
+  target:       "ALL" | "CITY" | "GENDER" | "HOURS" | "USERS";
   targetValue?: string;
   link?:        string;
   userIds?:     string[];
 }
 
-export type GetNotificationsResponse        = Result<NotificationsDto>;
-export type GetBroadcastsResponse           = Result<BroadcastsDto>;
-export type GetNotificationPreviewResponse  = Result<PreviewUsersDto>;
-export type MarkAsReadResponse              = Result<{ success: boolean }>;
-export type ClearNotificationsResponse      = Result<{ success: boolean }>;
-export type SendCustomNotificationResponse  = Result<{ sent: number }>;
-export type GetUnreadNotificationsResponse  = GetNotificationsResponse;
-export type UnreadNotificationsDto          = NotificationsDto;
+export type GetNotificationsResponse       = Result<NotificationsDto>;
+export type GetBroadcastsResponse          = Result<BroadcastsDto>;
+export type GetNotificationPreviewResponse = Result<PreviewUsersDto>;
+export type GetBroadcastRecipientsResponse = Result<{ recipients: BroadcastRecipientDto[] }>;
+export type MarkAsReadResponse             = Result<{ success: boolean }>;
+export type ClearNotificationsResponse     = Result<{ success: boolean }>;
+export type SendCustomNotificationResponse = Result<{ sent: number }>;
+export type DeleteBroadcastResponse        = Result<{ success: boolean }>;
+export type GetUnreadNotificationsResponse = GetNotificationsResponse;
+export type UnreadNotificationsDto         = NotificationsDto;

@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useUserDetails, useToast, useAuth } from "@/presentation/hooks";
 import { ParticipationStatus, UserRole } from "@/core/domain/enums";
 import { userApi } from "@/presentation/services";
-import { useRouter } from "next/navigation";
 import { ROUTES } from "@/presentation/constants";
 
 interface EditingField {
@@ -12,33 +11,31 @@ interface EditingField {
   value: unknown;
 }
 
+const ITEMS_PER_PAGE = 5;
+
 export const useAdminUserDetailsPage = () => {
-  const params   = useParams();
-  const router   = useRouter();
-  const { status } = useAuth({ requireRole: UserRole.ADMIN });
+  const params             = useParams();
+  const router             = useRouter();
+  const { status }         = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
-  const userId   = params.id as string;
-  const { user, activities, loadingUser, loadingActivities, error, refetch } = useUserDetails(userId);
+  const userId             = params.id as string;
+  const { user, activities, loadingUser, loadingActivities, error, refresh } = useUserDetails(userId);
 
-  const [activeFilter,   setActiveFilter]   = useState("all");
-  const [currentPage,    setCurrentPage]     = useState(1);
-  const [editingField,   setEditingField]    = useState<EditingField | null>(null);
-  const [isSaving,       setIsSaving]        = useState(false);
-  const [isTogglingActive, setIsTogglingActive] = useState(false);
-  const [isDeleting,     setIsDeleting]      = useState(false);
+  const [activeFilter,      setActiveFilter]     = useState("all");
+  const [currentPage,       setCurrentPage]      = useState(1);
+  const [editingField,      setEditingField]     = useState<EditingField | null>(null);
+  const [isSaving,          setIsSaving]         = useState(false);
+  const [isTogglingActive,  setIsTogglingActive] = useState(false);
+  const [isDeleting,        setIsDeleting]       = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const ITEMS_PER_PAGE = 5;
 
-  useEffect(() => {
-    if (error?.trim()) showToast(error, "error");
-  }, [error, showToast]);
-
+  useEffect(() => { if (error?.trim()) showToast(error, "error"); }, [error, showToast]);
   useEffect(() => { setCurrentPage(1); }, [activeFilter]);
 
   const startEditing    = useCallback((field: string, value: unknown) => setEditingField({ field, value }), []);
   const cancelEditing   = useCallback(() => setEditingField(null), []);
-  const updateFieldValue = useCallback((value: unknown) =>
-    setEditingField(prev => prev ? { ...prev, value } : null), []);
+  const updateFieldValue = useCallback(
+    (value: unknown) => setEditingField(prev => prev ? { ...prev, value } : null), []);
 
   const saveField = useCallback(async () => {
     if (!editingField) return;
@@ -48,13 +45,13 @@ export const useAdminUserDetailsPage = () => {
       if (!result.success) { showToast(result.error.message, "error"); return; }
       showToast("تم الحفظ بنجاح ✓", "success");
       setEditingField(null);
-      await refetch();
+      refresh();
     } catch {
       showToast("حدث خطأ أثناء الحفظ", "error");
     } finally {
       setIsSaving(false);
     }
-  }, [editingField, userId, refetch, showToast]);
+  }, [editingField, userId, refresh, showToast]);
 
   const toggleActive = useCallback(async () => {
     if (!user) return;
@@ -63,13 +60,13 @@ export const useAdminUserDetailsPage = () => {
       const result = await userApi.toggleActive(userId, !user.isActive);
       if (!result.success) { showToast(result.error.message, "error"); return; }
       showToast(result.data.isActive ? "تم تفعيل الحساب ✓" : "تم تعطيل الحساب ✓", "success");
-      await refetch();
+      refresh();
     } catch {
       showToast("حدث خطأ أثناء تغيير الحالة", "error");
     } finally {
       setIsTogglingActive(false);
     }
-  }, [user, userId, refetch, showToast]);
+  }, [user, userId, refresh, showToast]);
 
   const deleteUser = useCallback(async () => {
     setIsDeleting(true);
@@ -87,10 +84,10 @@ export const useAdminUserDetailsPage = () => {
   }, [userId, router, showToast]);
 
   const filteredActivities = useMemo(() => {
-    const result = activeFilter === "all"
+    const base = activeFilter === "all"
       ? activities
-      : activities.filter((a) => a.status === (activeFilter as ParticipationStatus));
-    return [...result].sort((a, b) => (b.volunteerHours ?? 0) - (a.volunteerHours ?? 0));
+      : activities.filter(a => a.status === (activeFilter as ParticipationStatus));
+    return [...base].sort((a, b) => (b.volunteerHours ?? 0) - (a.volunteerHours ?? 0));
   }, [activities, activeFilter]);
 
   const paginatedActivities = useMemo(() => {
@@ -101,7 +98,7 @@ export const useAdminUserDetailsPage = () => {
   const totalHours = useMemo(() =>
     Math.round(
       activities
-        .filter((a) => a.status === ParticipationStatus.APPROVED)
+        .filter(a => a.status === ParticipationStatus.APPROVED)
         .reduce((sum, a) => sum + ((a as any).volunteerHours ?? 0), 0) * 100
     ) / 100,
   [activities]);
@@ -119,13 +116,15 @@ export const useAdminUserDetailsPage = () => {
       bio:         user.volunteerProfile?.bio         || "-",
       interests:   user.volunteerProfile?.interests?.join(", ") || "-",
       skills:      user.volunteerProfile?.skills?.join(", ")    || "-",
-      activities:  activities.map((a) => a.activity.title).join(", ") || "-",
+      activities:  activities.map(a => a.activity.title).join(", ") || "-",
       createdAt:   new Date(user.createdAt).toLocaleDateString("ar"),
     }];
   }, [user, activities]);
 
   return {
-    status, user, activities: paginatedActivities, allActivities: activities,
+    status, user,
+    activities: paginatedActivities,
+    allActivities: activities,
     totalFilteredItems: filteredActivities.length,
     loadingUser, loadingActivities,
     activeFilter, setActiveFilter,

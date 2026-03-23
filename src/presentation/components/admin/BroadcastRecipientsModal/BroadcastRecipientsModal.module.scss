@@ -1,0 +1,117 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrapper {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.subtitle {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+}
+
+.broadcastName {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text;
+  @include truncate;
+  flex: 1;
+}
+
+.countBadge {
+  @include flex(row, center, center, 0.3rem);
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba($green, 0.1);
+  color: $green;
+  border: 1px solid rgba($green, 0.2);
+  border-radius: $radius-full;
+  padding: 0.2rem 0.6rem;
+  flex-shrink: 0;
+}
+
+.searchWrap {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.searchInput {
+  @include input;
+  font-size: $font-sm;
+  padding-right: 2rem;
+}
+
+.listWrap {
+  max-height: 380px;
+  overflow-y: auto;
+  border: 1px solid $border;
+  border-radius: $radius;
+}
+
+.list {
+  @include flex-col;
+}
+
+.row {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: 0.6rem $sp-sm;
+  border-bottom: 1px solid $border;
+  transition: background $transition;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: rgba($green, 0.03); }
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba($green, 0.12);
+  color: $green;
+  font-size: $font-sm;
+  font-weight: 700;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.info {
+  @include flex-col;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text;
+  @include truncate;
+}
+
+.meta {
+  @include flex(row, center, flex-start, 0.3rem);
+  flex-wrap: wrap;
+}
+
+.chip {
+  @include flex(row, center, center, 0.2rem);
+  font-size: 0.68rem;
+  color: $text-muted;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: $radius-full;
+  padding: 0.1rem 0.4rem;
+}
+
+.hours {
+  background: rgba($green, 0.08);
+  color: $green;
+}

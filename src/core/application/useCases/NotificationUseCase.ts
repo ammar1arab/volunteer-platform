@@ -11,6 +11,8 @@ import {
   MarkAsReadResponse,
   ClearNotificationsResponse,
   SendCustomNotificationResponse,
+  DeleteBroadcastResponse,
+  GetBroadcastRecipientsResponse
 } from "@/core/application/dtos";
 
 class NotificationUseCase {
@@ -128,6 +130,28 @@ class NotificationUseCase {
       return serviceError(NotificationUseCase.SCOPE, "getRecentBroadcasts", error, "حدث خطأ أثناء جلب السجلات");
     }
   }
+
+  async getBroadcastRecipients(broadcastId: string): Promise<GetBroadcastRecipientsResponse> {
+  try {
+    guard(broadcastId, "معرّف الإشعار مطلوب");
+    const recipients = await this.repo.findRecipientsByBroadcastId(broadcastId);
+    logger.info(NotificationUseCase.SCOPE, "getBroadcastRecipients", `broadcastId=${broadcastId} count=${recipients.length}`);
+    return ok({ recipients });
+  } catch (error) {
+    return serviceError(NotificationUseCase.SCOPE, "getBroadcastRecipients", error, "حدث خطأ أثناء جلب المستقبلين");
+  }
+}
+
+async deleteBroadcast(broadcastId: string): Promise<DeleteBroadcastResponse> {
+  try {
+    guard(broadcastId, "معرّف الإشعار مطلوب");
+    await this.repo.deleteByBroadcastId(broadcastId);
+    logger.info(NotificationUseCase.SCOPE, "deleteBroadcast", `broadcastId=${broadcastId}`);
+    return ok({ success: true });
+  } catch (error) {
+    return serviceError(NotificationUseCase.SCOPE, "deleteBroadcast", error, "حدث خطأ أثناء حذف الإشعار");
+  }
+}
 }
 
 export default NotificationUseCase;
