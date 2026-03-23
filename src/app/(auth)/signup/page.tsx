@@ -32,19 +32,15 @@ const EyeIcon = ({ visible }: { visible: boolean }) => (
   </svg>
 );
 
-const PasswordField = ({
-  label,
-  value,
-  onChange,
-  onBlur,
-}: {
+interface PasswordFieldProps {
   label: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: () => void;
-}) => {
-  const [show, setShow] = useState(false);
+}
 
+const PasswordField = ({ label, value, onChange, onBlur }: PasswordFieldProps) => {
+  const [show, setShow] = useState(false);
   return (
     <div className={styles.pwWrap}>
       <Input

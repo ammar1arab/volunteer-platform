@@ -203,6 +203,7 @@
 }
 
 @mixin input {
+  box-sizing: border-box;
   width: 100%;
   padding: $sp-sm $sp-md;
   border: 1px solid $border;

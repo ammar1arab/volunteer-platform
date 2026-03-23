@@ -9,12 +9,13 @@
 
 .card {
   position: relative;
-  width: min(460px, 100%);
+  width: min(460px, 100%); // or min(400px, 100%) depending on page
+  box-sizing: border-box;
   border: 1px solid $border;
   border-radius: $radius-lg;
   box-shadow: $shadow-deep;
   padding: $sp-lg;
-  @include animate-scaleIn(0.3s);
+  animation: cardIn 0.3s ease;
 
   &::before {
     content: "";
@@ -30,6 +31,15 @@
   @media (max-width: $bp-sm) {
     padding: $sp-md $sp-sm;
     border-radius: $radius-md;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -120,7 +130,9 @@
   color: $text-muted;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 
   &:hover {
     color: $green;
@@ -168,7 +180,9 @@
   transform-origin: center;
   transform: scale(0.7);
   opacity: 0.5;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.2s ease;
 }
 
 .eyeOpen .eyePupil {
@@ -180,7 +194,9 @@
   stroke: currentColor;
   stroke-dasharray: 23;
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.28s ease, opacity 0.2s ease;
+  transition:
+    stroke-dashoffset 0.28s ease,
+    opacity 0.2s ease;
 }
 
 .eyeSlashGone {
@@ -227,20 +243,37 @@
     transform: scaleX(1);
   }
 }
-
 @keyframes fieldSlideIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes feedbackIn {
-  from { opacity: 0; transform: translateY(-3px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes ripplePop {
-  from { background-color: color-mix(in srgb, $green 35%, transparent); transform: scale(0.3); opacity: 1; }
-  to   { background-color: transparent; transform: scale(2.4); opacity: 0; }
+  from {
+    background-color: color-mix(in srgb, $green 35%, transparent);
+    transform: scale(0.3);
+    opacity: 1;
+  }
+  to {
+    background-color: transparent;
+    transform: scale(2.4);
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

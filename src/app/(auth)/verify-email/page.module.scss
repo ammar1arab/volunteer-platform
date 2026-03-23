@@ -9,25 +9,37 @@
 
 .card {
   position: relative;
-  width: min(400px, 100%);
+  width: min(460px, 100%); // or min(400px, 100%) depending on page
+  box-sizing: border-box;
   border: 1px solid $border;
   border-radius: $radius-lg;
   box-shadow: $shadow-deep;
-  padding: $sp-lg $sp-lg $sp-md;
-  @include animate-scaleIn(0.35s);
+  padding: $sp-lg;
+  animation: cardIn 0.3s ease;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 3px;
     background: linear-gradient(90deg, transparent, $green, transparent);
     border-radius: $radius-lg $radius-lg 0 0;
   }
 
   @media (max-width: $bp-sm) {
-    padding: $sp-md $sp-sm $sp-sm;
+    padding: $sp-md $sp-sm;
     border-radius: $radius-md;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -85,7 +97,10 @@
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .support {
@@ -96,7 +111,9 @@
   color: $text-muted;
   font-size: $font-xs;
 
-  p { margin-bottom: 4px; }
+  p {
+    margin-bottom: 4px;
+  }
 }
 
 .supportLinks {
@@ -109,10 +126,14 @@
     color: $text-muted;
     text-decoration: none;
     transition: color 0.2s;
-    &:hover { color: $green; }
+    &:hover {
+      color: $green;
+    }
   }
 
-  span { color: $border; }
+  span {
+    color: $border;
+  }
 }
 
 .footer {
@@ -127,9 +148,13 @@
   font-weight: 700;
   font-size: $font-sm;
   text-decoration: none;
-  &:hover { text-decoration: underline; }
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card { animation: none !important; }
+  .card {
+    animation: none !important;
+  }
 }

@@ -9,15 +9,16 @@
 
 .card {
   position: relative;
-  width: min(400px, 100%);
+  width: min(460px, 100%);  // or min(400px, 100%) depending on page
+  box-sizing: border-box;
   border: 1px solid $border;
   border-radius: $radius-lg;
   box-shadow: $shadow-deep;
-  padding: $sp-lg $sp-lg $sp-md;
-  @include animate-scaleIn(0.35s);
+  padding: $sp-lg;
+  animation: cardIn 0.3s ease;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
@@ -26,9 +27,14 @@
   }
 
   @media (max-width: $bp-sm) {
-    padding: $sp-md $sp-sm $sp-sm;
+    padding: $sp-md $sp-sm;
     border-radius: $radius-md;
   }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .header {

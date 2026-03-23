@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown } from "lucide-react";
 import styles from "./SelectInput.module.scss";
 
@@ -18,6 +19,7 @@ interface SelectInputProps {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  name?: string;
 }
 
 const SelectInput = ({
@@ -30,40 +32,81 @@ const SelectInput = ({
   required = false,
   disabled = false,
 }: SelectInputProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen]       = useState(false);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+  const triggerRef                = useRef<HTMLButtonElement>(null);
+  const menuRef                   = useRef<HTMLUListElement>(null);
+  const selectedOption            = options.find((o) => o.value === value);
 
-  const selectedOption = options.find((opt) => opt.value === value);
+  const calcPosition = useCallback(() => {
+    if (!triggerRef.current) return;
+    const r = triggerRef.current.getBoundingClientRect();
+    setMenuStyle({
+      position: "fixed",
+      top:      r.bottom + 8,
+      left:     r.left,
+      width:    r.width,
+      zIndex:   99999,
+    });
+  }, []);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
+    if (!isOpen) return;
+    calcPosition();
+
+    const onScroll = () => calcPosition();
+    const onResize = () => calcPosition();
+    const onDown   = (e: MouseEvent) => {
+      if (
+        triggerRef.current?.contains(e.target as Node) ||
+        menuRef.current?.contains(e.target as Node)
+      ) return;
+      setIsOpen(false);
     };
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
+    window.addEventListener("scroll",    onScroll, true);
+    window.addEventListener("resize",    onResize);
+    document.addEventListener("mousedown", onDown);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll",    onScroll, true);
+      window.removeEventListener("resize",    onResize);
+      document.removeEventListener("mousedown", onDown);
     };
-  }, [isOpen]);
+  }, [isOpen, calcPosition]);
 
-  const handleSelect = (optionValue: string) => {
-    onChange(optionValue);
+  const handleSelect = (v: string) => {
+    onChange(v);
     setIsOpen(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      setIsOpen(!isOpen);
-    } else if (e.key === "Escape") {
-      setIsOpen(false);
-    }
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setIsOpen((p) => !p); }
+    if (e.key === "Escape") setIsOpen(false);
   };
+
+  const menu = isOpen && typeof document !== "undefined"
+    ? createPortal(
+        <ul
+          ref={menuRef}
+          className={styles.menu}
+          style={menuStyle}
+          role="listbox"
+        >
+          {options.map((o) => (
+            <li
+              key={o.value}
+              className={`${styles.option} ${o.value === value ? styles.optionActive : ""}`}
+              onClick={() => handleSelect(o.value)}
+              role="option"
+              aria-selected={o.value === value}
+            >
+              {o.label}
+            </li>
+          ))}
+        </ul>,
+        document.body
+      )
+    : null;
 
   return (
     <div className={styles.wrapper}>
@@ -74,20 +117,16 @@ const SelectInput = ({
         </label>
       )}
 
-      <div
-        ref={containerRef}
-        className={`${styles.container} ${isOpen ? styles.open : ""} ${error ? styles.error : ""
-          } ${disabled ? styles.disabled : ""}`}
-      >
+      <div className={`${styles.container} ${isOpen ? styles.open : ""} ${error ? styles.error : ""} ${disabled ? styles.disabled : ""}`}>
         <button
+          ref={triggerRef}
           type="button"
           className={styles.trigger}
-          onClick={() => !disabled && setIsOpen(!isOpen)}
+          onClick={() => { if (!disabled) { calcPosition(); setIsOpen((p) => !p); } }}
           onKeyDown={handleKeyDown}
           disabled={disabled}
           aria-haspopup="listbox"
           aria-expanded={isOpen}
-          aria-labelledby={label}
         >
           <span className={selectedOption ? styles.selected : styles.placeholder}>
             {selectedOption?.label || placeholder}
@@ -97,25 +136,9 @@ const SelectInput = ({
             size={20}
           />
         </button>
-
-        {isOpen && (
-          <ul className={`${styles.menu} no-scrollbar`} role="listbox">
-            {options.map((option) => (
-              <li
-                key={option.value}
-                className={`${styles.option} ${option.value === value ? styles.optionActive : ""
-                  }`}
-                onClick={() => handleSelect(option.value)}
-                role="option"
-                aria-selected={option.value === value}
-              >
-                {option.label}
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
+      {menu}
       {error && <span className={styles.errorText}>{error}</span>}
     </div>
   );
