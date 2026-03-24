@@ -6,11 +6,12 @@ import { useToast } from "@/presentation/hooks";
 import { getAttendanceStatusLabel, getCityLabel, getGenderLabel } from "@/presentation/constants";
 
 const cache = new Map<string, Record<string, boolean | null>>();
-
 const getCache = (activityId: string) => {
   if (!cache.has(activityId)) cache.set(activityId, {});
   return cache.get(activityId)!;
 };
+
+const VOLUNTEERS_PER_PAGE = 6;
 
 export const useVolunteersModal = (
   activityId: string,
@@ -27,6 +28,9 @@ export const useVolunteersModal = (
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [confirmStep, setConfirmStep] = useState<0 | 1 | 2>(0);
   const [attendanceWarning, setAttendanceWarning] = useState(false);
+  const [search, setSearch] = useState("");
+  const [genderFilter, setGenderFilter] = useState<"ALL" | "MALE" | "FEMALE">("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
   const { toasts, showToast, removeToast } = useToast();
   const prefetchRef = useRef<Promise<void> | null>(null);
 
@@ -68,9 +72,36 @@ export const useVolunteersModal = (
     if (!isOpen || !activityId) return;
     setConfirmStep(0);
     setAttendanceWarning(false);
+    setSearch("");
+    setGenderFilter("ALL");
+    setCurrentPage(1);
     prefetchRef.current = null;
     fetchVolunteers();
   }, [isOpen, activityId, fetchVolunteers]);
+
+  const filteredVolunteers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return volunteers.filter((v) => {
+      const matchName = !q || v.fullName.toLowerCase().includes(q);
+      const matchGender = genderFilter === "ALL" || v.gender === genderFilter;
+      return matchName && matchGender;
+    });
+  }, [volunteers, search, genderFilter]);
+
+  const paginatedVolunteers = useMemo(() => {
+    const start = (currentPage - 1) * VOLUNTEERS_PER_PAGE;
+    return filteredVolunteers.slice(start, start + VOLUNTEERS_PER_PAGE);
+  }, [filteredVolunteers, currentPage]);
+
+  const handleSearch = useCallback((val: string) => {
+    setSearch(val);
+    setCurrentPage(1);
+  }, []);
+
+  const handleGenderFilter = useCallback((val: "ALL" | "MALE" | "FEMALE") => {
+    setGenderFilter(val);
+    setCurrentPage(1);
+  }, []);
 
   const setAttendance = useCallback(
     (participationId: string, attended: boolean | null) => {
@@ -101,7 +132,6 @@ export const useVolunteersModal = (
       try {
         const res = await participationApi.reject(participationId);
         if (res.success) {
-          getCache(activityId);
           delete getCache(activityId)[participationId];
           setVolunteers((prev) => prev.filter((v) => v.participationId !== participationId));
           showToast(`تم إزالة ${volunteerName} من النشاط`, "success");
@@ -153,9 +183,7 @@ export const useVolunteersModal = (
         if (success) {
           cache.delete(activityId);
           onClose();
-        } else {
-          showToast("حدث خطأ أثناء إكمال النشاط", "error");
-        }
+        } else showToast("حدث خطأ أثناء إكمال النشاط", "error");
       } catch {
         showToast("حدث خطأ غير متوقع", "error");
       } finally {
@@ -197,7 +225,9 @@ export const useVolunteersModal = (
   );
 
   return {
-    volunteers,
+    volunteers: paginatedVolunteers,
+    allVolunteers: volunteers,
+    filteredCount: filteredVolunteers.length,
     exportData,
     loading,
     completing,
@@ -207,6 +237,13 @@ export const useVolunteersModal = (
     unmarkedCount,
     toasts,
     removeToast,
+    search,
+    handleSearch,
+    genderFilter,
+    handleGenderFilter,
+    currentPage,
+    setCurrentPage,
+    volunteersPerPage: VOLUNTEERS_PER_PAGE,
     setAttendance,
     rejectVolunteer,
     requestComplete,

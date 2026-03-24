@@ -351,3 +351,68 @@
   margin-bottom: $sp-xs;
   border-bottom: 1px solid rgba($border, 0.4);
 }
+.controls {
+  display: flex;
+  align-items: center;
+  gap: $sp-sm;
+  flex-wrap: wrap;
+
+  @media (max-width: $bp-sm) {
+    gap: $sp-xs;
+  }
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1;
+  min-width: 120px;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.searchInput {
+  @include input;
+  font-size: $font-sm;
+  padding-right: 2rem;
+  height: 34px;
+}
+
+.genderFilter {
+  display: flex;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.filterBtn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $text-muted;
+  transition: background $transition, color $transition;
+  white-space: nowrap;
+
+  &:not(:last-child) { border-left: 1px solid $border; }
+  &:hover { background: rgba($green, 0.05); }
+}
+
+.filterActive {
+  background: rgba($green, 0.1);
+  color: $green;
+}
+
+.countFiltered {
+  color: $text-muted;
+  font-weight: 400;
+}

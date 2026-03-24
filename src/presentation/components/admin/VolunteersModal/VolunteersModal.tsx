@@ -1,95 +1,106 @@
 "use client";
 import styles from "./VolunteersModal.module.scss";
 import { useVolunteersModal } from "./VolunteersModal.logic";
-
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
 import { AttendanceStatus, ActivityStatus } from "@/core/domain/enums";
-import { Modal, LoadingState, EmptyState, ConfirmDialog, ToastContainer, CompleteActivityProgress, ExportUsersButton } from "@/presentation/components";
+import {
+  Modal, LoadingState, EmptyState, ConfirmDialog, ToastContainer,
+  CompleteActivityProgress, ExportUsersButton, Pagination,
+} from "@/presentation/components";
 import { ROUTES, getCityLabel, getAttendanceStatusLabel } from "@/presentation/constants";
 import { useCompleteActivity } from "@/presentation/hooks";
-import { MapPin, Calendar, Users as UsersIcon, Archive, Check, X, AlertTriangle, UserMinus, Database, Cpu, Upload, Mail } from "lucide-react";
+import {
+  MapPin, Calendar, Users as UsersIcon, Archive, Check, X,
+  AlertTriangle, UserMinus, Database, Cpu, Upload, Mail, Search,
+} from "lucide-react";
 
 type Props = {
-  activityId: string;
-  activityTitle: string;
+  activityId:     string;
+  activityTitle:  string;
   activityStatus: string;
-  activityDate: string;
-  activityType: string;
-  durationHours: number;
-  isOpen: boolean;
-  onClose: () => void;
-  onComplete?: () => Promise<boolean>;
+  activityDate:   string;
+  activityType:   string;
+  durationHours:  number;
+  isOpen:         boolean;
+  onClose:        () => void;
+  onComplete?:    () => Promise<boolean>;
 };
 
 const STEP_SUBLABELS: Record<string, string> = {
   complete: "تحديث حالة النشاط في قاعدة البيانات",
   generate: "توليد ملفات PNG و PDF لكل متطوع",
-  upload: "رفع الشهادات إلى التخزين السحابي",
-  save: "تسجيل الشهادات وإنشاء الإشعارات",
-  email: "إرسال الشهادات لجميع المتطوعين",
+  upload:   "رفع الشهادات إلى التخزين السحابي",
+  save:     "تسجيل الشهادات وإنشاء الإشعارات",
+  email:    "إرسال الشهادات لجميع المتطوعين",
 };
 
 const STEP_ICONS: Record<string, React.ReactNode> = {
   complete: <Database size={14} />,
-  generate: <Cpu size={14} />,
-  upload: <Upload size={14} />,
-  save: <Database size={14} />,
-  email: <Mail size={14} />,
+  generate: <Cpu      size={14} />,
+  upload:   <Upload   size={14} />,
+  save:     <Database size={14} />,
+  email:    <Mail     size={14} />,
 };
 
 const EXPORT_COLUMNS = [
-  { key: "activityTitle", label: "اسم النشاط" },
-  { key: "activityDate", label: "تاريخ النشاط" },
-  { key: "activityType", label: "نوع النشاط" },
-  { key: "durationHours", label: "ساعات النشاط" },
-  { key: "fullName", label: "الاسم" },
-  { key: "email", label: "البريد الإلكتروني" },
-  { key: "phone", label: "رقم الهاتف" },
-  { key: "age", label: "العمر" },
-  { key: "city", label: "المدينة" },
-  { key: "gender", label: "الجنس" },
-  { key: "attendanceStatus", label: "حالة الحضور" },
+  { key: "activityTitle",   label: "اسم النشاط"        },
+  { key: "activityDate",    label: "تاريخ النشاط"       },
+  { key: "activityType",    label: "نوع النشاط"         },
+  { key: "durationHours",   label: "ساعات النشاط"       },
+  { key: "fullName",        label: "الاسم"              },
+  { key: "email",           label: "البريد الإلكتروني"  },
+  { key: "phone",           label: "رقم الهاتف"         },
+  { key: "age",             label: "العمر"              },
+  { key: "city",            label: "المدينة"             },
+  { key: "gender",          label: "الجنس"              },
+  { key: "attendanceStatus",label: "حالة الحضور"        },
 ];
 
-const VolunteersModal = ({ activityId, activityTitle, activityStatus, activityDate, activityType, durationHours, isOpen, onClose, onComplete }: Props) => {
+const GENDER_FILTERS = [
+  { value: "ALL",    label: "الكل"  },
+  { value: "MALE",   label: "ذكر"   },
+  { value: "FEMALE", label: "أنثى"  },
+] as const;
+
+const VolunteersModal = ({
+  activityId, activityTitle, activityStatus, activityDate,
+  activityType, durationHours, isOpen, onClose, onComplete,
+}: Props) => {
   const {
-    volunteers, loading, rejecting, confirmStep, attendanceWarning, unmarkedCount,
+    volunteers, allVolunteers, filteredCount, exportData,
+    loading, rejecting, confirmStep, attendanceWarning, unmarkedCount,
     toasts, removeToast,
-    setAttendance, rejectVolunteer, requestComplete, confirmStep1, cancelConfirm,
-    confirmComplete, dismissWarning, calculateAge, exportData,
-  } = useVolunteersModal(activityId, isOpen, activityTitle, activityStatus, activityDate, activityType, durationHours);
+    search, handleSearch,
+    genderFilter, handleGenderFilter,
+    currentPage, setCurrentPage, volunteersPerPage,
+    setAttendance, rejectVolunteer, requestComplete,
+    confirmStep1, cancelConfirm, confirmComplete, dismissWarning, calculateAge,
+  } = useVolunteersModal(
+    activityId, isOpen, activityTitle, activityStatus, activityDate, activityType, durationHours
+  );
 
   const { state: completeState, startAnimation, reset: resetComplete } = useCompleteActivity();
-
-  const router = useRouter();
-  const isCompleted = activityStatus === ActivityStatus.COMPLETED;
-  const canComplete = activityStatus === ActivityStatus.PUBLISHED && !!onComplete;
-  const canReject = activityStatus === ActivityStatus.PUBLISHED;
+  const router        = useRouter();
+  const isCompleted   = activityStatus === ActivityStatus.COMPLETED;
+  const canComplete   = activityStatus === ActivityStatus.PUBLISHED && !!onComplete;
+  const canReject     = activityStatus === ActivityStatus.PUBLISHED;
+  const attendedCount = allVolunteers.filter(v => v.attendanceStatus === AttendanceStatus.ATTENDED).length;
 
   const [rejectTarget, setRejectTarget] = useState<{ participationId: string; name: string } | null>(null);
-
-  const attendedCount = volunteers.filter(v => v.attendanceStatus === AttendanceStatus.ATTENDED).length;
 
   const handleFinalComplete = () => {
     if (!onComplete) return;
     confirmComplete(async () => {
       const success = await onComplete();
-      if (success) {
-        startAnimation(attendedCount);
-      }
+      if (success) startAnimation(attendedCount);
       return success;
     }, onClose);
   };
 
-  const handleProgressClose = () => {
-    resetComplete();
-    onClose();
-  };
-
-  const isProgressOpen = completeState.phase === 'running' || completeState.phase === 'done';
+  const handleProgressClose = () => { resetComplete(); onClose(); };
+  const isProgressOpen = completeState.phase === "running" || completeState.phase === "done";
 
   return (
     <>
@@ -98,11 +109,30 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, activityDa
       <Modal isOpen={isOpen && !isProgressOpen} onClose={onClose} title="المتطوعون" size="md">
         <div className={styles.wrapper}>
 
-          <ExportUsersButton
-            data={exportData}
-            columns={EXPORT_COLUMNS}
-            buttonText="Export Excel"
-          />
+          <div className={styles.controls}>
+            <div className={styles.searchWrap}>
+              <Search size={13} className={styles.searchIcon} />
+              <input
+                type="text"
+                className={styles.searchInput}
+                value={search}
+                onChange={e => handleSearch(e.target.value)}
+                placeholder="ابحث بالاسم..."
+              />
+            </div>
+            <div className={styles.genderFilter}>
+              {GENDER_FILTERS.map(f => (
+                <button
+                  key={f.value}
+                  className={`${styles.filterBtn} ${genderFilter === f.value ? styles.filterActive : ""}`}
+                  onClick={() => handleGenderFilter(f.value)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Excel" />
+          </div>
 
           {attendanceWarning && (
             <div className={styles.warning}>
@@ -111,23 +141,23 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, activityDa
                 <strong>يوجد {unmarkedCount} متطوع لم يُسجَّل حضوره</strong>
                 <span>يجب تسجيل حضور أو غياب جميع المتطوعين قبل إكمال النشاط</span>
               </div>
-              <button className={styles.warningClose} onClick={dismissWarning}>
-                <X size={14} />
-              </button>
+              <button className={styles.warningClose} onClick={dismissWarning}><X size={14} /></button>
             </div>
           )}
 
           <div className={styles.scrollArea}>
             {loading ? (
               <LoadingState compact />
-            ) : volunteers.length === 0 ? (
+            ) : allVolunteers.length === 0 ? (
               <EmptyState icon={UsersIcon} title="لا يوجد متطوعون" message="لم يتم قبول أي متطوع بعد" />
+            ) : volunteers.length === 0 ? (
+              <EmptyState icon={UsersIcon} message="لا توجد نتائج للبحث" />
             ) : (
               <div className={styles.list}>
-                {volunteers.map((volunteer) => {
-                  const attended = volunteer.attendanceStatus === AttendanceStatus.ATTENDED;
-                  const absent = volunteer.attendanceStatus === AttendanceStatus.ABSENT;
-                  const unmarked = volunteer.attendanceStatus === AttendanceStatus.NOT_MARKED;
+                {volunteers.map(volunteer => {
+                  const attended  = volunteer.attendanceStatus === AttendanceStatus.ATTENDED;
+                  const absent    = volunteer.attendanceStatus === AttendanceStatus.ABSENT;
+                  const unmarked  = volunteer.attendanceStatus === AttendanceStatus.NOT_MARKED;
                   const isRejecting = rejecting === volunteer.participationId;
 
                   return (
@@ -154,7 +184,6 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, activityDa
                             <button
                               className={styles.rejectBtn}
                               disabled={isRejecting}
-                              title="إزالة من النشاط"
                               onClick={e => {
                                 e.stopPropagation();
                                 setRejectTarget({ participationId: volunteer.participationId, name: volunteer.fullName });
@@ -204,7 +233,7 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, activityDa
                         {isCompleted && (
                           <div className={styles.attendanceResult}>
                             {attended && <span className={styles.resultAttended}><Check size={11} /> حضر</span>}
-                            {absent && <span className={styles.resultAbsent}><X size={11} /> غائب</span>}
+                            {absent   && <span className={styles.resultAbsent}><X size={11} /> غائب</span>}
                             {unmarked && <span className={styles.notMarked}>{getAttendanceStatusLabel(AttendanceStatus.NOT_MARKED)}</span>}
                           </div>
                         )}
@@ -216,17 +245,26 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, activityDa
             )}
           </div>
 
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredCount}
+            itemsPerPage={volunteersPerPage}
+            onPageChange={setCurrentPage}
+          />
+
           <div className={styles.stickyFooter}>
             <p className={styles.count}>
-              إجمالي: <strong>{volunteers.length}</strong>
+              إجمالي: <strong>{allVolunteers.length}</strong>
+              {filteredCount !== allVolunteers.length && (
+                <span className={styles.countFiltered}> · {filteredCount} نتيجة</span>
+              )}
               {!isCompleted && unmarkedCount > 0 && (
                 <span className={styles.countWarn}> · {unmarkedCount} لم يُسجَّل</span>
               )}
             </p>
             {canComplete && (
               <button className={styles.btnComplete} onClick={requestComplete}>
-                <Archive size={15} />
-                إكمال النشاط
+                <Archive size={15} /> إكمال النشاط
               </button>
             )}
           </div>
@@ -235,24 +273,23 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, activityDa
 
       <Modal
         isOpen={isProgressOpen}
-        onClose={() => { }}
-        title={completeState.phase === 'done' ? "اكتمل النشاط!" : "جارٍ إكمال النشاط..."}
+        onClose={() => {}}
+        title={completeState.phase === "done" ? "اكتمل النشاط!" : "جارٍ إكمال النشاط..."}
         size="md"
       >
         <CompleteActivityProgress
           steps={
-            (completeState.phase === 'running' || completeState.phase === 'done')
+            (completeState.phase === "running" || completeState.phase === "done")
               ? completeState.steps.map(s => ({
-                id: s.id,
-                label: s.label,
-                sublabel: STEP_SUBLABELS[s.id] ?? "",
-                icon: STEP_ICONS[s.id] ?? null,
-                status: s.status
-              }))
+                  id: s.id, label: s.label,
+                  sublabel: STEP_SUBLABELS[s.id] ?? "",
+                  icon:     STEP_ICONS[s.id]     ?? null,
+                  status:   s.status,
+                }))
               : []
           }
-          isDone={completeState.phase === 'done'}
-          issuedCount={completeState.phase === 'done' ? completeState.issuedCount : 0}
+          isDone={completeState.phase === "done"}
+          issuedCount={completeState.phase === "done" ? completeState.issuedCount : 0}
           activityTitle={activityTitle}
           onClose={handleProgressClose}
         />
@@ -266,7 +303,7 @@ const VolunteersModal = ({ activityId, activityTitle, activityStatus, activityDa
           setRejectTarget(null);
         }}
         title="إزالة متطوع"
-        message={`هل تريد إزالة "${rejectTarget?.name}" من النشاط؟ سيتم رفض مشاركته وإفراغ مكانه.`}
+        message={`هل تريد إزالة "${rejectTarget?.name}" من النشاط؟`}
         confirmText="إزالة"
         cancelText="إلغاء"
         variant="danger"

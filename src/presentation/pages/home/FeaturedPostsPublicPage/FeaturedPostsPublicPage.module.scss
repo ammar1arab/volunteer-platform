@@ -46,8 +46,15 @@
 }
 
 .filters {
-  @include flex(row, center, center, $sp-md);
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
   margin-bottom: $sp-xl;
+}
+
+.dropdowns {
+  @include flex(row, center, center, $sp-md);
+  flex-wrap: wrap;
 }
 
 .grid {

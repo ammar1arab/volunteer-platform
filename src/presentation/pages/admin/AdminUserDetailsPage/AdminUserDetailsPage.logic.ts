@@ -21,19 +21,20 @@ export const useAdminUserDetailsPage = () => {
   const userId             = params.id as string;
   const { user, activities, loadingUser, loadingActivities, error, refresh } = useUserDetails(userId);
 
-  const [activeFilter,      setActiveFilter]     = useState("all");
-  const [currentPage,       setCurrentPage]      = useState(1);
-  const [editingField,      setEditingField]     = useState<EditingField | null>(null);
-  const [isSaving,          setIsSaving]         = useState(false);
-  const [isTogglingActive,  setIsTogglingActive] = useState(false);
-  const [isDeleting,        setIsDeleting]       = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [activeFilter,       setActiveFilter]      = useState("all");
+  const [currentPage,        setCurrentPage]       = useState(1);
+  const [editingField,       setEditingField]      = useState<EditingField | null>(null);
+  const [isSaving,           setIsSaving]          = useState(false);
+  const [isTogglingActive,   setIsTogglingActive]  = useState(false);
+  const [isDeleting,         setIsDeleting]        = useState(false);
+  const [showDeleteConfirm,  setShowDeleteConfirm] = useState(false);
+  const [showToggleConfirm,  setShowToggleConfirm] = useState(false);
 
   useEffect(() => { if (error?.trim()) showToast(error, "error"); }, [error, showToast]);
   useEffect(() => { setCurrentPage(1); }, [activeFilter]);
 
-  const startEditing    = useCallback((field: string, value: unknown) => setEditingField({ field, value }), []);
-  const cancelEditing   = useCallback(() => setEditingField(null), []);
+  const startEditing     = useCallback((field: string, value: unknown) => setEditingField({ field, value }), []);
+  const cancelEditing    = useCallback(() => setEditingField(null), []);
   const updateFieldValue = useCallback(
     (value: unknown) => setEditingField(prev => prev ? { ...prev, value } : null), []);
 
@@ -53,9 +54,10 @@ export const useAdminUserDetailsPage = () => {
     }
   }, [editingField, userId, refresh, showToast]);
 
-  const toggleActive = useCallback(async () => {
+  const confirmToggleActive = useCallback(async () => {
     if (!user) return;
     setIsTogglingActive(true);
+    setShowToggleConfirm(false);
     try {
       const result = await userApi.toggleActive(userId, !user.isActive);
       if (!result.success) { showToast(result.error.message, "error"); return; }
@@ -134,7 +136,8 @@ export const useAdminUserDetailsPage = () => {
     exportData, totalHours,
     editingField, isSaving,
     startEditing, cancelEditing, updateFieldValue, saveField,
-    toggleActive, isTogglingActive,
+    confirmToggleActive, isTogglingActive,
+    showToggleConfirm, setShowToggleConfirm,
     deleteUser, isDeleting,
     showDeleteConfirm, setShowDeleteConfirm,
   };

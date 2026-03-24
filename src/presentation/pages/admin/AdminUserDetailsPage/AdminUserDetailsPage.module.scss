@@ -25,66 +25,71 @@
   text-decoration: none;
   font-weight: 500;
 }
-
 .header {
   @include flex-between;
   flex-wrap: wrap;
   gap: $sp-sm;
 }
 
-.back {
-  @include flex(row, center, center, $sp-sm);
-  font-size: $font-sm;
-  color: $text-muted;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color $transition;
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
 
-  &:hover {
-    color: $text;
+  @media (max-width: $bp-sm) {
+    gap: 0.3rem;
   }
 }
 
-.actions {
-  @include flex(row, center, flex-end, $sp-sm);
-  flex-wrap: wrap;
-}
-
 %action-btn {
-  @include flex(row, center, center, $sp-xs);
-  padding: 0.4rem 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.65rem;
   border-radius: $radius;
-  font-size: $font-sm;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   border: 1.5px solid transparent;
   transition: opacity $transition;
+  white-space: nowrap;
 
-  &:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
+  span { 
+    @media (max-width: 420px) { display: none; }
   }
+
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 
 .btnActivate {
   @extend %action-btn;
-  background: rgba($green, 0.1);
+  background: rgba($green, 0.08);
   color: $green;
   border-color: $green;
 }
 
 .btnDeactivate {
   @extend %action-btn;
-  background: white;
+  background: rgba(#f59e0b, 0.08);
   color: #b45309;
   border-color: #f59e0b;
 }
 
 .btnDanger {
   @extend %action-btn;
-  background:white;
+  background: rgba($red, 0.08);
   color: $red;
   border-color: $red;
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  @include animate-spin;
 }
 
 .statsGrid {
@@ -273,13 +278,4 @@
 .list {
   @include flex-col;
   gap: $sp-sm;
-}
-
-.spinner {
-  width: 13px;
-  height: 13px;
-  border: 2px solid currentColor;
-  border-top-color: transparent;
-  border-radius: 50%;
-  @include animate-spin;
 }
