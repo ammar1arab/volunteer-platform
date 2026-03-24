@@ -2,7 +2,7 @@
 import styles from "./BroadcastRecipientsModal.module.scss";
 import { useState, useMemo } from "react";
 import { Search, MapPin, User2, Clock, Users } from "lucide-react";
-import { Modal, EmptyState, LoadingState } from "@/presentation/components";
+import { Modal, EmptyState, LoadingState, Pagination } from "@/presentation/components";
 import type { BroadcastRecipientDto } from "@/core/application/dtos";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
 import { JordanianCity, Gender } from "@/core/domain/enums";
@@ -15,13 +15,26 @@ interface Props {
   loading:        boolean;
 }
 
+const ITEMS_PER_PAGE = 8;
+
 const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients, loading }: Props) => {
-  const [search, setSearch] = useState("");
+  const [search,      setSearch]      = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return q ? recipients.filter(r => r.name.toLowerCase().includes(q)) : recipients;
   }, [recipients, search]);
+
+  const paginated = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(start, start + ITEMS_PER_PAGE);
+  }, [filtered, currentPage]);
+
+  const handleSearch = (val: string) => {
+    setSearch(val);
+    setCurrentPage(1);
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="مستقبلو الإشعار" size="md">
@@ -40,7 +53,7 @@ const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients,
             type="text"
             className={styles.searchInput}
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => handleSearch(e.target.value)}
             placeholder="ابحث بالاسم..."
           />
         </div>
@@ -52,11 +65,9 @@ const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients,
             <EmptyState icon={Users} message={search ? "لا توجد نتائج" : "لا يوجد مستقبلون"} />
           ) : (
             <div className={styles.list}>
-              {filtered.map(r => (
+              {paginated.map(r => (
                 <div key={r.id} className={styles.row}>
-                  <div className={styles.avatar}>
-                    {r.name.charAt(0)}
-                  </div>
+                  <div className={styles.avatar}>{r.name.charAt(0)}</div>
                   <div className={styles.info}>
                     <span className={styles.name}>{r.name}</span>
                     <div className={styles.meta}>
@@ -82,6 +93,13 @@ const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients,
             </div>
           )}
         </div>
+
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filtered.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+        />
 
       </div>
     </Modal>

@@ -288,3 +288,7 @@
 
   &:hover { background: rgba($red, 0.15); }
 }
+.broadcastListWrapper {
+  @include flex-col;
+  gap: $sp-sm;
+}

@@ -17,7 +17,7 @@ const Footer = () => {
 
           <div className={styles.links}>
             <Link href={ROUTES.ACTIVITIES}>الفرص المتاحة</Link>
-            <Link href="/#contact">تواصل معنا</Link>
+            <Link href={ROUTES.CONTACT}>تواصل معنا</Link>
           </div>
 
           <div className={styles.social}>

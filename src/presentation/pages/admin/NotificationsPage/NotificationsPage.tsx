@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import {
   LoadingState, EmptyState, ToastContainer, SelectInput,
-  Button, NotificationPreviewModal, ConfirmDialog,
+  Button, NotificationPreviewModal, ConfirmDialog, Pagination,
 } from "@/presentation/components";
 import {
   useNotificationsPageLogic,
@@ -18,19 +18,19 @@ import type { BroadcastDto } from "@/core/application/dtos";
 import { Gender, JordanianCity } from "@/core/domain/enums";
 
 const TARGET_ICON: Record<string, React.ReactNode> = {
-  ALL:    <Users     size={11} />,
-  CITY:   <MapPin    size={11} />,
-  GENDER: <User2     size={11} />,
-  HOURS:  <Clock     size={11} />,
-  USERS:  <UserCheck size={11} />,
+  ALL: <Users size={11} />,
+  CITY: <MapPin size={11} />,
+  GENDER: <User2 size={11} />,
+  HOURS: <Clock size={11} />,
+  USERS: <UserCheck size={11} />,
 };
 
 const getTargetLabel = (b: BroadcastDto) => {
-  if (b.target === "ALL")    return "الجميع";
-  if (b.target === "CITY")   return getCityLabel(b.targetValue as JordanianCity);
+  if (b.target === "ALL") return "الجميع";
+  if (b.target === "CITY") return getCityLabel(b.targetValue as JordanianCity);
   if (b.target === "GENDER") return getGenderLabel(b.targetValue as Gender);
-  if (b.target === "HOURS")  return `أكثر من ${b.targetValue} ساعة`;
-  if (b.target === "USERS")  return "مختارون يدوياً";
+  if (b.target === "HOURS") return `أكثر من ${b.targetValue} ساعة`;
+  if (b.target === "USERS") return "مختارون يدوياً";
   return b.targetValue ?? "";
 };
 
@@ -38,10 +38,13 @@ const NotificationsPage = () => {
   const {
     status, form, submitStatus, loadingPreview, isFormInvalid,
     broadcasts, loadingBroadcasts, clearingBroadcasts,
+    paginatedBroadcasts, broadcastsPage, setBroadcastsPage,
+    broadcastsTotalItems, broadcastsPerPage,
     toasts, removeToast,
     previewUsers, selectedIds, showPreview, showConfirm,
     setField, handleSubmit, toggleUser, toggleAll,
-    setShowConfirm, handleSendConfirmed, closePreview, handleClearBroadcasts,
+    setShowConfirm, handleSendConfirmed, closePreview,
+    showClearConfirm, setShowClearConfirm, handleClearBroadcasts,
     filteredVolunteers, loadingVolunteers,
     volunteerSearch, setVolunteerSearch,
     directSelectedIds, toggleDirectUser, toggleAllDirect,
@@ -52,12 +55,23 @@ const NotificationsPage = () => {
 
   if (status === "loading") return <LoadingState />;
 
-  const isSubmitting    = submitStatus === "loading";
+  const isSubmitting = submitStatus === "loading";
   const allDirectVisible = filteredVolunteers.length > 0 && filteredVolunteers.every(v => directSelectedIds.has(v.id));
 
   return (
     <>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={handleClearBroadcasts}
+        title="مسح السجل كاملاً"
+        message="سيتم حذف جميع الإشعارات المرسلة من السجل نهائياً."
+        warning="لا يمكن التراجع عن هذا الإجراء."
+        confirmText={clearingBroadcasts ? "جارٍ المسح..." : "مسح الكل"}
+        variant="danger"
+      />
 
       <ConfirmDialog
         isOpen={showDeleteConfirm}
@@ -246,10 +260,10 @@ const NotificationsPage = () => {
             {broadcasts.length > 0 && (
               <button
                 className={styles.clearBtn}
-                onClick={handleClearBroadcasts}
+                onClick={() => setShowClearConfirm(true)}
                 disabled={clearingBroadcasts}
               >
-                {clearingBroadcasts ? "جاري المسح..." : "مسح الكل"}
+                مسح الكل
               </button>
             )}
           </div>
@@ -259,41 +273,49 @@ const NotificationsPage = () => {
           ) : broadcasts.length === 0 ? (
             <EmptyState icon={Bell} message="لم يُرسل أي إشعار بعد" />
           ) : (
-            <div className={styles.broadcastList}>
-              {broadcasts.map(b => (
-                <div key={b.broadcastId} className={styles.broadcastItem}>
-                  <div className={styles.broadcastTop}>
-                    <span className={styles.broadcastTitle}>{b.title}</span>
-                    <span className={styles.broadcastTag}>
-                      {TARGET_ICON[b.target]}
-                      {getTargetLabel(b)}
-                    </span>
-                  </div>
-                  <p className={styles.broadcastMsg}>{b.message}</p>
-                  <div className={styles.broadcastBottom}>
-                    <div className={styles.broadcastMeta}>
-                      <span className={styles.recipients}>
-                        <Users size={11} /> {b.totalRecipients} متطوع
+            <div className={styles.broadcastListWrapper}>
+              <div className={styles.broadcastList}>
+                {paginatedBroadcasts.map(b => (
+                  <div key={b.broadcastId} className={styles.broadcastItem}>
+                    <div className={styles.broadcastTop}>
+                      <span className={styles.broadcastTitle}>{b.title}</span>
+                      <span className={styles.broadcastTag}>
+                        {TARGET_ICON[b.target]}
+                        {getTargetLabel(b)}
                       </span>
-                      <span className={styles.time}>{relativeTime(b.createdAt)}</span>
                     </div>
-                    <div className={styles.broadcastActions}>
-                      <button
-                        className={styles.btnRecipients}
-                        onClick={() => openRecipientsModal(b.broadcastId, b.title)}
-                      >
-                        <Eye size={12} /> المستقبلون
-                      </button>
-                      <button
-                        className={styles.btnDeleteBroadcast}
-                        onClick={() => requestDeleteBroadcast(b.broadcastId)}
-                      >
-                        <Trash2 size={12} />
-                      </button>
+                    <p className={styles.broadcastMsg}>{b.message}</p>
+                    <div className={styles.broadcastBottom}>
+                      <div className={styles.broadcastMeta}>
+                        <span className={styles.recipients}>
+                          <Users size={11} /> {b.totalRecipients} متطوع
+                        </span>
+                        <span className={styles.time}>{relativeTime(b.createdAt)}</span>
+                      </div>
+                      <div className={styles.broadcastActions}>
+                        <button
+                          className={styles.btnRecipients}
+                          onClick={() => openRecipientsModal(b.broadcastId, b.title)}
+                        >
+                          <Eye size={12} /> المستقبلون
+                        </button>
+                        <button
+                          className={styles.btnDeleteBroadcast}
+                          onClick={() => requestDeleteBroadcast(b.broadcastId)}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <Pagination
+                currentPage={broadcastsPage}
+                totalItems={broadcastsTotalItems}
+                itemsPerPage={broadcastsPerPage}
+                onPageChange={setBroadcastsPage}
+              />
             </div>
           )}
         </section>

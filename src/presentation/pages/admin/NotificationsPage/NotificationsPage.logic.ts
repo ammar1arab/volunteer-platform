@@ -2,7 +2,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { UserRole } from "@/core/domain/enums";
 import { useAuth, useToast } from "@/presentation/hooks";
-import type { BroadcastDto, BroadcastRecipientDto, PreviewUserDto, SendCustomNotificationInput } from "@/core/application/dtos";
+import type {
+  BroadcastDto,
+  BroadcastRecipientDto,
+  PreviewUserDto,
+  SendCustomNotificationInput
+} from "@/core/application/dtos";
 import { notificationApi } from "@/presentation/services/notification.service";
 import { userApi } from "@/presentation/services";
 import { CITY_OPTIONS, GENDER_OPTIONS } from "@/presentation/constants";
@@ -11,67 +16,87 @@ import { relativeTime } from "@/lib/utils";
 type SubmitStatus = "idle" | "loading";
 
 const EMPTY_FORM: SendCustomNotificationInput = {
-  title: "", message: "", target: "ALL", targetValue: "", link: "",
+  title: "",
+  message: "",
+  target: "ALL",
+  targetValue: "",
+  link: ""
 };
 
+const BROADCASTS_PER_PAGE = 5;
+
 export const TARGET_OPTIONS = [
-  { value: "ALL",    label: "جميع المتطوعين"    },
-  { value: "CITY",   label: "حسب المدينة"       },
-  { value: "GENDER", label: "حسب الجنس"         },
-  { value: "HOURS",  label: "حسب ساعات التطوع"  },
-  { value: "USERS",  label: "اختيار مباشر"      },
+  { value: "ALL", label: "جميع المتطوعين" },
+  { value: "CITY", label: "حسب المدينة" },
+  { value: "GENDER", label: "حسب الجنس" },
+  { value: "HOURS", label: "حسب ساعات التطوع" },
+  { value: "USERS", label: "اختيار مباشر" }
 ];
 
 export { CITY_OPTIONS, GENDER_OPTIONS, relativeTime };
 
 interface RecipientsState {
-  open:        boolean;
+  open: boolean;
   broadcastId: string | null;
-  title:       string;
-  recipients:  BroadcastRecipientDto[];
-  loading:     boolean;
+  title: string;
+  recipients: BroadcastRecipientDto[];
+  loading: boolean;
 }
 
 const INITIAL_RECIPIENTS: RecipientsState = {
-  open: false, broadcastId: null, title: "", recipients: [], loading: false,
+  open: false,
+  broadcastId: null,
+  title: "",
+  recipients: [],
+  loading: false
 };
 
 export function useNotificationsPageLogic() {
-  const { status }                   = useAuth({ requireRole: UserRole.ADMIN });
+  const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
 
-  const [form,             setFormState]      = useState<SendCustomNotificationInput>(EMPTY_FORM);
-  const [submitStatus,     setSubmitStatus]   = useState<SubmitStatus>("idle");
-  const [broadcasts,       setBroadcasts]     = useState<BroadcastDto[]>([]);
-  const [loadingBroadcasts,setLoadingBroadcasts] = useState(true);
-  const [previewUsers,     setPreviewUsers]   = useState<PreviewUserDto[]>([]);
-  const [selectedIds,      setSelectedIds]    = useState<Set<string>>(new Set());
-  const [showPreview,      setShowPreview]    = useState(false);
-  const [loadingPreview,   setLoadingPreview] = useState(false);
-  const [showConfirm,      setShowConfirm]    = useState(false);
+  const [form, setFormState] = useState<SendCustomNotificationInput>(EMPTY_FORM);
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
+  const [broadcasts, setBroadcasts] = useState<BroadcastDto[]>([]);
+  const [loadingBroadcasts, setLoadingBroadcasts] = useState(true);
+  const [broadcastsPage, setBroadcastsPage] = useState(1);
+  const [previewUsers, setPreviewUsers] = useState<PreviewUserDto[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showPreview, setShowPreview] = useState(false);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [clearingBroadcasts, setClearingBroadcasts] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  const [allVolunteers,    setAllVolunteers]     = useState<PreviewUserDto[]>([]);
-  const [loadingVolunteers,setLoadingVolunteers] = useState(false);
-  const [volunteerSearch,  setVolunteerSearch]   = useState("");
-  const [directSelectedIds,setDirectSelectedIds] = useState<Set<string>>(new Set());
+  const [allVolunteers, setAllVolunteers] = useState<PreviewUserDto[]>([]);
+  const [loadingVolunteers, setLoadingVolunteers] = useState(false);
+  const [volunteerSearch, setVolunteerSearch] = useState("");
+  const [directSelectedIds, setDirectSelectedIds] = useState<Set<string>>(new Set());
 
-  const [recipientsState,  setRecipientsState]   = useState<RecipientsState>(INITIAL_RECIPIENTS);
-  const [pendingDeleteId,  setPendingDeleteId]    = useState<string | null>(null);
-  const [deletingId,       setDeletingId]         = useState<string | null>(null);
-  const [showDeleteConfirm,setShowDeleteConfirm]  = useState(false);
+  const [recipientsState, setRecipientsState] = useState<RecipientsState>(INITIAL_RECIPIENTS);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const fetchBroadcasts = useCallback(async () => {
     setLoadingBroadcasts(true);
     try {
       const res = await notificationApi.getBroadcasts();
       setBroadcasts((res as any)?.data?.broadcasts ?? []);
+      setBroadcastsPage(1);
     } finally {
       setLoadingBroadcasts(false);
     }
   }, []);
 
-  useEffect(() => { fetchBroadcasts(); }, [fetchBroadcasts]);
+  useEffect(() => {
+    fetchBroadcasts();
+  }, [fetchBroadcasts]);
+
+  const paginatedBroadcasts = useMemo(() => {
+    const start = (broadcastsPage - 1) * BROADCASTS_PER_PAGE;
+    return broadcasts.slice(start, start + BROADCASTS_PER_PAGE);
+  }, [broadcasts, broadcastsPage]);
 
   const fetchAllVolunteers = useCallback(async () => {
     if (allVolunteers.length) return;
@@ -83,11 +108,11 @@ export function useNotificationsPageLogic() {
         users
           .filter((u: any) => u.role === "VOLUNTEER" && u.isActive)
           .map((u: any) => ({
-            id:     u.id,
-            name:   u.fullName,
-            city:   u.volunteerProfile?.city   ?? null,
+            id: u.id,
+            name: u.fullName,
+            city: u.volunteerProfile?.city ?? null,
             gender: u.volunteerProfile?.gender ?? null,
-            hours:  u.stats?.totalHours        ?? 0,
+            hours: u.stats?.totalHours ?? 0
           }))
       );
     } catch {
@@ -103,11 +128,11 @@ export function useNotificationsPageLogic() {
 
   const filteredVolunteers = useMemo(() => {
     const q = volunteerSearch.trim().toLowerCase();
-    return q ? allVolunteers.filter(v => v.name.toLowerCase().includes(q)) : allVolunteers;
+    return q ? allVolunteers.filter((v) => v.name.toLowerCase().includes(q)) : allVolunteers;
   }, [allVolunteers, volunteerSearch]);
 
   const setField = useCallback((name: string, value: string) => {
-    setFormState(p => ({ ...p, [name]: value, ...(name === "target" ? { targetValue: "" } : {}) }));
+    setFormState((p) => ({ ...p, [name]: value, ...(name === "target" ? { targetValue: "" } : {}) }));
     if (name === "target") {
       setDirectSelectedIds(new Set());
       setVolunteerSearch("");
@@ -115,7 +140,7 @@ export function useNotificationsPageLogic() {
   }, []);
 
   const toggleDirectUser = useCallback((id: string) => {
-    setDirectSelectedIds(prev => {
+    setDirectSelectedIds((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
@@ -123,13 +148,11 @@ export function useNotificationsPageLogic() {
   }, []);
 
   const toggleAllDirect = useCallback(() => {
-    setDirectSelectedIds(prev => {
-      const visibleIds = filteredVolunteers.map(v => v.id);
-      const allSelected = visibleIds.every(id => prev.has(id));
+    setDirectSelectedIds((prev) => {
+      const visibleIds = filteredVolunteers.map((v) => v.id);
+      const allSelected = visibleIds.every((id) => prev.has(id));
       const next = new Set(prev);
-      allSelected
-        ? visibleIds.forEach(id => next.delete(id))
-        : visibleIds.forEach(id => next.add(id));
+      allSelected ? visibleIds.forEach((id) => next.delete(id)) : visibleIds.forEach((id) => next.add(id));
       return next;
     });
   }, [filteredVolunteers]);
@@ -142,35 +165,41 @@ export function useNotificationsPageLogic() {
     return false;
   }, [form, directSelectedIds.size]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isFormInvalid) return;
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (isFormInvalid) return;
 
-    if (form.target === "USERS") {
-      const selected = allVolunteers.filter(v => directSelectedIds.has(v.id));
-      setPreviewUsers(selected);
-      setSelectedIds(new Set(directSelectedIds));
-      setShowPreview(true);
-      return;
-    }
+      if (form.target === "USERS") {
+        const selected = allVolunteers.filter((v) => directSelectedIds.has(v.id));
+        setPreviewUsers(selected);
+        setSelectedIds(new Set(directSelectedIds));
+        setShowPreview(true);
+        return;
+      }
 
-    setLoadingPreview(true);
-    try {
-      const res = await notificationApi.previewTargets(form.target, form.targetValue || undefined);
-      const users = (res as any)?.data?.users ?? [];
-      if (!users.length) { showToast("لا يوجد متطوعون يطابقون هذا الاستهداف", "error"); return; }
-      setPreviewUsers(users);
-      setSelectedIds(new Set(users.map((u: PreviewUserDto) => u.id)));
-      setShowPreview(true);
-    } catch {
-      showToast("حدث خطأ أثناء جلب البيانات", "error");
-    } finally {
-      setLoadingPreview(false);
-    }
-  }, [form, isFormInvalid, allVolunteers, directSelectedIds, showToast]);
+      setLoadingPreview(true);
+      try {
+        const res = await notificationApi.previewTargets(form.target, form.targetValue || undefined);
+        const users = (res as any)?.data?.users ?? [];
+        if (!users.length) {
+          showToast("لا يوجد متطوعون يطابقون هذا الاستهداف", "error");
+          return;
+        }
+        setPreviewUsers(users);
+        setSelectedIds(new Set(users.map((u: PreviewUserDto) => u.id)));
+        setShowPreview(true);
+      } catch {
+        showToast("حدث خطأ أثناء جلب البيانات", "error");
+      } finally {
+        setLoadingPreview(false);
+      }
+    },
+    [form, isFormInvalid, allVolunteers, directSelectedIds, showToast]
+  );
 
   const toggleUser = useCallback((id: string) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
@@ -178,9 +207,7 @@ export function useNotificationsPageLogic() {
   }, []);
 
   const toggleAll = useCallback(() => {
-    setSelectedIds(prev =>
-      prev.size === previewUsers.length ? new Set() : new Set(previewUsers.map(u => u.id))
-    );
+    setSelectedIds((prev) => (prev.size === previewUsers.length ? new Set() : new Set(previewUsers.map((u) => u.id))));
   }, [previewUsers]);
 
   const handleSendConfirmed = useCallback(async () => {
@@ -188,12 +215,12 @@ export function useNotificationsPageLogic() {
     setSubmitStatus("loading");
     try {
       const res = await notificationApi.sendCustom({
-        title:       form.title.trim(),
-        message:     form.message.trim(),
-        target:      form.target,
+        title: form.title.trim(),
+        message: form.message.trim(),
+        target: form.target,
         targetValue: form.targetValue || undefined,
-        link:        form.link?.trim() || undefined,
-        userIds:     [...selectedIds],
+        link: form.link?.trim() || undefined,
+        userIds: [...selectedIds]
       });
       const sent = (res as any)?.data?.sent ?? 0;
       showToast(`تم إرسال الإشعار لـ ${sent} متطوع`, "success");
@@ -222,28 +249,33 @@ export function useNotificationsPageLogic() {
     try {
       await notificationApi.clearBroadcasts();
       setBroadcasts([]);
+      setBroadcastsPage(1);
       showToast("تم مسح السجل بنجاح", "success");
     } catch {
       showToast("حدث خطأ أثناء المسح", "error");
     } finally {
       setClearingBroadcasts(false);
+      setShowClearConfirm(false);
     }
   }, [showToast]);
 
-  const openRecipientsModal = useCallback(async (broadcastId: string, title: string) => {
-    setRecipientsState({ open: true, broadcastId, title, recipients: [], loading: true });
-    try {
-      const res = await notificationApi.getBroadcastRecipients(broadcastId);
-      setRecipientsState(prev => ({
-        ...prev,
-        recipients: (res as any)?.data?.recipients ?? [],
-        loading:    false,
-      }));
-    } catch {
-      setRecipientsState(prev => ({ ...prev, loading: false }));
-      showToast("حدث خطأ أثناء جلب المستقبلين", "error");
-    }
-  }, [showToast]);
+  const openRecipientsModal = useCallback(
+    async (broadcastId: string, title: string) => {
+      setRecipientsState({ open: true, broadcastId, title, recipients: [], loading: true });
+      try {
+        const res = await notificationApi.getBroadcastRecipients(broadcastId);
+        setRecipientsState((prev) => ({
+          ...prev,
+          recipients: (res as any)?.data?.recipients ?? [],
+          loading: false
+        }));
+      } catch {
+        setRecipientsState((prev) => ({ ...prev, loading: false }));
+        showToast("حدث خطأ أثناء جلب المستقبلين", "error");
+      }
+    },
+    [showToast]
+  );
 
   const closeRecipientsModal = useCallback(() => setRecipientsState(INITIAL_RECIPIENTS), []);
 
@@ -262,8 +294,16 @@ export function useNotificationsPageLogic() {
     setDeletingId(pendingDeleteId);
     try {
       const res = await notificationApi.deleteBroadcast(pendingDeleteId);
-      if (!(res as any).success) { showToast((res as any).error?.message, "error"); return; }
-      setBroadcasts(prev => prev.filter(b => b.broadcastId !== pendingDeleteId));
+      if (!(res as any).success) {
+        showToast((res as any).error?.message, "error");
+        return;
+      }
+      setBroadcasts((prev) => {
+        const next = prev.filter((b) => b.broadcastId !== pendingDeleteId);
+        const maxPage = Math.ceil(next.length / BROADCASTS_PER_PAGE) || 1;
+        setBroadcastsPage((p) => Math.min(p, maxPage));
+        return next;
+      });
       if (recipientsState.broadcastId === pendingDeleteId) closeRecipientsModal();
       showToast("تم حذف الإشعار بنجاح", "success");
     } catch {
@@ -276,17 +316,51 @@ export function useNotificationsPageLogic() {
   }, [pendingDeleteId, recipientsState.broadcastId, closeRecipientsModal, showToast]);
 
   return {
-    status, form, submitStatus, loadingPreview, isFormInvalid,
-    broadcasts, loadingBroadcasts, clearingBroadcasts,
-    toasts, removeToast,
-    previewUsers, selectedIds, showPreview, showConfirm,
-    setField, handleSubmit, toggleUser, toggleAll,
-    setShowConfirm, handleSendConfirmed, closePreview, handleClearBroadcasts,
-    allVolunteers, filteredVolunteers, loadingVolunteers,
-    volunteerSearch, setVolunteerSearch,
-    directSelectedIds, toggleDirectUser, toggleAllDirect,
-    recipientsState, openRecipientsModal, closeRecipientsModal,
-    pendingDeleteId, showDeleteConfirm, deletingId,
-    requestDeleteBroadcast, cancelDeleteBroadcast, confirmDeleteBroadcast,
+    status,
+    form,
+    submitStatus,
+    loadingPreview,
+    isFormInvalid,
+    broadcasts,
+    loadingBroadcasts,
+    clearingBroadcasts,
+    paginatedBroadcasts,
+    broadcastsPage,
+    setBroadcastsPage,
+    broadcastsTotalItems: broadcasts.length,
+    broadcastsPerPage: BROADCASTS_PER_PAGE,
+    toasts,
+    removeToast,
+    previewUsers,
+    selectedIds,
+    showPreview,
+    showConfirm,
+    setField,
+    handleSubmit,
+    toggleUser,
+    toggleAll,
+    setShowConfirm,
+    handleSendConfirmed,
+    closePreview,
+    showClearConfirm,
+    setShowClearConfirm,
+    handleClearBroadcasts,
+    allVolunteers,
+    filteredVolunteers,
+    loadingVolunteers,
+    volunteerSearch,
+    setVolunteerSearch,
+    directSelectedIds,
+    toggleDirectUser,
+    toggleAllDirect,
+    recipientsState,
+    openRecipientsModal,
+    closeRecipientsModal,
+    pendingDeleteId,
+    showDeleteConfirm,
+    deletingId,
+    requestDeleteBroadcast,
+    cancelDeleteBroadcast,
+    confirmDeleteBroadcast
   };
 }

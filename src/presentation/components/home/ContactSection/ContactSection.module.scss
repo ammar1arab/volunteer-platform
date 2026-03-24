@@ -53,10 +53,35 @@
   position: relative;
   display: flex;
   align-items: center;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  background: $white;
+  transition:
+    border-color $transition,
+    box-shadow $transition;
 
-  &:focus-within .icon,
-  &:focus-within .textareaIcon {
-    color: $green;
+  &:focus-within {
+    border-color: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.1);
+
+    .icon,
+    .textareaIcon {
+      color: $green;
+    }
+  }
+
+  &.error {
+    border-color: $red;
+    box-shadow: 0 0 0 3px rgba($red, 0.08);
+
+    &:focus-within {
+      border-color: $red;
+      box-shadow: 0 0 0 3px rgba($red, 0.1);
+    }
+  }
+
+  &.success {
+    border-color: $green;
   }
 }
 
@@ -69,12 +94,13 @@
   pointer-events: none;
   transition: color 0.25s ease;
   z-index: 1;
+  flex-shrink: 0;
 }
 
 .textareaIcon {
   position: absolute;
   right: 14px;
-  top: 16px;
+  top: 14px;
   color: $text-muted;
   pointer-events: none;
   transition: color 0.25s ease;
@@ -83,24 +109,18 @@
 
 .inputBase {
   width: 100%;
-  padding: 12px 42px 12px 14px;
-  border-radius: $radius;
-  border: 1.5px solid $border;
+  padding: 12px 42px 12px 2rem;
+  border: none;
+  outline: none;
   background: transparent;
+  font: inherit;
   font-size: $font-sm;
   color: $text;
+  border-radius: $radius;
   direction: rtl;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
-
-  &:focus {
-    border-color: $green;
-    box-shadow: 0 0 0 3px rgba($green, 0.1);
-    outline: none;
-  }
 
   &::placeholder {
     color: rgba($text-muted, 0.5);
-    font-size: $font-sm;
   }
 }
 
@@ -109,4 +129,48 @@ textarea.inputBase {
   resize: none;
   padding-top: 14px;
   line-height: 1.7;
+  align-self: stretch;
+}
+
+.stateIcon {
+  position: absolute;
+  left: $sp-sm;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.stateIconTextarea {
+  top: 14px;
+  transform: none;
+}
+
+.iconSuccess {
+  color: $green;
+}
+.iconError {
+  color: $red;
+}
+
+.errorMsg {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: $font-xs;
+  color: $red;
+  font-weight: 500;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
