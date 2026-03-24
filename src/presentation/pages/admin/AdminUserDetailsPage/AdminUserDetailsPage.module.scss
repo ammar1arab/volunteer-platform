@@ -279,3 +279,15 @@
   @include flex-col;
   gap: $sp-sm;
 }
+.back {
+  @include flex(row, center, center, $sp-sm);
+  font-size: $font-sm;
+  color: $text-muted;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color $transition;
+
+  &:hover {
+    color: $text;
+  }
+}

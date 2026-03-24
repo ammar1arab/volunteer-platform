@@ -125,7 +125,7 @@ const AdminUserDetailsPage = () => {
             <Trash2 size={13} />
             <span>حذف</span>
           </button>
-          <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Excel" />
+          <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export Excel" />
         </div>
       </div>
 
