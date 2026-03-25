@@ -96,7 +96,7 @@ export default function VolunteerProfilePage() {
           </Link>
           <Link href={ROUTES.VOLUNTEER.ACTIVITIES} className={styles.quickLink}>
             <CalendarDays size={15} />
-            <span>اكتشف الفرص</span>
+            <span>استكشف الفرص</span>
             <ChevronLeft size={15} />
           </Link>
         </div>
