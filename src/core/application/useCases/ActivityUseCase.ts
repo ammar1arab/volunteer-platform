@@ -1,10 +1,11 @@
 import { ActivityRepository, ActivityParticipationRepository } from "@/infrastructure/persistence/repositories";
 import { InputSanitizer } from "@/infrastructure/security";
+import { prisma } from "@/infrastructure/persistence/prisma";
 import { Activity } from "@/core/domain/entities";
 import { R2StorageService } from "@/infrastructure/external";
 import { serviceError, guard, guardRange } from "@/core/application/common";
 import { toActivityDto, toActivityDtoList } from "@/core/application/mappers";
-import { ActivityStatus, ActivityType, JordanianCity } from "@/core/domain/enums";
+import { ActivityStatus, ActivityType, JordanianCity, NotificationType } from "@/core/domain/enums";
 import {
   ok,
   fail,
@@ -23,6 +24,7 @@ import {
   CompleteActivityResponse
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
+import { ROUTES } from "@/presentation/constants";
 
 class ActivityUseCase {
   private static readonly SCOPE = "ActivityUseCase";
@@ -209,9 +211,23 @@ class ActivityUseCase {
     try {
       const activity = await this.findOrFail(id);
       activity.cancel();
-      const updated = await this.activityRepository.update(activity);
-      logger.info(ActivityUseCase.SCOPE, "cancel", `Activity cancelled: ${id}`);
-      return ok({ activity: toActivityDto(updated) });
+      await this.activityRepository.update(activity);
+
+      const approved = await this.participationRepository.findApprovedByActivity(id);
+      if (approved.length) {
+        await prisma.notification.createMany({
+          data: approved.map((p) => ({
+            userId: p.volunteerId,
+            type: NotificationType.ACTIVITY_CANCELLED,
+            title: "تم إلغاء نشاط كنت مسجلاً فيه",
+            message: `للأسف تم إلغاء نشاط "${activity.title}". نأمل أن تجد فرصة أخرى تناسبك قريباً.`,
+            metadata: { activityId: id, link: ROUTES.ACTIVITY_DETAILS(id) }
+          }))
+        });
+      }
+
+      logger.info(ActivityUseCase.SCOPE, "cancel", `Activity cancelled: ${id} notified=${approved.length}`);
+      return ok({ activity: toActivityDto(activity) });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "cancel", error, "حدث خطأ أثناء إلغاء الفرصة");
     }

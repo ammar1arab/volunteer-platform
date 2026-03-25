@@ -1,12 +1,12 @@
 import { serve } from "inngest/next";
 import { inngest } from "@/lib/inngest/client";
-import { issueCertificates } from "@/lib/inngest/functions/issueCertificates";
+import { issueCertificates, activityReminders } from "@/lib/inngest";
 
 export const maxDuration = 300;
 export const runtime = "nodejs";
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [issueCertificates],
+  functions: [issueCertificates, activityReminders],
   streaming: false
 });

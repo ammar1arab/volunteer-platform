@@ -1,14 +1,13 @@
 import {
   OtpRepository,
   UserRepository,
-  VolunteerProfileRepository,
   PendingRegistrationRepository
 } from "@/infrastructure/persistence/repositories";
 import { EmailUseCase } from "@/core/application/useCases";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
 import { serviceError } from "@/core/application/common";
 import { prisma } from "@/infrastructure/persistence/prisma";
-import { UserRole, JordanianCity, Gender } from "@/core/domain/enums";
+import { UserRole, JordanianCity, Gender, NotificationType } from "@/core/domain/enums";
 import { OtpType } from "@prisma/client";
 import {
   ok,
@@ -33,8 +32,7 @@ class OtpUseCase {
     private otpRepository: OtpRepository,
     private userRepository: UserRepository,
     private emailUseCase: EmailUseCase,
-    private pendingRepository: PendingRegistrationRepository,
-    private profileRepository: VolunteerProfileRepository
+    private pendingRepository: PendingRegistrationRepository
   ) {}
 
   private generateCode(): string {
@@ -90,7 +88,6 @@ class OtpUseCase {
 
       await this.otpRepository.markUsed(record.id);
 
-      // 2. Promotion Logic
       if (dto.type === OtpType.EMAIL_VERIFY) {
         const existingUser = await this.userRepository.findByEmail(email);
 
@@ -102,12 +99,11 @@ class OtpUseCase {
           if (!pending) return fail("NOT_FOUND", "انتهت صلاحية البيانات. أعد التسجيل");
 
           try {
-            // USE A TRANSACTION so User + Profile are created as one unit
             await prisma.$transaction(async (tx) => {
               const createdUser = await tx.user.create({
                 data: {
                   email: pending.email,
-                  password: pending.password, // Plain text as requested
+                  password: pending.password,
                   fullName: pending.fullName,
                   phone: pending.phone,
                   role: UserRole.VOLUNTEER,
@@ -119,7 +115,7 @@ class OtpUseCase {
               await tx.volunteerProfile.create({
                 data: {
                   userId: createdUser.id,
-                  city: pending.city as JordanianCity, // Ensure string matches Enum exactly
+                  city: pending.city as JordanianCity,
                   dateOfBirth: pending.dateOfBirth,
                   gender: (pending.gender as Gender) ?? null,
                   totalVolunteerHours: 0,
@@ -127,7 +123,15 @@ class OtpUseCase {
                 }
               });
 
-              // Cleanup pending table
+              await tx.notification.create({
+                data: {
+                  userId: createdUser.id,
+                  type: NotificationType.WELCOME,
+                  title: "مرحباً بك في بصمات شبابية",
+                  message: `أهلاً ${pending.fullName}، انضمامك إلينا هو بداية رحلة تطوعية مميزة. استكشف الفرص المتاحة وابدأ في صنع الأثر.`
+                }
+              });
+
               await tx.pendingRegistration.delete({
                 where: { email: email.toLowerCase() }
               });
@@ -135,7 +139,6 @@ class OtpUseCase {
 
             logger.info(OtpUseCase.SCOPE, "verify", `New user created: ${email}`);
           } catch (dbError) {
-            // Check your console here if the user still doesn't appear!
             console.error("TRANSACTION_FAILED:", dbError);
             return fail("SERVER_ERROR", "حدث خطأ أثناء حفظ البيانات");
           }

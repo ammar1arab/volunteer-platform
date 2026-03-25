@@ -4,10 +4,11 @@ import {
   UserRepository,
   VolunteerProfileRepository
 } from "@/infrastructure/persistence/repositories";
+import type { Prisma } from "@prisma/client";
 import { ActivityParticipation } from "@/core/domain/entities";
 import { serviceError, guard } from "@/core/application/common";
 import { toParticipationDto, toUserSummaryDto, toActivitySummaryDto } from "@/core/application/mappers";
-import { ActivityStatus, ParticipationStatus } from "@/core/domain/enums";
+import { ActivityStatus, ParticipationStatus, NotificationType } from "@/core/domain/enums";
 import {
   ok,
   fail,
@@ -23,6 +24,7 @@ import {
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
 import { prisma } from "@/infrastructure/persistence/prisma";
+import { ROUTES } from "@/presentation/constants";
 
 class ActivityParticipationUseCase {
   private static readonly SCOPE = "ActivityParticipationUseCase";
@@ -37,10 +39,7 @@ class ActivityParticipationUseCase {
   private async findOrFail(id: string) {
     guard(id, "معرّف الطلب مطلوب");
     const participation = await this.participationRepository.findById(id);
-    if (!participation)
-      throw Object.assign(new Error(), {
-        result: fail("NOT_FOUND", "الطلب غير موجود")
-      });
+    if (!participation) throw Object.assign(new Error(), { result: fail("NOT_FOUND", "الطلب غير موجود") });
     return participation;
   }
 
@@ -54,7 +53,6 @@ class ActivityParticipationUseCase {
       }),
       this.activityRepository.findById(props.activityId)
     ]);
-
     return toParticipationDto(entity, {
       volunteer: volunteerUser
         ? { ...toUserSummaryDto(volunteerUser), city: volunteerProfile?.city ?? undefined }
@@ -65,6 +63,46 @@ class ActivityParticipationUseCase {
 
   private async mapListWithRelations(entities: ActivityParticipation[]) {
     return Promise.all(entities.map((e) => this.mapWithRelations(e)));
+  }
+
+  private getMilestone(
+    oldHours: number,
+    newHours: number
+  ): { hours: number; title: string; message: string; icon: string } | null {
+    const MILESTONES = [
+      {
+        hours: 25,
+        title: "وصلت إلى 25 ساعة تطوعية",
+        message: "خطواتك الأولى رسمت أثراً حقيقياً. 25 ساعة من العطاء تستحق الاحتفال!",
+        icon: "Sprout"
+      },
+      {
+        hours: 100,
+        title: "100 ساعة تطوعية — مرحباً بك في نادي المئة",
+        message: "وصلت إلى 100 ساعة! هذا الرقم يعني عشرات الأشخاص تأثروا بعملك. استمر.",
+        icon: "Award"
+      },
+      {
+        hours: 250,
+        title: "250 ساعة — أثرك يتجاوز الأرقام",
+        message: "ربع الألف ساعة! أنت لم تعد متطوعاً عادياً — أنت نموذج يُحتذى به.",
+        icon: "Flame"
+      },
+      {
+        hours: 500,
+        title: "500 ساعة من العطاء المتواصل",
+        message: "نصف الألف وصلت. مسيرتك التطوعية أصبحت قصة إلهام حقيقية تستحق أن تُروى.",
+        icon: "Crown"
+      },
+      {
+        hours: 1000,
+        title: "ألف ساعة — أنت أسطورة التطوع",
+        message: "1000 ساعة! رحلة استثنائية من الإنسانية والعطاء. شكراً لأنك تجعل العالم أجمل.",
+        icon: "Rocket"
+      }
+    ];
+
+    return MILESTONES.find((m) => oldHours < m.hours && newHours >= m.hours) ?? null;
   }
 
   async createJoinRequest(activityId: string, volunteerId: string): Promise<CreateJoinRequestResponse> {
@@ -80,7 +118,6 @@ class ActivityParticipationUseCase {
       if (existing) {
         if (existing.status === ParticipationStatus.PENDING) return fail("CONFLICT", "لديك طلب قيد المراجعة بالفعل");
         if (existing.status === ParticipationStatus.APPROVED) return fail("CONFLICT", "أنت مشارك بالفعل في هذا النشاط");
-
         existing.reactivate();
         const updated = await this.participationRepository.update(existing);
         logger.info(ActivityParticipationUseCase.SCOPE, "createJoinRequest", `Reactivated for activity: ${activityId}`);
@@ -115,6 +152,31 @@ class ActivityParticipationUseCase {
       await this.participationRepository.update(participation);
       await this.activityRepository.update(activity);
 
+      const notifications: Prisma.NotificationCreateManyInput[] = [
+        {
+          userId: participation.volunteerId,
+          type: NotificationType.PARTICIPATION_APPROVED,
+          title: "تمت الموافقة على طلبك",
+          message: `يسعدنا إبلاغك بقبول مشاركتك في نشاط "${activity.title}". نتطلع لرؤيتك!`,
+          metadata: { activityId: activity.id, link: ROUTES.ACTIVITY_DETAILS(activity.id) }
+        }
+      ];
+
+      if (activity.isFull()) {
+        const pending = await this.participationRepository.findPendingByActivity(activity.id);
+        pending.forEach((p) => {
+          notifications.push({
+            userId: p.volunteerId,
+            type: NotificationType.ACTIVITY_FULL,
+            title: "اكتملت أماكن النشاط",
+            message: `اكتملت جميع أماكن نشاط "${activity.title}". تابع الفرص الجديدة — هناك دائماً فرصة قادمة لك.`,
+            metadata: { activityId: activity.id, link: ROUTES.ACTIVITY_DETAILS(activity.id) }
+          });
+        });
+      }
+
+      await prisma.notification.createMany({ data: notifications });
+
       logger.info(ActivityParticipationUseCase.SCOPE, "approve", `Approved: ${id}`);
       return ok({ participation: await this.mapWithRelations(participation) });
     } catch (error) {
@@ -127,17 +189,29 @@ class ActivityParticipationUseCase {
       const participation = await this.findOrFail(id);
       const wasApproved = participation.status === ParticipationStatus.APPROVED;
 
+      const activity = await this.activityRepository.findById(participation.activityId);
+
       participation.reject();
 
-      if (wasApproved) {
-        const activity = await this.activityRepository.findById(participation.activityId);
-        if (activity) {
-          activity.removeVolunteer();
-          await this.activityRepository.update(activity);
-        }
+      if (wasApproved && activity) {
+        activity.removeVolunteer();
+        await this.activityRepository.update(activity);
       }
 
       await this.participationRepository.update(participation);
+
+      if (activity) {
+        await prisma.notification.create({
+          data: {
+            userId: participation.volunteerId,
+            type: NotificationType.PARTICIPATION_REJECTED,
+            title: "تحديث حول طلب مشاركتك",
+            message: `شكراً لاهتمامك بنشاط "${activity.title}". للأسف لم تتوفر مقعد هذه المرة، لكن هناك فرص قادمة بانتظارك.`,
+            metadata: { activityId: activity.id, link: ROUTES.ACTIVITY_DETAILS(activity.id) }
+          }
+        });
+      }
+
       logger.info(ActivityParticipationUseCase.SCOPE, "reject", `Rejected: ${id}`);
       return ok({ participation: await this.mapWithRelations(participation) });
     } catch (error) {
@@ -185,12 +259,8 @@ class ActivityParticipationUseCase {
       if (!activity) return fail("NOT_FOUND", "النشاط غير موجود");
 
       const durationHours = activity.durationHours;
-
-      if (dto.attended) {
-        participation.markAttended(durationHours);
-      } else {
-        participation.markAbsent();
-      }
+      if (dto.attended) participation.markAttended(durationHours);
+      else participation.markAbsent();
 
       await prisma.$transaction(async (tx) => {
         await tx.activityParticipation.update({
@@ -206,14 +276,12 @@ class ActivityParticipationUseCase {
         const profile = await this.volunteerProfileRepository.findByUserId(participation.volunteerId);
         if (profile) {
           let newHours = profile.totalVolunteerHours;
-
           if (dto.attended) {
             if (wasAttended) newHours = Math.max(0, Math.round((newHours - oldHours) * 100) / 100);
             newHours = Math.round((newHours + durationHours) * 100) / 100;
           } else if (wasAttended) {
             newHours = Math.max(0, Math.round((newHours - oldHours) * 100) / 100);
           }
-
           await tx.volunteerProfile.update({
             where: { userId: participation.volunteerId },
             data: { totalVolunteerHours: newHours, updatedAt: new Date() }
@@ -239,12 +307,9 @@ class ActivityParticipationUseCase {
       const attendedMap = new Map(dto.items.map((i) => [i.participationId, i.attended]));
       const now = new Date();
 
-      // 1 — fetch all participations at once
-      const participations = await prisma.activityParticipation.findMany({
-        where: { id: { in: ids } }
-      });
+      const participations = await prisma.activityParticipation.findMany({ where: { id: { in: ids } } });
+      if (!participations.length) return ok({ count: 0 });
 
-      // 2 — fetch unique activities at once
       const activityIds = [...new Set(participations.map((p) => p.activityId))];
       const activities = await prisma.activity.findMany({
         where: { id: { in: activityIds } },
@@ -252,20 +317,16 @@ class ActivityParticipationUseCase {
       });
       const activityMap = new Map(activities.map((a) => [a.id, a.durationHours]));
 
-      // 3 — fetch all volunteer profiles at once
       const volunteerIds = [...new Set(participations.map((p) => p.volunteerId))];
       const profiles = await prisma.volunteerProfile.findMany({
         where: { userId: { in: volunteerIds } },
         select: { userId: true, totalVolunteerHours: true }
       });
       const profileHoursMap = new Map(profiles.map((p) => [p.userId, p.totalVolunteerHours]));
+      const profileOldHoursMap = new Map(profiles.map((p) => [p.userId, p.totalVolunteerHours]));
+      const existingProfileIds = new Set(profiles.map((p) => p.userId));
 
-      // 4 — compute all updates in memory
-      const participationUpdates: {
-        id: string;
-        attendanceStatus: string;
-        volunteerHours: number | null;
-      }[] = [];
+      const participationUpdates: { id: string; attendanceStatus: string; volunteerHours: number | null }[] = [];
 
       for (const p of participations) {
         const attended = attendedMap.get(p.id) ?? false;
@@ -279,6 +340,8 @@ class ActivityParticipationUseCase {
           volunteerHours: attended ? durationHours : null
         });
 
+        if (!existingProfileIds.has(p.volunteerId)) continue;
+
         let currentHours = profileHoursMap.get(p.volunteerId) ?? 0;
         if (attended) {
           if (wasAttended) currentHours = Math.max(0, Math.round((currentHours - oldHours) * 100) / 100);
@@ -289,11 +352,29 @@ class ActivityParticipationUseCase {
         profileHoursMap.set(p.volunteerId, currentHours);
       }
 
-      // 5 — one transaction, all updates in parallel inside it
+      const safeVolunteerIds = volunteerIds.filter((id) => existingProfileIds.has(id));
+
+      const milestoneNotifications: Prisma.NotificationCreateManyInput[] = [];
+
+      for (const userId of safeVolunteerIds) {
+        const oldTotal = profileOldHoursMap.get(userId) ?? 0;
+        const newTotal = profileHoursMap.get(userId) ?? 0;
+        const milestone = this.getMilestone(oldTotal, newTotal);
+        if (milestone) {
+          milestoneNotifications.push({
+            userId,
+            type: NotificationType.HOURS_MILESTONE,
+            title: milestone.title,
+            message: milestone.message,
+            metadata: { hours: milestone.hours, icon: milestone.icon }
+          });
+        }
+      }
+
       await prisma.$transaction(async (tx) => {
         await Promise.all([
           ...participationUpdates.map((u) =>
-            tx.activityParticipation.update({
+            tx.activityParticipation.updateMany({
               where: { id: u.id },
               data: {
                 attendanceStatus: u.attendanceStatus,
@@ -303,8 +384,8 @@ class ActivityParticipationUseCase {
               }
             })
           ),
-          ...volunteerIds.map((userId) =>
-            tx.volunteerProfile.update({
+          ...safeVolunteerIds.map((userId) =>
+            tx.volunteerProfile.updateMany({
               where: { userId },
               data: { totalVolunteerHours: profileHoursMap.get(userId) ?? 0, updatedAt: now }
             })
@@ -312,8 +393,17 @@ class ActivityParticipationUseCase {
         ]);
       });
 
-      logger.info(ActivityParticipationUseCase.SCOPE, "bulkMarkAttendance", `count=${dto.items.length}`);
-      return ok({ count: dto.items.length });
+      if (milestoneNotifications.length) {
+        await prisma.notification.createMany({ data: milestoneNotifications });
+        logger.info(
+          ActivityParticipationUseCase.SCOPE,
+          "bulkMarkAttendance",
+          `Milestones fired=${milestoneNotifications.length}`
+        );
+      }
+
+      logger.info(ActivityParticipationUseCase.SCOPE, "bulkMarkAttendance", `count=${participations.length}`);
+      return ok({ count: participations.length });
     } catch (error) {
       return serviceError(
         ActivityParticipationUseCase.SCOPE,

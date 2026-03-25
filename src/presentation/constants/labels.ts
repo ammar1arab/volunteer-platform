@@ -17,6 +17,20 @@ export const USER_ROLE_LABELS: Record<UserRole, string> = {
   [UserRole.ADMIN]: "مشرف"
 };
 
+import { NotificationType } from "@/core/domain/enums";
+
+export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
+  [NotificationType.WELCOME]: "ترحيب",
+  [NotificationType.CERTIFICATE_ISSUED]: "شهادة تطوعية",
+  [NotificationType.ANNOUNCEMENT]: "إعلان",
+  [NotificationType.ACTIVITY_REMINDER]: "تذكير بنشاط",
+  [NotificationType.PARTICIPATION_APPROVED]: "قبول مشاركة",
+  [NotificationType.PARTICIPATION_REJECTED]: "رد على طلب",
+  [NotificationType.ACTIVITY_CANCELLED]: "إلغاء نشاط",
+  [NotificationType.HOURS_MILESTONE]: "إنجاز تطوعي",
+  [NotificationType.ACTIVITY_FULL]: "اكتملت الأماكن"
+};
+
 export const PERMISSION_LABELS: Record<AdminPermission, string> = {
   MANAGE_POSTS: "المنشورات",
   MANAGE_SPOTLIGHT: "أبرز المتطوعين",
@@ -146,3 +160,5 @@ export const DAY_OPTIONS = Object.entries(DAY_LABELS).map(([value, label]) => ({
 
 export const getPermissionLabel = (permission: AdminPermission) => PERMISSION_LABELS[permission] ?? permission;
 export const getUserRoleLabel = (role: UserRole | string) => USER_ROLE_LABELS[role as UserRole] ?? role;
+export const getNotificationTypeLabel = (type: NotificationType | string) =>
+  NOTIFICATION_TYPE_LABELS[type as NotificationType] ?? type;

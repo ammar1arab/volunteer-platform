@@ -1,9 +1,5 @@
 import { prisma } from "@/infrastructure/persistence/prisma";
-import {
-  R2StorageService,
-  ResendClient,
-  CertificateGeneratorService,
-} from "@/infrastructure/external";
+import { R2StorageService, ResendClient, CertificateGeneratorService } from "@/infrastructure/external";
 import { inngest } from "@/lib/inngest/client";
 import { buildCertificateEmail } from "@/lib/templates";
 import { logger } from "@/lib/utils";
@@ -11,17 +7,17 @@ import { logger } from "@/lib/utils";
 const SCOPE = "issueCertificates";
 
 interface VolunteerData {
-  userId:   string;
+  userId: string;
   fullName: string;
-  email:    string;
-  gender:   "MALE" | "FEMALE" | null;
+  email: string;
+  gender: "MALE" | "FEMALE" | null;
 }
 
 interface UploadedVolunteer {
-  userId:   string;
+  userId: string;
   fullName: string;
-  email:    string;
-  pngUrl:   string;
+  email: string;
+  pngUrl: string;
 }
 
 function toDate(date: Date): string {
@@ -38,31 +34,31 @@ export const issueCertificates = inngest.createFunction(
 
     const { activity, volunteers } = await step.run("fetch-data", async () => {
       const activityData = await prisma.activity.findUnique({
-        where:  { id: activityId },
-        select: { id: true, title: true, date: true, durationHours: true },
+        where: { id: activityId },
+        select: { id: true, title: true, date: true, durationHours: true }
       });
 
       if (!activityData) throw new Error(`Activity not found: ${activityId}`);
 
       const participations = await prisma.activityParticipation.findMany({
-        where:   { activityId, attendanceStatus: "ATTENDED" },
+        where: { activityId, attendanceStatus: "ATTENDED" },
         include: {
           volunteer: {
             select: {
-              id:               true,
-              fullName:         true,
-              email:            true,
-              volunteerProfile: { select: { gender: true } },
-            },
-          },
-        },
+              id: true,
+              fullName: true,
+              email: true,
+              volunteerProfile: { select: { gender: true } }
+            }
+          }
+        }
       });
 
       const volunteers: VolunteerData[] = participations.map((p) => ({
-        userId:   p.volunteerId,
+        userId: p.volunteerId,
         fullName: p.volunteer.fullName,
-        email:    p.volunteer.email,
-        gender:   p.volunteer.volunteerProfile?.gender as "MALE" | "FEMALE" | null,
+        email: p.volunteer.email,
+        gender: p.volunteer.volunteerProfile?.gender as "MALE" | "FEMALE" | null
       }));
 
       logger.info(SCOPE, "fetch-data", `Found ${volunteers.length} attended for activityId=${activityId}`);
@@ -75,14 +71,14 @@ export const issueCertificates = inngest.createFunction(
     }
 
     const activityDate = toDate(new Date(activity.date));
-    const issueDate    = toDate(new Date());
+    const issueDate = toDate(new Date());
 
     const results = await Promise.all(
       volunteers.map((v) =>
         step.run(`generate-upload-${v.userId}`, async () => {
           try {
             const generator = new CertificateGeneratorService();
-            const storage   = new R2StorageService();
+            const storage = new R2StorageService();
 
             const pngBuffer = await generator.generatePNG({
               volunteerName: v.fullName,
@@ -91,12 +87,10 @@ export const issueCertificates = inngest.createFunction(
               durationHours: activity.durationHours,
               issueDate,
               certificateId: `${activityId}-${v.userId}`,
-              gender:        v.gender,
+              gender: v.gender
             });
 
-            const pngRes = await storage.upload(
-              pngBuffer, "certificates", `${v.userId}-${activityId}.png`
-            );
+            const pngRes = await storage.upload(pngBuffer, "certificates", `${v.userId}-${activityId}.png`);
 
             if (!pngRes.success) throw new Error(`R2 upload failed for userId=${v.userId}`);
 
@@ -126,53 +120,57 @@ export const issueCertificates = inngest.createFunction(
     await step.run("save-to-db", async () => {
       const uploadedWithIds = uploaded.map((u) => ({
         ...u,
-        certificateId: crypto.randomUUID(),
+        certificateId: crypto.randomUUID()
       }));
 
       await prisma.$transaction([
         prisma.certificate.createMany({
           data: uploadedWithIds.map((u) => ({
-            id:         u.certificateId,
-            userId:     u.userId,
+            id: u.certificateId,
+            userId: u.userId,
             activityId,
-            pngUrl:     u.pngUrl,
-            status:     "COMPLETED",
+            pngUrl: u.pngUrl,
+            status: "COMPLETED"
           })),
-          skipDuplicates: true,
+          skipDuplicates: true
         }),
         prisma.notification.createMany({
           data: uploadedWithIds.map((u) => ({
-            userId:  u.userId,
-            type:    "CERTIFICATE_ISSUED",
-            title:   "شهادتك التطوعية جاهزة",
-            message: `تم إصدار شهادة مشاركتك في نشاط ${activity.title}`,
-            metadata: { certificateId: u.certificateId },
-          })),
-        }),
+            userId: u.userId,
+            type: "CERTIFICATE_ISSUED" as const,
+            title: "شهادتك التطوعية جاهزة",
+            message: `أحسنت! شهادة مشاركتك في نشاط "${activity.title}" أصبحت جاهزة. يمكنك الاطلاع عليها الآن.`,
+            metadata: { certificateId: u.certificateId }
+          }))
+        })
       ]);
 
       logger.info(SCOPE, "save-to-db", `Saved ${uploadedWithIds.length} certificates + notifications`);
     });
 
     await step.run("send-emails", async () => {
-      const resend     = ResendClient.getInstance();
+      const resend = ResendClient.getInstance();
       const BATCH_SIZE = 100;
 
       for (let i = 0; i < uploaded.length; i += BATCH_SIZE) {
         const batch = uploaded.slice(i, i + BATCH_SIZE);
         await resend.batch.send(
           batch.map((u) => ({
-            from:    "certificates@youthprints.online",
-            to:      u.email,
+            from: "certificates@youthprints.online",
+            to: u.email,
             subject: `شهادتك التطوعية جاهزة - ${activity.title}`,
-            html:    buildCertificateEmail(u.fullName, activity.title, u.pngUrl),
+            html: buildCertificateEmail(u.fullName, activity.title, u.pngUrl)
           }))
         );
         logger.info(SCOPE, "send-emails", `Sent batch ${Math.floor(i / BATCH_SIZE) + 1}: ${batch.length} emails`);
       }
     });
 
-    logger.info(SCOPE, "complete", `Issued ${uploaded.length}/${volunteers.length} certificates for activityId=${activityId}`);
+    logger.info(
+      SCOPE,
+      "complete",
+      `Issued ${uploaded.length}/${volunteers.length} certificates for activityId=${activityId}`
+    );
     return { issued: uploaded.length };
   }
 );

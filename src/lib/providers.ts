@@ -29,7 +29,6 @@ import {
 
 const makeEmailUseCase   = () => new EmailUseCase(new UserRepository());
 const makePendingRepo    = () => new PendingRegistrationRepository();
-const makeProfileRepo    = () => new VolunteerProfileRepository();
 const makeOtpRepo        = () => new OtpRepository();
 const makeUserRepo       = () => new UserRepository();
 
@@ -39,7 +38,6 @@ const makeOtpUseCase = () =>
     makeUserRepo(),
     makeEmailUseCase(),
     makePendingRepo(),
-    makeProfileRepo(),
   );
 
 const makeAuthUseCase = () =>
