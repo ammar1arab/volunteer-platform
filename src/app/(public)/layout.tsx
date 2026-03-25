@@ -7,11 +7,11 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <NotificationsProvider>
       <Header />
-      <PushBannerWrapper />
       <main className="main-content">
         {children}
       </main>
       <Footer />
+      <PushBannerWrapper />
     </NotificationsProvider>
   );
 };
