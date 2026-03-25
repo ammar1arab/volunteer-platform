@@ -11,7 +11,7 @@ const getCache = (activityId: string) => {
   return cache.get(activityId)!;
 };
 
-const VOLUNTEERS_PER_PAGE = 6;
+const VOLUNTEERS_PER_PAGE = 15;
 
 export const useVolunteersModal = (
   activityId: string,
