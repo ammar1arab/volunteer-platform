@@ -25,7 +25,7 @@ class NotificationUseCase {
       guard(userId, "معرّف المستخدم مطلوب");
       const [notifications, unreadCount] = await Promise.all([
         this.repo.findRecentByUserId(userId, 30),
-        this.repo.countUnreadByUserId(userId),
+        this.repo.countUnreadByUserId(userId)
       ]);
       logger.info(NotificationUseCase.SCOPE, "getRecent", `unreadCount=${unreadCount} userId=${userId}`);
       return ok({ notifications: notifications.map(toNotificationDto), unreadCount });
@@ -36,7 +36,7 @@ class NotificationUseCase {
 
   async markAsRead(id: string, userId: string): Promise<MarkAsReadResponse> {
     try {
-      guard(id,     "معرّف الإشعار مطلوب");
+      guard(id, "معرّف الإشعار مطلوب");
       guard(userId, "معرّف المستخدم مطلوب");
       await this.repo.markAsRead(id, userId);
       logger.info(NotificationUseCase.SCOPE, "markAsRead", `id=${id}`);
@@ -91,31 +91,46 @@ class NotificationUseCase {
 
   async sendCustom(input: {
     targetUserIds: string[];
-    title:         string;
-    message:       string;
-    link?:         string;
-    target:        string;
-    targetValue?:  string;
+    title: string;
+    message: string;
+    link?: string;
+    target: string;
+    targetValue?: string;
   }): Promise<SendCustomNotificationResponse> {
     try {
       if (!input.targetUserIds.length) return ok({ sent: 0 });
+
       const broadcastId = crypto.randomUUID();
+
       await this.repo.createMany(
         input.targetUserIds.map((userId) => ({
           userId,
-          type:    NotificationType.ANNOUNCEMENT,
-          title:   input.title,
+          type: NotificationType.ANNOUNCEMENT,
+          title: input.title,
           message: input.message,
           metadata: {
             broadcastId,
             totalRecipients: input.targetUserIds.length,
-            target:          input.target,
-            targetValue:     input.targetValue ?? null,
-            link:            input.link ?? null,
-          },
+            target: input.target,
+            targetValue: input.targetValue ?? null,
+            link: input.link ?? null
+          }
         }))
       );
-      logger.info(NotificationUseCase.SCOPE, "sendCustom", `broadcastId=${broadcastId} sent=${input.targetUserIds.length}`);
+
+      const { sendPushToMany } = await import("@/lib/webpush");
+      void sendPushToMany(input.targetUserIds, {
+        title: input.title,
+        body: input.message,
+        url: input.link ?? "/volunteer/activities",
+        tag: `broadcast-${broadcastId}`
+      });
+
+      logger.info(
+        NotificationUseCase.SCOPE,
+        "sendCustom",
+        `broadcastId=${broadcastId} sent=${input.targetUserIds.length}`
+      );
       return ok({ sent: input.targetUserIds.length });
     } catch (error) {
       return serviceError(NotificationUseCase.SCOPE, "sendCustom", error, "حدث خطأ أثناء إرسال الإشعارات");
@@ -132,26 +147,30 @@ class NotificationUseCase {
   }
 
   async getBroadcastRecipients(broadcastId: string): Promise<GetBroadcastRecipientsResponse> {
-  try {
-    guard(broadcastId, "معرّف الإشعار مطلوب");
-    const recipients = await this.repo.findRecipientsByBroadcastId(broadcastId);
-    logger.info(NotificationUseCase.SCOPE, "getBroadcastRecipients", `broadcastId=${broadcastId} count=${recipients.length}`);
-    return ok({ recipients });
-  } catch (error) {
-    return serviceError(NotificationUseCase.SCOPE, "getBroadcastRecipients", error, "حدث خطأ أثناء جلب المستقبلين");
+    try {
+      guard(broadcastId, "معرّف الإشعار مطلوب");
+      const recipients = await this.repo.findRecipientsByBroadcastId(broadcastId);
+      logger.info(
+        NotificationUseCase.SCOPE,
+        "getBroadcastRecipients",
+        `broadcastId=${broadcastId} count=${recipients.length}`
+      );
+      return ok({ recipients });
+    } catch (error) {
+      return serviceError(NotificationUseCase.SCOPE, "getBroadcastRecipients", error, "حدث خطأ أثناء جلب المستقبلين");
+    }
   }
-}
 
-async deleteBroadcast(broadcastId: string): Promise<DeleteBroadcastResponse> {
-  try {
-    guard(broadcastId, "معرّف الإشعار مطلوب");
-    await this.repo.deleteByBroadcastId(broadcastId);
-    logger.info(NotificationUseCase.SCOPE, "deleteBroadcast", `broadcastId=${broadcastId}`);
-    return ok({ success: true });
-  } catch (error) {
-    return serviceError(NotificationUseCase.SCOPE, "deleteBroadcast", error, "حدث خطأ أثناء حذف الإشعار");
+  async deleteBroadcast(broadcastId: string): Promise<DeleteBroadcastResponse> {
+    try {
+      guard(broadcastId, "معرّف الإشعار مطلوب");
+      await this.repo.deleteByBroadcastId(broadcastId);
+      logger.info(NotificationUseCase.SCOPE, "deleteBroadcast", `broadcastId=${broadcastId}`);
+      return ok({ success: true });
+    } catch (error) {
+      return serviceError(NotificationUseCase.SCOPE, "deleteBroadcast", error, "حدث خطأ أثناء حذف الإشعار");
+    }
   }
-}
 }
 
 export default NotificationUseCase;
