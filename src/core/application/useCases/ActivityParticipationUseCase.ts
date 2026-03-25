@@ -25,6 +25,7 @@ import {
 import { logger } from "@/lib/utils";
 import { prisma } from "@/infrastructure/persistence/prisma";
 import { ROUTES } from "@/presentation/constants";
+import { sendPushToMany, sendPushToUser } from "@/lib/webpush";
 
 class ActivityParticipationUseCase {
   private static readonly SCOPE = "ActivityParticipationUseCase";
@@ -177,6 +178,27 @@ class ActivityParticipationUseCase {
 
       await prisma.notification.createMany({ data: notifications });
 
+      void sendPushToUser(participation.volunteerId, {
+        title: "تمت الموافقة على طلبك",
+        body: `قُبلت مشاركتك في نشاط "${activity.title}"`,
+        url: ROUTES.ACTIVITY_DETAILS(activity.id),
+        tag: `approved-${activity.id}`
+      });
+
+      if (activity.isFull()) {
+        const pendingVolunteerIds = (await this.participationRepository.findPendingByActivity(activity.id)).map(
+          (p) => p.volunteerId
+        );
+        if (pendingVolunteerIds.length) {
+          void sendPushToMany(pendingVolunteerIds, {
+            title: "اكتملت أماكن النشاط",
+            body: `اكتملت جميع أماكن نشاط "${activity.title}"`,
+            url: ROUTES.ACTIVITIES,
+            tag: `full-${activity.id}`
+          });
+        }
+      }
+
       logger.info(ActivityParticipationUseCase.SCOPE, "approve", `Approved: ${id}`);
       return ok({ participation: await this.mapWithRelations(participation) });
     } catch (error) {
@@ -209,6 +231,13 @@ class ActivityParticipationUseCase {
             message: `شكراً لاهتمامك بنشاط "${activity.title}". للأسف لم تتوفر مقعد هذه المرة، لكن هناك فرص قادمة بانتظارك.`,
             metadata: { activityId: activity.id, link: ROUTES.ACTIVITY_DETAILS(activity.id) }
           }
+        });
+
+        void sendPushToUser(participation.volunteerId, {
+          title: "تحديث حول طلب مشاركتك",
+          body: `شكراً لاهتمامك بنشاط "${activity.title}". هناك فرص أخرى بانتظارك.`,
+          url: ROUTES.ACTIVITIES,
+          tag: `rejected-${activity.id}`
         });
       }
 

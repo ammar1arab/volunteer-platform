@@ -3,6 +3,7 @@ import { R2StorageService, ResendClient, CertificateGeneratorService } from "@/i
 import { inngest } from "@/lib/inngest/client";
 import { buildCertificateEmail } from "@/lib/templates";
 import { logger } from "@/lib/utils";
+import { ROUTES } from "@/presentation/constants";
 
 const SCOPE = "issueCertificates";
 
@@ -146,6 +147,19 @@ export const issueCertificates = inngest.createFunction(
       ]);
 
       logger.info(SCOPE, "save-to-db", `Saved ${uploadedWithIds.length} certificates + notifications`);
+    });
+
+    await step.run("send-push", async () => {
+      const { sendPushToMany } = await import("@/lib/webpush");
+      void sendPushToMany(
+        uploaded.map((u) => u.userId),
+        {
+          title: "شهادتك التطوعية جاهزة",
+          body: `صدرت شهادة مشاركتك في نشاط "${activity.title}"`,
+          url: ROUTES.VOLUNTEER.CERTIFICATES,
+          tag: `cert-${activityId}`
+        }
+      );
     });
 
     await step.run("send-emails", async () => {

@@ -91,6 +91,14 @@ export const activityReminders = inngest.createFunction(
           }))
         });
 
+        const { sendPushToMany } = await import("@/lib/webpush");
+        void sendPushToMany(toNotify, {
+          title: isInPerson ? "تذكير بموعد نشاطك غداً" : "نشاطك الإلكتروني يبدأ قريباً",
+          body: message,
+          url: ROUTES.ACTIVITY_DETAILS(activity.id),
+          tag: `reminder-${activity.id}`
+        });
+
         totalSent += toNotify.length;
         logger.info(SCOPE, `remind-${activity.id}`, `Sent ${toNotify.length} reminders activityType=${activity.type}`);
       });

@@ -66,3 +66,4 @@ export { default as NotificationBell } from "./volunteer/NotificationBell/Notifi
 export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";
 export { default as CertificateCard } from "./volunteer/CertificateCard/CertificateCard";
 export { default as UserMenuDropdown } from "./volunteer/UserMenuDropdown/UserMenuDropdown.tsx";
+export { default as PushBanner } from "./volunteer/PushBanner/PushBanner";

@@ -1,0 +1,57 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.banner {
+  @include flex(row, center, space-between, $sp-sm);
+  background: rgba($green, 0.07);
+  border: 1px solid rgba($green, 0.2);
+  border-radius: $radius;
+  padding: 0.65rem $sp-md;
+  font-size: $font-sm;
+  color: $text;
+  flex-wrap: wrap;
+
+  &.ios {
+    background: rgba(#f59e0b, 0.07);
+    border-color: rgba(#f59e0b, 0.25);
+    color: #92400e;
+  }
+}
+
+.icon {
+  color: $green;
+  flex-shrink: 0;
+
+  .ios & { color: #b45309; }
+}
+
+.actions {
+  @include flex(row, center, flex-end, $sp-xs);
+}
+
+.btnEnable {
+  padding: 0.3rem 0.75rem;
+  border-radius: $radius;
+  background: $green;
+  color: #fff;
+  border: none;
+  font-size: $font-xs;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity $transition;
+
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.close {
+  @include flex-center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $text-muted;
+  padding: 2px;
+  border-radius: $radius;
+  transition: color $transition;
+
+  &:hover { color: $text; }
+}

@@ -25,6 +25,7 @@ import {
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
 import { ROUTES } from "@/presentation/constants";
+import { sendPushToMany } from "@/lib/webpush";
 
 class ActivityUseCase {
   private static readonly SCOPE = "ActivityUseCase";
@@ -211,7 +212,7 @@ class ActivityUseCase {
     try {
       const activity = await this.findOrFail(id);
       activity.cancel();
-      await this.activityRepository.update(activity);
+      const updated = await this.activityRepository.update(activity);
 
       const approved = await this.participationRepository.findApprovedByActivity(id);
       if (approved.length) {
@@ -224,10 +225,20 @@ class ActivityUseCase {
             metadata: { activityId: id, link: ROUTES.ACTIVITY_DETAILS(id) }
           }))
         });
+
+        void sendPushToMany(
+          approved.map((p) => p.volunteerId),
+          {
+            title: "تم إلغاء نشاط",
+            body: `للأسف تم إلغاء نشاط "${activity.title}"`,
+            url: ROUTES.ACTIVITIES,
+            tag: `cancelled-${id}`
+          }
+        );
       }
 
       logger.info(ActivityUseCase.SCOPE, "cancel", `Activity cancelled: ${id} notified=${approved.length}`);
-      return ok({ activity: toActivityDto(activity) });
+      return ok({ activity: toActivityDto(updated) });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "cancel", error, "حدث خطأ أثناء إلغاء الفرصة");
     }
