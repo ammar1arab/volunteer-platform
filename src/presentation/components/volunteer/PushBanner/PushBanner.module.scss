@@ -1,57 +1,277 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
+@keyframes revealBanner {
+  0%   { clip-path: inset(0 100% 0 0); opacity: 0; }
+  100% { clip-path: inset(0 0% 0 0);   opacity: 1; }
+}
+@keyframes floatBell {
+  0%,100% { transform: translateY(0) rotate(-7deg); }
+  30%     { transform: translateY(-5px) rotate(7deg); }
+  60%     { transform: translateY(-2px) rotate(-4deg); }
+}
+@keyframes ripple {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  100% { transform: scale(2.8); opacity: 0;    }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.75); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+@keyframes btnPulse {
+  0%,100% { box-shadow: 0 0 0 0   rgba(74,222,128,0.45); }
+  50%     { box-shadow: 0 0 0 8px rgba(74,222,128,0);    }
+}
+@keyframes iosIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+
 .banner {
-  @include flex(row, center, space-between, $sp-sm);
-  background: rgba($green, 0.07);
-  border: 1px solid rgba($green, 0.2);
-  border-radius: $radius;
-  padding: 0.65rem $sp-md;
-  font-size: $font-sm;
-  color: $text;
-  flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: $sp-sm;
+  background: #162018;
+  padding: 0.85rem $sp-lg;
+  animation: revealBanner 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  position: relative;
+  overflow: hidden;
+  z-index: 50;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,222,128,0.09) 0%, transparent 70%);
+    pointer-events: none;
+  }
 
   &.ios {
-    background: rgba(#f59e0b, 0.07);
-    border-color: rgba(#f59e0b, 0.25);
-    color: #92400e;
+    background: var(--color-background-primary, #fff);
+    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+    animation: iosIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    border-bottom: 1px solid rgba(245,158,11,0.25);
+
+    &::after { display: none; }
   }
+
+  @media (max-width: $bp-sm) { padding: 0.7rem $sp-md; }
 }
 
-.icon {
-  color: $green;
-  flex-shrink: 0;
-
-  .ios & { color: #b45309; }
+.iosTop {
+  height: 3px;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
 }
 
-.actions {
-  @include flex(row, center, flex-end, $sp-xs);
+.iosBody {
+  display: flex;
+  gap: $sp-sm;
+  align-items: flex-start;
+  padding: $sp-sm $sp-md;
 }
 
-.btnEnable {
-  padding: 0.3rem 0.75rem;
-  border-radius: $radius;
-  background: $green;
-  color: #fff;
-  border: none;
-  font-size: $font-xs;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity $transition;
-
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
-}
-
-.close {
+.iosIconWrap {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: rgba(245,158,11,0.1);
   @include flex-center;
-  background: none;
+  flex-shrink: 0;
+  color: #d97706;
+}
+
+.iosTxt {
+  @include flex-col;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.iosT1 {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+}
+
+.iosT2 {
+  font-size: $font-xs;
+  color: $text-muted;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.steps {
+  @include flex-col;
+  gap: 5px;
+  list-style: none;
+  padding: 0;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+.stepIc {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #fef3c7;
+  @include flex-center;
+  flex-shrink: 0;
+  color: #92400e;
+  margin-top: 1px;
+}
+
+.stepT {
+  font-size: $font-xs;
+  color: #92400e;
+  line-height: 1.45;
+  padding-top: 1px;
+}
+
+.bellShell {
+  position: relative;
+  width: 46px; height: 46px;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.r1, .r2 {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(74,222,128,0.45);
+  animation: ripple 2.3s ease-out infinite;
+}
+
+.r2 {
+  animation-delay: 0.85s;
+  border-color: rgba(74,222,128,0.25);
+}
+
+.bellBg {
+  position: relative;
+  z-index: 2;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: rgba(74,222,128,0.13);
+  @include flex-center;
+}
+
+.bellSvg {
+  width: 20px; height: 20px;
+  color: #4ade80;
+  animation: floatBell 3.2s ease-in-out infinite;
+}
+
+.txt {
+  @include flex-col;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.t1 {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: #f0fdf4;
+  animation: fadeUp 0.4s 0.3s both;
+}
+
+.t2 {
+  font-size: $font-xs;
+  color: #7a9e86;
+  line-height: 1.45;
+  animation: fadeUp 0.4s 0.42s both;
+
+  @media (max-width: $bp-sm) { display: none; }
+}
+
+.pills {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+
+  @media (max-width: $bp-sm) { display: none; }
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  color: #4ade80;
+  background: rgba(74,222,128,0.1);
+  border: 0.5px solid rgba(74,222,128,0.22);
+  border-radius: $radius-full;
+  padding: 0.15rem 0.55rem;
+
+  &:nth-child(1) { animation: popIn 0.3s 0.5s both; }
+  &:nth-child(2) { animation: popIn 0.3s 0.6s both; }
+  &:nth-child(3) { animation: popIn 0.3s 0.7s both; }
+}
+
+.acts {
+  @include flex(row, center, flex-end, $sp-xs);
+  flex-shrink: 0;
+}
+
+.btnEn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1.1rem;
+  border-radius: $radius-full;
+  background: #4ade80;
+  color: #0d1f12;
+  border: none;
+  font-size: $font-sm;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  animation: popIn 0.3s 0.55s both, btnPulse 2.8s 1.5s ease-in-out infinite;
+  transition: transform $transition, background $transition;
+  position: relative;
+  z-index: 1;
+
+  @media (max-width: $bp-sm) {
+    font-size: $font-xs;
+    padding: 0.45rem 0.85rem;
+  }
+
+  &:hover  { background: #6ee7a0; transform: scale(1.05); }
+  &:active { transform: scale(0.97); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; transform: none; animation: none; }
+}
+
+.closeBtn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
   border: none;
   cursor: pointer;
-  color: $text-muted;
-  padding: 2px;
-  border-radius: $radius;
-  transition: color $transition;
+  color: rgba(255,255,255,0.45);
+  @include flex-center;
+  flex-shrink: 0;
+  transition: background $transition, color $transition;
+  position: relative;
+  z-index: 1;
 
-  &:hover { color: $text; }
+  &:hover { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.9); }
+
+  .ios & {
+    background: rgba(0,0,0,0.05);
+    color: $text-muted;
+    &:hover { background: rgba(0,0,0,0.1); color: $text; }
+  }
 }
