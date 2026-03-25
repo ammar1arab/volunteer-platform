@@ -62,6 +62,6 @@ export function usePermissionsPanel({ userId, initialPermissions, onSuccess, onE
     grantAll,
     revokeAll,
     allGranted: ADMIN_PERMISSIONS.every((p) => permissions.includes(p)),
-    noneGranted: permissions.length === 0,
+    noneGranted: permissions.length === 0
   };
 }

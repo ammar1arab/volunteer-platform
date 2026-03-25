@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { CITY_OPTIONS, ROUTES, getCityLabel, getGenderLabel, getMonthLabel } from "@/presentation/constants";
 import { LoadingState } from "@/presentation/components";
-import { User, Mail, Phone, MapPin, Calendar, Award, FileText, Heart, Edit2, Check, X, Upload, Plus, ChevronLeft } from "lucide-react";
+import { User, Mail, Phone, MapPin, Calendar, Award, FileText, Heart, Edit2, Check, X, Upload, Plus, ChevronLeft, CalendarDays } from "lucide-react";
 import { JordanianCity, Gender } from "@/core/domain/enums";
 
 const GENDER_OPTIONS = [
@@ -94,9 +94,9 @@ export default function VolunteerProfilePage() {
             <span>فرصي التطوعية</span>
             <ChevronLeft size={15} />
           </Link>
-          <Link href={ROUTES.VOLUNTEER.CERTIFICATES} className={styles.quickLink}>
-            <FileText size={15} />
-            <span>شهاداتي</span>
+          <Link href={ROUTES.VOLUNTEER.ACTIVITIES} className={styles.quickLink}>
+            <CalendarDays size={15} />
+            <span>اكتشف الفرص</span>
             <ChevronLeft size={15} />
           </Link>
         </div>
