@@ -1,18 +1,40 @@
 "use client";
 import styles from "./PushBanner.module.scss";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { BellRing, ShieldCheck, Zap, X, Smartphone, Share, Plus, Check } from "lucide-react";
 import { usePushNotifications } from "@/presentation/hooks";
+
+const SNOOZE_KEY = "push_banner_snoozed_until";
+const VISITS_KEY = "push_banner_visits";
+const SNOOZE_DAYS = 7;
 
 const PushBanner = () => {
   const { data: session } = useSession();
   const { state, subscribe, isIOS, isStandalone, isSupported } = usePushNotifications();
   const [collapsed, setCollapsed] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [visible, setVisible]     = useState(false);
 
-  if (!session?.user) return null;
-  if (dismissed)      return null;
+  useEffect(() => {
+    const snoozedUntil = parseInt(localStorage.getItem(SNOOZE_KEY) ?? "0", 10);
+    if (Date.now() < snoozedUntil) return; // still snoozed
+
+    const visits = parseInt(localStorage.getItem(VISITS_KEY) ?? "0", 10) + 1;
+    localStorage.setItem(VISITS_KEY, String(visits));
+
+    if (visits >= 2) setVisible(true);
+  }, []);
+
+  const snooze = () => {
+    const until = Date.now() + SNOOZE_DAYS * 24 * 60 * 60 * 1000;
+    localStorage.setItem(SNOOZE_KEY, String(until));
+    setVisible(false);
+  };
+
+  if (!session?.user)                            return null;
+  if (!visible)                                  return null;
+  if (!isSupported)                              return null;
+  if (state === "granted" || state === "denied") return null;
 
   if (isIOS && !isStandalone) {
     return (
@@ -20,7 +42,7 @@ const PushBanner = () => {
         <div className={styles.iosPill} onClick={() => setCollapsed(p => !p)}>
           <Smartphone size={14} />
           <span>فعّل الإشعارات على iPhone</span>
-          <X size={12} className={styles.chevron} onClick={(e) => { e.stopPropagation(); setDismissed(true); }} />
+          <X size={12} className={styles.chevron} onClick={(e) => { e.stopPropagation(); snooze(); }} />
         </div>
         {!collapsed && (
           <div className={styles.iosSteps}>
@@ -32,9 +54,6 @@ const PushBanner = () => {
       </div>
     );
   }
-
-  if (!isSupported)                              return null;
-  if (state === "granted" || state === "denied") return null;
 
   return (
     <div className={styles.banner}>
@@ -50,8 +69,8 @@ const PushBanner = () => {
       </div>
       <div className={styles.right}>
         <div className={styles.features}>
-          <span className={styles.feat}><Zap         size={11} /> فوري</span>
-          <span className={styles.feat}><ShieldCheck  size={11} /> يُلغى متى تريد</span>
+          <span className={styles.feat}><Zap        size={11} /> فوري</span>
+          <span className={styles.feat}><ShieldCheck size={11} /> يُلغى متى تريد</span>
         </div>
         <button
           className={styles.btnEnable}
@@ -61,6 +80,7 @@ const PushBanner = () => {
           {state === "loading" ? "جارٍ التفعيل..." : "تفعيل الإشعارات"}
         </button>
       </div>
+      <X size={14} style={{ cursor: "pointer", color: "var(--text-muted, #888)", flexShrink: 0 }} onClick={snooze} />
     </div>
   );
 };

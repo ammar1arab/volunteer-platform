@@ -151,7 +151,7 @@
   animation: btnGlow 2.5s 3s ease-in-out infinite;
   transition: transform $transition, background $transition;
 
-  &:hover  { background: darken(#16a34a, 6%); transform: scale(1.04); }
+  &:hover  { background: #16a34a, 6%; transform: scale(1.04); }
   &:active { transform: scale(0.97); }
   &:disabled { opacity: 0.65; cursor: not-allowed; transform: none; animation: none; }
 

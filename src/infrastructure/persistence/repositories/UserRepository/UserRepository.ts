@@ -62,15 +62,20 @@ class UserRepository implements IUserRepository {
   async delete(id: string): Promise<boolean> {
     try {
       await prisma.$transaction([
+        prisma.activityParticipation.deleteMany({ where: { volunteerId: id } }),
         prisma.activity.updateMany({
           where: { createdBy: id },
           data: { deletedAt: new Date(), isActive: false }
         }),
+        prisma.certificate.deleteMany({ where: { userId: id } }),
+        prisma.notification.deleteMany({ where: { userId: id } }),
+        prisma.pushSubscription.deleteMany({ where: { userId: id } }),
+        prisma.volunteerProfile.deleteMany({ where: { userId: id } }),
         prisma.user.delete({ where: { id } })
       ]);
       return true;
-    } catch {
-      return false;
+    } catch (error) {
+      throw error;
     }
   }
 
