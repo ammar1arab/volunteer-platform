@@ -29,17 +29,16 @@ interface ActionsProps {
   openMenu: OpenMenu;
   wrapperRef: React.RefObject<HTMLDivElement | null>;
   onToggle: (menu: OpenMenu) => void;
+  onClose: () => void;
   onLogout: () => void;
   mobile?: boolean;
 }
 
 const VolunteerActions = ({
   isLoading, isVolunteer, userName, userInitial, avatarUrl,
-  openMenu, wrapperRef, onToggle, onLogout, mobile = false
+  openMenu, wrapperRef, onToggle, onClose, onLogout, mobile = false,
 }: ActionsProps) => {
-  if (isLoading) {
-    return <div className={styles.authPlaceholder} />;
-  }
+  if (isLoading) return <div className={styles.authPlaceholder} />;
 
   if (!isVolunteer) {
     return (
@@ -51,16 +50,20 @@ const VolunteerActions = ({
 
   return (
     <>
-      <NotificationBell
-        isOpen={openMenu === 'notifications'}
-        onToggle={() => onToggle('notifications')}
-        onClose={() => onToggle('notifications')}
-      />
-      <div className={styles.userMenuWrapper} ref={wrapperRef}>
+      <div style={{ position: "relative" }}>
+        <NotificationBell
+          isOpen={openMenu === 'notifications'}
+          onToggle={() => onToggle('notifications')}
+          onClose={onClose}
+        />
+        <span className={`${styles.caret} ${openMenu === 'notifications' ? styles.caretVisible : ''}`} />
+      </div>
+
+      <div className={styles.userMenuWrapper} ref={wrapperRef} style={{ position: "relative" }}>
         <button
           className={[
             mobile ? styles.avatarBtnSm : styles.avatarBtn,
-            openMenu === 'user' ? styles.avatarBtnActive : ''
+            openMenu === 'user' ? styles.avatarBtnActive : '',
           ].join(' ')}
           onClick={() => onToggle('user')}
         >
@@ -76,6 +79,7 @@ const VolunteerActions = ({
             <span className={styles.avatarInitial}>{userInitial}</span>
           )}
         </button>
+        <span className={`${styles.caret} ${openMenu === 'user' ? styles.caretVisible : ''}`} />
         {openMenu === 'user' && (
           <UserMenuDropdown
             userName={userName}
@@ -108,7 +112,7 @@ const Header = () => {
   useEffect(() => { setMenuOpen(false); setOpenMenu(null); }, [pathname]);
 
   useEffect(() => {
-    if (openMenu !== 'user') return;
+    if (!openMenu) return;
     const handler = (e: MouseEvent) => {
       const t = e.target as Node;
       if (!desktopRef.current?.contains(t) && !mobileRef.current?.contains(t)) {
@@ -135,8 +139,11 @@ const Header = () => {
 
   const sharedProps: ActionsProps = {
     isLoading, isVolunteer, userName, userInitial, avatarUrl,
-    openMenu, onToggle: toggle, onLogout: handleLogout,
-    wrapperRef: desktopRef
+    openMenu,
+    onToggle: toggle,
+    onClose: () => setOpenMenu(null),
+    onLogout: handleLogout,
+    wrapperRef: desktopRef,
   };
 
   return (
@@ -153,8 +160,10 @@ const Header = () => {
             <ul className={styles.navLinks}>
               {NAV_LINKS.map(link => (
                 <li key={link.href}>
-                  <Link href={link.href}
-                    className={`${styles.navItem} ${pathname === link.href ? styles.active : ''}`}>
+                  <Link
+                    href={link.href}
+                    className={`${styles.navItem} ${pathname === link.href ? styles.active : ''}`}
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -187,8 +196,11 @@ const Header = () => {
           {menuOpen && (
             <div className={styles.mobileMenu}>
               {NAV_LINKS.map(link => (
-                <Link key={link.href} href={link.href}
-                  className={`${styles.mobileLink} ${pathname === link.href ? styles.activeMobile : ''}`}>
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`${styles.mobileLink} ${pathname === link.href ? styles.activeMobile : ''}`}
+                >
                   {link.label}
                 </Link>
               ))}

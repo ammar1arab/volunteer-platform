@@ -35,11 +35,15 @@ type Props = {
   onCancel?: () => void;
 };
 
-const STATUS_COLOR: Record<ParticipationStatus, string> = {
-  [ParticipationStatus.APPROVED]: "green",
-  [ParticipationStatus.PENDING]: "yellow",
-  [ParticipationStatus.REJECTED]: "red",
-  [ParticipationStatus.CANCELLED]: "muted",
+const getAccentVariant = (status: ParticipationStatus, activityStatus?: string): string => {
+  if (activityStatus === "COMPLETED" && status === ParticipationStatus.APPROVED) return "blue";
+  switch (status) {
+    case ParticipationStatus.APPROVED: return "green";
+    case ParticipationStatus.PENDING: return "yellow";
+    case ParticipationStatus.REJECTED: return "red";
+    case ParticipationStatus.CANCELLED: return "violet";
+    default: return "muted";
+  }
 };
 
 const fmt = (d: string) => {
@@ -67,13 +71,14 @@ const ActivityItem = ({
   const platformLabel = meetingPlatform ? getMeetingPlatformLabel(meetingPlatform) : "رابط الاجتماع";
   const attended = attendanceStatus === AttendanceStatus.ATTENDED;
   const absent = attendanceStatus === AttendanceStatus.ABSENT;
+  const accent = getAccentVariant(status, activityStatus);
 
   return (
     <>
       <div className={styles.card}>
 
         {/* ── Left accent bar ── */}
-        <div className={`${styles.accent} ${styles[STATUS_COLOR[status]]}`} />
+        <div className={`${styles.accent} ${styles[accent]}`} />
 
         <div className={styles.body}>
 
@@ -81,7 +86,7 @@ const ActivityItem = ({
           <div className={styles.topRow}>
             <div className={styles.chips}>
               {/* participation status */}
-              <span className={`${styles.statusChip} ${styles[STATUS_COLOR[status]]}`}>
+              <span className={`${styles.statusChip} ${styles[accent]}`}>
                 {getParticipationStatusLabel(status)}
               </span>
               {/* activity type */}
@@ -176,7 +181,7 @@ const ActivityItem = ({
           </div>
 
         </div>
-        <div className={`${styles.accent} ${styles[STATUS_COLOR[status]]}`} />
+        <div className={`${styles.accent} ${styles[accent]}`} />
 
       </div>
 

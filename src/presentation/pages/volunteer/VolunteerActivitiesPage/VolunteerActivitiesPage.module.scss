@@ -1,7 +1,9 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-.page { padding: 80px 0 0; }
+.page {
+  padding: 80px 0 0;
+}
 
 .container {
   @include container;
@@ -10,15 +12,16 @@
   padding: $sp-xl $sp-md $sp-2xl;
 }
 
-// ─── Stats ────────────────────────────────────────────────────
-
+// ── Stats ──────────────────────────────────────────────────────
 .statsRow {
   display: flex;
   gap: $sp-xs;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .statCard {
@@ -35,18 +38,49 @@
   transition: $transition;
   user-select: none;
 
-  &:hover { background: rgba($green, 0.04); }
-
-  &.active {
-    border-color: $green;
-    background: rgba($green, 0.06);
-
-    .statLabel { color: $green; font-weight: 600; }
+  &:hover {
+    background: rgba($green, 0.04);
   }
 
-  &.hoursCard {
-    cursor: default;
-    &:hover { background: transparent; }
+  &.activeBlue {
+    border-color: #2563eb;
+    background: rgba(#2563eb, 0.06);
+    .statLabel {
+      color: #2563eb;
+      font-weight: 600;
+    }
+  }
+  &.activeGreen {
+    border-color: $green;
+    background: rgba($green, 0.06);
+    .statLabel {
+      color: $green;
+      font-weight: 600;
+    }
+  }
+  &.activeYellow {
+    border-color: #f59e0b;
+    background: rgba(#f59e0b, 0.06);
+    .statLabel {
+      color: #b45309;
+      font-weight: 600;
+    }
+  }
+  &.activeRed {
+    border-color: $red;
+    background: rgba($red, 0.06);
+    .statLabel {
+      color: $red;
+      font-weight: 600;
+    }
+  }
+  &.activeViolet {
+    border-color: #7c3aed;
+    background: rgba(#7c3aed, 0.06);
+    .statLabel {
+      color: #7c3aed;
+      font-weight: 600;
+    }
   }
 }
 
@@ -55,9 +89,22 @@
   font-weight: 800;
   color: $text;
   line-height: 1;
-  &.green { color: $green; }
-  &.red   { color: $red;   }
-  &.muted { color: $text-muted; }
+
+  &.blue {
+    color: #2563eb;
+  }
+  &.green {
+    color: $green;
+  }
+  &.yellow {
+    color: #f59e0b;
+  }
+  &.red {
+    color: $red;
+  }
+  &.violet {
+    color: #7c3aed;
+  }
 }
 
 .statLabel {
@@ -67,10 +114,66 @@
   transition: $transition;
 }
 
-// ─── Search ───────────────────────────────────────────────────
+// ── Filter chips ───────────────────────────────────────────────
+.chipsRow {
+  display: flex;
+  align-items: center;
+  gap: $sp-xs;
+  flex-wrap: nowrap;
+}
 
-.search { width: 100%; }
+.chipGroup {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
 
-// ─── List ─────────────────────────────────────────────────────
+.chipSpacer {
+  flex: 1;
+  min-width: $sp-xs;
+}
 
-.list { @include flex-col; gap: $sp-sm; }
+.chip {
+  @include flex(row, center, center, 4px);
+  padding: 5px 12px;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: 600;
+  border: 1.5px solid $border;
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: $transition;
+
+  @media (hover: hover) {
+    &:hover {
+      border-color: $green;
+      color: $green;
+      background: rgba($green, 0.04);
+    }
+  }
+
+  &.chipActive {
+    border-color: $green;
+    background: rgba($green, 0.08);
+    color: $green;
+  }
+}
+
+// ── Search + sort ──────────────────────────────────────────────
+.filterRow {
+  @include flex(row, center, flex-start, $sp-sm);
+  width: 100%;
+}
+
+.searchWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+// ── List ───────────────────────────────────────────────────────
+.list {
+  @include flex-col;
+  gap: $sp-sm;
+}

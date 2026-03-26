@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 import { Bell } from "lucide-react";
 import styles from "./NotificationBell.module.scss";
@@ -14,7 +13,6 @@ interface Props {
 
 const NotificationBell = ({ isOpen, onToggle, onClose }: Props) => {
   const [animate, setAnimate] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const prevCountRef = useRef(0);
 
   const { list, unreadCount, loading, markAsRead, markAllAsRead, clearHistory } =
@@ -30,22 +28,11 @@ const NotificationBell = ({ isOpen, onToggle, onClose }: Props) => {
     prevCountRef.current = unreadCount;
   }, [unreadCount]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [isOpen, onClose]);
-
   return (
-    <div className={styles.wrapper} ref={wrapperRef}>
+    <div className={styles.wrapper}>
       <button
         className={`${styles.bell} ${animate ? styles.pulse : ""} ${isOpen ? styles.active : ""}`}
-        onClick={onToggle}
+        onMouseDown={(e) => { e.stopPropagation(); onToggle(); }}
         aria-label="الإشعارات"
       >
         <Bell size={20} />

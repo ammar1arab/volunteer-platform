@@ -31,7 +31,7 @@ export const useFeaturedPostsPublicPage = () => {
   }, [list]);
 
   const categoryOptions = useMemo(() => [
-    { key: "all", label: "الجميع" },
+    { key: "all", label: "جميع التصنيفات" },
     ...CATEGORY_OPTIONS.map(cat => ({ key: cat.value, label: cat.label })),
   ], []);
 

@@ -41,6 +41,27 @@ $mobile-break: 900px;
   position: relative;
 }
 
+// ── Caret indicator ───────────────────────────────────
+.caret {
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: top center;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid $green;
+  filter: drop-shadow(0 0 5px rgba($green, 0.9));
+  pointer-events: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &.caretVisible {
+    transform: translateX(-50%) scaleY(1);
+  }
+}
+
 .logoDesktop {
   display: block;
   @media (max-width: $mobile-break) { display: none; }
@@ -86,6 +107,7 @@ $mobile-break: 900px;
 .actions {
   @include flex(row, center, center, $sp-sm);
   @media (max-width: $mobile-break) { display: none; }
+  position: relative;
 }
 
 // ── User menu wrapper ─────────────────────────────────
