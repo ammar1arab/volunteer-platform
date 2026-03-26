@@ -14,7 +14,6 @@ const PushBanner = () => {
   if (!session?.user) return null;
   if (dismissed)      return null;
 
-  // iOS must be checked BEFORE isSupported — PushManager doesn't exist on iOS Chrome
   if (isIOS && !isStandalone) {
     return (
       <div className={`${styles.banner} ${styles.ios} ${collapsed ? styles.collapsed : ""}`}>
