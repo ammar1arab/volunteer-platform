@@ -105,6 +105,16 @@ export const useForgotPassword = () => {
     setError("");
     setLoading(true);
     try {
+      const res = await fetch("/api/auth/check-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() })
+      });
+      const check = await res.json();
+      if (!check.taken) {
+        setEmailError("البريد الإلكتروني غير مسجل");
+        return;
+      }
       const result = await authApi.forgotPassword({ email });
       if (result.success) {
         start(result.data?.cooldownSeconds ?? 60);
@@ -170,13 +180,28 @@ export const useForgotPassword = () => {
   };
 
   return {
-    step, email, setEmail, emailError,
-    code, setCode,
-    newPassword, handlePasswordChange,
-    confirmPassword, handleConfirmChange,
-    passwordError, confirmError,
-    error, loading, cooldown, total, // Added total
-    isResending, resendSent, showSuccess, // Added resendSent and showSuccess
-    handleSendOtp, handleVerifyOtp, handleResetPassword, handleResend
+    step,
+    email,
+    setEmail,
+    emailError,
+    code,
+    setCode,
+    newPassword,
+    handlePasswordChange,
+    confirmPassword,
+    handleConfirmChange,
+    passwordError,
+    confirmError,
+    error,
+    loading,
+    cooldown,
+    total, // Added total
+    isResending,
+    resendSent,
+    showSuccess, // Added resendSent and showSuccess
+    handleSendOtp,
+    handleVerifyOtp,
+    handleResetPassword,
+    handleResend
   };
 };

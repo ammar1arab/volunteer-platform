@@ -3,20 +3,20 @@
 
 .wrapper {
   @include flex-col;
-  min-height: 300px;
-  gap: 0;
+  gap: $sp-sm;
 }
 
 .topBar {
   @include flex(row, center, space-between, $sp-sm);
-  padding: $sp-sm $sp-xs $sp-md;
+  padding-bottom: $sp-sm;
   border-bottom: 1px solid $border;
-  margin-bottom: $sp-xs;
+  flex-shrink: 0;
 }
 
 .count {
   font-size: $font-sm;
   color: $text-muted;
+
   strong {
     color: $green;
     font-weight: 800;
@@ -33,16 +33,22 @@
   padding: 4px 8px;
   border-radius: $radius;
   transition: $transition;
+
   &:hover { background: rgba($green, 0.08); }
 }
 
 .scrollArea {
-  flex: 1;
   overflow-y: auto;
-  max-height: 50vh;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar { display: none; }
+  max-height: 45vh;
+  min-height: 120px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($green, 0.25) transparent;
+
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba($green, 0.25); border-radius: 4px; }
+
+  @media (max-width: $bp-sm) { max-height: 38vh; }
 }
 
 .list {
@@ -68,6 +74,10 @@
   &.cardChecked {
     border-color: rgba($green, 0.35);
     background: rgba($green, 0.04);
+  }
+
+  @media (max-width: $bp-sm) {
+    padding: $sp-xs $sp-sm;
   }
 }
 
@@ -104,20 +114,27 @@
 .meta {
   @include flex(row, center, flex-start, $sp-sm);
   flex-wrap: wrap;
+  gap: 0.25rem;
 }
 
 .metaItem {
   @include flex(row, center, flex-start, 3px);
   font-size: $font-xs;
   color: $text-muted;
+
   svg { opacity: 0.6; }
 }
 
 .footer {
   @include flex(row, center, flex-end, $sp-sm);
-  padding-top: $sp-md;
-  margin-top: $sp-sm;
+  padding-top: $sp-sm;
   border-top: 1px solid $border;
+  flex-shrink: 0;
+
+  @media (max-width: $bp-sm) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
 }
 
 .btnCancel {
@@ -130,8 +147,11 @@
   color: $text-muted;
   cursor: pointer;
   transition: $transition;
+
   &:hover:not(:disabled) { color: $red; border-color: rgba($red, 0.3); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:disabled             { opacity: 0.5; cursor: not-allowed; }
+
+  @media (max-width: $bp-sm) { width: 100%; text-align: center; }
 }
 
 .btnSend {
@@ -144,6 +164,9 @@
   color: $white;
   cursor: pointer;
   transition: $transition;
-  &:hover:not(:disabled) { background: $green; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &:hover:not(:disabled) { filter: brightness(1.07); }
+  &:disabled             { opacity: 0.5; cursor: not-allowed; }
+
+  @media (max-width: $bp-sm) { width: 100%; text-align: center; }
 }

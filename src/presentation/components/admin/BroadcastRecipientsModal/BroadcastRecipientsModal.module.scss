@@ -9,6 +9,7 @@
 .subtitle {
   @include flex(row, center, flex-start, $sp-sm);
   flex-wrap: wrap;
+  gap: $sp-xs;
 }
 
 .broadcastName {
@@ -48,13 +49,23 @@
   @include input;
   font-size: $font-sm;
   padding-right: 2rem;
+  width: 100%;
 }
 
 .listWrap {
-  max-height: 380px;
-  overflow-y: auto;
   border: 1px solid $border;
   border-radius: $radius;
+  overflow: hidden;
+  max-height: 42vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($green, 0.25) transparent;
+
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba($green, 0.25); border-radius: 4px; }
+
+  @media (max-width: $bp-sm) { max-height: 36vh; }
 }
 
 .list {
@@ -66,9 +77,10 @@
   padding: 0.6rem $sp-sm;
   border-bottom: 1px solid $border;
   transition: background $transition;
+  min-height: 52px;
 
   &:last-child { border-bottom: none; }
-  &:hover { background: rgba($green, 0.03); }
+  &:hover      { background: rgba($green, 0.03); }
 }
 
 .avatar {

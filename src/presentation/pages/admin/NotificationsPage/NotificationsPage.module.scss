@@ -5,19 +5,25 @@
   display: grid;
   grid-template-columns: 420px 1fr;
   gap: $sp-lg;
-  align-items: flex-start;
+  align-items: stretch;
 
-  @media (max-width: $bp-md) { grid-template-columns: 1fr; }
+  @media (max-width: $bp-lg)  { grid-template-columns: 360px 1fr; }
+  @media (max-width: $bp-md)  { grid-template-columns: 1fr; align-items: flex-start; }
 }
 
 .card {
   @include card;
   @include flex-col;
   gap: $sp-md;
+  height: 100%;
+  min-height: 560px;
+
+  @media (max-width: $bp-md) { min-height: unset; height: auto; }
 }
 
 .cardHeader {
   @include flex(row, center, flex-start, $sp-sm);
+  flex-shrink: 0;
 
   h2 {
     font-size: $font-sm;
@@ -41,13 +47,15 @@
   transition: background $transition;
   flex-shrink: 0;
 
-  &:hover   { background: rgba($red, 0.08); }
+  &:hover    { background: rgba($red, 0.08); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
+// ── Form ────────────────────────────────────────────────
 .form {
   @include flex-col;
   gap: $sp-md;
+  flex: 1;
 }
 
 .field {
@@ -78,6 +86,7 @@
   min-height: 100px;
 }
 
+// ── Direct user selection ────────────────────────────────
 .usersHeader {
   @include flex-between;
 }
@@ -109,6 +118,7 @@
   @include input;
   font-size: $font-sm;
   padding-right: 2rem;
+  width: 100%;
 }
 
 .volunteersLoading {
@@ -117,22 +127,22 @@
 }
 
 .userList {
-  max-height: 260px;
-  overflow-y: auto;
   border: 1px solid $border;
   border-radius: $radius;
   @include flex-col;
+  overflow: hidden;
 }
 
 .userItem {
   @include flex(row, center, flex-start, $sp-sm);
-  padding: 0.5rem 0.7rem;
+  padding: 0.55rem 0.75rem;
   cursor: pointer;
   border-bottom: 1px solid $border;
   transition: background $transition;
+  min-height: 44px;
 
-  &:last-child { border-bottom: none; }
-  &:hover { background: rgba($green, 0.04); }
+  &:last-child  { border-bottom: none; }
+  &:hover       { background: rgba($green, 0.04); }
 }
 
 .userItemSelected { background: rgba($green, 0.07); }
@@ -154,7 +164,7 @@
 }
 
 .userInfo {
-  @include flex(row, center, flex-start, $sp-sm);
+  @include flex(row, center, space-between, $sp-sm);
   flex: 1;
   min-width: 0;
 }
@@ -168,12 +178,12 @@
 
 .userHours {
   font-size: 0.7rem;
-  color: $text-muted;
-  flex-shrink: 0;
   background: rgba($green, 0.08);
   color: $green;
   padding: 0.1rem 0.4rem;
   border-radius: $radius-full;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .noResults {
@@ -184,11 +194,26 @@
   margin: 0;
 }
 
+// ── Broadcast history ────────────────────────────────────
+.broadcastListWrapper {
+  @include flex-col;
+  gap: $sp-sm;
+  flex: 1;
+  min-height: 0;
+}
+
 .broadcastList {
   @include flex-col;
   gap: $sp-sm;
-  max-height: 560px;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba($green, 0.25) transparent;
+
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba($green, 0.25); border-radius: 4px; }
 }
 
 .broadcastItem {
@@ -198,13 +223,13 @@
   border-radius: $radius;
   border: 1px solid $border;
   transition: border-color $transition;
+  flex-shrink: 0;
 
   &:hover { border-color: rgba($green, 0.3); }
 }
 
 .broadcastTop {
-  @include flex-between;
-  gap: $sp-sm;
+  @include flex(row, flex-start, space-between, $sp-sm);
 }
 
 .broadcastTitle {
@@ -235,13 +260,15 @@
 }
 
 .broadcastBottom {
-  @include flex-between;
-  gap: $sp-sm;
+  @include flex(row, center, space-between, $sp-sm);
   flex-wrap: wrap;
+  gap: $sp-xs;
 }
 
 .broadcastMeta {
   @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+  gap: $sp-xs;
 }
 
 .recipients {
@@ -287,8 +314,4 @@
   transition: background $transition;
 
   &:hover { background: rgba($red, 0.15); }
-}
-.broadcastListWrapper {
-  @include flex-col;
-  gap: $sp-sm;
 }

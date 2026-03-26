@@ -1,38 +1,40 @@
 "use client";
 import styles from "./NotificationsPage.module.scss";
+import { useState, useEffect, useMemo } from "react";
 import {
   Send, Bell, Users, MapPin, User2, Clock, UserCheck,
   Eye, Trash2, Search, CheckSquare,
 } from "lucide-react";
 import {
   LoadingState, EmptyState, ToastContainer, SelectInput,
-  Button, NotificationPreviewModal, ConfirmDialog, Pagination,
+  Button, NotificationPreviewModal, ConfirmDialog, Pagination, BroadcastRecipientsModal
 } from "@/presentation/components";
 import {
   useNotificationsPageLogic,
   CITY_OPTIONS, TARGET_OPTIONS, GENDER_OPTIONS, relativeTime,
 } from "./NotificationsPage.logic";
-import { BroadcastRecipientsModal } from "@/presentation/components";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
 import type { BroadcastDto } from "@/core/application/dtos";
 import { Gender, JordanianCity } from "@/core/domain/enums";
 
 const TARGET_ICON: Record<string, React.ReactNode> = {
-  ALL: <Users size={11} />,
-  CITY: <MapPin size={11} />,
-  GENDER: <User2 size={11} />,
-  HOURS: <Clock size={11} />,
-  USERS: <UserCheck size={11} />,
+  ALL:    <Users    size={11} />,
+  CITY:   <MapPin   size={11} />,
+  GENDER: <User2    size={11} />,
+  HOURS:  <Clock    size={11} />,
+  USERS:  <UserCheck size={11} />,
 };
 
 const getTargetLabel = (b: BroadcastDto) => {
-  if (b.target === "ALL") return "الجميع";
-  if (b.target === "CITY") return getCityLabel(b.targetValue as JordanianCity);
+  if (b.target === "ALL")    return "الجميع";
+  if (b.target === "CITY")   return getCityLabel(b.targetValue as JordanianCity);
   if (b.target === "GENDER") return getGenderLabel(b.targetValue as Gender);
-  if (b.target === "HOURS") return `أكثر من ${b.targetValue} ساعة`;
-  if (b.target === "USERS") return "مختارون يدوياً";
+  if (b.target === "HOURS")  return `أكثر من ${b.targetValue} ساعة`;
+  if (b.target === "USERS")  return "مختارون يدوياً";
   return b.targetValue ?? "";
 };
+
+const VOLUNTEERS_PER_PAGE = 8;
 
 const NotificationsPage = () => {
   const {
@@ -53,10 +55,24 @@ const NotificationsPage = () => {
     requestDeleteBroadcast, cancelDeleteBroadcast, confirmDeleteBroadcast,
   } = useNotificationsPageLogic();
 
+  const [volunteersPage, setVolunteersPage] = useState(1);
+
+  useEffect(() => { setVolunteersPage(1); }, [volunteerSearch, form.target]);
+
+  const paginatedVolunteers = useMemo(
+    () => filteredVolunteers.slice(
+      (volunteersPage - 1) * VOLUNTEERS_PER_PAGE,
+      volunteersPage * VOLUNTEERS_PER_PAGE
+    ),
+    [filteredVolunteers, volunteersPage]
+  );
+
   if (status === "loading") return <LoadingState />;
 
-  const isSubmitting = submitStatus === "loading";
-  const allDirectVisible = filteredVolunteers.length > 0 && filteredVolunteers.every(v => directSelectedIds.has(v.id));
+  const isSubmitting    = submitStatus === "loading";
+  const allDirectVisible =
+    filteredVolunteers.length > 0 &&
+    filteredVolunteers.every(v => directSelectedIds.has(v.id));
 
   return (
     <>
@@ -93,6 +109,7 @@ const NotificationsPage = () => {
 
       <div className={styles.grid}>
 
+        {/* ── Creation card ── */}
         <section className={styles.card}>
           <div className={styles.cardHeader}>
             <Bell size={16} />
@@ -180,6 +197,7 @@ const NotificationsPage = () => {
                     <span className={styles.selectedBadge}>{directSelectedIds.size} محدد</span>
                   )}
                 </div>
+
                 <div className={styles.userSearchWrap}>
                   <Search size={13} className={styles.searchIcon} />
                   <input
@@ -191,37 +209,49 @@ const NotificationsPage = () => {
                     disabled={loadingVolunteers}
                   />
                 </div>
+
                 {loadingVolunteers ? (
                   <div className={styles.volunteersLoading}><LoadingState compact /></div>
                 ) : (
-                  <div className={styles.userList}>
-                    {filteredVolunteers.length > 0 && (
-                      <div className={styles.userItem} onClick={toggleAllDirect}>
-                        <span className={`${styles.checkbox} ${allDirectVisible ? styles.checkboxActive : ""}`}>
-                          {allDirectVisible && <CheckSquare size={11} />}
-                        </span>
-                        <span className={styles.userName}>تحديد الكل ({filteredVolunteers.length})</span>
-                      </div>
-                    )}
-                    {filteredVolunteers.map(v => (
-                      <div
-                        key={v.id}
-                        className={`${styles.userItem} ${directSelectedIds.has(v.id) ? styles.userItemSelected : ""}`}
-                        onClick={() => toggleDirectUser(v.id)}
-                      >
-                        <span className={`${styles.checkbox} ${directSelectedIds.has(v.id) ? styles.checkboxActive : ""}`} />
-                        <div className={styles.userInfo}>
-                          <span className={styles.userName}>{v.name}</span>
-                          {v.hours !== undefined && (
-                            <span className={styles.userHours}>{v.hours} ساعة</span>
-                          )}
+                  <>
+                    <div className={styles.userList}>
+                      {filteredVolunteers.length > 0 && (
+                        <div className={styles.userItem} onClick={toggleAllDirect}>
+                          <span className={`${styles.checkbox} ${allDirectVisible ? styles.checkboxActive : ""}`}>
+                            {allDirectVisible && <CheckSquare size={11} />}
+                          </span>
+                          <span className={styles.userName}>
+                            تحديد الكل ({filteredVolunteers.length})
+                          </span>
                         </div>
-                      </div>
-                    ))}
-                    {filteredVolunteers.length === 0 && (
-                      <p className={styles.noResults}>لا توجد نتائج</p>
-                    )}
-                  </div>
+                      )}
+                      {paginatedVolunteers.map(v => (
+                        <div
+                          key={v.id}
+                          className={`${styles.userItem} ${directSelectedIds.has(v.id) ? styles.userItemSelected : ""}`}
+                          onClick={() => toggleDirectUser(v.id)}
+                        >
+                          <span className={`${styles.checkbox} ${directSelectedIds.has(v.id) ? styles.checkboxActive : ""}`} />
+                          <div className={styles.userInfo}>
+                            <span className={styles.userName}>{v.name}</span>
+                            {v.hours !== undefined && (
+                              <span className={styles.userHours}>{v.hours} ساعة</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      {filteredVolunteers.length === 0 && (
+                        <p className={styles.noResults}>لا توجد نتائج</p>
+                      )}
+                    </div>
+
+                    <Pagination
+                      currentPage={volunteersPage}
+                      totalItems={filteredVolunteers.length}
+                      itemsPerPage={VOLUNTEERS_PER_PAGE}
+                      onPageChange={setVolunteersPage}
+                    />
+                  </>
                 )}
               </div>
             )}
@@ -253,6 +283,7 @@ const NotificationsPage = () => {
           </form>
         </section>
 
+        {/* ── History card ── */}
         <section className={styles.card}>
           <div className={styles.cardHeader}>
             <Bell size={16} />
