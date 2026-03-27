@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/infrastructure/persistence/prisma";
 import { R2StorageService, ResendClient, CertificateGeneratorService } from "@/infrastructure/external";
 import { inngest } from "@/lib/inngest/client";
@@ -98,6 +99,14 @@ export const issueCertificates = inngest.createFunction(
             logger.info(SCOPE, `generate-upload-${v.userId}`, `Done: ${v.fullName}`);
             return { userId: v.userId, fullName: v.fullName, email: v.email, pngUrl: pngRes.url! };
           } catch (err) {
+            Sentry.withScope((s) => {
+              s.setTag("inngest.function", "issue-certificates");
+              s.setTag("activityId", activityId);
+              s.setTag("volunteerId", v.userId);
+              s.setContext("volunteer", { userId: v.userId, fullName: v.fullName, email: v.email });
+              s.setContext("activity",  { id: activityId, title: activity.title });
+              Sentry.captureException(err instanceof Error ? err : new Error(String(err)));
+            });
             logger.warn(SCOPE, `generate-upload-${v.userId}`, `Failed: ${err}`);
             return null;
           }

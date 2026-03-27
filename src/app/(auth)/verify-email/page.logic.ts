@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
+import * as Sentry from "@sentry/nextjs";
 import { OtpType } from "@prisma/client";
 
 import { authApi } from "@/presentation/services";
@@ -88,7 +89,8 @@ export const useVerifyEmail = () => {
         if (password) doRedirect(password);
         else router.replace(`/signin?email=${encodeURIComponent(email)}`);
       }, 1500);
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error("Verify email network error"));
       setError(NETWORK_ERROR);
     } finally {
       setLoading(false);

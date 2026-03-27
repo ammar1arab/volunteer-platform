@@ -15,6 +15,7 @@
     "@aws-sdk/s3-request-presigner": "^3.998.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@sentry/nextjs": "^10.46.0",
     "@sparticuz/chromium": "^143.0.4",
     "@types/react-time-picker": "^4.0.3",
     "bcryptjs": "^3.0.3",

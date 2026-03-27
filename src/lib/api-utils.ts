@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { jwtVerify } from "jose";
+import * as Sentry from "@sentry/nextjs";
 import type { AdminPermission } from "@/core/domain/enums";
 import type { Result } from "@/core/application/dtos";
 import { UserRole } from "@/core/domain/enums";
@@ -82,8 +83,7 @@ export function badRequest(message = "Invalid request") {
 }
 
 export function apiError(scope: string, action: string, error: unknown) {
-  const msg = error instanceof Error ? error.message : String(error);
-  logger.error(scope, action, msg);
+  logger.error(scope, action, error instanceof Error ? error : new Error(String(error)));
   return NextResponse.json(
     { success: false, error: { code: "INTERNAL_ERROR", message: "Internal server error" } },
     { status: 500 }
@@ -98,6 +98,7 @@ export async function requireAuth(req: Request, role?: UserRole): Promise<AuthRe
       logger.warn("Auth", "requireAuth", `Role mismatch: expected=${role} got=${session.user.role}`);
       return { error: forbidden() } as const;
     }
+    Sentry.setUser({ id: session.user.id, email: session.user.email });
     return { session } as const;
   }
 
@@ -119,6 +120,7 @@ export async function requireAuth(req: Request, role?: UserRole): Promise<AuthRe
         select: { isSuperAdmin: true, permissions: true }
       });
 
+      Sentry.setUser({ id: userId });
       return {
         session: {
           user: {

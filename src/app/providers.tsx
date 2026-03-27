@@ -1,12 +1,36 @@
-'use client';
+"use client";
 
-import { SessionProvider } from 'next-auth/react';
-import { ReactNode } from 'react';
+import { SessionProvider, useSession } from "next-auth/react";
+import { ReactNode, useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
+
+function SentryUserSync() {
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      Sentry.setUser({
+        id:       session.user.id,
+        email:    session.user.email    ?? undefined,
+        username: session.user.name     ?? undefined,
+      });
+    } else {
+      Sentry.setUser(null);
+    }
+  }, [session]);
+
+  return null;
+}
 
 interface ProvidersProps {
   children: ReactNode;
 }
 
 export function Providers({ children }: ProvidersProps) {
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider>
+      <SentryUserSync />
+      {children}
+    </SessionProvider>
+  );
 }

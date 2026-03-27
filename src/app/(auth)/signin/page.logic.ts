@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
+import * as Sentry from "@sentry/nextjs";
 import { redirectByRole } from "@/presentation/constants";
 
 export interface SigninFormData {
@@ -78,7 +79,8 @@ export const useSignin = () => {
 
       const session = await getSession();
       window.location.href = redirectByRole(session?.user?.role);
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error("Signin network error"));
       setError("حدث خطأ في الاتصال، يرجى المحاولة لاحقاً");
     } finally {
       setLoading(false);

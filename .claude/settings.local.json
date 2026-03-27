@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Projects/WIP/volunteer-platform/src -name *.test.ts -o -name *.spec.ts)",
+      "Bash(ls /c/Projects/WIP/volunteer-platform/src/app/\\\\\\(public\\\\\\)/)",
+      "Bash(find src/core src/infrastructure -type f -name *.ts)",
+      "Bash(grep -E \"\\\\.tsx?$|\\\\.js$|config\")",
+      "Bash(git:*)"
+    ]
+  }
+}

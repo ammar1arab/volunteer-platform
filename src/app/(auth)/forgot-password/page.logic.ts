@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import { OtpType } from "@prisma/client";
 import { authApi } from "@/presentation/services";
 import { useOtpTimer } from "@/presentation/hooks";
@@ -67,7 +68,8 @@ export const useForgotPassword = () => {
       }
       setResetToken(token);
       setStep("password");
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error("Verify OTP network error"));
       setError(NETWORK_ERROR);
     } finally {
       setLoading(false);
@@ -122,7 +124,8 @@ export const useForgotPassword = () => {
       } else {
         setError(result.error?.message ?? "فشل إرسال الرمز");
       }
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error("Send OTP network error"));
       setError(NETWORK_ERROR);
     } finally {
       setLoading(false);
@@ -140,7 +143,8 @@ export const useForgotPassword = () => {
         setResendSent(true);
         setTimeout(() => setResendSent(false), 2000);
       }
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error("Resend OTP network error"));
       setError(NETWORK_ERROR);
     } finally {
       setIsResending(false);
@@ -172,7 +176,8 @@ export const useForgotPassword = () => {
       }
       setShowSuccess(true);
       setTimeout(() => router.replace("/signin?reset=success"), 1500);
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error("Reset password network error"));
       setError(NETWORK_ERROR);
     } finally {
       setLoading(false);

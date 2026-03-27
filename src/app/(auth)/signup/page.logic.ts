@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 import { Gender, JordanianCity } from "@/core/domain/enums";
 import { authApi } from "@/presentation/services";
 
@@ -192,7 +193,8 @@ export const useSignup = () => {
         return;
       }
       setServerError(res.error?.message ?? "حدث خطأ، يرجى المحاولة مجدداً");
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error("Signup network error"));
       setServerError("تعذّر الاتصال بالخادم");
     } finally {
       setLoading(false);
