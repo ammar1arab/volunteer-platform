@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Instagram, Facebook } from 'lucide-react';
+import { Instagram, Facebook, Code2 } from 'lucide-react';
 import styles from './Footer.module.scss';
 import { ROUTES } from '@/presentation/constants';
 
@@ -41,7 +41,16 @@ const Footer = () => {
         </div>
 
         <div className={styles.copyright}>
-          © {new Date().getFullYear()} بصمات شبابية
+          <span>© {new Date().getFullYear()} بصمات شبابية</span>
+          <a
+            className={styles.devChip}
+            href="https://ammararab.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Code2 size={12} strokeWidth={2.5} />
+            Built by Ammar
+          </a>
         </div>
       </div>
     </footer>

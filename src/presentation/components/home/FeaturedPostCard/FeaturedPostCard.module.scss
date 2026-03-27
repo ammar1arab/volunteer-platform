@@ -12,7 +12,6 @@
 
 .card {
   @include flex-col;
-  border: 1px solid $border;
   border-radius: $radius-lg;
   overflow: hidden;
   cursor: pointer;

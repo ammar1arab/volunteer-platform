@@ -84,7 +84,41 @@
 
 .copyright {
   padding-top: $sp-sm;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $sp-sm;
   font-size: $font-xs;
   color: $text-muted;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.devChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: $radius-full;
+  background: #111;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  transition: background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+
+  &:hover {
+    background: #000;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 }
