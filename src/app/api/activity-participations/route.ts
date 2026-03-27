@@ -15,27 +15,10 @@ export async function POST(req: Request) {
     if (!body?.activityId?.trim()) return badRequest("Activity ID is required");
 
     logger.info("API", "POST /activity-participations", `user=${auth.session.user.id} activity=${body.activityId}`);
-
-    const result = await providers.participation().createJoinRequest(body.activityId, auth.session.user.id);
-
-    if (result.success) {
-      Sentry.addBreadcrumb({
-        category: "participation",
-        message:  "Volunteer joined activity",
-        level:    "info",
-        data: {
-          userId:     auth.session.user.id,
-          activityId: body.activityId,
-        },
-      });
-      Sentry.captureMessage("volunteer.joined_activity", {
-        level: "info",
-        tags:  { activityId: body.activityId },
-        user:  { id: auth.session.user.id },
-      });
-    }
-
-    return toResponse(result, 201);
+    return toResponse(
+      await providers.participation().createJoinRequest(body.activityId, auth.session.user.id),
+      201,
+    );
   } catch (error) {
     return apiError("API", "POST /activity-participations", error);
   }
