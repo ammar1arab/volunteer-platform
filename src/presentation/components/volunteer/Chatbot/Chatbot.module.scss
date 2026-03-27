@@ -890,7 +890,6 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   border-radius: $radius-full;
   border: 2px solid rgba($green, 0.5);
   pointer-events: none;
-  animation: pulseRing 2.8s ease-out infinite;
 }
 
 .ring2 {
