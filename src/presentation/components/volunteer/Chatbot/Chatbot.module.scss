@@ -1,0 +1,1026 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+// ─── Local supplements (not in variables) ────────────────────────────────────
+$green-dark: #15803d;
+$green-light: #4ade80;
+$slate-900: #0f172a;
+$slate-800: #1e293b;
+$slate-700: #334155;
+$slate-50: #f8fafc;
+$slate-200: #e2e8f0;
+$z-chat: $z-fixed + 10;
+
+$t-fast: 160ms cubic-bezier(0.4, 0, 0.2, 1);
+$t-med: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+$t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  KEYFRAMES
+// ─────────────────────────────────────────────────────────────────────────────
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.72) translateY(6px);
+  }
+  70% {
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes onlinePing {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.8);
+    opacity: 0.3;
+  }
+}
+
+@keyframes dotBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-7px);
+    opacity: 1;
+  }
+}
+
+@keyframes blobFloat {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(8px, -12px) scale(1.05);
+  }
+  66% {
+    transform: translate(-6px, 6px) scale(0.96);
+  }
+}
+
+@keyframes headerShimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes fabEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-90deg);
+  }
+  60% {
+    transform: scale(1.15) rotate(6deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes chipIn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sendPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.88);
+  }
+  80% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes rippleOut {
+  0% {
+    opacity: 0.6;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.5);
+  }
+}
+
+@keyframes particleBurst {
+  0% {
+    opacity: 1;
+    transform: scale(0) translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1) translate(var(--px), var(--py));
+  }
+}
+
+@keyframes streamGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba($green, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 12px 3px rgba($green, 0.35);
+  }
+}
+
+@keyframes unreadPop {
+  0% {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes gradFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// AI Bot icon keyframes ───────────────────────────────────────────────────────
+
+@keyframes orbitSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes eyeBlink {
+  0%,
+  44%,
+  56%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.06);
+  }
+}
+
+@keyframes antennaBlink {
+  0%,
+  38%,
+  62%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(0.65);
+  }
+}
+
+@keyframes scanDown {
+  0% {
+    transform: translateY(0px);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.7;
+  }
+  80% {
+    transform: translateY(14px);
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 0;
+  }
+}
+
+@keyframes barWave {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(2.1);
+  }
+}
+
+@keyframes aiBotGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 3px rgba(74, 222, 128, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.7));
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  PARTICLES
+// ─────────────────────────────────────────────────────────────────────────────
+
+.particle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: $radius-full;
+  pointer-events: none;
+  z-index: $z-chat + 10;
+  animation: particleBurst 0.75s ease-out forwards;
+
+  &:nth-child(1) {
+    background: $green;
+    --px: 0px;
+    --py: -52px;
+  }
+  &:nth-child(2) {
+    background: $green-light;
+    --px: 36px;
+    --py: -36px;
+    animation-delay: 0.02s;
+  }
+  &:nth-child(3) {
+    background: #fbbf24;
+    --px: 52px;
+    --py: 0px;
+    animation-delay: 0.04s;
+  }
+  &:nth-child(4) {
+    background: $blue;
+    --px: 36px;
+    --py: 36px;
+    animation-delay: 0.06s;
+  }
+  &:nth-child(5) {
+    background: $green;
+    --px: 0px;
+    --py: 52px;
+    animation-delay: 0.08s;
+  }
+  &:nth-child(6) {
+    background: #f472b6;
+    --px: -36px;
+    --py: 36px;
+    animation-delay: 0.1s;
+  }
+  &:nth-child(7) {
+    background: $green-light;
+    --px: -52px;
+    --py: 0px;
+    animation-delay: 0.12s;
+  }
+  &:nth-child(8) {
+    background: #fbbf24;
+    --px: -36px;
+    --py: -36px;
+    animation-delay: 0.14s;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ROOT
+// ─────────────────────────────────────────────────────────────────────────────
+
+.root {
+  position: fixed;
+  bottom: $sp-lg;
+  left: $sp-lg;
+  z-index: $z-chat;
+  @include flex(column, flex-end, flex-end, $sp-sm);
+
+  @media (max-width: $bp-sm) {
+    bottom: $sp-md;
+    left: $sp-md;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  WINDOW
+// ─────────────────────────────────────────────────────────────────────────────
+
+.window {
+  position: relative;
+  width: 380px;
+  height: 560px;
+  max-height: 80dvh;
+  background: $white;
+  border-radius: $radius-2xl;
+  @include flex-col;
+  overflow: hidden;
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.18),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.07);
+  opacity: 0;
+  transform: translateY(28px) scale(0.94);
+  transition:
+    opacity $t-med,
+    transform $t-spr;
+  will-change: transform, opacity;
+
+  &.windowVisible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .blob1,
+  .blob2 {
+    position: absolute;
+    border-radius: $radius-full;
+    pointer-events: none;
+    z-index: 0;
+    animation: blobFloat 9s ease-in-out infinite;
+  }
+
+  .blob1 {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba($green, 0.07), transparent 70%);
+    top: -60px;
+    right: -60px;
+  }
+
+  .blob2 {
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba($blue, 0.05), transparent 70%);
+    bottom: 80px;
+    left: -40px;
+    animation-delay: -4s;
+    animation-duration: 12s;
+  }
+
+  @media (max-width: $bp-sm) {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  HEADER
+// ─────────────────────────────────────────────────────────────────────────────
+
+.header {
+  position: relative;
+  z-index: 2;
+  @include flex-between;
+  padding: $sp-md;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, $slate-900 0%, #1a3a2a 50%, $slate-900 100%);
+  background-size: 200% 200%;
+  animation: gradFlow 8s ease infinite;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba($white, 0.03) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: headerShimmer 4s linear infinite;
+    pointer-events: none;
+  }
+}
+
+.headerLeft {
+  @include flex(row, center, flex-start, $sp-sm);
+}
+
+.avatarRing {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-full;
+  background: linear-gradient(135deg, $green 0%, $green-dark 100%);
+  border: 2px solid rgba($white, 0.2);
+  @include flex-center;
+  color: $white;
+  box-shadow: 0 0 16px rgba($green, 0.5);
+}
+
+.onlinePulse {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  border-radius: $radius-full;
+  background: $green-light;
+  border: 2px solid $slate-900;
+  animation: onlinePing 2.5s ease-in-out infinite;
+}
+
+.headerText {
+  @include flex-col;
+  gap: 1px;
+}
+
+.botName {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+
+.botSub {
+  @include flex(row, center, flex-start, 5px);
+  font-size: $font-xs;
+  color: rgba($white, 0.7);
+}
+
+.onlineDot {
+  width: 5px;
+  height: 5px;
+  border-radius: $radius-full;
+  background: $green-light;
+  flex-shrink: 0;
+  animation: onlinePing 2.5s ease-in-out infinite 0.5s;
+}
+
+.headerActions {
+  @include flex(row, center, flex-end, $sp-xs);
+  position: relative;
+  z-index: 1;
+}
+
+.iconBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-full;
+  border: none;
+  background: rgba($white, 0.1);
+  color: rgba($white, 0.85);
+  cursor: pointer;
+  @include flex-center;
+  transition:
+    background $t-fast,
+    transform $t-fast,
+    color $t-fast;
+
+  &:hover {
+    background: rgba($white, 0.2);
+    color: $white;
+    transform: scale(1.1);
+  }
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  MESSAGES
+// ─────────────────────────────────────────────────────────────────────────────
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: $sp-md;
+  @include flex-col;
+  gap: $sp-sm;
+  background: $slate-50;
+  position: relative;
+  z-index: 1;
+  scroll-behavior: smooth;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($green, 0.25);
+    border-radius: $radius-full;
+    &:hover {
+      background: rgba($green, 0.45);
+    }
+  }
+}
+
+.row {
+  @include flex(row, flex-end, flex-start, $sp-xs);
+  max-width: 90%;
+  animation: fadeUp 0.22s ease both;
+}
+
+.userRow {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.botRow {
+  align-self: flex-start;
+}
+
+.botAvatarSm {
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-full;
+  background: linear-gradient(135deg, $green 0%, $green-dark 100%);
+  color: $white;
+  @include flex-center;
+  font-size: $font-xs;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+  box-shadow: 0 2px 8px rgba($green, 0.35);
+}
+
+// ─── Bubbles ──────────────────────────────────────────────────────────────────
+
+.bubble {
+  padding: 0.6rem $sp-md;
+  font-size: $font-sm;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  position: relative;
+  max-width: 100%;
+}
+
+.userBubble {
+  background: linear-gradient(135deg, $green 0%, $green-dark 100%);
+  color: $white;
+  border-radius: $radius-lg $radius-lg 4px $radius-lg;
+  box-shadow:
+    0 4px 16px rgba($green, 0.3),
+    0 1px 4px rgba($green, 0.2);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba($white, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+}
+
+.botBubble {
+  background: $white;
+  color: $text;
+  border-radius: $radius-lg $radius-lg $radius-lg 4px;
+  border: 1px solid rgba(0, 0, 0, 0.065);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+// ─── Typing dots ──────────────────────────────────────────────────────────────
+
+.typing {
+  @include flex(row, center, flex-start, 5px);
+  padding: 3px 2px;
+
+  span {
+    width: 7px;
+    height: 7px;
+    border-radius: $radius-full;
+    background: rgba($green, 0.45);
+    animation: dotBounce 1.3s ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.18s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.36s;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CHIPS
+// ─────────────────────────────────────────────────────────────────────────────
+
+.chips {
+  @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
+  padding-right: 36px;
+  margin-top: $sp-xs;
+}
+
+.chip {
+  @include flex(row, center, center, $sp-xs);
+  font-size: $font-xs;
+  font-family: inherit;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: $radius-full;
+  border: 1.5px solid rgba($green, 0.28);
+  color: $green;
+  background: rgba($green, 0.05);
+  cursor: pointer;
+  white-space: nowrap;
+  animation: chipIn 0.3s ease both;
+  transition:
+    background $t-fast,
+    border-color $t-fast,
+    transform $t-fast,
+    box-shadow $t-fast;
+
+  &:hover:not(:disabled) {
+    background: rgba($green, 0.1);
+    border-color: $green;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($green, 0.2);
+  }
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.96);
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.chipIcon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  INPUT ROW
+// ─────────────────────────────────────────────────────────────────────────────
+
+.inputRow {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: $sp-sm $sp-md;
+  border-top: 1px solid $slate-200;
+  background: $white;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.inputWrap {
+  flex: 1;
+  position: relative;
+  @include flex(row, center, flex-start);
+}
+
+.input {
+  @include input;
+  border-radius: $radius-full;
+  font-size: $font-sm;
+  background: $slate-50;
+  text-align: right;
+  padding-left: 36px;
+
+  &:focus {
+    border-color: $green;
+    background: $white;
+    box-shadow: 0 0 0 3px rgba($green, 0.09);
+    animation: streamGlow 2s ease-in-out infinite;
+  }
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.streamDots {
+  position: absolute;
+  left: $sp-md;
+  @include flex(row, center, flex-start, 3px);
+  pointer-events: none;
+
+  span {
+    width: 5px;
+    height: 5px;
+    border-radius: $radius-full;
+    background: $green;
+    animation: dotBounce 1s ease-in-out infinite;
+    &:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
+}
+
+.sendBtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-full;
+  border: none;
+  background: linear-gradient(135deg, $green 0%, $green-dark 100%);
+  color: $white;
+  cursor: pointer;
+  @include flex-center;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba($green, 0.35);
+  transition:
+    transform $t-fast,
+    box-shadow $t-fast,
+    opacity $t-fast;
+
+  &:hover:not(:disabled) {
+    transform: scale(1.1) translateY(-1px);
+    box-shadow: 0 8px 20px rgba($green, 0.45);
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.92);
+    animation: sendPop 0.35s ease;
+  }
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.sendRipple {
+  position: absolute;
+  inset: 0;
+  border-radius: $radius-full;
+  background: rgba($white, 0.35);
+  pointer-events: none;
+  opacity: 0;
+
+  .sendBtn:active & {
+    animation: rippleOut 0.5s ease-out;
+    opacity: 0.6;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  FOOTER
+// ─────────────────────────────────────────────────────────────────────────────
+
+.footerBrand {
+  text-align: center;
+  font-size: 10px;
+  color: $text-muted;
+  padding: 5px $sp-md;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  background: $white;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+  position: relative;
+  z-index: 2;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  FAB
+// ─────────────────────────────────────────────────────────────────────────────
+
+.fab {
+  position: relative;
+  height: 60px;
+  width: 60px;
+  min-width: 60px;
+  padding: 0;
+  border-radius: $radius-full;
+  border: none;
+  cursor: pointer;
+  @include flex(row, center, center, $sp-xs);
+  background: linear-gradient(135deg, $green 0%, $green-dark 100%);
+  color: $white;
+  box-shadow:
+    0 6px 24px rgba($green, 0.45),
+    0 2px 8px rgba($green, 0.25);
+  animation: fabEntrance 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+  overflow: visible;
+  transition:
+    background $t-med,
+    box-shadow $t-med,
+    transform $t-spr,
+    border-radius $t-med;
+
+  &:hover:not(.fabOpen) {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow:
+      0 12px 32px rgba($green, 0.5),
+      0 4px 12px rgba($green, 0.3);
+  }
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &.fabOpen {
+    width: 52px;
+    min-width: 52px;
+    padding: 0;
+    background: linear-gradient(135deg, $slate-800 0%, $slate-900 100%);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    @include flex-center;
+
+    &:hover {
+      background: linear-gradient(135deg, $slate-700 0%, $slate-800 100%);
+    }
+
+    // On mobile the window is full-screen — hide the FAB so it doesn't
+    // block the input. The header's ChevronDown handles closing.
+    @media (max-width: $bp-sm) {
+      display: none;
+    }
+  }
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: $radius-full;
+  border: 2px solid rgba($green, 0.5);
+  pointer-events: none;
+  animation: pulseRing 2.8s ease-out infinite;
+}
+
+.ring2 {
+  animation-delay: 1.4s;
+}
+
+.fabIconWrap {
+  @include flex(row, center, center, $sp-xs);
+  transition:
+    transform $t-spr,
+    opacity $t-fast;
+
+  &.fabIconOpen {
+    transform: rotate(90deg);
+  }
+}
+
+.fabLabel {
+  font-size: $font-sm;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  font-family: inherit;
+}
+
+.fabBadge {
+  width: 26px;
+  height: 26px;
+  border-radius: $radius-full;
+  background: rgba($white, 0.2);
+  @include flex-center;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1.5px solid rgba($white, 0.3);
+}
+
+.unreadBadge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 13px;
+  height: 13px;
+  border-radius: $radius-full;
+  background: $red;
+  border: 2.5px solid $white;
+  animation: unreadPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  box-shadow: 0 2px 6px rgba($red, 0.5);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  AI BOT ICON
+// ─────────────────────────────────────────────────────────────────────────────
+
+.aiBotIcon {
+  width: 36px;
+  height: 36px;
+  display: block;
+  overflow: visible;
+  animation: aiBotGlow 3s ease-in-out infinite;
+}
+
+// Orbit groups — rotate around SVG centre (20,20) via view-box transform-origin
+.orbitG1,
+.orbitG2,
+.orbitG3 {
+  transform-box: view-box;
+  transform-origin: 20px 20px;
+  animation: orbitSpin 3.5s linear infinite;
+}
+.orbitG2 {
+  animation-delay: -1.167s;
+}
+.orbitG3 {
+  animation-delay: -2.334s;
+}
+
+// Antenna pulsing tip
+.antennaDot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: antennaBlink 2.2s ease-in-out infinite;
+}
+
+// Eyes — blink from centre
+.eyeLeft {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: eyeBlink 5s ease-in-out infinite;
+}
+.eyeRight {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: eyeBlink 5s ease-in-out infinite 0.15s;
+}
+
+// Scanning line sweeps down the head
+.scanLine {
+  animation: scanDown 3.5s ease-in-out infinite;
+}
+
+// Frequency mouth bars — scale from bottom like a real equaliser
+.mBar1,
+.mBar2,
+.mBar3,
+.mBar4,
+.mBar5,
+.mBar6 {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.mBar1 {
+  animation: barWave 0.72s ease-in-out infinite 0s;
+}
+.mBar2 {
+  animation: barWave 0.72s ease-in-out infinite 0.12s;
+}
+.mBar3 {
+  animation: barWave 0.72s ease-in-out infinite 0.24s;
+}
+.mBar4 {
+  animation: barWave 0.72s ease-in-out infinite 0.36s;
+}
+.mBar5 {
+  animation: barWave 0.72s ease-in-out infinite 0.24s;
+}
+.mBar6 {
+  animation: barWave 0.72s ease-in-out infinite 0.12s;
+}
+
+@media (max-width: $bp-sm) {
+  .fab.fabOpen {
+    display: none !important;
+  }
+}

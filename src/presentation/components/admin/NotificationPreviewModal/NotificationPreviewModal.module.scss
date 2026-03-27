@@ -34,7 +34,9 @@
   border-radius: $radius;
   transition: $transition;
 
-  &:hover { background: rgba($green, 0.08); }
+  &:hover {
+    background: rgba($green, 0.08);
+  }
 }
 
 .scrollArea {
@@ -44,11 +46,20 @@
   scrollbar-width: thin;
   scrollbar-color: rgba($green, 0.25) transparent;
 
-  &::-webkit-scrollbar       { width: 4px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: rgba($green, 0.25); border-radius: 4px; }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($green, 0.25);
+    border-radius: 4px;
+  }
 
-  @media (max-width: $bp-sm) { max-height: 38vh; }
+  @media (max-width: $bp-sm) {
+    max-height: 38vh;
+  }
 }
 
 .list {
@@ -122,7 +133,9 @@
   font-size: $font-xs;
   color: $text-muted;
 
-  svg { opacity: 0.6; }
+  svg {
+    opacity: 0.6;
+  }
 }
 
 .footer {
@@ -148,10 +161,19 @@
   cursor: pointer;
   transition: $transition;
 
-  &:hover:not(:disabled) { color: $red; border-color: rgba($red, 0.3); }
-  &:disabled             { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) {
+    color: $red;
+    border-color: rgba($red, 0.3);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-  @media (max-width: $bp-sm) { width: 100%; text-align: center; }
+  @media (max-width: $bp-sm) {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 .btnSend {
@@ -165,8 +187,16 @@
   cursor: pointer;
   transition: $transition;
 
-  &:hover:not(:disabled) { filter: brightness(1.07); }
-  &:disabled             { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) {
+    filter: brightness(1.07);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-  @media (max-width: $bp-sm) { width: 100%; text-align: center; }
+  @media (max-width: $bp-sm) {
+    width: 100%;
+    text-align: center;
+  }
 }

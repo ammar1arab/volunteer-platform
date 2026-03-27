@@ -14,7 +14,7 @@
   gap: 4px;
   margin-bottom: 2px;
   transition: color 0.2s ease;
-  
+
   .wrapper:focus-within & {
     color: $green;
   }
@@ -26,16 +26,17 @@
 
 .row {
   display: grid;
-  grid-template-columns: 2fr 2fr 1.5fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: $sp-sm;
 
   @media (max-width: $bp-sm) {
-    grid-template-columns: 2fr 2fr 1.5fr;
-    gap: $sp-xs;
+    gap: 6px;
   }
 }
 
 .col {
+  min-width: 0;
+
   :global(.SelectInput_wrapper) {
     margin-bottom: 0;
   }

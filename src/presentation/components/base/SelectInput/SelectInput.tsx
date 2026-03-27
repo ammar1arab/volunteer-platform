@@ -32,21 +32,28 @@ const SelectInput = ({
   required = false,
   disabled = false,
 }: SelectInputProps) => {
-  const [isOpen, setIsOpen]       = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
-  const triggerRef                = useRef<HTMLButtonElement>(null);
-  const menuRef                   = useRef<HTMLUListElement>(null);
-  const selectedOption            = options.find((o) => o.value === value);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
+  const selectedOption = options.find((o) => o.value === value);
 
   const calcPosition = useCallback(() => {
     if (!triggerRef.current) return;
     const r = triggerRef.current.getBoundingClientRect();
+    const menuHeight = 280;
+    const spaceBelow = window.innerHeight - r.bottom;
+    const openUpward = spaceBelow < menuHeight + 16 && r.top > menuHeight;
+
     setMenuStyle({
       position: "fixed",
-      top:      r.bottom + 8,
-      left:     r.left,
-      width:    r.width,
-      zIndex:   99999,
+      left: r.left,
+      width: r.width,
+      zIndex: 99999,
+      ...(openUpward
+        ? { bottom: window.innerHeight - r.top + 8 }
+        : { top: r.bottom + 8 }
+      ),
     });
   }, []);
 
@@ -56,7 +63,7 @@ const SelectInput = ({
 
     const onScroll = () => calcPosition();
     const onResize = () => calcPosition();
-    const onDown   = (e: MouseEvent) => {
+    const onDown = (e: MouseEvent) => {
       if (
         triggerRef.current?.contains(e.target as Node) ||
         menuRef.current?.contains(e.target as Node)
@@ -64,12 +71,12 @@ const SelectInput = ({
       setIsOpen(false);
     };
 
-    window.addEventListener("scroll",    onScroll, true);
-    window.addEventListener("resize",    onResize);
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onResize);
     document.addEventListener("mousedown", onDown);
     return () => {
-      window.removeEventListener("scroll",    onScroll, true);
-      window.removeEventListener("resize",    onResize);
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onResize);
       document.removeEventListener("mousedown", onDown);
     };
   }, [isOpen, calcPosition]);
@@ -86,26 +93,26 @@ const SelectInput = ({
 
   const menu = isOpen && typeof document !== "undefined"
     ? createPortal(
-        <ul
-          ref={menuRef}
-          className={styles.menu}
-          style={menuStyle}
-          role="listbox"
-        >
-          {options.map((o) => (
-            <li
-              key={o.value}
-              className={`${styles.option} ${o.value === value ? styles.optionActive : ""}`}
-              onClick={() => handleSelect(o.value)}
-              role="option"
-              aria-selected={o.value === value}
-            >
-              {o.label}
-            </li>
-          ))}
-        </ul>,
-        document.body
-      )
+      <ul
+        ref={menuRef}
+        className={styles.menu}
+        style={menuStyle}
+        role="listbox"
+      >
+        {options.map((o) => (
+          <li
+            key={o.value}
+            className={`${styles.option} ${o.value === value ? styles.optionActive : ""}`}
+            onClick={() => handleSelect(o.value)}
+            role="option"
+            aria-selected={o.value === value}
+          >
+            {o.label}
+          </li>
+        ))}
+      </ul>,
+      document.body
+    )
     : null;
 
   return (
