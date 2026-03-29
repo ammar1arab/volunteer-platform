@@ -8,8 +8,7 @@ import type {
   PreviewUserDto,
   SendCustomNotificationInput
 } from "@/core/application/dtos";
-import { notificationApi } from "@/presentation/services/notification.service";
-import { userApi } from "@/presentation/services";
+import { userApi, notificationApi, activityApi } from "@/presentation/services";
 import { CITY_OPTIONS, GENDER_OPTIONS } from "@/presentation/constants";
 import { relativeTime } from "@/lib/utils";
 
@@ -30,7 +29,9 @@ export const TARGET_OPTIONS = [
   { value: "CITY", label: "حسب المدينة" },
   { value: "GENDER", label: "حسب الجنس" },
   { value: "HOURS", label: "حسب ساعات التطوع" },
-  { value: "USERS", label: "اختيار مباشر" }
+  { value: "ACTIVITY_PENDING", label: "أصحاب الطلبات المعلقة لنشاط" },
+  { value: "ACTIVITY_APPROVED", label: "المتطوعون المقبولون في نشاط" },
+  { value: "USERS", label: "اختيار يدوي" }
 ];
 
 export { CITY_OPTIONS, GENDER_OPTIONS, relativeTime };
@@ -77,6 +78,10 @@ export function useNotificationsPageLogic() {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [allActivities, setAllActivities] = useState<{ id: string; title: string }[]>([]);
+  const [loadingActivities, setLoadingActivities] = useState(false);
+  const [activityIdsWithPending, setActivityIdsWithPending] = useState<Set<string>>(new Set());
+  const [activityIdsWithApproved, setActivityIdsWithApproved] = useState<Set<string>>(new Set());
 
   const fetchBroadcasts = useCallback(async () => {
     setLoadingBroadcasts(true);
@@ -126,6 +131,30 @@ export function useNotificationsPageLogic() {
     if (form.target === "USERS") fetchAllVolunteers();
   }, [form.target, fetchAllVolunteers]);
 
+  useEffect(() => {
+    setLoadingActivities(true);
+    Promise.all([activityApi.getPublished(), fetch("/api/notifications?activityFilter=1").then((r) => r.json())])
+      .then(([actRes, filterRes]) => {
+        setAllActivities((actRes as any)?.data?.activities ?? []);
+        setActivityIdsWithPending(new Set(filterRes?.data?.pending ?? []));
+        setActivityIdsWithApproved(new Set(filterRes?.data?.approved ?? []));
+      })
+      .catch(() => {})
+      .finally(() => setLoadingActivities(false));
+  }, []);
+
+  const activityOptions = useMemo(() => {
+    const filterSet =
+      form.target === "ACTIVITY_PENDING"
+        ? activityIdsWithPending
+        : form.target === "ACTIVITY_APPROVED"
+          ? activityIdsWithApproved
+          : null;
+
+    return allActivities.filter((a) => !filterSet || filterSet.has(a.id)).map((a) => ({ value: a.id, label: a.title }));
+  }, [allActivities, form.target, activityIdsWithPending, activityIdsWithApproved]);
+  const activityTitleMap = useMemo(() => new Map(allActivities.map((a) => [a.id, a.title])), [allActivities]);
+
   const filteredVolunteers = useMemo(() => {
     const q = volunteerSearch.trim().toLowerCase();
     return q ? allVolunteers.filter((v) => v.name.toLowerCase().includes(q)) : allVolunteers;
@@ -159,7 +188,8 @@ export function useNotificationsPageLogic() {
 
   const isFormInvalid = useMemo(() => {
     if (!form.title.trim() || !form.message.trim()) return true;
-    if (["CITY", "GENDER"].includes(form.target) && !form.targetValue) return true;
+    if (["CITY", "GENDER", "ACTIVITY_PENDING", "ACTIVITY_APPROVED"].includes(form.target) && !form.targetValue)
+      return true;
     if (form.target === "HOURS" && (!form.targetValue || isNaN(parseFloat(form.targetValue)))) return true;
     if (form.target === "USERS" && !directSelectedIds.size) return true;
     return false;
@@ -361,6 +391,9 @@ export function useNotificationsPageLogic() {
     deletingId,
     requestDeleteBroadcast,
     cancelDeleteBroadcast,
-    confirmDeleteBroadcast
+    confirmDeleteBroadcast,
+    activityOptions,
+    activityTitleMap,
+    loadingActivities
   };
 }

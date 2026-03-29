@@ -3,7 +3,7 @@ import styles from "./NotificationsPage.module.scss";
 import { useState, useEffect, useMemo } from "react";
 import {
   Send, Bell, Users, MapPin, User2, Clock, UserCheck,
-  Eye, Trash2, Search, CheckSquare,
+  Eye, Trash2, Search, CheckSquare, Hourglass, BadgeCheck,
 } from "lucide-react";
 import {
   LoadingState, EmptyState, ToastContainer, SelectInput,
@@ -18,19 +18,23 @@ import type { BroadcastDto } from "@/core/application/dtos";
 import { Gender, JordanianCity } from "@/core/domain/enums";
 
 const TARGET_ICON: Record<string, React.ReactNode> = {
-  ALL:    <Users    size={11} />,
-  CITY:   <MapPin   size={11} />,
-  GENDER: <User2    size={11} />,
-  HOURS:  <Clock    size={11} />,
-  USERS:  <UserCheck size={11} />,
+  ALL: <Users size={11} />,
+  CITY: <MapPin size={11} />,
+  GENDER: <User2 size={11} />,
+  HOURS: <Clock size={11} />,
+  ACTIVITY_PENDING: <Hourglass size={11} />,
+  ACTIVITY_APPROVED: <BadgeCheck size={11} />,
+  USERS: <UserCheck size={11} />,
 };
 
-const getTargetLabel = (b: BroadcastDto) => {
-  if (b.target === "ALL")    return "الجميع";
-  if (b.target === "CITY")   return getCityLabel(b.targetValue as JordanianCity);
+const getTargetLabel = (b: BroadcastDto, activityTitleMap: Map<string, string>) => {
+  if (b.target === "ALL") return "جميع المتطوعين";
+  if (b.target === "CITY") return getCityLabel(b.targetValue as JordanianCity);
   if (b.target === "GENDER") return getGenderLabel(b.targetValue as Gender);
-  if (b.target === "HOURS")  return `أكثر من ${b.targetValue} ساعة`;
-  if (b.target === "USERS")  return "مختارون يدوياً";
+  if (b.target === "HOURS") return `أكثر من ${b.targetValue} ساعة`;
+  if (b.target === "ACTIVITY_PENDING") return `طلبات معلقة — ${activityTitleMap.get(b.targetValue ?? "") ?? "نشاط"}`;
+  if (b.target === "ACTIVITY_APPROVED") return `مقبولون في — ${activityTitleMap.get(b.targetValue ?? "") ?? "نشاط"}`;
+  if (b.target === "USERS") return "اختيار يدوي";
   return b.targetValue ?? "";
 };
 
@@ -53,6 +57,7 @@ const NotificationsPage = () => {
     recipientsState, openRecipientsModal, closeRecipientsModal,
     showDeleteConfirm, deletingId,
     requestDeleteBroadcast, cancelDeleteBroadcast, confirmDeleteBroadcast,
+    activityOptions, activityTitleMap, loadingActivities,
   } = useNotificationsPageLogic();
 
   const [volunteersPage, setVolunteersPage] = useState(1);
@@ -69,7 +74,7 @@ const NotificationsPage = () => {
 
   if (status === "loading") return <LoadingState />;
 
-  const isSubmitting    = submitStatus === "loading";
+  const isSubmitting = submitStatus === "loading";
   const allDirectVisible =
     filteredVolunteers.length > 0 &&
     filteredVolunteers.every(v => directSelectedIds.has(v.id));
@@ -189,6 +194,18 @@ const NotificationsPage = () => {
               </div>
             )}
 
+            {(form.target === "ACTIVITY_PENDING" || form.target === "ACTIVITY_APPROVED") && (
+              <div className={styles.field}>
+                <SelectInput
+                  label="النشاط"
+                  value={form.targetValue ?? ""}
+                  options={[{ value: "", label: "اختر نشاطاً" }, ...activityOptions]}
+                  onChange={val => setField("targetValue", val)}
+                  disabled={isSubmitting || loadingPreview || loadingActivities}
+                />
+              </div>
+            )}
+
             {form.target === "USERS" && (
               <div className={styles.field}>
                 <div className={styles.usersHeader}>
@@ -237,6 +254,7 @@ const NotificationsPage = () => {
                             {v.hours !== undefined && (
                               <span className={styles.userHours}>{v.hours} ساعة</span>
                             )}
+
                           </div>
                         </div>
                       ))}
@@ -312,7 +330,7 @@ const NotificationsPage = () => {
                       <span className={styles.broadcastTitle}>{b.title}</span>
                       <span className={styles.broadcastTag}>
                         {TARGET_ICON[b.target]}
-                        {getTargetLabel(b)}
+                        {getTargetLabel(b, activityTitleMap)}
                       </span>
                     </div>
                     <p className={styles.broadcastMsg}>{b.message}</p>

@@ -23,16 +23,16 @@ const NAV_ITEMS: {
     { href: ROUTES.ADMIN.FEATURED_POSTS, label: "المنشورات", icon: FileText, permission: "MANAGE_POSTS", color: "#6366f1" },
     { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: "أبرز المتطوعين", icon: Trophy, permission: "MANAGE_SPOTLIGHT", color: "#f59e0b" },
     { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "حصاد العطاء", icon: BookOpen, permission: "MANAGE_MAGAZINE", color: "#ec4899" },
-    { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية", icon: Activity, permission: "MANAGE_ACTIVITIES", color: "#10b981" },
     { href: ROUTES.ADMIN.REQUESTS, label: "طلبات الانضمام", icon: UserCheck, permission: "MANAGE_REQUESTS", color: "#3b82f6" },
-    { href: ROUTES.ADMIN.NOTIFICATIONS, label: "إدارة الإشعارات", icon: Bell, permission: "MANAGE_NOTIFICATIONS", color: "#f97316" },
+    { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية", icon: Activity, permission: "MANAGE_ACTIVITIES", color: "#10b981" },
     { href: ROUTES.ADMIN.EMAILS, label: "إدارة الإيميلات", icon: Mail, permission: "MANAGE_EMAILS", color: "#8b5cf6" },
+    { href: ROUTES.ADMIN.NOTIFICATIONS, label: "إدارة الإشعارات", icon: Bell, permission: "MANAGE_NOTIFICATIONS", color: "#f97316" },
     { href: ROUTES.ADMIN.USERS, label: "إدارة المستخدمين", icon: Users, permission: "MANAGE_USERS", color: "#14b8a6" },
   ];
 
 const PERMISSIONS_ITEM = {
   href: ROUTES.ADMIN.PERMISSIONS,
-  label: "الصلاحيات",
+  label: "إدارة الصلاحيات",
   icon: ShieldCheck,
   color: "#64748b",
 };
