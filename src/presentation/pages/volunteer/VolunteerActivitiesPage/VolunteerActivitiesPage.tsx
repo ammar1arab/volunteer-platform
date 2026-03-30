@@ -22,7 +22,7 @@ const VolunteerActivitiesPage = () => {
     sortOrder, setSortOrder,
     searchQuery, setSearchQuery, setAppliedSearch, appliedSearch,
     actionLoading, reapply, cancelRequest,
-    toasts, removeToast, confirmDialog,
+    toasts, removeToast, confirmDialog, handleSortChange
   } = useVolunteerActivitiesPage();
 
   if (status === "loading" || loading) return <LoadingState />;
@@ -56,39 +56,6 @@ const VolunteerActivitiesPage = () => {
           ))}
         </div>
 
-        <div className={styles.chipsRow}>
-          <div className={styles.chipGroup}>
-            <button
-              className={`${styles.chip} ${activeType === "IN_PERSON" ? styles.chipActive : ""}`}
-              onClick={() => { toggleType("IN_PERSON"); console.log("after toggle:", activeType); }}            >
-              <MapPin size={11} /> {getActivityTypeLabel(ActivityType.IN_PERSON)}
-            </button>
-            <button
-              className={`${styles.chip} ${activeType === "ONLINE" ? styles.chipActive : ""}`}
-              onClick={() => toggleType("ONLINE")}
-            >
-              <Wifi size={11} /> {getActivityTypeLabel(ActivityType.ONLINE)}
-            </button>
-          </div>
-
-          <div className={styles.chipSpacer} />
-
-          <div className={styles.chipGroup}>
-            <button
-              className={`${styles.chip} ${activeTime === "upcoming" ? styles.chipActive : ""}`}
-              onClick={() => toggleTime("upcoming")}
-            >
-              قادمة
-            </button>
-            <button
-              className={`${styles.chip} ${activeTime === "past" ? styles.chipActive : ""}`}
-              onClick={() => toggleTime("past")}
-            >
-              منتهية
-            </button>
-          </div>
-        </div>
-
         <div className={styles.filterRow}>
           <div className={styles.searchWrap}>
             <Search
@@ -100,9 +67,9 @@ const VolunteerActivitiesPage = () => {
           </div>
           <Dropdown
             items={[...SORT_OPTIONS]}
-            active={sortOrder}
-            onChange={key => setSortOrder(key as typeof sortOrder)}
-            placeholder="ترتيب"
+            active={activeType !== "all" ? activeType : sortOrder}
+            onChange={handleSortChange}
+            placeholder="ترتيب وتصنيف"
             compact
           />
         </div>

@@ -20,32 +20,38 @@ type ConfirmOptions = {
 };
 
 export const SORT_OPTIONS = [
-  { key: "newest",  label: "الأحدث طلباً"  },
-  { key: "oldest",  label: "الأقدم طلباً"  },
-  { key: "nearest", label: "الأقرب موعداً" },
+  { key: "newest", label: "الأحدث" },
+  { key: "oldest", label: "الأقدم" },
+  { key: "nearest", label: "الأقرب" },
+  { key: "IN_PERSON", label: "وجاهي" },
+  { key: "ONLINE", label: "إلكتروني" }
 ] as const;
 
 export const useVolunteerActivitiesPage = () => {
-  const { status }                         = useAuth({ requireRole: UserRole.VOLUNTEER });
+  const { status } = useAuth({ requireRole: UserRole.VOLUNTEER });
   const { toasts, showToast, removeToast } = useToast();
 
   const [participations, setParticipations] = useState<ActivityParticipationDto[]>([]);
-  const [loading, setLoading]               = useState(true);
-  const [actionLoading, setActionLoading]   = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [defaultApplied, setDefaultApplied] = useState(false);
 
   const [activeFilter, setActiveFilter] = useState<string>("all");
-  const [activeType,   setActiveType]   = useState<"all" | "ONLINE" | "IN_PERSON">("all");
-  const [activeTime,   setActiveTime]   = useState<"all" | "upcoming" | "past">("all");
-  const [sortOrder,    setSortOrder]    = useState<SortOrder>("newest");
+  const [activeType, setActiveType] = useState<"all" | "ONLINE" | "IN_PERSON">("all");
+  const [activeTime, setActiveTime] = useState<"all" | "upcoming" | "past">("all");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
 
-  const [searchQuery,   setSearchQuery]   = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
-  const [currentPage,   setCurrentPage]   = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const [isConfirmOpen,   setIsConfirmOpen]   = useState(false);
-  const [confirmOptions,  setConfirmOptions]  = useState<ConfirmOptions>({
-    title: "", message: "", confirmText: "", cancelText: "", variant: "danger",
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
+    title: "",
+    message: "",
+    confirmText: "",
+    cancelText: "",
+    variant: "danger"
   });
   const [confirmResolver, setConfirmResolver] = useState<((v: boolean) => void) | null>(null);
 
@@ -83,20 +89,25 @@ export const useVolunteerActivitiesPage = () => {
     }
   }, [showToast]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const stats = useMemo(() => ({
-    total:     participations.length,
-    completed: participations.filter(p => p.activity?.status === "COMPLETED").length,
-    approved:  participations.filter(p => p.status === ParticipationStatus.APPROVED).length,
-    pending:   participations.filter(p => p.status === ParticipationStatus.PENDING).length,
-    rejected:  participations.filter(p => p.status === ParticipationStatus.REJECTED).length,
-    cancelled: participations.filter(p => p.status === ParticipationStatus.CANCELLED).length,
-  }), [participations]);
+  const stats = useMemo(
+    () => ({
+      total: participations.length,
+      completed: participations.filter((p) => p.activity?.status === "COMPLETED").length,
+      approved: participations.filter((p) => p.status === ParticipationStatus.APPROVED).length,
+      pending: participations.filter((p) => p.status === ParticipationStatus.PENDING).length,
+      rejected: participations.filter((p) => p.status === ParticipationStatus.REJECTED).length,
+      cancelled: participations.filter((p) => p.status === ParticipationStatus.CANCELLED).length
+    }),
+    [participations]
+  );
 
   useEffect(() => {
     if (defaultApplied || loading || participations.length === 0) return;
-    if (stats.pending  > 0) setActiveFilter(ParticipationStatus.PENDING);
+    if (stats.pending > 0) setActiveFilter(ParticipationStatus.PENDING);
     else if (stats.approved > 0) setActiveFilter(ParticipationStatus.APPROVED);
     setDefaultApplied(true);
   }, [loading, participations.length, stats.pending, stats.approved, defaultApplied]);
@@ -105,33 +116,35 @@ export const useVolunteerActivitiesPage = () => {
     let result = participations;
 
     if (activeFilter === "COMPLETED") {
-      result = result.filter(p => p.activity?.status === "COMPLETED");
+      result = result.filter((p) => p.activity?.status === "COMPLETED");
     } else if (activeFilter === ParticipationStatus.CANCELLED) {
-      result = result.filter(p =>
-        p.status === ParticipationStatus.CANCELLED || p.activity?.status === "CANCELLED"
-      );
+      result = result.filter((p) => p.status === ParticipationStatus.CANCELLED || p.activity?.status === "CANCELLED");
     } else if (activeFilter !== "all") {
-      result = result.filter(p => p.status === activeFilter);
+      result = result.filter((p) => p.status === activeFilter);
     }
 
     if (activeType !== "all") {
-      result = result.filter(p => p.activity?.activityType === activeType);
+      result = result.filter((p) => p.activity?.activityType === activeType);
     }
 
     const now = new Date();
     if (activeTime === "upcoming") {
-      result = result.filter(p => p.activity?.date ? new Date(p.activity.date) >= now : false);
+      result = result.filter((p) => (p.activity?.date ? new Date(p.activity.date) >= now : false));
     } else if (activeTime === "past") {
-      result = result.filter(p => p.activity?.date ? new Date(p.activity.date) < now : false);
+      result = result.filter((p) => (p.activity?.date ? new Date(p.activity.date) < now : false));
     }
 
     if (appliedSearch.trim()) {
       const q = appliedSearch.trim().toLowerCase();
-      result = result.filter(p =>
-        p.activity?.title?.toLowerCase().includes(q) ||
-        p.activity?.description?.toLowerCase().includes(q) ||
-        p.activity?.placeName?.toLowerCase().includes(q) ||
-        (p.activity?.city && getCityLabel(p.activity.city as JordanianCity).toLowerCase().includes(q))
+      result = result.filter(
+        (p) =>
+          p.activity?.title?.toLowerCase().includes(q) ||
+          p.activity?.description?.toLowerCase().includes(q) ||
+          p.activity?.placeName?.toLowerCase().includes(q) ||
+          (p.activity?.city &&
+            getCityLabel(p.activity.city as JordanianCity)
+              .toLowerCase()
+              .includes(q))
       );
     }
 
@@ -154,76 +167,108 @@ export const useVolunteerActivitiesPage = () => {
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, currentPage]);
 
-  const reapply = useCallback(async (activityId: string) => {
-    setActionLoading(activityId);
-    try {
-      const res = await participationApi.create(activityId);
-      if (res.success) {
-        showToast("تم إرسال طلب الانضمام مجدداً", "success");
-        await fetchData();
-      } else {
-        showToast((res as any).error?.message || "فشل إرسال الطلب", "error");
-      }
-    } catch {
-      showToast("حدث خطأ غير متوقع", "error");
-    } finally {
-      setActionLoading(null);
+  const handleSortChange = useCallback((key: string) => {
+    if (key === "IN_PERSON" || key === "ONLINE") {
+      setActiveType((prev) => (prev === key ? "all" : (key as "IN_PERSON" | "ONLINE")));
+    } else {
+      setSortOrder(key as SortOrder);
     }
-  }, [fetchData, showToast]);
+  }, []);
 
-  const cancelRequest = useCallback(async (participationId: string) => {
-    const ok = await confirm({
-      title: "إلغاء الانضمام",
-      message: "نفهم أن الظروف قد تتغير، لكن تذكّر أن انسحابك قد يؤثر على اكتمال هذه الفرصة التطوعية. نرجو أن يكون ذلك لظرف طارئ فقط.",
-      confirmText: "إلغاء انضمامي",
-      cancelText: "البقاء في الفرصة",
-      variant: "danger",
-    });
-    if (!ok) return;
+  const reapply = useCallback(
+    async (activityId: string) => {
+      setActionLoading(activityId);
+      try {
+        const res = await participationApi.create(activityId);
+        if (res.success) {
+          showToast("تم إرسال طلب الانضمام مجدداً", "success");
+          await fetchData();
+        } else {
+          showToast((res as any).error?.message || "فشل إرسال الطلب", "error");
+        }
+      } catch {
+        showToast("حدث خطأ غير متوقع", "error");
+      } finally {
+        setActionLoading(null);
+      }
+    },
+    [fetchData, showToast]
+  );
 
-    setActionLoading(participationId);
-    try {
-      const res = await participationApi.cancel(participationId);
-      if (res.success) {
-        showToast("تم إلغاء الطلب", "success");
-        await fetchData();
-      } else {
-        const code = (res as any).error?.code ?? "";
+  const cancelRequest = useCallback(
+    async (participationId: string) => {
+      const ok = await confirm({
+        title: "إلغاء الانضمام",
+        message:
+          "نفهم أن الظروف قد تتغير، لكن تذكّر أن انسحابك قد يؤثر على اكتمال هذه الفرصة التطوعية. نرجو أن يكون ذلك لظرف طارئ فقط.",
+        confirmText: "إلغاء انضمامي",
+        cancelText: "البقاء في الفرصة",
+        variant: "danger"
+      });
+      if (!ok) return;
+
+      setActionLoading(participationId);
+      try {
+        const res = await participationApi.cancel(participationId);
+        if (res.success) {
+          showToast("تم إلغاء الطلب", "success");
+          await fetchData();
+        } else {
+          const code = (res as any).error?.code ?? "";
+          showToast(
+            code === "INVALID_STATE"
+              ? "لا يمكن الإلغاء — تبقى أقل من 24 ساعة على موعد النشاط"
+              : (res as any).error?.message || "فشل إلغاء الطلب",
+            "error"
+          );
+        }
+      } catch (err: any) {
+        const msg = err?.message ?? "";
         showToast(
-          code === "INVALID_STATE"
+          msg.includes("24") || msg.includes("INVALID_STATE")
             ? "لا يمكن الإلغاء — تبقى أقل من 24 ساعة على موعد النشاط"
-            : (res as any).error?.message || "فشل إلغاء الطلب",
+            : "لا يمكن إلغاء الطلب في الوقت الحالي",
           "error"
         );
+      } finally {
+        setActionLoading(null);
       }
-    } catch (err: any) {
-      const msg = err?.message ?? "";
-      showToast(
-        msg.includes("24") || msg.includes("INVALID_STATE")
-          ? "لا يمكن الإلغاء — تبقى أقل من 24 ساعة على موعد النشاط"
-          : "لا يمكن إلغاء الطلب في الوقت الحالي",
-        "error"
-      );
-    } finally {
-      setActionLoading(null);
-    }
-  }, [confirm, fetchData, showToast]);
+    },
+    [confirm, fetchData, showToast]
+  );
 
   return {
-    status, loading, stats,
-    filtered, paginated, currentPage, setCurrentPage, itemsPerPage: ITEMS_PER_PAGE,
-    activeFilter, setActiveFilter,
-    activeType,   setActiveType,
-    activeTime,   setActiveTime,
-    sortOrder,    setSortOrder,
-    searchQuery, setSearchQuery, setAppliedSearch, appliedSearch,
-    actionLoading, reapply, cancelRequest,
-    toasts, removeToast,
+    status,
+    loading,
+    stats,
+    filtered,
+    paginated,
+    currentPage,
+    setCurrentPage,
+    itemsPerPage: ITEMS_PER_PAGE,
+    activeFilter,
+    setActiveFilter,
+    activeType,
+    setActiveType,
+    activeTime,
+    setActiveTime,
+    sortOrder,
+    setSortOrder,
+    searchQuery,
+    setSearchQuery,
+    setAppliedSearch,
+    appliedSearch,
+    actionLoading,
+    reapply,
+    cancelRequest,
+    toasts,
+    handleSortChange,
+    removeToast,
     confirmDialog: {
       isOpen: isConfirmOpen,
       options: confirmOptions,
       handleConfirm: handleConfirmDialog,
-      handleCancel:  handleCancelDialog,
-    },
+      handleCancel: handleCancelDialog
+    }
   };
 };

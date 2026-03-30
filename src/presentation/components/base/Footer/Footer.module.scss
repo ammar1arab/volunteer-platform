@@ -146,24 +146,6 @@
   overflow: visible;
   animation: chipBreathe 4s ease-in-out infinite;
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    border-radius: $radius-full;
-    background: conic-gradient(
-      from 0deg,
-      transparent 0%,
-      transparent 60%,
-      rgba(255, 255, 255, 0.75) 72%,
-      rgba(255, 255, 255, 0.1) 80%,
-      transparent 88%,
-      transparent 100%
-    );
-    animation: haloSpin 6s linear infinite;
-    z-index: -1;
-  }
-
   span {
     background: linear-gradient(90deg, #aaa 0%, #fff 40%, #fff 60%, #aaa 100%);
     background-size: 250% 100%;
