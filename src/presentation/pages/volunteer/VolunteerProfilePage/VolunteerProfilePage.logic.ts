@@ -78,7 +78,7 @@ export function useProfilePage() {
         ? await userApi.updateBasicInfo({ [editingField.field]: editingField.value })
         : await volunteerProfileApi.update({ [editingField.field]: editingField.value });
       if (!result.success) { setError(extractError(result)); return; }
-      showSuccess("تم الحفظ بنجاح ✓");
+      showSuccess("تم الحفظ بنجاح");
       setEditingField(null);
       await fetchData();
     } catch {

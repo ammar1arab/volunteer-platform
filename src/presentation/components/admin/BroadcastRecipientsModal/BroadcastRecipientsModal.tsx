@@ -15,7 +15,7 @@ interface Props {
   loading:        boolean;
 }
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 15;
 
 const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients, loading }: Props) => {
   const [search,      setSearch]      = useState("");

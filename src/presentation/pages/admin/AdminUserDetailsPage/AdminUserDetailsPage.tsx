@@ -8,10 +8,20 @@ import {
 } from "@/presentation/components";
 import {
   ArrowRight, Activity, CheckCircle, Clock, XCircle,
-  Mail, Phone, User, Edit2, Check, X, Trash2, ToggleLeft, ToggleRight,
+  Mail, Phone, User, Edit2, Check, X, Trash2,
+  ToggleLeft, ToggleRight, MapPin, Calendar, User2,
 } from "lucide-react";
-import { ROUTES, getMonthLabel, getParticipationStatusLabel, getUserRoleLabel } from "@/presentation/constants";
-import { ParticipationStatus } from "@/core/domain/enums";
+import {
+  ROUTES, CITY_OPTIONS, getMonthLabel, getParticipationStatusLabel,
+  getUserRoleLabel, getCityLabel, getGenderLabel,
+} from "@/presentation/constants";
+import { ParticipationStatus, JordanianCity, Gender } from "@/core/domain/enums";
+
+const GENDER_OPTIONS = [
+  { value: "",       label: "غير محدد" },
+  { value: "MALE",   label: "ذكر"      },
+  { value: "FEMALE", label: "أنثى"     },
+];
 
 const FILTER_OPTIONS = [
   { key: "all",                         label: "الكل"                                                       },
@@ -35,10 +45,14 @@ const EXPORT_COLUMNS = [
   { key: "createdAt",   label: "تاريخ الانضمام"     },
 ];
 
-const formatDate = (d: string) => {
+const fmt = (d: string) => {
   const dt = new Date(d);
   return `${dt.getDate()} ${getMonthLabel(dt.getMonth() + 1)} ${dt.getFullYear()}`;
 };
+
+const Empty = ({ text = "لا يوجد" }: { text?: string }) => (
+  <span className={styles.emptyText}>{text}</span>
+);
 
 const AdminUserDetailsPage = () => {
   const {
@@ -64,17 +78,11 @@ const AdminUserDetailsPage = () => {
   );
 
   const vp = user.volunteerProfile;
-  const ef = {
-    editingField, isSaving,
-    onStartEdit: startEditing, onCancel: cancelEditing,
-    onUpdate: updateFieldValue, onSave: saveField,
-  };
+  const ef = { editingField, isSaving, onStartEdit: startEditing, onCancel: cancelEditing, onUpdate: updateFieldValue, onSave: saveField };
 
   const filterItems = FILTER_OPTIONS.map(opt => ({
     ...opt,
-    count: opt.key === "all"
-      ? allActivities.length
-      : allActivities.filter(a => a.status === opt.key).length,
+    count: opt.key === "all" ? allActivities.length : allActivities.filter(a => a.status === opt.key).length,
   }));
 
   return (
@@ -88,8 +96,7 @@ const AdminUserDetailsPage = () => {
         title={user.isActive ? "تعطيل الحساب" : "تفعيل الحساب"}
         message={user.isActive
           ? `هل تريد تعطيل حساب ${user.fullName}؟ لن يتمكن من تسجيل الدخول.`
-          : `هل تريد تفعيل حساب ${user.fullName}؟`
-        }
+          : `هل تريد تفعيل حساب ${user.fullName}؟`}
         confirmText={user.isActive ? "تعطيل" : "تفعيل"}
         variant={user.isActive ? "danger" : "primary"}
       />
@@ -115,15 +122,11 @@ const AdminUserDetailsPage = () => {
             onClick={() => setShowToggleConfirm(true)}
             disabled={isTogglingActive}
           >
-            {isTogglingActive
-              ? <span className={styles.spinner} />
-              : user.isActive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />
-            }
+            {isTogglingActive ? <span className={styles.spinner} /> : user.isActive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
             <span>{user.isActive ? "تعطيل" : "تفعيل"}</span>
           </button>
           <button className={styles.btnDanger} onClick={() => setShowDeleteConfirm(true)} disabled={isDeleting}>
-            <Trash2 size={13} />
-            <span>حذف</span>
+            <Trash2 size={13} /><span>حذف</span>
           </button>
           <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export Excel" />
         </div>
@@ -151,36 +154,50 @@ const AdminUserDetailsPage = () => {
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>معلومات التواصل</h3>
             <div className={styles.infoList}>
-              <EField icon={<Mail size={14} />}  label="البريد"  field="email"    value={user.email}    {...ef} />
-              <EField icon={<Phone size={14} />} label="الهاتف"  field="phone"    value={user.phone}    {...ef} />
-              <EField icon={<User size={14} />}  label="الاسم"   field="fullName" value={user.fullName} {...ef} />
+              <EField icon={<Mail     size={14} />} label="البريد"        field="email"       value={user.email}    {...ef} />
+              <EField icon={<Phone    size={14} />} label="الهاتف"        field="phone"       value={user.phone}    {...ef} />
+              <EField icon={<User     size={14} />} label="الاسم الكامل"  field="fullName"    value={user.fullName} {...ef} />
+              {vp && <>
+                <EField
+                  icon={<MapPin   size={14} />} label="المدينة"
+                  field="city"        value={vp.city || ""}
+                  displayValue={vp.city ? getCityLabel(vp.city as JordanianCity) : "غير محدد"}
+                  type="select"       options={CITY_OPTIONS} {...ef}
+                />
+                <EField
+                  icon={<Calendar size={14} />} label="تاريخ الميلاد"
+                  field="dateOfBirth" value={vp.dateOfBirth?.split("T")[0] ?? ""}
+                  displayValue={vp.dateOfBirth ? fmt(vp.dateOfBirth) : "غير محدد"}
+                  type="date" {...ef}
+                />
+                <EField
+                  icon={<User2    size={14} />} label="الجنس"
+                  field="gender"      value={vp.gender || ""}
+                  displayValue={vp.gender ? getGenderLabel(vp.gender as Gender) : "غير محدد"}
+                  type="select"       options={GENDER_OPTIONS} {...ef}
+                />
+              </>}
             </div>
           </section>
 
-          {vp?.bio && (
-            <section className={styles.section}>
-              <h3 className={styles.sectionTitle}>النبذة</h3>
-              <p className={styles.bio}>{vp.bio}</p>
-            </section>
-          )}
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>النبذة الشخصية</h3>
+            {vp?.bio ? <p className={styles.bio}>{vp.bio}</p> : <Empty text="لم تُضف نبذة بعد" />}
+          </section>
 
-          {!!vp?.skills?.length && (
-            <section className={styles.section}>
-              <h3 className={styles.sectionTitle}>المهارات</h3>
-              <div className={styles.tags}>
-                {vp.skills.map(s => <span key={s} className={styles.tag}>{s}</span>)}
-              </div>
-            </section>
-          )}
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>المهارات</h3>
+            {vp?.skills?.length
+              ? <div className={styles.tags}>{vp.skills.map(s => <span key={s} className={styles.tag}>{s}</span>)}</div>
+              : <Empty text="لا توجد مهارات مضافة" />}
+          </section>
 
-          {!!vp?.interests?.length && (
-            <section className={styles.section}>
-              <h3 className={styles.sectionTitle}>الاهتمامات</h3>
-              <div className={styles.tags}>
-                {vp.interests.map(i => <span key={i} className={styles.tag}>{i}</span>)}
-              </div>
-            </section>
-          )}
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>الاهتمامات</h3>
+            {vp?.interests?.length
+              ? <div className={styles.tags}>{vp.interests.map(i => <span key={i} className={styles.tag}>{i}</span>)}</div>
+              : <Empty text="لا توجد اهتمامات مضافة" />}
+          </section>
 
         </div>
 
@@ -188,13 +205,7 @@ const AdminUserDetailsPage = () => {
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>سجل الفرص</h2>
-              <Dropdown
-                items={filterItems}
-                active={activeFilter}
-                onChange={setActiveFilter}
-                placeholder="الحالة"
-                compact
-              />
+              <Dropdown items={filterItems} active={activeFilter} onChange={setActiveFilter} placeholder="الحالة" compact />
             </div>
 
             {loadingActivities ? <LoadingState /> : activities.length === 0 ? (
@@ -236,7 +247,7 @@ const AdminUserDetailsPage = () => {
 
 export default AdminUserDetailsPage;
 
-const EField = ({ icon, label, value, field, editingField, isSaving, onStartEdit, onCancel, onUpdate, onSave }: any) => {
+const EField = ({ icon, label, value, displayValue, field, type = "text", options, editingField, isSaving, onStartEdit, onCancel, onUpdate, onSave }: any) => {
   const isEditing = editingField?.field === field;
   return (
     <div className={styles.infoRow}>
@@ -245,23 +256,20 @@ const EField = ({ icon, label, value, field, editingField, isSaving, onStartEdit
         <span className={styles.infoLabel}>{label}</span>
         {isEditing ? (
           <div className={styles.inlineEdit}>
-            <input
-              type="text"
-              className={styles.input}
-              value={editingField.value as string}
-              onChange={e => onUpdate(e.target.value)}
-              disabled={isSaving}
-              autoFocus
-            />
+            {type === "select"
+              ? <select className={styles.input} value={editingField.value as string} onChange={e => onUpdate(e.target.value)} disabled={isSaving}>
+                  {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              : <input type={type === "date" ? "date" : "text"} className={styles.input}
+                  value={editingField.value as string} onChange={e => onUpdate(e.target.value)} disabled={isSaving} autoFocus />
+            }
             <button className={styles.btnCheck} onClick={onSave}   disabled={isSaving}><Check size={12} /></button>
-            <button className={styles.btnX}     onClick={onCancel} disabled={isSaving}><X size={12} /></button>
+            <button className={styles.btnX}     onClick={onCancel} disabled={isSaving}><X     size={12} /></button>
           </div>
         ) : (
           <div className={styles.infoValueRow}>
-            <span className={styles.infoText}>{value || "—"}</span>
-            <button className={styles.btnEditIcon} onClick={() => onStartEdit(field, value)}>
-              <Edit2 size={12} />
-            </button>
+            <span className={styles.infoText}>{displayValue || value || <span className={styles.emptyText}>غير محدد</span>}</span>
+            <button className={styles.btnEditIcon} onClick={() => onStartEdit(field, value)}><Edit2 size={12} /></button>
           </div>
         )}
       </div>

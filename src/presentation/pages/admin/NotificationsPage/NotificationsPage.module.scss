@@ -7,8 +7,17 @@
   gap: $sp-lg;
   align-items: stretch;
 
-  @media (max-width: $bp-lg)  { grid-template-columns: 360px 1fr; }
-  @media (max-width: $bp-md)  { grid-template-columns: 1fr; align-items: flex-start; }
+  @media (max-width: $bp-lg) {
+    grid-template-columns: 360px 1fr;
+  }
+  @media (max-width: $bp-md) {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+    gap: $sp-sm;
+  }
 }
 
 .card {
@@ -18,7 +27,15 @@
   height: 100%;
   min-height: 560px;
 
-  @media (max-width: $bp-md) { min-height: unset; height: auto; }
+  @media (max-width: $bp-md) {
+    min-height: unset;
+    height: auto;
+  }
+  @media (max-width: 767px) {
+    min-height: unset;
+    height: auto;
+    padding: $sp-md;
+  }
 }
 
 .cardHeader {
@@ -30,9 +47,12 @@
     font-weight: 700;
     margin: 0;
     flex: 1;
+    min-width: 0;
   }
-
-  svg { color: $green; flex-shrink: 0; }
+  svg {
+    color: $green;
+    flex-shrink: 0;
+  }
 }
 
 .clearBtn {
@@ -47,28 +67,29 @@
   transition: background $transition;
   flex-shrink: 0;
 
-  &:hover    { background: rgba($red, 0.08); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover {
+    background: rgba($red, 0.08);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
-// ── Form ────────────────────────────────────────────────
 .form {
   @include flex-col;
   gap: $sp-md;
   flex: 1;
 }
-
 .field {
   @include flex-col;
   gap: $sp-xs;
 }
-
 .label {
   font-size: $font-xs;
   font-weight: 600;
   color: $text-muted;
 }
-
 .optional {
   font-weight: 400;
   color: $text-muted;
@@ -86,7 +107,6 @@
   min-height: 100px;
 }
 
-// ── Direct user selection ────────────────────────────────
 .usersHeader {
   @include flex-between;
 }
@@ -140,12 +160,25 @@
   border-bottom: 1px solid $border;
   transition: background $transition;
   min-height: 44px;
+  min-width: 0;
+  overflow: hidden;
 
-  &:last-child  { border-bottom: none; }
-  &:hover       { background: rgba($green, 0.04); }
+  @media (max-width: 767px) {
+    padding: 0.45rem 0.55rem;
+    min-height: 38px;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: rgba($green, 0.04);
+  }
 }
 
-.userItemSelected { background: rgba($green, 0.07); }
+.userItemSelected {
+  background: rgba($green, 0.07);
+}
 
 .checkbox {
   width: 16px;
@@ -167,23 +200,34 @@
   @include flex(row, center, space-between, $sp-sm);
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .userName {
-  font-size: $font-sm;
+  font-size: 0.72rem;
   color: $text;
   @include truncate;
   flex: 1;
+  min-width: 0;
+
+  @media (max-width: 767px) {
+    font-size: 0.68rem;
+  }
 }
 
 .userHours {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   background: rgba($green, 0.08);
   color: $green;
   padding: 0.1rem 0.4rem;
   border-radius: $radius-full;
   flex-shrink: 0;
   white-space: nowrap;
+
+  @media (max-width: 767px) {
+    font-size: 0.62rem;
+    padding: 0.08rem 0.3rem;
+  }
 }
 
 .noResults {
@@ -194,7 +238,6 @@
   margin: 0;
 }
 
-// ── Broadcast history ────────────────────────────────────
 .broadcastListWrapper {
   @include flex-col;
   gap: $sp-sm;
@@ -211,9 +254,16 @@
   scrollbar-width: thin;
   scrollbar-color: rgba($green, 0.25) transparent;
 
-  &::-webkit-scrollbar       { width: 4px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: rgba($green, 0.25); border-radius: 4px; }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($green, 0.25);
+    border-radius: 4px;
+  }
 }
 
 .broadcastItem {
@@ -224,12 +274,27 @@
   border: 1px solid $border;
   transition: border-color $transition;
   flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
 
-  &:hover { border-color: rgba($green, 0.3); }
+  @media (max-width: 767px) {
+    padding: $sp-xs $sp-sm;
+  }
+
+  &:hover {
+    border-color: rgba($green, 0.3);
+  }
 }
 
 .broadcastTop {
   @include flex(row, flex-start, space-between, $sp-sm);
+  min-width: 0;
+  overflow: hidden;
+
+  @media (max-width: 767px) {
+    flex-wrap: wrap;
+    gap: $sp-xs;
+  }
 }
 
 .broadcastTitle {
@@ -238,6 +303,11 @@
   color: $text;
   @include truncate;
   flex: 1;
+  min-width: 0;
+
+  @media (max-width: 767px) {
+    font-size: $font-xs;
+  }
 }
 
 .broadcastTag {
@@ -249,13 +319,24 @@
   border-radius: $radius-full;
   padding: 0.15rem 0.5rem;
   flex-shrink: 0;
+  min-width: 0;
+  max-width: 160px;
+  overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
+
+  @media (max-width: 767px) {
+    max-width: 120px;
+    font-size: 0.64rem;
+  }
 }
 
 .broadcastMsg {
   font-size: $font-xs;
   color: $text-muted;
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
   @include line-clamp(2);
 }
 
@@ -299,7 +380,14 @@
   transition: background $transition;
   white-space: nowrap;
 
-  &:hover { background: rgba($green, 0.15); }
+  &:hover {
+    background: rgba($green, 0.15);
+  }
+
+  @media (max-width: 767px) {
+    font-size: 0.64rem;
+    padding: 0.2rem 0.45rem;
+  }
 }
 
 .btnDeleteBroadcast {
@@ -313,5 +401,7 @@
   cursor: pointer;
   transition: background $transition;
 
-  &:hover { background: rgba($red, 0.15); }
+  &:hover {
+    background: rgba($red, 0.15);
+  }
 }

@@ -8,10 +8,12 @@ import type {
   UpdateUserRequest,
   UpdateUserResponse,
   UpdatePermissionsResponse,
+  UpdateVolunteerProfileRequest,
+  UpdateVolunteerProfileResponse,
   CreateAdminRequest,
   CreateAdminResponse,
   ToggleUserActiveResponse,
-  Result,
+  Result
 } from "@/core/application/dtos";
 
 export interface UpdateAdminInfoRequest extends UpdateUserRequest {
@@ -21,6 +23,8 @@ export interface UpdateAdminInfoRequest extends UpdateUserRequest {
 export const userApi = {
   getProfile: () => apiClient.get<GetUserProfileResponse>(API_ENDPOINTS.USERS.ME),
   updateBasicInfo: (data: UpdateUserRequest) => apiClient.patch<UpdateUserResponse>(API_ENDPOINTS.USERS.ME, data),
+  updateVolunteerProfile: (id: string, data: Omit<UpdateVolunteerProfileRequest, "userId">) =>
+    apiClient.patch<UpdateVolunteerProfileResponse>(API_ENDPOINTS.USERS.BY_ID(id), data),
   updateUserById: (id: string, data: UpdateAdminInfoRequest) =>
     apiClient.patch<UpdateUserResponse>(API_ENDPOINTS.USERS.BY_ID(id), data),
   getAll: () => apiClient.get<GetAllUsersResponse>(API_ENDPOINTS.USERS.BASE),

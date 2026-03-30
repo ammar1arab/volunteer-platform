@@ -49,7 +49,6 @@
     font-weight: 600;
     color: $text-muted;
     transition: $transition;
-
     &:hover {
       color: $green;
     }
@@ -98,30 +97,85 @@
   }
 }
 
+@keyframes haloSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes chipBreathe {
+  0%,
+  100% {
+    opacity: 0.88;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes textShimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
 .devChip {
   position: fixed;
   bottom: $sp-xs;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10000;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 12px;
+  padding: 4px 12px;
   border-radius: $radius-full;
-  background: #111;
-  font-size: 10px;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: 0.03em;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   white-space: nowrap;
-  transition: background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+  background: #111;
+  cursor: pointer;
+  text-decoration: none;
+  overflow: visible;
+  animation: chipBreathe 4s ease-in-out infinite;
 
-  &:hover {
-    background: #000;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-    transform: translateY(-1px);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: $radius-full;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0%,
+      transparent 60%,
+      rgba(255, 255, 255, 0.75) 72%,
+      rgba(255, 255, 255, 0.1) 80%,
+      transparent 88%,
+      transparent 100%
+    );
+    animation: haloSpin 6s linear infinite;
+    z-index: -1;
   }
 
-  &:active {
-    transform: translateY(0);
+  span {
+    background: linear-gradient(90deg, #aaa 0%, #fff 40%, #fff 60%, #aaa 100%);
+    background-size: 250% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textShimmer 5s ease-in-out infinite;
+  }
+
+  svg {
+    opacity: 0.55;
+    flex-shrink: 0;
+    color: #fff;
   }
 }

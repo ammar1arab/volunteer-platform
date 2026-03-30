@@ -291,3 +291,9 @@
     color: $text;
   }
 }
+
+.emptyText {
+  font-size: $font-xs;
+  color: $text-muted;
+  font-style: italic;
+}

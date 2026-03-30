@@ -2,19 +2,19 @@ import { logger } from "@/lib/utils";
 import { providers } from "@/lib/providers";
 import { toResponse, requireAuth, requirePermission, forbidden, parseJson, apiError } from "@/lib/api-utils";
 import { UserRole } from "@/core/domain/enums";
-import type { UpdateUserRequest } from "@/core/application/dtos";
+import type { UpdateUserRequest, UpdateVolunteerProfileRequest } from "@/core/application/dtos";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const VP_FIELDS = new Set(["city", "gender", "dateOfBirth"]);
 
 export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth(req);
     if ("error" in auth) return auth.error;
     const { id } = await ctx.params;
-    if (auth.session.user.role !== UserRole.ADMIN && auth.session.user.id !== id) {
-      return forbidden();
-    }
+    if (auth.session.user.role !== UserRole.ADMIN && auth.session.user.id !== id) return forbidden();
     logger.info("API", "GET /users/[id]", `requester=${auth.session.user.id} target=${id}`);
     return toResponse(await providers.user().getUserDetails(id));
   } catch (error) {
@@ -27,7 +27,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     const auth = await requirePermission(req, "MANAGE_USERS");
     if ("error" in auth) return auth.error;
     const { id } = await ctx.params;
-    const body = await parseJson<UpdateUserRequest & { permissions?: string[]; isActive?: boolean }>(req);
+    const body = await parseJson<UpdateUserRequest & Partial<UpdateVolunteerProfileRequest> & { permissions?: string[]; isActive?: boolean }>(req);
     if (!body) return toResponse({ success: false, error: { code: "BAD_REQUEST", message: "Invalid body" } });
 
     if (body.permissions !== undefined) {
@@ -40,6 +40,12 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
       if (!auth.session.user.isSuperAdmin) return forbidden("فقط السوبر أدمن يمكنه تغيير حالة المستخدم");
       logger.info("API", "PATCH /users/[id]", `toggle active by=${auth.session.user.id} target=${id}`);
       return toResponse(await providers.user().toggleActive(auth.session.user.id, id, body.isActive));
+    }
+
+    const vpData = Object.fromEntries(Object.entries(body).filter(([k]) => VP_FIELDS.has(k)));
+    if (Object.keys(vpData).length) {
+      logger.info("API", "PATCH /users/[id]", `vp update by=${auth.session.user.id} target=${id}`);
+      return toResponse(await providers.volunteerProfile().updateProfile({ userId: id, ...vpData } as UpdateVolunteerProfileRequest));
     }
 
     logger.info("API", "PATCH /users/[id]", `info update by=${auth.session.user.id} target=${id}`);
