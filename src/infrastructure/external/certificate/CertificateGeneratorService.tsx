@@ -22,11 +22,7 @@ class CertificateGeneratorService {
 
     const html = buildCertificateHtml(data, regularB64, boldB64);
 
-const executablePath =
-  process.env.CHROME_EXECUTABLE_PATH ??
-  await chromium.executablePath(
-    "https://pub-983997e34f814b8baf6dc4b05ec7dc55.r2.dev/chromium-v143.0.4-pack.x64.tar"
-  );
+    const executablePath = process.env.CHROME_EXECUTABLE_PATH ?? await chromium.executablePath("https://pub-983997e34f814b8baf6dc4b05ec7dc55.r2.dev/chromium-v143.0.4-pack.x64.tar");
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: { width: 1050, height: 750, deviceScaleFactor: 2 },
