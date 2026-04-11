@@ -31,7 +31,7 @@ const Footer = () => {
 
         <div className={styles.copyright}>
           <span>© {new Date().getFullYear()} بصمات شبابية</span>
-          <a className={styles.devChip} href="https://ammararab.com" target="_blank" rel="noopener noreferrer">
+          <a className={styles.devChip} href="https://portfolio.ammararab.com" target="_blank" rel="noopener noreferrer">
             <Code2 size={11} strokeWidth={2.5} />
             <span>Built by Ammar</span>
           </a>

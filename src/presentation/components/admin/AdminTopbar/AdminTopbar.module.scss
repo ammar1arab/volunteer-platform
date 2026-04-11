@@ -3,7 +3,7 @@
 
 .bar {
   @include flex(row, center, space-between, $sp-md);
-  padding: $sp-xs $sp-lg;
+  padding: 0 $sp-lg;
   border-bottom: 2px solid $border;
   border-radius: $radius-full;
   background: $bg;

@@ -1,7 +1,5 @@
 "use client";
-
 import { useState } from "react";
-import { SessionProvider } from "next-auth/react";
 import styles from "./layout.module.scss";
 import { AdminSidebar, AdminTopbar } from "@/presentation/components";
 
@@ -16,24 +14,22 @@ export default function AdminLayoutClient({ children, isSuperAdmin, permissions 
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <SessionProvider>
-      <div className={styles.shell}>
-        <AdminSidebar
-          isOpen={sidebarOpen}
-          isCollapsed={collapsed}
-          onToggleCollapse={() => setCollapsed((p) => !p)}
-          onClose={() => setSidebarOpen(false)}
-          isSuperAdmin={isSuperAdmin}
-          permissions={permissions}
+    <div className={styles.shell}>
+      <AdminSidebar
+        isOpen={sidebarOpen}
+        isCollapsed={collapsed}
+        onToggleCollapse={() => setCollapsed((p) => !p)}
+        onClose={() => setSidebarOpen(false)}
+        isSuperAdmin={isSuperAdmin}
+        permissions={permissions}
+      />
+      <div className={styles.main}>
+        <AdminTopbar
+          onMenuClick={() => setSidebarOpen((p) => !p)}
+          isMenuOpen={sidebarOpen}
         />
-        <div className={styles.main}>
-          <AdminTopbar
-            onMenuClick={() => setSidebarOpen((p) => !p)}
-            isMenuOpen={sidebarOpen}
-          />
-          <div className={styles.content}>{children}</div>
-        </div>
+        <div className={styles.content}>{children}</div>
       </div>
-    </SessionProvider>
+    </div>
   );
 }

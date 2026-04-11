@@ -176,7 +176,6 @@ $w-sm: 64px;
   padding: 0 8px;
   height: 40px;
   border-radius: $radius;
-  border: 1px solid transparent;
   color: $text-muted;
   font-size: $font-sm;
   font-weight: 600;
@@ -186,16 +185,13 @@ $w-sm: 64px;
   overflow: hidden;
   transition:
     background 0.16s,
-    color 0.16s,
-    border-color 0.16s;
+    color 0.16s;
 
   &:hover {
     background: rgba(var(--c), 0.08);
     color: var(--c);
-    border-color: rgba(var(--c), 0.15);
 
     .iconWrap {
-      background: rgba(var(--c), 0.14);
       color: var(--c);
     }
   }
@@ -203,7 +199,6 @@ $w-sm: 64px;
   &.active {
     background: rgba(var(--c), 0.1);
     color: var(--c);
-    border-color: rgba(var(--c), 0.2);
     font-weight: 700;
 
     .iconWrap {
@@ -216,7 +211,6 @@ $w-sm: 64px;
     height: 50px;
     padding: 0 14px;
     font-size: $font-sm;
-    border-radius: $radius-lg;
   }
 }
 
@@ -229,7 +223,6 @@ $w-sm: 64px;
   border-radius: 8px;
   flex-shrink: 0;
   color: $text-muted;
-  background: rgba($text, 0.05);
   transition:
     background 0.16s,
     color 0.16s;
