@@ -200,10 +200,10 @@ export const useForgotPassword = () => {
     error,
     loading,
     cooldown,
-    total, // Added total
+    total, 
     isResending,
     resendSent,
-    showSuccess, // Added resendSent and showSuccess
+    showSuccess, 
     handleSendOtp,
     handleVerifyOtp,
     handleResetPassword,

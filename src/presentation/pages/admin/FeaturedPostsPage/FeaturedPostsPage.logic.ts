@@ -73,7 +73,11 @@ export const useFeaturedPostsPage = () => {
         (post) => post.title.toLowerCase().includes(q) || post.description.toLowerCase().includes(q)
       );
     }
-    return result;
+    return result.sort((a, b) => {
+      const dateA = new Date(a.publishedAt).getTime();
+      const dateB = new Date(b.publishedAt).getTime();
+      return dateB - dateA;
+    });
   }, [list, activeCategory, appliedSearch]);
 
   const paginatedList = useMemo(() => {

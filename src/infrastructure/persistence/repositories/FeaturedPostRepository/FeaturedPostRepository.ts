@@ -1,5 +1,4 @@
 import IFeaturedPostRepository from "./IFeaturedPostRepository";
-
 import type { FeaturedPost as PrismaFeaturedPost } from "@prisma/client";
 import { FeaturedPostCategory } from "@prisma/client";
 import { prisma } from "@/infrastructure/persistence/prisma";
@@ -21,7 +20,7 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
 
   async findAll(): Promise<FeaturedPost[]> {
     const rows = await prisma.featuredPost.findMany({
-      orderBy: { title: "asc" }
+      orderBy: { publishedAt: "desc" }
     });
     return rows.map((row) => this.mapToEntity(row));
   }
@@ -41,7 +40,6 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
         updatedAt: props.updatedAt
       }
     });
-
     return this.mapToEntity(created);
   }
 
@@ -59,7 +57,6 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
         updatedAt: new Date()
       }
     });
-
     return this.mapToEntity(updated);
   }
 
