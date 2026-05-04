@@ -28,8 +28,12 @@ function toDate(date: Date): string {
 }
 
 export const issueCertificates = inngest.createFunction(
-  { id: "issue-certificates", name: "Issue Certificates", retries: 3 },
-  { event: "activity/completed" },
+  {
+    id: "issue-certificates",
+    name: "Issue Certificates",
+    retries: 3,
+    triggers: [{ event: "activity/completed" }]
+  },
   async ({ event, step }) => {
     const { activityId } = event.data as { activityId: string };
     logger.info(SCOPE, "start", `activityId=${activityId}`);
@@ -104,7 +108,7 @@ export const issueCertificates = inngest.createFunction(
               s.setTag("activityId", activityId);
               s.setTag("volunteerId", v.userId);
               s.setContext("volunteer", { userId: v.userId, fullName: v.fullName, email: v.email });
-              s.setContext("activity",  { id: activityId, title: activity.title });
+              s.setContext("activity", { id: activityId, title: activity.title });
               Sentry.captureException(err instanceof Error ? err : new Error(String(err)));
             });
             logger.warn(SCOPE, `generate-upload-${v.userId}`, `Failed: ${err}`);

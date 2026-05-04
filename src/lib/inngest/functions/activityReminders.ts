@@ -7,8 +7,12 @@ import { ROUTES } from "@/presentation/constants";
 const SCOPE = "activityReminders";
 
 export const activityReminders = inngest.createFunction(
-  { id: "activity-reminders", name: "Activity Reminders", retries: 2 },
-  { cron: "0 * * * *" },
+  {
+    id: "activity-reminders",
+    name: "Activity Reminders",
+    retries: 2,
+    triggers: [{ cron: "0 * * * *" }]
+  },
   async ({ step }) => {
     const now = new Date();
 
