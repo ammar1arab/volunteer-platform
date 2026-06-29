@@ -11,5 +11,6 @@ export enum JordanianCity {
   AJLOUN = "AJLOUN",
   TAFILAH = "TAFILAH",
   MAAN = "MAAN",
+  RAMTHA = "RAMTHA",
   OUTOFJORDAN = "OUTOFJORDAN",
 }

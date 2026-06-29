@@ -279,6 +279,7 @@ enum JordanianCity {
   AJLOUN
   TAFILAH
   MAAN
+  RAMTHA
   OUTOFJORDAN
 }
 

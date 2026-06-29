@@ -91,6 +91,7 @@ export const CITY_LABELS: Record<JordanianCity, string> = {
   [JordanianCity.AJLOUN]: "عجلون",
   [JordanianCity.TAFILAH]: "الطفيلة",
   [JordanianCity.MAAN]: "معان",
+  [JordanianCity.RAMTHA]: "الرمثا",
   [JordanianCity.OUTOFJORDAN]: "من خارج الأردن"
 };
 
