@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   PanelRightClose,
   PanelRightOpen,
+  LayoutDashboard,
 } from "lucide-react";
 
 type NavItem = {
@@ -89,6 +90,13 @@ const AdminSidebar = ({
         aria-label="قائمة الإدارة"
       >
         <div className={styles.head}>
+          <div className={styles.brand}>
+            <span className={styles.brandIcon}>
+              <LayoutDashboard size={15} strokeWidth={1.75} />
+            </span>
+            <span className={styles.brandText}>الإدارة</span>
+          </div>
+
           <button
             type="button"
             className={styles.collapseBtn}
@@ -96,10 +104,11 @@ const AdminSidebar = ({
             aria-label={isCollapsed ? "توسيع القائمة" : "طي القائمة"}
             title={isCollapsed ? "توسيع" : "طي"}
           >
-            {isCollapsed ? <PanelRightOpen size={16} /> : <PanelRightClose size={16} />}
+            {isCollapsed ? <PanelRightOpen size={15} strokeWidth={1.75} /> : <PanelRightClose size={15} strokeWidth={1.75} />}
           </button>
+
           <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="إغلاق">
-            <X size={16} />
+            <X size={16} strokeWidth={1.75} />
           </button>
         </div>
 
@@ -114,7 +123,9 @@ const AdminSidebar = ({
                 title={isCollapsed ? item.label : undefined}
                 aria-current={active ? "page" : undefined}
               >
-                <item.icon size={17} strokeWidth={1.75} />
+                <span className={styles.icon}>
+                  <item.icon size={16} strokeWidth={1.75} />
+                </span>
                 <span className={styles.label}>{item.label}</span>
               </Link>
             );
@@ -128,8 +139,10 @@ const AdminSidebar = ({
             onClick={() => setShowLogout(true)}
             title={isCollapsed ? "تسجيل الخروج" : undefined}
           >
-            <LogOut size={17} strokeWidth={1.75} />
-            <span>تسجيل الخروج</span>
+            <span className={styles.icon}>
+              <LogOut size={16} strokeWidth={1.75} />
+            </span>
+            <span className={styles.label}>تسجيل الخروج</span>
           </button>
         </div>
       </aside>
