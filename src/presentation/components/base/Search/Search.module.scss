@@ -5,11 +5,15 @@
   position: relative;
   @include flex(row, center, flex-start, 0);
   height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  box-sizing: border-box;
   border: 1px solid $border;
   border-radius: $radius;
   background: $bg;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   min-width: 200px;
+  line-height: 1;
 
   &:focus-within,
   &.active {

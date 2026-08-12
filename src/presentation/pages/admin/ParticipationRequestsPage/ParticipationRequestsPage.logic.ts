@@ -140,6 +140,21 @@ export const useParticipationRequestsPage = () => {
     if (successCount > 0) showToast(`تمت الموافقة على ${successCount} من ${count} طلب`, "success");
   }, [filteredRequests, confirm, approve, showToast]);
 
+  const exportData = useMemo(
+    () =>
+      filteredRequests.map((r) => ({
+        fullName: r.volunteer?.fullName || "-",
+        email: r.volunteer?.email || "-",
+        phone: r.volunteer?.phone || "-",
+        city: r.volunteer?.city ? getCityLabel(r.volunteer.city as JordanianCity) : "-",
+        activityTitle: r.activity?.title || "-",
+        activityDate: r.activity?.date
+          ? new Date(r.activity.date).toLocaleDateString("ar")
+          : "-",
+      })),
+    [filteredRequests]
+  );
+
   return {
     status,
     loading,
@@ -147,6 +162,7 @@ export const useParticipationRequestsPage = () => {
     filteredRequests,
     paginatedRequests,
     filterItems,
+    exportData,
     toasts,
     removeToast,
     searchQuery,

@@ -4,16 +4,25 @@ import { useParticipationRequestsPage } from "./ParticipationRequestsPage.logic"
 import { useRouter } from "next/navigation";
 import {
   LoadingState, EmptyState, ToastContainer, ConfirmDialog,
-  ParticipationRequestItem, Dropdown, Search, Pagination
+  ParticipationRequestItem, Dropdown, Search, Pagination, ExportUsersButton,
 } from "@/presentation/components";
 import { ROUTES } from "@/presentation/constants";
 import { CheckCircle, CheckCheck } from "lucide-react";
+
+const EXPORT_COLUMNS = [
+  { key: "fullName", label: "الاسم" },
+  { key: "email", label: "البريد الإلكتروني" },
+  { key: "phone", label: "رقم الهاتف" },
+  { key: "city", label: "المدينة" },
+  { key: "activityTitle", label: "النشاط" },
+  { key: "activityDate", label: "تاريخ النشاط" },
+];
 
 const ParticipationRequestsPage = () => {
   const router = useRouter();
   const {
     status, loading, filter, filteredRequests, paginatedRequests,
-    filterItems, toasts, removeToast, confirmDialog,
+    filterItems, exportData, toasts, removeToast, confirmDialog,
     searchQuery, setSearchQuery, setAppliedSearch, appliedSearch,
     currentPage, setCurrentPage, itemsPerPage,
     setFilter, handleApprove, handleReject, handleApproveAll,
@@ -41,6 +50,7 @@ const ParticipationRequestsPage = () => {
               placeholder="النشاط"
               compact
             />
+            <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export" />
             <button
               className={styles.btnApproveAll}
               onClick={handleApproveAll}

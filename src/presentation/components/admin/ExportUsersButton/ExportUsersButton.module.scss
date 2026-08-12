@@ -3,13 +3,18 @@
 
 .btn {
   @include flex(row, center, center, $sp-xs);
-  padding: $sp-sm $sp-md;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  box-sizing: border-box;
+  padding: 0 $sp-md;
   background: $green;
   color: $bg;
   border: none;
   border-radius: $radius;
   font-size: $font-sm;
   font-weight: 600;
+  line-height: 1;
   cursor: pointer;
   transition: $transition;
   white-space: nowrap;
@@ -19,7 +24,7 @@
   }
 
   @media (max-width: 640px) {
-    padding: $sp-xs $sp-sm;
+    padding: 0 $sp-sm;
     font-size: $font-xs;
   }
 }
