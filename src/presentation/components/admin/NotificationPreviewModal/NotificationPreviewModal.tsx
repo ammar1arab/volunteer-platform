@@ -1,8 +1,9 @@
 "use client";
 import styles from "./NotificationPreviewModal.module.scss";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Users, MapPin, User2, Check, Clock } from "lucide-react";
 import { Modal, ConfirmDialog, EmptyState, Pagination } from "@/presentation/components";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { PreviewUserDto } from "@/core/application/dtos";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
 import { JordanianCity, Gender } from "@/core/domain/enums";
@@ -27,7 +28,10 @@ const NotificationPreviewModal = ({
   isOpen, users, selectedIds, isSending, showConfirm,
   onToggleUser, onToggleAll, onRequestSend, onConfirmSend, onCancelConfirm, onClose,
 }: Props) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.notificationPreviewModal.currentPage",
+    1
+  );
 
   const paginated = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;

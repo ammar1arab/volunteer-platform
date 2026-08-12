@@ -1,17 +1,30 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useMonthlyMagazines } from "@/presentation/hooks";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 const ITEMS_PER_PAGE = 20;
 
 export const useMagazinesPublicPage = () => {
   const { list, loading } = useMonthlyMagazines({ activeOnly: true });
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
-  const [activeYear, setActiveYear] = useState("all");
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.public.magazines.currentPage",
+    1
+  );
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.public.magazines.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.public.magazines.appliedSearch",
+    ""
+  );
+  const [activeYear, setActiveYear] = useSessionStorageState(
+    "filters.public.magazines.year",
+    "all"
+  );
 
   const yearFilterOptions = useMemo(() => {
     const years = [...new Set(list.map(m => String(new Date(m.monthYear).getFullYear())))]

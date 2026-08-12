@@ -1,18 +1,34 @@
 "use client";
-import { useState, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import { useFeaturedPosts } from "@/presentation/hooks";
 import { CATEGORY_OPTIONS, getMonthLabel } from "@/presentation/constants";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 const ITEMS_PER_PAGE = 20;
 
 export const useFeaturedPostsPublicPage = () => {
   const { list, loading, error, refresh } = useFeaturedPosts({ activeOnly: true });
 
-  const [selectedMonth, setSelectedMonth] = useState("all");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedMonth, setSelectedMonth] = useSessionStorageState(
+    "filters.public.featuredPosts.month",
+    "all"
+  );
+  const [selectedCategory, setSelectedCategory] = useSessionStorageState(
+    "filters.public.featuredPosts.category",
+    "all"
+  );
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.public.featuredPosts.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.public.featuredPosts.appliedSearch",
+    ""
+  );
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.public.featuredPosts.currentPage",
+    1
+  );
 
   const monthOptions = useMemo(() => {
     const months = new Map<string, string>();

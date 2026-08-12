@@ -2,6 +2,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUserDetails, useToast, useAuth } from "@/presentation/hooks";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { ParticipationStatus, UserRole } from "@/core/domain/enums";
 import { userApi, volunteerProfileApi } from "@/presentation/services";
 import { ROUTES } from "@/presentation/constants";
@@ -22,8 +23,14 @@ export const useAdminUserDetailsPage = () => {
   const userId = params.id as string;
   const { user, activities, loadingUser, loadingActivities, error, refresh } = useUserDetails(userId);
 
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [activeFilter, setActiveFilter] = useSessionStorageState(
+    "filters.admin.userDetails.activeFilter",
+    "all"
+  );
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.userDetails.currentPage",
+    1
+  );
   const [editingField, setEditingField] = useState<EditingField | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isTogglingActive, setIsTogglingActive] = useState(false);

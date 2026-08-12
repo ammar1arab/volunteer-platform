@@ -1,14 +1,24 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useVolunteerSpotlight } from "@/presentation/hooks";
 import { CITY_OPTIONS } from "@/presentation/constants/labels";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 export const useVolunteerSpotlightPublicPage = () => {
   const { list, loading } = useVolunteerSpotlight({ activeOnly: true });
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
-  const [activeCity, setActiveCity] = useState("all");
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.public.volunteerSpotlight.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.public.volunteerSpotlight.appliedSearch",
+    ""
+  );
+  const [activeCity, setActiveCity] = useSessionStorageState(
+    "filters.public.volunteerSpotlight.city",
+    "all"
+  );
 
   const cityOptions = useMemo(() => [
     { key: "all", label: "الجميع" },

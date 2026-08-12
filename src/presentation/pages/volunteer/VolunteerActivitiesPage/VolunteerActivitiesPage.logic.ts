@@ -138,9 +138,13 @@ export const useVolunteerActivitiesPage = () => {
   useEffect(() => {
     if (defaultApplied || loading || participations.length === 0) return;
 
-    if (window.sessionStorage.getItem(ACTIVE_FILTER_STORAGE_KEY) !== null) {
-      setDefaultApplied(true);
-      return;
+    try {
+      if (window.sessionStorage.getItem(ACTIVE_FILTER_STORAGE_KEY) !== null) {
+        setDefaultApplied(true);
+        return;
+      }
+    } catch {
+      // Fall back to the smart default when session storage is unavailable.
     }
 
     if (stats.pending > 0) setActiveFilterState(ParticipationStatus.PENDING);

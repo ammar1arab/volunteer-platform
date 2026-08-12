@@ -5,6 +5,7 @@ import type { ActivityVolunteerDto } from "@/core/application/dtos";
 import { activityApi, participationApi } from "@/presentation/services";
 import { AttendanceStatus, Gender } from "@/core/domain/enums";
 import { useToast } from "@/presentation/hooks";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { getAttendanceStatusLabel, getCityLabel, getGenderLabel } from "@/presentation/constants";
 import {
   EMPTY_ARRAY,
@@ -60,9 +61,18 @@ export const useVolunteersModal = (
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [confirmStep, setConfirmStep] = useState<0 | 1 | 2>(0);
   const [attendanceWarning, setAttendanceWarning] = useState(false);
-  const [search, setSearch] = useState("");
-  const [genderFilter, setGenderFilter] = useState<"ALL" | "MALE" | "FEMALE">("ALL");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useSessionStorageState(
+    "filters.admin.volunteersModal.search",
+    ""
+  );
+  const [genderFilter, setGenderFilter] = useSessionStorageState<"ALL" | "MALE" | "FEMALE">(
+    "filters.admin.volunteersModal.gender",
+    "ALL"
+  );
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.volunteersModal.currentPage",
+    1
+  );
   const { toasts, showToast, removeToast } = useToast();
   const prefetchRef = useRef<Promise<void> | null>(null);
 
@@ -79,9 +89,6 @@ export const useVolunteersModal = (
     if (!isOpen || !activityId) return;
     setConfirmStep(0);
     setAttendanceWarning(false);
-    setSearch("");
-    setGenderFilter("ALL");
-    setCurrentPage(1);
     setRejectedIds(new Set());
     prefetchRef.current = null;
   }, [isOpen, activityId]);

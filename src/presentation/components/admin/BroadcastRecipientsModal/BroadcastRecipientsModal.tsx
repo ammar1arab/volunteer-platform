@@ -1,8 +1,9 @@
 "use client";
 import styles from "./BroadcastRecipientsModal.module.scss";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Search, MapPin, User2, Clock, Users } from "lucide-react";
 import { Modal, EmptyState, LoadingState, Pagination } from "@/presentation/components";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { BroadcastRecipientDto } from "@/core/application/dtos";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
 import { JordanianCity, Gender } from "@/core/domain/enums";
@@ -18,8 +19,14 @@ interface Props {
 const ITEMS_PER_PAGE = 15;
 
 const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients, loading }: Props) => {
-  const [search,      setSearch]      = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useSessionStorageState(
+    "filters.admin.broadcastRecipientsModal.search",
+    ""
+  );
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.broadcastRecipientsModal.currentPage",
+    1
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
