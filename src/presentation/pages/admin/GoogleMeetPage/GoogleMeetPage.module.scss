@@ -284,6 +284,11 @@
   height: 36px;
   overflow: visible;
 
+  > * {
+    width: 100%;
+    max-width: none;
+  }
+
   @include sm {
     width: 100%;
     max-width: none;
