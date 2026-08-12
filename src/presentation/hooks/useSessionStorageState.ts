@@ -29,10 +29,10 @@ const emit = (key: string) => {
   listeners.get(key)?.forEach((listener) => listener());
 };
 
-/**
- * Mirrors useState while preserving the value for the lifetime of the browser tab.
- * useSyncExternalStore keeps browser storage reactive without effect-driven syncing.
- */
+
+
+
+
 export function useSessionStorageState<T>(
   key: string,
   initialValue: InitialValue<T>,
@@ -88,7 +88,7 @@ export function useSessionStorageState<T>(
     try {
       current = JSON.parse(readRaw(key, defaultRaw)) as T;
     } catch {
-      // Use the initial value when persisted data is malformed.
+
     }
 
     const next = typeof update === "function"
@@ -100,7 +100,7 @@ export function useSessionStorageState<T>(
     try {
       window.sessionStorage.setItem(key, serialized);
     } catch {
-      // The in-memory fallback keeps state reactive when storage is unavailable.
+
     }
     emit(key);
   }, [defaultRaw, key]);

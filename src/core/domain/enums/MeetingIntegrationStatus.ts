@@ -1,0 +1,6 @@
+export enum MeetingIntegrationStatus {
+  CONNECTED = "CONNECTED",
+  NEEDS_REAUTH = "NEEDS_REAUTH",
+  ERROR = "ERROR",
+  DISCONNECTED = "DISCONNECTED"
+}

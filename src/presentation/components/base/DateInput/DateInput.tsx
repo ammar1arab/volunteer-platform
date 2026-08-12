@@ -32,7 +32,7 @@ const DateInput = ({
     if (!input) return;
 
     input.focus();
-    input.showPicker?.(); // native modern modal 🔥
+    input.showPicker?.();
   };
 
   return (

@@ -17,7 +17,7 @@ const PushBanner = () => {
 
   useEffect(() => {
     const snoozedUntil = parseInt(localStorage.getItem(SNOOZE_KEY) ?? "0", 10);
-    if (Date.now() < snoozedUntil) return; // still snoozed
+    if (Date.now() < snoozedUntil) return;
 
     const visits = parseInt(localStorage.getItem(VISITS_KEY) ?? "0", 10) + 1;
     localStorage.setItem(VISITS_KEY, String(visits));

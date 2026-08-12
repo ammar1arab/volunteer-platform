@@ -34,10 +34,10 @@ export const useForgotPassword = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [resendSent, setResendSent] = useState(false);
 
-  // Use the timer hook
+
   const { cooldown, total, start } = useOtpTimer();
 
-  // Auto-verify when all 6 digits filled
+
   useEffect(() => {
     if (step !== "otp") return;
     const full = code.join("");

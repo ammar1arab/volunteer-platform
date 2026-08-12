@@ -14,7 +14,7 @@ export interface UseFetchDataOptions {
   refetchOnReconnect?: boolean;
   refetchInterval?: number | false;
   refetchIntervalInBackground?: boolean;
-  /** @deprecated Kept for API compat — React Query cache already covers this */
+
   cacheEnabled?: boolean;
 }
 

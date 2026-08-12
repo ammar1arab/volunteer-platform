@@ -114,7 +114,7 @@ const NotificationsPage = () => {
 
       <div className={styles.grid}>
 
-        {/* ── Creation card ── */}
+
         <section className={styles.card}>
           <div className={styles.cardHeader}>
             <Bell size={16} />
@@ -301,7 +301,7 @@ const NotificationsPage = () => {
           </form>
         </section>
 
-        {/* ── History card ── */}
+
         <section className={styles.card}>
           <div className={styles.cardHeader}>
             <Bell size={16} />

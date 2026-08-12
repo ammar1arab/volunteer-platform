@@ -150,7 +150,7 @@
   }
 }
 
-// ─── Body ─────────────────────────────────────────────────────────────────────
+
 
 .body {
   @include flex(column, stretch, flex-start, $sp-sm);
@@ -183,7 +183,7 @@
   @include line-clamp(2);
 }
 
-// ─── Meta ─────────────────────────────────────────────────────────────────────
+
 
 .metaGrid {
   display: grid;
@@ -246,7 +246,7 @@
   margin: 0 1px;
 }
 
-// ─── Location ─────────────────────────────────────────────────────────────────
+
 
 .locationRow {
   @include flex(row, center, space-between, $sp-sm);
@@ -311,7 +311,7 @@
   }
 }
 
-// ─── Actions ──────────────────────────────────────────────────────────────────
+
 
 .actions {
   @include flex(row, center, flex-end, $sp-xs);
@@ -324,7 +324,7 @@
   }
 }
 
-// ─── Location Modal ───────────────────────────────────────────────────────────
+
 
 .locActions {
   display: grid;

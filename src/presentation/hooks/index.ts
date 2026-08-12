@@ -15,7 +15,7 @@ export * from "./apiHooks/useNotifications";
 export * from "./apiHooks/usePushNotifications";
 export * from "./apiHooks/useCompleteActivity";
 
-// Shared React Query primitives (also available from `@/presentation/query`)
+
 export {
   useFetchData,
   useApiMutation,

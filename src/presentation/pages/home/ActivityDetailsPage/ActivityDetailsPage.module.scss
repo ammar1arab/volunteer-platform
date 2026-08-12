@@ -1,7 +1,7 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+
 
 .container {
   @include container;
@@ -26,7 +26,7 @@
   margin-bottom: $sp-lg;
 }
 
-// ─── Layout ──────────────────────────────────────────────────────────────────
+
 
 .article {
   max-width: 1100px;
@@ -42,7 +42,7 @@
   }
 }
 
-// ─── Image Column ─────────────────────────────────────────────────────────────
+
 
 .imageCol {
   position: sticky;
@@ -137,7 +137,7 @@
   }
 }
 
-// ─── Content Column ───────────────────────────────────────────────────────────
+
 
 .content {
   @include flex-col;
@@ -164,7 +164,7 @@
   }
 }
 
-// ─── Chips ────────────────────────────────────────────────────────────────────
+
 
 .chipsGrid {
   display: grid;
@@ -232,7 +232,7 @@
   @include line-clamp(1);
 }
 
-// ─── Location ─────────────────────────────────────────────────────────────────
+
 
 .locationCard {
   @include flex(row, center, space-between, $sp-md);
@@ -332,7 +332,7 @@
   }
 }
 
-// ─── Description ──────────────────────────────────────────────────────────────
+
 
 .descriptionCard {
   @include flex-col;
@@ -396,7 +396,7 @@
   }
 }
 
-// ─── Action ───────────────────────────────────────────────────────────────────
+
 
 .actionContainer {
   @include flex-center;
@@ -404,7 +404,7 @@
   border-top: 1px solid $border;
 }
 
-// ─── Location Modal ───────────────────────────────────────────────────────────
+
 
 .locBody {
   @include flex-col;

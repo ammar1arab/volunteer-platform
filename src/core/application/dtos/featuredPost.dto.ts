@@ -1,7 +1,7 @@
 import { DomainFeaturedPostCategory } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 
-// ─── Featured Post ────────────────────────────────────────────
+
 
 export interface FeaturedPostDto {
   id: string;
@@ -15,7 +15,7 @@ export interface FeaturedPostDto {
   updatedAt: string;
 }
 
-// ─── Create / Update ──────────────────────────────────────────
+
 
 export interface CreateFeaturedPostRequest {
   imageUrl: string;
@@ -28,7 +28,7 @@ export interface CreateFeaturedPostRequest {
 
 export type UpdateFeaturedPostRequest = Partial<CreateFeaturedPostRequest>;
 
-// ─── Responses ────────────────────────────────────────────────
+
 
 export type CreateFeaturedPostResponse = Result<{ post: FeaturedPostDto }>;
 export type UpdateFeaturedPostResponse = Result<{ post: FeaturedPostDto }>;

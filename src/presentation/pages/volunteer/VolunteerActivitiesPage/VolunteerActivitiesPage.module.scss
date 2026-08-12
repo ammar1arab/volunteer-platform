@@ -12,7 +12,7 @@
   padding: $sp-xl $sp-md $sp-2xl;
 }
 
-// ── Stats ──────────────────────────────────────────────────────
+
 .statsRow {
   display: flex;
   gap: $sp-xs;
@@ -114,7 +114,7 @@
   transition: $transition;
 }
 
-// ── Filter chips ───────────────────────────────────────────────
+
 .chipsRow {
   display: flex;
   align-items: center;
@@ -161,7 +161,7 @@
   }
 }
 
-// ── Search + sort ──────────────────────────────────────────────
+
 .filterRow {
   @include flex(row, center, flex-start, $sp-sm);
   width: 100%;
@@ -172,7 +172,7 @@
   min-width: 0;
 }
 
-// ── List ───────────────────────────────────────────────────────
+
 .list {
   @include flex-col;
   gap: $sp-sm;

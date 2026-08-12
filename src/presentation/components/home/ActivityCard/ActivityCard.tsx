@@ -53,7 +53,7 @@ const ActivityCard = ({ activity, actionButton }: Props) => {
           </div>
         </div>
 
-        {/* ── Body ── */}
+
         <div className={styles.body}>
           <div className={styles.header}>
             <h3 className={styles.title}>{activity.title}</h3>

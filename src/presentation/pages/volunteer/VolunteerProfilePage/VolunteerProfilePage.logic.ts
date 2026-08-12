@@ -167,5 +167,5 @@ export function useProfilePage() {
   };
 }
 
-// Keep helper exported for any callers that still need it
+
 export { extractError };

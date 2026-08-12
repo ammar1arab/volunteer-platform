@@ -4,7 +4,7 @@
 .wrapper {
   @include flex-col;
   gap: $sp-xs;
-  // margin-bottom: $sp-md;
+
 }
 
 .label {
@@ -78,7 +78,7 @@
 }
 .iconOpen { transform: rotate(180deg); }
 
-// ── Portal menu — fixed positioning via inline style ──────────
+
 .menu {
   background: $bg;
   border: 1px solid rgba($green, 0.2);

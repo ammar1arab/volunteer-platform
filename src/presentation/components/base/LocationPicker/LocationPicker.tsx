@@ -1,5 +1,5 @@
 "use client";
-// @ts-ignore
+
 import "leaflet/dist/leaflet.css";
 import dynamic from "next/dynamic";
 import { useRef, useEffect, useState } from "react";
@@ -76,7 +76,7 @@ const LocationPicker = ({ latitude, longitude, onChange, label = "موقع ال�
         <div className={styles.wrapper}>
             <label className={styles.label}>{label}</label>
 
-            {/* البحث */}
+
             <div className={styles.searchWrap}>
                 <div className={styles.searchRow}>
                     <input
@@ -104,7 +104,7 @@ const LocationPicker = ({ latitude, longitude, onChange, label = "موقع ال�
                 {state.searchError && <p className={styles.error}>{state.searchError}</p>}
             </div>
 
-            {/* الصق رابط */}
+
             <div className={styles.linkRow}>
                 <input
                     className={styles.input}
@@ -120,14 +120,14 @@ const LocationPicker = ({ latitude, longitude, onChange, label = "موقع ال�
             </div>
             {state.linkError && <p className={styles.error}>{state.linkError}</p>}
 
-            {/* GPS */}
+
             <button type="button" className={styles.btnLocate} onClick={detectLocation} disabled={state.locating}>
                 <MapPinned size={14} />
                 {state.locating ? "جاري تحديد موقعك..." : "استخدم موقعي الحالي (GPS)"}
             </button>
             {state.locationError && <p className={styles.error}>{state.locationError}</p>}
 
-            {/* معاينة أو زر اختيار */}
+
             {hasLocation ? (
                 <div className={styles.previewWrap} onClick={() => dispatch({ type: "TOGGLE_MAP", payload: true })}>
                     <iframe title="map-preview" src={previewSrc} className={styles.previewFrame} />
@@ -143,7 +143,7 @@ const LocationPicker = ({ latitude, longitude, onChange, label = "موقع ال�
                 </button>
             )}
 
-            {/* إدخال يدوي */}
+
             <details className={styles.manual}>
                 <summary className={styles.manualTitle}>
                     <ChevronDown size={14} /> إدخال الإحداثيات يدوياً
@@ -162,7 +162,7 @@ const LocationPicker = ({ latitude, longitude, onChange, label = "موقع ال�
                 </div>
             </details>
 
-            {/* المودال */}
+
             {state.mapOpen && (
                 <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && dispatch({ type: "TOGGLE_MAP", payload: false })}>
                     <div className={styles.modal}>

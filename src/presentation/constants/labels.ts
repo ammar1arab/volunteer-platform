@@ -159,7 +159,7 @@ export const MONTH_LABELS: Record<number, string> = {
   12: "ديسمبر"
 };
 
-// Helper functions for components
+
 export const getGenderLabel = (gender: Gender) => GENDER_LABELS[gender] || gender;
 export const getEducationLevelLabel = (level: EducationLevel | string) => {
   if (level === "HIGH_SCHOOL") return "الصف الثاني عشر / توجيهي";

@@ -5,10 +5,10 @@ import { type QueryKey } from "@tanstack/react-query";
 import { useApiMutation } from "./useApiMutation";
 import { getErrorMessage } from "../utils/errors";
 
-/**
- * Mutation wrapper that preserves the project's boolean-return API
- * (`true` on success, `false` on failure) while tracking submitting/error.
- */
+
+
+
+
 export function useBooleanMutation<TVariables>(params: {
   request: (variables: TVariables) => Promise<unknown>;
   invalidateQueries?: QueryKey | QueryKey[];

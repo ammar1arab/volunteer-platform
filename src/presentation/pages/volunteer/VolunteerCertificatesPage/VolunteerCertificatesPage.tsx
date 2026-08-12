@@ -29,19 +29,19 @@ const VolunteerCertificatesPage = () => {
     <div className={styles.page}>
       <div className={styles.container}>
 
-        {/* Stats */}
-        {/* <div className={styles.statsRow}>
-          <div className={styles.statCard}>
-            <span className={`${styles.statValue} ${styles.green}`}>{certificates.length}</span>
-            <span className={styles.statLabel}>شهادة</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={`${styles.statValue} ${styles.green}`}>{totalHours}</span>
-            <span className={styles.statLabel}>ساعة تطوع</span>
-          </div>
-        </div> */}
 
-        {/* Toolbar */}
+
+
+
+
+
+
+
+
+
+
+
+
         <div className={styles.toolbar}>
           <Search
             value={searchQuery}
@@ -57,7 +57,7 @@ const VolunteerCertificatesPage = () => {
           />
         </div>
 
-        {/* Grid */}
+
         {filtered.length === 0 ? (
           <EmptyState
             icon={Award}

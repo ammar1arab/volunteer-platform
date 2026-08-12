@@ -144,7 +144,7 @@ export const useVolunteerActivitiesPage = () => {
         return;
       }
     } catch {
-      // Fall back to the smart default when session storage is unavailable.
+
     }
 
     if (stats.pending > 0) setActiveFilterState(ParticipationStatus.PENDING);

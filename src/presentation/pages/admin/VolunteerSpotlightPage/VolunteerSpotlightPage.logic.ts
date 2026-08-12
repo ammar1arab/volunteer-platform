@@ -163,7 +163,7 @@ export const useVolunteerSpotlightPage = () => {
       imageUrl: form.imageUrl,
       name: normalizeWhitespace(form.name),
       description: form.description.trim(),
-      // FIXED: Creates date on the 1st of the month, ignoring the day entirely
+
       spotlightDate: new Date(parseInt(form.year), parseInt(form.month) - 1, 1),
       city: form.city,
       isActive: form.isActive
@@ -186,7 +186,7 @@ export const useVolunteerSpotlightPage = () => {
     }
   }, [mode, form, create, update, resetForm, showToast]);
 
-  // Update this function inside useVolunteerSpotlightPage
+
   const openEdit = useCallback(
     (spotlight: VolunteerSpotlightDto) => {
       if (preview) revokeImagePreview(preview);
@@ -197,8 +197,8 @@ export const useVolunteerSpotlightPage = () => {
         imageUrl: spotlight.imageUrl,
         name: spotlight.name,
         description: spotlight.description,
-        month: String(date.getMonth() + 1), // Only Month
-        year: String(date.getFullYear()), // Only Year
+        month: String(date.getMonth() + 1),
+        year: String(date.getFullYear()),
         city: spotlight.city,
         isActive: spotlight.isActive
       });

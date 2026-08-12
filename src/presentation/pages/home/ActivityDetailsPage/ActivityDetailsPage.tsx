@@ -67,26 +67,26 @@ const ActivityDetailsPage = () => {
 
         <article className={styles.article}>
 
-          {/* ── Image col ── */}
+
           <div className={styles.imageCol}>
             <div className={styles.hero}>
               <Image src={activity.imageUrl} alt={activity.title} fill
                 className={styles.heroImage} priority sizes="(max-width: 600px) 100vw, 380px" />
 
-              {/* availability badge */}
+
               <div className={styles.heroBadges}>
                 {activity.isFull
                   ? <span className={styles.badgeFull}><XCircle size={12} /> مكتمل</span>
                   : <span className={styles.badgeOpen}><CheckCircle2 size={12} /> متاح</span>}
               </div>
 
-              {/* type chip — always visible */}
+
               <div className={`${styles.typeChip} ${isInPerson ? styles.inPerson : styles.online}`}>
                 {isInPerson ? <MapPinned size={10} /> : <Wifi size={10} />}
                 {getActivityTypeLabel(activity.activityType)}
               </div>
 
-              {/* share btn — always visible */}
+
               <Share
                 trigger={(openShare) => (
                   <button className={styles.shareBtn}
@@ -99,11 +99,11 @@ const ActivityDetailsPage = () => {
             </div>
           </div>
 
-          {/* ── Content col ── */}
+
           <div className={styles.content}>
             <h1 className={styles.title}>{activity.title}</h1>
 
-            {/* chips */}
+
             <div className={styles.chipsGrid}>
               <div className={styles.chip} data-type="date">
                 <div className={styles.chipIcon}><Calendar size={14} /></div>
@@ -135,7 +135,7 @@ const ActivityDetailsPage = () => {
               </div>
             </div>
 
-            {/* location / meeting row — always visible */}
+
             <div className={styles.locationCard}>
               {isInPerson ? (
                 <div className={styles.locationMain}>
@@ -162,7 +162,7 @@ const ActivityDetailsPage = () => {
                 </div>
               )}
 
-              {/* action button on the right */}
+
               {isInPerson && mapsUrl && (
                 <button className={styles.mapsBtn} onClick={() => setLocationModalOpen(true)}>
                   <MapPin size={12} /> افتح الخريطة
@@ -176,7 +176,7 @@ const ActivityDetailsPage = () => {
               )}
             </div>
 
-            {/* description */}
+
             <div className={styles.descriptionCard}>
               <h2 className={styles.descTitle}>عن الفرصة</h2>
               <div className={styles.markdownBody}>

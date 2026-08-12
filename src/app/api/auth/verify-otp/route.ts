@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const result = await providers.otp().verify(body);
     if (!result.success) return NextResponse.json(result);
 
-    // For forgot password: issue short-lived reset token, OTP is now consumed
+
     if (body.type === OtpType.FORGOT_PASSWORD) {
       const resetToken = await new SignJWT({ purpose: "password-reset" })
         .setProtectedHeader({ alg: "HS256" })

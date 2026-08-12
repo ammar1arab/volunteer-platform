@@ -67,7 +67,7 @@ export const useSignin = () => {
         const data = await check.json();
 
         if (data.needsVerification) {
-          // Fix #1: password in sessionStorage, never in URL
+
           sessionStorage.setItem("_vp", formData.password);
           router.push(`/verify-email?email=${encodeURIComponent(formData.email)}&flow=signin`);
           return;

@@ -27,6 +27,9 @@ model User {
   notifications     Notification[]
   volunteerProfile  VolunteerProfile?
   pushSubscriptions PushSubscription[]
+  presentedActivities ActivityPresenter[]   @relation("ActivityPresenterUser")
+  meetingIntegrations MeetingIntegration[]  @relation("MeetingIntegrationConnectedBy")
+  meetingAttendances  ActivityMeetingAttendee[] @relation("MeetingAttendeeUser")
 
 
   @@map("users")
@@ -84,14 +87,120 @@ model Activity {
   externalMeetingId String?
   meetingLink       String?
   meetingPlatform   String?
+  meetingLinkSource String                  @default("MANUAL")
+  meetingCode       String?
+  meetingSpaceName  String?
+  meetingSyncStatus String                  @default("NONE")
+  meetingSyncError  String?
+  meetingSyncedAt   DateTime?
+  timeZone          String                  @default("Asia/Amman")
   deletedAt         DateTime?
   creator           User                    @relation("ActivityCreator", fields: [createdBy], references: [id])
   participations    ActivityParticipation[]
   certificates      Certificate[]
+  presenters        ActivityPresenter[]
+  meetingReport     ActivityMeetingReport?
+  syncOperations    MeetingSyncOperation[]
 
   @@index([status, date])
   @@index([createdBy])
+  @@index([meetingSyncStatus])
   @@map("activities")
+}
+
+model ActivityPresenter {
+  id          String   @id @default(uuid())
+  activityId  String
+  presenterId String
+  role        String   @default("PRIMARY")
+  topic       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  activity    Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  presenter   User     @relation("ActivityPresenterUser", fields: [presenterId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, presenterId])
+  @@index([activityId])
+  @@index([presenterId])
+  @@map("activity_presenters")
+}
+
+model MeetingIntegration {
+  id                    String    @id @default(uuid())
+  provider              String    @unique @default("GOOGLE_MEET")
+  organizerEmail        String
+  calendarId            String    @default("primary")
+  encryptedRefreshToken String
+  scopes                String[]  @default([])
+  status                String    @default("CONNECTED")
+  lastError             String?
+  lastCheckedAt         DateTime?
+  connectedById         String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  connectedBy           User?     @relation("MeetingIntegrationConnectedBy", fields: [connectedById], references: [id], onDelete: SetNull)
+
+  @@map("meeting_integrations")
+}
+
+model MeetingSyncOperation {
+  id           String    @id @default(uuid())
+  activityId   String
+  type         String
+  status       String    @default("PENDING")
+  attempts     Int       @default(0)
+  payload      Json?
+  lastError    String?
+  dedupeKey    String    @unique
+  scheduledFor DateTime  @default(now())
+  processedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  activity     Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledFor])
+  @@index([activityId])
+  @@map("meeting_sync_operations")
+}
+
+model ActivityMeetingReport {
+  id             String                    @id @default(uuid())
+  activityId     String                    @unique
+  conferenceId   String?
+  startedAt      DateTime?
+  endedAt        DateTime?
+  status         String                    @default("PENDING")
+  lastError      String?
+  importedAt     DateTime?
+  reviewedAt     DateTime?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  activity       Activity                  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  attendees      ActivityMeetingAttendee[]
+
+  @@index([status])
+  @@map("activity_meeting_reports")
+}
+
+model ActivityMeetingAttendee {
+  id             String                @id @default(uuid())
+  reportId       String
+  displayName    String
+  signedInEmail  String?
+  matchedUserId  String?
+  matchStatus    String                @default("UNMATCHED")
+  attendedSeconds Int                  @default(0)
+  firstJoinedAt  DateTime?
+  lastLeftAt     DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  report         ActivityMeetingReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  matchedUser    User?                 @relation("MeetingAttendeeUser", fields: [matchedUserId], references: [id], onDelete: SetNull)
+
+  @@index([reportId])
+  @@index([matchedUserId])
+  @@map("activity_meeting_attendees")
 }
 
 model ActivityParticipation {

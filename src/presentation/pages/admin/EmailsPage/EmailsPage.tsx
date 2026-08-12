@@ -65,7 +65,7 @@ const EmailsPage = () => {
       <div className={styles.root}>
         <div className={styles.composer}>
 
-          {/* Step 1 */}
+
           <div className={styles.step}>
             <div className={styles.stepHead}>
               <span className={styles.stepNum}>١</span>
@@ -103,7 +103,7 @@ const EmailsPage = () => {
 
           <div className={styles.sep} />
 
-          {/* Step 2 */}
+
           <div className={styles.step}>
             <div className={styles.stepHead}>
               <span className={styles.stepNum}>٢</span>
@@ -172,7 +172,7 @@ const EmailsPage = () => {
 
           <div className={styles.sep} />
 
-          {/* Step 3 */}
+
           <div className={styles.step}>
             <div className={styles.stepHead}>
               <span className={styles.stepNum}>٣</span>
@@ -183,7 +183,7 @@ const EmailsPage = () => {
             </div>
             <div className={styles.stepBody}>
 
-              {/* Primary target */}
+
               <SelectInput
                 label="الاستهداف الأساسي"
                 value={form.target}
@@ -210,7 +210,7 @@ const EmailsPage = () => {
                 />
               )}
 
-              {/* Additional filters */}
+
               <div className={styles.extraFilters}>
                 <span className={styles.extraFiltersLabel}>فيلترات إضافية</span>
 

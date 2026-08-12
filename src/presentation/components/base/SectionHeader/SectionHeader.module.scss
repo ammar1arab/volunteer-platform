@@ -38,7 +38,7 @@
   border-radius: $radius-full;
   overflow: hidden;
 
-  /* حركة المسح الضوئي داخل الخط */
+
   &::after {
     content: "";
     position: absolute;

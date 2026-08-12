@@ -41,7 +41,7 @@ $mobile-break: 900px;
   position: relative;
 }
 
-// ── Caret indicator ───────────────────────────────────
+
 .caret {
   position: absolute;
   bottom: -9px;
@@ -95,7 +95,7 @@ $mobile-break: 900px;
   &.active { color: $green; font-weight: 750; }
 }
 
-// ── Auth placeholder (prevents layout shift during loading) ──
+
 .authPlaceholder {
   width: 34px;
   height: 34px;
@@ -103,20 +103,20 @@ $mobile-break: 900px;
   background: rgba($border, 0.4);
 }
 
-// ── Desktop actions ───────────────────────────────────
+
 .actions {
   @include flex(row, center, center, $sp-sm);
   @media (max-width: $mobile-break) { display: none; }
   position: relative;
 }
 
-// ── User menu wrapper ─────────────────────────────────
+
 .userMenuWrapper {
   position: relative;
   overflow: visible;
 }
 
-// avatar button — desktop
+
 .avatarBtn {
   @include flex-center;
   width: 34px;
@@ -135,7 +135,7 @@ $mobile-break: 900px;
   }
 }
 
-// avatar button — mobile
+
 .avatarBtnSm {
   @include flex-center;
   width: 30px;
@@ -173,7 +173,7 @@ $mobile-break: 900px;
   line-height: 1;
 }
 
-// ── Mobile bar ────────────────────────────────────────
+
 .mobileBar {
   display: none;
   @media (max-width: $mobile-break) {
@@ -206,7 +206,7 @@ $mobile-break: 900px;
   &:hover { background: rgba($green, 0.08); border-color: rgba($green, 0.35); }
 }
 
-// ── Mobile dropdown nav ───────────────────────────────
+
 .mobileMenu {
   display: none;
 

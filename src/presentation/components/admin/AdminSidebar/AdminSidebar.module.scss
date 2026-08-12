@@ -282,3 +282,78 @@ $row: 36px;
     transition: none;
   }
 }
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: min(280px, 84vw) !important;
+    background: $bg;
+    box-shadow: none;
+  }
+
+  .overlay {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: none;
+  }
+
+  .head {
+    height: 40px;
+    justify-content: flex-end;
+    padding: 0 6px;
+    border-bottom-color: $border;
+  }
+
+  .brand {
+    display: none;
+  }
+
+  .closeBtn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+  }
+
+  .nav {
+    padding: 4px;
+    gap: 1px;
+  }
+
+  .link {
+    height: 32px;
+    gap: 8px;
+    border-radius: 6px;
+
+    &:hover {
+      transform: none;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 0;
+      background: transparent;
+    }
+  }
+
+  .footer {
+    padding: 4px;
+    border-top-color: $border;
+  }
+
+  .logout {
+    height: 32px;
+    gap: 8px;
+    border-radius: 6px;
+
+    &:hover {
+      transform: none;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 0;
+      background: transparent;
+    }
+  }
+}

@@ -97,6 +97,10 @@
     background: rgba($green, 0.085);
     border-color: rgba($green, 0.2);
   }
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
 }
 
 .userName {

@@ -61,7 +61,7 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
     return rows.map((row) => this.mapToEntity(row));
   }
 
-  // Returns full participation entities for an activity (approved only)
+
   async findApprovedByActivity(activityId: string): Promise<ActivityParticipation[]> {
     const rows = await prisma.activityParticipation.findMany({
       where: { activityId, status: ParticipationStatus.APPROVED },
@@ -70,7 +70,7 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
     return rows.map((row) => this.mapToEntity(row));
   }
 
-  // Used by complete() to check if any approved are still NOT_MARKED
+
   async countNotMarked(activityId: string): Promise<number> {
     return prisma.activityParticipation.count({
       where: {
@@ -105,7 +105,7 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
     }
   }
 
-  // Used by admin volunteers modal — includes attendance info
+
   async findApprovedVolunteers(activityId: string): Promise<ApprovedVolunteerRow[]> {
     const rows = await prisma.activityParticipation.findMany({
       where: { activityId, status: ParticipationStatus.APPROVED },

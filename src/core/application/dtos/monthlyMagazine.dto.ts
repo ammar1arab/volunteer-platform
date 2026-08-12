@@ -1,6 +1,6 @@
 import type { Result } from "./base.dto";
 
-// ─── DTO ──────────────────────────────────────────────────────
+
 export interface MonthlyMagazineDto {
   id: string;
   title: string;
@@ -11,7 +11,7 @@ export interface MonthlyMagazineDto {
   updatedAt: string;
 }
 
-// ─── Create / Update ──────────────────────────────────────────
+
 export interface CreateMonthlyMagazineRequest {
   title: string;
   pdfUrl: string;
@@ -21,7 +21,7 @@ export interface CreateMonthlyMagazineRequest {
 
 export type UpdateMonthlyMagazineRequest = Partial<CreateMonthlyMagazineRequest>;
 
-// ─── Responses ────────────────────────────────────────────────
+
 export type CreateMonthlyMagazineResponse  = Result<{ magazine: MonthlyMagazineDto }>;
 export type UpdateMonthlyMagazineResponse  = Result<{ magazine: MonthlyMagazineDto }>;
 export type GetMonthlyMagazineResponse     = Result<{ magazine: MonthlyMagazineDto }>;

@@ -9,7 +9,7 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <IntroWrapper />
-      {/* Isolate notification polling so it cannot re-render page content every 10s */}
+
       <NotificationsProvider>
         <Header />
       </NotificationsProvider>

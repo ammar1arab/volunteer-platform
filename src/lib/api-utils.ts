@@ -36,7 +36,7 @@ const STATUS_MAP: Record<string, number> = {
 
 const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET!);
 
-// ─── Rate limit (per-instance, sufficient for Vercel Free serverless) ────────
+
 const _rlStore = new Map<string, { count: number; resetAt: number }>();
 
 export function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
@@ -51,10 +51,10 @@ export function checkRateLimit(key: string, limit: number, windowMs: number): bo
   return true;
 }
 
-// ─── CSRF origin check ────────────────────────────────────────────────────────
+
 export function csrfCheck(req: Request): NextResponse | null {
   const origin = req.headers.get("origin");
-  if (!origin) return null; // server-to-server — allow
+  if (!origin) return null;
 
   const allowed = (process.env.NEXTAUTH_URL ?? "").replace(/\/$/, "");
   if (allowed && origin.replace(/\/$/, "") !== allowed) {
@@ -64,7 +64,7 @@ export function csrfCheck(req: Request): NextResponse | null {
   return null;
 }
 
-// ─── Standard responses ───────────────────────────────────────────────────────
+
 export function toResponse(result: Result<unknown>, successStatus = 200) {
   const status = result.success ? successStatus : (STATUS_MAP[result.error?.code] ?? 400);
   return NextResponse.json(result, { status });

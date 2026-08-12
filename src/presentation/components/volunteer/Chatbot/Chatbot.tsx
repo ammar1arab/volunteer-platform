@@ -20,14 +20,14 @@ import {
 import styles from "./Chatbot.module.scss";
 import { AiBotIcon } from "./AiBotIcon";
 
-/* ─── Types ────────────────────────────────────────────────────────────────── */
+
 interface Message {
   id:      string;
   role:    "user" | "assistant";
   content: string;
 }
 
-/* ─── Constants ─────────────────────────────────────────────────────────────── */
+
 const WELCOME: Message = {
   id:      "welcome",
   role:    "assistant",
@@ -42,7 +42,7 @@ const SUGGESTIONS = [
   { label: "ما هي أنواع الأنشطة؟",    Icon: HelpCircle },
 ];
 
-/* ─── Helpers ───────────────────────────────────────────────────────────────── */
+
 function uid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -63,7 +63,7 @@ function renderContent(text: string) {
   });
 }
 
-/* ─── Component ─────────────────────────────────────────────────────────────── */
+
 export default function Chatbot() {
   const [isOpen,      setIsOpen]      = useState(false);
   const [messages,    setMessages]    = useState<Message[]>([WELCOME]);
@@ -186,7 +186,7 @@ export default function Chatbot() {
 
   return (
     <>
-      {/* Particles */}
+
       {particles.map((p) => (
         <span
           key={p.id}
@@ -197,7 +197,7 @@ export default function Chatbot() {
 
       <div className={styles.root} dir="rtl">
 
-        {/* ── Window ───────────────────────────────────────────────────────── */}
+
         {isOpen && (
           <div
             className={`${styles.window} ${isVisible ? styles.windowVisible : ""}`}
@@ -208,7 +208,7 @@ export default function Chatbot() {
             <div className={styles.blob1} aria-hidden />
             <div className={styles.blob2} aria-hidden />
 
-            {/* Header */}
+
             <header className={styles.header}>
               <div className={styles.headerLeft}>
                 <div className={styles.avatarRing}>
@@ -244,7 +244,7 @@ export default function Chatbot() {
               </div>
             </header>
 
-            {/* Messages */}
+
             <div className={styles.messages} aria-live="polite">
               {messages.map((msg, idx) => (
                 <div
@@ -293,7 +293,7 @@ export default function Chatbot() {
               <div ref={bottomRef} />
             </div>
 
-            {/* Input */}
+
             <form className={styles.inputRow} onSubmit={handleSubmit} noValidate>
               <div className={styles.inputWrap}>
                 <input
@@ -332,7 +332,7 @@ export default function Chatbot() {
           </div>
         )}
 
-        {/* ── FAB ─────────────────────────────────────────────────────────── */}
+
         <button
           className={`${styles.fab} ${isOpen ? styles.fabOpen : ""}`}
           onClick={(e) => {

@@ -1,11 +1,11 @@
-// ─── Base ─────────────────────────────────────────────────────
+
 export { ok, fail } from "./base.dto";
 export type { Result, ErrorPayload, ErrorDetails } from "./base.dto";
 
-// ─── Shared Fragments ─────────────────────────────────────────
+
 export type { UserSummaryDto, VolunteerProfileSummaryDto, ActivitySummaryDto } from "./shared.dto";
 
-// ─── Auth ─────────────────────────────────────────────────────
+
 export type {
   SignInRequest,
   SignInUserDto,
@@ -17,7 +17,7 @@ export type {
   SignInTokenResponse
 } from "./auth.dto";
 
-// ─── User ─────────────────────────────────────────────────────
+
 export type {
   UserProfileDto,
   GetUserProfileResponse,
@@ -35,7 +35,7 @@ export type {
   ToggleUserActiveResponse
 } from "./user.dto";
 
-// ─── Otp ────────────────────────────────────────
+
 export type {
   ForgotPasswordRequest,
   ForgotPasswordResponse,
@@ -47,7 +47,7 @@ export type {
   VerifyOtpResponse
 } from "./otp.dto";
 
-// ─── Volunteer Profile ────────────────────────────────────────
+
 export type {
   VolunteerProfileDto,
   GetVolunteerProfileResponse,
@@ -57,7 +57,7 @@ export type {
   UploadProfilePictureResponse
 } from "./volunteerProfile.dto";
 
-// ─── Activity ─────────────────────────────────────────────────
+
 export type {
   ActivityDto,
   CreateActivityRequest,
@@ -75,7 +75,7 @@ export type {
   CompleteActivityResponse
 } from "./activity.dto";
 
-// ─── Certification ────────────────────────────────────────────
+
 export type {
   CertificateDto,
   CertificateWithTotalHoursDto,
@@ -83,7 +83,7 @@ export type {
   GetUserCertificatesResponse
 } from "./certificate.dto";
 
-// ─── Participation ────────────────────────────────────────────
+
 export type {
   ActivityParticipationDto,
   CreateJoinRequestResponse,
@@ -98,7 +98,7 @@ export type {
   BulkMarkAttendanceResponse
 } from "./participation.dto";
 
-// ─── Featured Post ────────────────────────────────────────────
+
 export type {
   FeaturedPostDto,
   CreateFeaturedPostRequest,
@@ -110,7 +110,7 @@ export type {
   DeleteFeaturedPostResponse
 } from "./featuredPost.dto";
 
-// ─── Volunteer Spotlight ────────────────────────────────────────────
+
 export type {
   VolunteerSpotlightDto,
   CreateVolunteerSpotlightRequest,
@@ -133,7 +133,7 @@ export type {
   UpdateMonthlyMagazineResponse
 } from "./monthlyMagazine.dto";
 
-// ─── Email ────────────────────────────────────────────
+
 export type {
   EmailAlias,
   EmailRecipientDto,
@@ -145,7 +145,7 @@ export type {
   SendBulkEmailInput
 } from "./email.dto";
 
-// ─── Notification ────────────────────────────────────────────
+
 export type {
   GetUnreadNotificationsResponse,
   MarkAsReadResponse,

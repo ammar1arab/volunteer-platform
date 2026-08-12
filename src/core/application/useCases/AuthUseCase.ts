@@ -137,7 +137,7 @@ class AuthUseCase {
 
       const user = await this.userRepository.findByEmail(emailStr);
 
-      // Always return success — never reveal if email exists
+
       if (!user || user.role !== UserRole.VOLUNTEER || !user.isActiveAccount()) {
         logger.info(AuthUseCase.SCOPE, "forgotPassword", `Account not found/inactive for: ${emailStr}`);
         return ok({ cooldownSeconds: 60 });
@@ -153,7 +153,7 @@ class AuthUseCase {
     }
   }
 
-  // Token verified at API layer — this only resets the password
+
   async resetPassword(email: string, newPassword: string): Promise<ResetPasswordResponse> {
     try {
       const emailStr = InputSanitizer.sanitizeEmail(email);
@@ -179,7 +179,7 @@ class AuthUseCase {
   async checkVerified(email: string): Promise<{ needsVerification: boolean; message?: string }> {
     const emailStr = InputSanitizer.sanitizeEmail(email);
     const user = await this.userRepository.findByEmail(emailStr);
-    // Unified message — never reveal suspended vs non-existent
+
     if (!user || !user.isActiveAccount())
       return { needsVerification: false, message: "بريد إلكتروني أو كلمة مرور غير صحيحة" };
     if (user.role === UserRole.VOLUNTEER && !user.emailVerified) return { needsVerification: true };

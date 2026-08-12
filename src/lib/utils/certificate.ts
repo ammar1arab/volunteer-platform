@@ -1,11 +1,11 @@
 export async function downloadCertificateAsPng(apiEndpoint: string, name: string): Promise<void> {
-  // 1. Fetch the presigned URL from our API (needs auth credentials)
+
   const apiRes = await fetch(apiEndpoint, { credentials: "include" });
   if (!apiRes.ok) throw new Error("Failed to get download URL");
   
   const { url } = await apiRes.json();
 
-  // 2. Fetch the actual file from Cloudflare R2 (NO credentials needed)
+
   const fileRes = await fetch(url); 
   if (!fileRes.ok) throw new Error("Download failed from storage");
   
@@ -20,13 +20,13 @@ export async function downloadCertificateAsPng(apiEndpoint: string, name: string
 }
 
 export async function downloadCertificateAsPdf(apiEndpoint: string, name: string): Promise<void> {
-  // 1. Fetch the presigned URL from our API (needs auth credentials)
+
   const apiRes = await fetch(apiEndpoint, { credentials: "include" });
   if (!apiRes.ok) throw new Error("Failed to get download URL");
   
   const { url } = await apiRes.json();
 
-  // 2. Fetch the actual file from Cloudflare R2 (NO credentials needed)
+
   const fileRes = await fetch(url);
   if (!fileRes.ok) throw new Error("Download failed from storage");
   

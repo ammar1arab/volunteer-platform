@@ -77,26 +77,26 @@ const ActivityItem = ({
     <>
       <div className={styles.card}>
 
-        {/* ── Left accent bar ── */}
+
         <div className={`${styles.accent} ${styles[accent]}`} />
 
         <div className={styles.body}>
 
-          {/* ── Top row ── */}
+
           <div className={styles.topRow}>
             <div className={styles.chips}>
-              {/* participation status */}
+
               <span className={`${styles.statusChip} ${styles[accent]}`}>
                 {getParticipationStatusLabel(status)}
               </span>
-              {/* activity type */}
+
               {activityType && (
                 <span className={isOnline ? styles.typeBadgeOnline : styles.typeBadgeInPerson}>
                   {isOnline ? <Wifi size={10} /> : <MapPin size={10} />}
                   {getActivityTypeLabel(activityType)}
                 </span>
               )}
-              {/* attendance */}
+
               {attended && (
                 <span className={styles.attendedBadge}>
                   <CheckCircle2 size={10} />
@@ -111,7 +111,7 @@ const ActivityItem = ({
               )}
             </div>
 
-            {/* volunteer hours pill */}
+
             {volunteerHours != null && volunteerHours > 0 && (
               <span className={styles.hoursPill}>
                 <Award size={11} />
@@ -120,11 +120,11 @@ const ActivityItem = ({
             )}
           </div>
 
-          {/* ── Title ── */}
+
           <h3 className={styles.title}>{title}</h3>
           <p className={styles.description}>{description}</p>
 
-          {/* ── Meta row ── */}
+
           <div className={styles.metaRow}>
             <span className={styles.meta}><Calendar size={12} />{fmt(date)}</span>
             <span className={styles.meta}><Clock size={12} />{startTime} – {endTime}</span>
@@ -139,9 +139,9 @@ const ActivityItem = ({
             )}
           </div>
 
-          {/* ── Actions row ── */}
+
           <div className={styles.actionsRow}>
-            {/* left side — links */}
+
             <div className={styles.links}>
               {isOnline && meetingUrl && (
                 <a href={meetingUrl} target="_blank" rel="noopener noreferrer" className={styles.linkBtn}>
@@ -158,7 +158,7 @@ const ActivityItem = ({
               )}
             </div>
 
-            {/* right side — action buttons */}
+
             <div className={styles.btnGroup}>
               {canCancel(status, activityStatus) && onCancel && (
                 <button className={styles.btnCancel} disabled={actionLoading} onClick={onCancel}>
@@ -173,7 +173,7 @@ const ActivityItem = ({
             </div>
           </div>
 
-          {/* ── Footer dates ── */}
+
           <div className={styles.footerDates}>
             <span>طلب: {fmt(requestedAt)}</span>
             {respondedAt && <span>استجابة: {fmt(respondedAt)}</span>}
@@ -185,7 +185,7 @@ const ActivityItem = ({
 
       </div>
 
-      {/* ── Location Modal ── */}
+
       {hasMap && mapUrl && (
         <Modal isOpen={locationModalOpen} onClose={() => setLocationModalOpen(false)} title={placeName ?? "الموقع"} size="sm">
           <div className={styles.locActions}>

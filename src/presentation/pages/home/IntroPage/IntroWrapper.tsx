@@ -10,7 +10,7 @@ export default function IntroWrapper() {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    // يظهر فقط في الصفحة الرئيسية
+
     if (pathname === "/") setActive(true);
   }, [pathname]);
 

@@ -76,7 +76,7 @@ class OtpUseCase {
 
       if (!record) return fail("INVALID_OTP", "الرمز غير صحيح أو منتهي الصلاحية");
 
-      // 1. Validate Code
+
       if (record.code !== dto.code.trim()) {
         const attempts = await this.otpRepository.incrementAttempts(record.id);
         if (attempts >= MAX_ATTEMPTS) {

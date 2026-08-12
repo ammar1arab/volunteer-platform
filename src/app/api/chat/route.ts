@@ -57,7 +57,7 @@ export async function POST(req: Request): Promise<Response> {
     return textStream(MSG_ERROR);
   }
 
-  // Per-IP rate limit: 20 requests / minute
+
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
   if (!checkRateLimit(`chat:${ip}`, 20, 60_000)) {
     return textStream(MSG_RATE_LIMIT);
@@ -83,7 +83,7 @@ export async function POST(req: Request): Promise<Response> {
     ...validMessages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
   ];
 
-  // Try primary model, auto-fallback to fast model on rate limit
+
   let streamResponse: Awaited<ReturnType<typeof callGroq>>;
   let modelUsed = MODEL_PRIMARY;
 

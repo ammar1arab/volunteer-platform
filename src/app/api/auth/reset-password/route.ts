@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     if (!body?.resetToken || !body?.newPassword)
       return badRequest("resetToken and newPassword are required");
 
-    // Verify short-lived reset token
+
     let email: string;
     try {
       const { payload } = await jwtVerify(body.resetToken, secret);

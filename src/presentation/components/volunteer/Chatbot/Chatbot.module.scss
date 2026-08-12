@@ -1,7 +1,7 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-// ─── Local supplements (not in variables) ────────────────────────────────────
+
 $green-dark: #15803d;
 $green-light: #4ade80;
 $slate-900: #0f172a;
@@ -15,9 +15,9 @@ $t-fast: 160ms cubic-bezier(0.4, 0, 0.2, 1);
 $t-med: 280ms cubic-bezier(0.4, 0, 0.2, 1);
 $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  KEYFRAMES
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 @keyframes fadeUp {
   from {
@@ -198,7 +198,7 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-// AI Bot icon keyframes ───────────────────────────────────────────────────────
+
 
 @keyframes orbitSpin {
   from {
@@ -273,9 +273,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  PARTICLES
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .particle {
   position: fixed;
@@ -335,9 +335,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  ROOT
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .root {
   position: fixed;
@@ -352,9 +352,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  WINDOW
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .window {
   position: relative;
@@ -418,9 +418,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  HEADER
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .header {
   position: relative;
@@ -533,9 +533,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  MESSAGES
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .messages {
   flex: 1;
@@ -592,7 +592,7 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 2px 8px rgba($green, 0.35);
 }
 
-// ─── Bubbles ──────────────────────────────────────────────────────────────────
+
 
 .bubble {
   padding: 0.6rem $sp-md;
@@ -631,7 +631,7 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-// ─── Typing dots ──────────────────────────────────────────────────────────────
+
 
 .typing {
   @include flex(row, center, flex-start, 5px);
@@ -653,9 +653,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  CHIPS
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .chips {
   @include flex(row, center, flex-start, $sp-xs);
@@ -703,9 +703,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   line-height: 1;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  INPUT ROW
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .inputRow {
   @include flex(row, center, flex-start, $sp-sm);
@@ -810,9 +810,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  FOOTER
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .footerBrand {
   text-align: center;
@@ -827,9 +827,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 2;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  FAB
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .fab {
   position: relative;
@@ -876,8 +876,8 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
       background: linear-gradient(135deg, $slate-700 0%, $slate-800 100%);
     }
 
-    // On mobile the window is full-screen — hide the FAB so it doesn't
-    // block the input. The header's ChevronDown handles closing.
+
+
     @media (max-width: $bp-sm) {
       display: none;
     }
@@ -938,9 +938,9 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 2px 6px rgba($red, 0.5);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AI BOT ICON
-// ─────────────────────────────────────────────────────────────────────────────
+
+
+
 
 .aiBotIcon {
   width: 36px;
@@ -950,7 +950,7 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   animation: aiBotGlow 3s ease-in-out infinite;
 }
 
-// Orbit groups — rotate around SVG centre (20,20) via view-box transform-origin
+
 .orbitG1,
 .orbitG2,
 .orbitG3 {
@@ -965,14 +965,14 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   animation-delay: -2.334s;
 }
 
-// Antenna pulsing tip
+
 .antennaDot {
   transform-box: fill-box;
   transform-origin: center;
   animation: antennaBlink 2.2s ease-in-out infinite;
 }
 
-// Eyes — blink from centre
+
 .eyeLeft {
   transform-box: fill-box;
   transform-origin: center;
@@ -984,12 +984,12 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
   animation: eyeBlink 5s ease-in-out infinite 0.15s;
 }
 
-// Scanning line sweeps down the head
+
 .scanLine {
   animation: scanDown 3.5s ease-in-out infinite;
 }
 
-// Frequency mouth bars — scale from bottom like a real equaliser
+
 .mBar1,
 .mBar2,
 .mBar3,

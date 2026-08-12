@@ -6,7 +6,10 @@ import {
   ActivityStatus,
   ActivityType,
   DomainFeaturedPostCategory,
-  JordanianCity
+  JordanianCity,
+  MeetingLinkSource,
+  MeetingSyncStatus,
+  MeetingPlatform
 } from "@/core/domain/enums";
 
 class Activity extends BaseEntity {
@@ -41,9 +44,18 @@ class Activity extends BaseEntity {
       meetingLink: props.meetingLink?.trim() ?? null,
       categories: props.categories ?? [],
       externalMeetingId: props.externalMeetingId ?? null,
+      meetingLinkSource: props.meetingLinkSource ?? MeetingLinkSource.MANUAL,
+      meetingCode: props.meetingCode ?? null,
+      meetingSpaceName: props.meetingSpaceName ?? null,
+      meetingSyncStatus: props.meetingSyncStatus ?? MeetingSyncStatus.NONE,
+      meetingSyncError: props.meetingSyncError ?? null,
+      meetingSyncedAt: props.meetingSyncedAt ?? null,
+      timeZone: props.timeZone?.trim() || Activity.DEFAULT_TIME_ZONE,
       deletedAt: props.deletedAt ?? null
     };
   }
+
+  static readonly DEFAULT_TIME_ZONE = "Asia/Amman";
 
   static reconstitute(props: ActivityProps): Activity {
     return new Activity(props);
@@ -57,7 +69,9 @@ class Activity extends BaseEntity {
       if (!input.city) throw new Error("City is required for in-person activities");
     }
     if (input.activityType === ActivityType.ONLINE) {
-      if (!input.meetingLink?.trim()) throw new Error("Meeting link is required for online activities");
+      const isAutomatic = input.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO;
+      if (!isAutomatic && !input.meetingLink?.trim())
+        throw new Error("Meeting link is required for online activities");
     }
 
     return new Activity({
@@ -118,6 +132,76 @@ class Activity extends BaseEntity {
     return this.props.currentVolunteers >= this.props.maxVolunteers;
   }
 
+  usesAutomaticMeeting(): boolean {
+    return (
+      this.props.activityType === ActivityType.ONLINE &&
+      this.props.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO
+    );
+  }
+
+  enableAutomaticMeeting(): void {
+    if (this.props.activityType !== ActivityType.ONLINE)
+      throw new Error("Automatic meetings are only available for online activities");
+    this.props.meetingLinkSource = MeetingLinkSource.GOOGLE_MEET_AUTO;
+    this.props.meetingPlatform = MeetingPlatform.GOOGLE_MEET;
+    this.props.meetingSyncStatus = MeetingSyncStatus.PENDING;
+    this.props.meetingSyncError = null;
+    this.touch();
+  }
+
+  markMeetingSyncPending(): void {
+    if (!this.usesAutomaticMeeting()) return;
+    this.props.meetingSyncStatus = MeetingSyncStatus.PENDING;
+    this.props.meetingSyncError = null;
+    this.touch();
+  }
+
+  attachProvisionedMeeting(input: {
+    meetingLink: string;
+    externalMeetingId: string;
+    meetingCode: string | null;
+    meetingSpaceName: string | null;
+  }): void {
+    if (!input.meetingLink?.trim()) throw new Error("Provisioned meeting link is required");
+    if (!input.externalMeetingId?.trim()) throw new Error("Provisioned meeting id is required");
+
+    this.props.meetingLink = input.meetingLink.trim();
+    this.props.externalMeetingId = input.externalMeetingId.trim();
+    this.props.meetingCode = input.meetingCode?.trim() ?? null;
+    this.props.meetingSpaceName = input.meetingSpaceName?.trim() ?? null;
+    this.props.meetingPlatform = MeetingPlatform.GOOGLE_MEET;
+    this.props.meetingLinkSource = MeetingLinkSource.GOOGLE_MEET_AUTO;
+    this.props.meetingSyncStatus = MeetingSyncStatus.SYNCED;
+    this.props.meetingSyncError = null;
+    this.props.meetingSyncedAt = new Date();
+    this.touch();
+  }
+
+  markMeetingSyncFailed(reason: string): void {
+    this.props.meetingSyncStatus = MeetingSyncStatus.FAILED;
+    this.props.meetingSyncError = reason.slice(0, 500);
+    this.touch();
+  }
+
+  markMeetingCancelled(): void {
+    this.props.meetingSyncStatus = MeetingSyncStatus.CANCELLED;
+    this.props.meetingSyncError = null;
+    this.props.meetingSyncedAt = new Date();
+    this.touch();
+  }
+
+  detachMeeting(): void {
+    this.props.meetingLink = null;
+    this.props.externalMeetingId = null;
+    this.props.meetingCode = null;
+    this.props.meetingSpaceName = null;
+    this.props.meetingLinkSource = MeetingLinkSource.MANUAL;
+    this.props.meetingSyncStatus = MeetingSyncStatus.NONE;
+    this.props.meetingSyncError = null;
+    this.props.meetingSyncedAt = null;
+    this.touch();
+  }
+
   canBeEdited(): boolean {
     return (
       this.props.status === ActivityStatus.DRAFT ||
@@ -158,10 +242,13 @@ class Activity extends BaseEntity {
       changed = true;
     }
 
+    let scheduleChanged = false;
+
     if (input.startTime !== undefined || input.endTime !== undefined) {
       const newStart = input.startTime ?? this.props.startTime;
       const newEnd = input.endTime ?? this.props.endTime;
       if (!new Time(newStart).isBefore(new Time(newEnd))) throw new Error("Start time must be before end time");
+      scheduleChanged = newStart !== this.props.startTime || newEnd !== this.props.endTime;
       this.props.startTime = newStart;
       this.props.endTime = newEnd;
       changed = true;
@@ -177,6 +264,7 @@ class Activity extends BaseEntity {
       changed = true;
     }
     if (input.date !== undefined) {
+      scheduleChanged = scheduleChanged || input.date.getTime() !== this.props.date.getTime();
       this.props.date = input.date;
       changed = true;
     }
@@ -216,10 +304,26 @@ class Activity extends BaseEntity {
       this.props.activityType = input.activityType;
       changed = true;
     }
+    if (input.meetingLinkSource !== undefined) {
+      this.props.meetingLinkSource = input.meetingLinkSource;
+      changed = true;
+    }
+    if (input.timeZone !== undefined) {
+      scheduleChanged = scheduleChanged || input.timeZone !== this.props.timeZone;
+      this.props.timeZone = input.timeZone?.trim() || Activity.DEFAULT_TIME_ZONE;
+      changed = true;
+    }
     if (input.isActive !== undefined) {
       this.setActive(input.isActive);
       this.props.isActive = this.isActive;
       changed = true;
+    }
+
+    if (input.title !== undefined || input.description !== undefined) scheduleChanged = true;
+
+    if (scheduleChanged && this.usesAutomaticMeeting() && this.props.externalMeetingId) {
+      this.props.meetingSyncStatus = MeetingSyncStatus.PENDING;
+      this.props.meetingSyncError = null;
     }
 
     if (changed) this.touch();

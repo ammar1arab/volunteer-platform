@@ -11,7 +11,7 @@ function shouldRetry(failureCount: number, error: Error): boolean {
   return failureCount < 2;
 }
 
-/** Factory — always create a client per browser session (never share across SSR requests). */
+
 export function createQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {

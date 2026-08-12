@@ -65,30 +65,26 @@ export function buildCertificateHtml(
       overflow: hidden;
     }
 
-    /* ── Borders ── */
     .b-outer { position: absolute; inset: 0;    border: 12px solid #15803d; pointer-events: none; }
     .b-mid   { position: absolute; inset: 12px; border: 3px  solid #c9a84c; pointer-events: none; }
     .b-inner { position: absolute; inset: 25px; border: 1px  solid #c9a84c; pointer-events: none; }
 
-    /* ── Corners ── */
     .corner { position: absolute; width: 60px; height: 60px; }
     .c-tl { top: 15px;    left: 15px;  border-top:    8px solid #c9a84c; border-left:   8px solid #c9a84c; }
     .c-tr { top: 15px;    right: 15px; border-top:    8px solid #c9a84c; border-right:  8px solid #c9a84c; }
     .c-bl { bottom: 15px; left: 15px;  border-bottom: 8px solid #c9a84c; border-left:   8px solid #c9a84c; }
     .c-br { bottom: 15px; right: 15px; border-bottom: 8px solid #c9a84c; border-right:  8px solid #c9a84c; }
 
-    /* ── Content ── */
     .content {
       position: relative;
       z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-padding: 50px 80px 60px;
+      padding: 50px 80px 60px;
       height: 100%;
     }
 
-    /* ── Logo ── */
     .logo-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; }
     .logo-circle {
       width: 90px; height: 90px;
@@ -102,14 +98,12 @@ padding: 50px 80px 60px;
     .org-ar { font-size: 17px; font-weight: 700; color: #15803d; margin-top: 8px; text-align: center; }
     .org-en { font-size: 9px; color: #c9a84c; letter-spacing: 2px; font-weight: 700; direction: ltr; margin-top: 2px; }
 
-    /* ── Title row ── */
     .title-row { display: flex; align-items: center; width: 100%; margin-bottom: 10px; }
     .title-line { flex: 1; height: 2px; }
     .line-r { background: linear-gradient(to right, transparent, #c9a84c); }
     .line-l { background: linear-gradient(to left,  transparent, #c9a84c); }
     .title-text { font-size: 42px; font-weight: 900; color: #15803d; margin: 0 26px; white-space: nowrap; }
 
-    /* ── Body ── */
     .text-c { font-size: 15px; color: #4b5563; text-align: center; }
 
     .vol-name {
@@ -130,7 +124,6 @@ padding: 50px 80px 60px;
     }
     .activity-title { font-size: 26px; font-weight: 700; color: #111827; text-align: center; }
 
-    /* ── Stats ── */
     .stats { display: flex; align-items: center; gap: 36px; margin-bottom: 12px; }
     .stat  { display: flex; flex-direction: column; align-items: center; }
     .stat-label { font-size: 10px; color: #a07800; font-weight: 700; }
@@ -138,10 +131,8 @@ padding: 50px 80px 60px;
     .stat-id    { font-size: 12px; font-weight: 700; color: #15803d; direction: ltr; }
     .vdiv { width: 1px; height: 36px; background: #e5e7eb; }
 
-    /* ── Quote ── */
     .quote { font-size: 11px; color: #6b7280; text-align: center; }
 
-    /* ── Footer ── */
     .footer { margin-top: auto; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; }
     .f-l { display: flex; flex-direction: column; align-items: flex-start; }
     .f-c { display: flex; flex-direction: column; align-items: center; }
@@ -157,7 +148,6 @@ padding: 50px 80px 60px;
     .verify-phone   { font-size: 9px; color: #6b7280; direction: ltr; }
     .verify-digital { font-size: 9px; color: #ef4444; font-weight: 700; margin-top: 4px; }
 
-    /* ── Deco bar ── */
     .deco-bar { position: absolute; bottom: 20px; left: 100px; right: 100px; height: 5px; display: flex; }
     .d-green { flex: 1; background: #15803d; }
     .d-gold  { flex: 1; background: #c9a84c; }

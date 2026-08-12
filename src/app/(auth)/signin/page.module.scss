@@ -9,7 +9,7 @@
 
 .card {
   position: relative;
-  width: min(460px, 100%);  // or min(400px, 100%) depending on page
+  width: min(460px, 100%);
   box-sizing: border-box;
   border: 1px solid $border;
   border-radius: $radius-lg;

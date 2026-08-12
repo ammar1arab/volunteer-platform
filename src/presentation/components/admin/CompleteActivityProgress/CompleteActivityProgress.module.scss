@@ -1,7 +1,7 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
-// ── Keyframes ─────────────────────────────────────────
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -54,7 +54,7 @@
   100% { transform: translateY(50px) rotate(540deg) scale(0); opacity: 0; }
 }
 
-// ── Wrapper ──────────────────────────────────────────
+
 .wrapper {
   @include flex-col;
   gap: $sp-md;
@@ -70,7 +70,7 @@
   animation: fadeUp 0.3s ease;
 }
 
-// ── Progress bar ─────────────────────────────────────
+
 .progressTrack {
   width: 100%;
   height: 6px;
@@ -95,7 +95,7 @@
   animation: barShimmer 2s linear infinite;
 }
 
-// ── Steps ────────────────────────────────────────────
+
 .steps {
   @include flex-col;
   gap: 0;
@@ -144,11 +144,11 @@
   }
 }
 
-// Vertical connector between steps
+
 .connector {
   position: absolute;
   top: calc(100% - $sp-xs);
-  right: calc($sp-sm + 16px); // aligns with icon center
+  right: calc($sp-sm + 16px);
   width: 2px;
   height: calc($sp-sm + $sp-xs + 6px);
   background: $border;
@@ -201,7 +201,7 @@
   transition: color 0.3s ease;
 }
 
-// ── Celebration ──────────────────────────────────────
+
 .celebration {
   @include flex(column, center, center, $sp-sm);
   flex: 1;
@@ -212,7 +212,7 @@
   overflow: hidden;
 }
 
-// Floating sparkle dots
+
 .celebration::before,
 .celebration::after {
   content: "✦";

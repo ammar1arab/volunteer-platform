@@ -40,9 +40,9 @@ const AboutSection = () => {
               <br />
               يخلد في <span className={styles.redText}>بصمة الأردن</span>
             </h2>
-            {/* <p className={styles.subtitle}>
-              مبادرة بدأت بحلم شبابي بسيط، واليوم نصل لكل محافظات المملكة لنرسم خارطة جديدة من العطاء المستدام والتمكين الحقيقي.
-            </p> */}
+
+
+
           </div>
 
           <div className={styles.visual}>

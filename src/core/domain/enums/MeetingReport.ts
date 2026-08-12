@@ -1,0 +1,14 @@
+export enum MeetingReportStatus {
+  PENDING = "PENDING",
+  IMPORTED = "IMPORTED",
+  REVIEWED = "REVIEWED",
+  UNAVAILABLE = "UNAVAILABLE",
+  FAILED = "FAILED"
+}
+
+export enum MeetingAttendeeMatchStatus {
+  UNMATCHED = "UNMATCHED",
+  MATCHED = "MATCHED",
+  CONFIRMED = "CONFIRMED",
+  REJECTED = "REJECTED"
+}

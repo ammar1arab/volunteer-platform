@@ -5,7 +5,9 @@ import {
   DayOfWeek,
   DomainFeaturedPostCategory,
   JordanianCity,
-  MeetingPlatform
+  MeetingPlatform,
+  MeetingLinkSource,
+  MeetingSyncStatus
 } from "@/core/domain/enums";
 
 export interface ActivityProps extends BaseEntityProps {
@@ -25,14 +27,21 @@ export interface ActivityProps extends BaseEntityProps {
   createdBy: string;
   deletedAt: Date | null;
 
-  // IN_PERSON
+
   placeName: string | null;
   city: JordanianCity | null;
   latitude: number | null;
   longitude: number | null;
 
-  // ONLINE
+
   meetingLink: string | null;
   meetingPlatform: MeetingPlatform | null;
   externalMeetingId: string | null;
+  meetingLinkSource: MeetingLinkSource;
+  meetingCode: string | null;
+  meetingSpaceName: string | null;
+  meetingSyncStatus: MeetingSyncStatus;
+  meetingSyncError: string | null;
+  meetingSyncedAt: Date | null;
+  timeZone: string;
 }

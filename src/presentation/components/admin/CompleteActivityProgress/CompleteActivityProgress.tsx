@@ -38,7 +38,7 @@ const CompleteActivityProgress = ({ steps, isDone, issuedCount, activityTitle, o
   return (
     <div className={styles.wrapper}>
 
-      {/* ── Progress bar ── */}
+
       <div className={styles.progressTrack}>
         <div className={styles.progressFill} style={{ width: `${progress}%` }} />
       </div>
@@ -49,7 +49,7 @@ const CompleteActivityProgress = ({ steps, isDone, issuedCount, activityTitle, o
             {isDone ? 'اكتمل كل شيء!' : 'يعمل النظام في الخلفية لا تغلق الصفحة'}
           </p>
 
-          {/* ── Steps ── */}
+
           <div className={styles.steps}>
             {steps.map((step, i) => (
               <div
@@ -57,32 +57,32 @@ const CompleteActivityProgress = ({ steps, isDone, issuedCount, activityTitle, o
                 className={`${styles.step} ${styles[step.status]}`}
                 style={{ animationDelay: `${i * 0.08}s` }}
               >
-                {/* connector line */}
+
                 {i < steps.length - 1 && (
                   <div className={`${styles.connector} ${step.status === 'done' ? styles.connectorDone : ''}`} />
                 )}
 
-                {/* icon circle */}
+
                 <div className={styles.iconCircle}>
                   {step.status === 'done' && <CheckCircle2 size={16} />}
                   {step.status === 'running' && <Loader2 size={16} className={styles.spin} />}
                   {step.status === 'waiting' && <Clock size={15} />}
                 </div>
 
-                {/* text */}
+
                 <div className={styles.stepText}>
                   <span className={styles.stepLabel}>{step.label}</span>
                   <span className={styles.stepSub}>{step.sublabel}</span>
                 </div>
 
-                {/* step icon (decorative) */}
+
                 <div className={styles.stepIcon}>{step.icon}</div>
               </div>
             ))}
           </div>
         </>
       ) : (
-        /* ── Celebration state ── */
+
         <div className={styles.celebration}>
           <div className={styles.celebrationIcon}>
             <PartyPopper size={40} />
@@ -104,7 +104,7 @@ const CompleteActivityProgress = ({ steps, isDone, issuedCount, activityTitle, o
   );
 };
 
-// Factory for default steps
+
 export function buildProgressSteps(
   phase: 'idle' | 'running' | 'done',
   runningStepId?: string,

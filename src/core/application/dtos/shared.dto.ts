@@ -34,12 +34,12 @@ export interface ActivitySummaryDto {
   status: string;
   maxVolunteers: number;
   currentVolunteers: number;
-  // IN_PERSON
+
   placeName: string | null;
   city: string | null;
   latitude: number | null;
   longitude: number | null;
-  // ONLINE
+
   meetingLink: string | null;
   meetingPlatform: string | null;
   externalMeetingId: string | null;

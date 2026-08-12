@@ -7,7 +7,7 @@
   margin-bottom: $sp-md;
 }
 
-/* ---------- Label ---------- */
+
 .label {
   font-size: $font-sm;
   font-weight: 500;
@@ -25,7 +25,7 @@
   color: rgba($red, 0.75);
 }
 
-/* ---------- Container ---------- */
+
 .inputContainer {
   position: relative;
   width: 100%;
@@ -47,7 +47,7 @@
   }
 }
 
-/* ---------- Input ---------- */
+
 .input {
   width: 100%;
   padding: 12px 42px 12px 14px;
@@ -68,7 +68,7 @@
   direction: ltr;
   text-align: left;
 
-  /* mobile width 80% */
+
   @media (max-width: 776px) {
   width: 80%;
   margin-inline: auto;
@@ -90,7 +90,7 @@
     color: #9ca3af;
   }
 
-  /* Hide native icon but keep modal */
+
   &::-webkit-calendar-picker-indicator {
     position: absolute;
     inset: 0;
@@ -101,7 +101,7 @@
   }
 }
 
-/* ---------- Icon ---------- */
+
 .icon {
   position: absolute;
   right: 14px;
@@ -120,7 +120,7 @@
   }
 }
 
-/* ---------- Error ---------- */
+
 .errorText {
   font-size: $font-xs;
   color: $red;

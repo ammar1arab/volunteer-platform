@@ -19,7 +19,7 @@ export default function AdminLayoutClient({ children, isSuperAdmin, permissions 
     try {
       if (localStorage.getItem(COLLAPSE_KEY) === "1") setCollapsed(true);
     } catch {
-      /* ignore */
+
     }
   }, []);
 
@@ -29,7 +29,7 @@ export default function AdminLayoutClient({ children, isSuperAdmin, permissions 
       try {
         localStorage.setItem(COLLAPSE_KEY, next ? "1" : "0");
       } catch {
-        /* ignore */
+
       }
       return next;
     });

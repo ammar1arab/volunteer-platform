@@ -97,8 +97,8 @@ export const useVolunteersModal = (
 
   const volunteers = useMemo(
     () => applyAttendanceOverrides(activityId, serverList, rejectedIds),
-    // overrideTick forces recompute after attendance edits
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+
     [activityId, serverList, rejectedIds, overrideTick]
   );
 

@@ -17,10 +17,10 @@ export type CompletionState =
   | { phase: "error"; message: string };
 
 const STEP_DURATIONS: Record<string, number> = {
-  generate: 60_000, // ← was 10s — Chromium download + PNG generation = ~60s
-  upload: 15_000, // ← was 12s — two R2 uploads in parallel
-  save: 5_000, // ← was 4s  — DB transaction
-  email: 8_000 // ← was 6s  — Resend batch
+  generate: 60_000,
+  upload: 15_000,
+  save: 5_000,
+  email: 8_000
 };
 
 const INITIAL_STEPS: CompletionStep[] = [

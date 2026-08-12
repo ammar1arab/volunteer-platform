@@ -125,7 +125,7 @@ export const useNotifications = () => {
     }
   });
 
-  // Sound belongs outside queryFn (Strict Mode / retries must not double-play)
+
   const unreadCount = query.data?.unreadCount ?? 0;
   useEffect(() => {
     if (prevCountRef.current !== null && unreadCount > prevCountRef.current) {

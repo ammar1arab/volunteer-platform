@@ -29,12 +29,12 @@ export interface ActivityDto {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  // IN_PERSON
+
   placeName: string | null;
   city: JordanianCity | null;
   latitude: number | null;
   longitude: number | null;
-  // ONLINE
+
   meetingLink: string | null;
   meetingPlatform: MeetingPlatform | null;
   externalMeetingId: string | null;
@@ -52,12 +52,12 @@ export interface CreateActivityRequest {
   activityType: ActivityType;
   categories: DomainFeaturedPostCategory[];
   maxVolunteers: number;
-  // IN_PERSON
+
   placeName?: string;
   city: JordanianCity | null;
   latitude?: number;
   longitude?: number;
-  // ONLINE
+
   meetingLink?: string;
   meetingPlatform?: MeetingPlatform;
   externalMeetingId?: string;

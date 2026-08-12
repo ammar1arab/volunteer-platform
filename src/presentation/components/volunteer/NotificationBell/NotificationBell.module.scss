@@ -53,7 +53,7 @@
   cursor: pointer;
   transition: $transition;
   position: relative;
-  overflow: visible; // ← was hidden, caused badge clipping
+  overflow: visible;
 
   &::before {
     content: "";

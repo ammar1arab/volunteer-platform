@@ -46,7 +46,7 @@ export function useApiMutation<TData, TVariables = void>({
       const keys = toQueryKeyList(invalidateRef.current);
       await Promise.all(
         keys.map(async (queryKey) => {
-          // Drop inactive cache entries, refresh active ones
+
           queryClient.removeQueries({
             queryKey,
             type: "inactive"

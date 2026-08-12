@@ -19,7 +19,7 @@
   @include alert-success;
 }
 
-// ─── Hero ─────────────────────────────────────────────────────
+
 
 .hero {
   @include flex(row, center, flex-start, $sp-lg);
@@ -129,7 +129,7 @@
   color: $text-muted;
 }
 
-// ─── Activities Link ──────────────────────────────────────────
+
 
 .quickLinks {
   @include flex(row, center, flex-start, 0);
@@ -163,7 +163,7 @@
   margin-right: auto;
   opacity: 0.4;
 }
-// ─── Grid ─────────────────────────────────────────────────────
+
 
 .grid {
   @include flex-col;
@@ -176,7 +176,7 @@
   border-top: 1px solid $border;
 }
 
-// ─── Card ─────────────────────────────────────────────────────
+
 
 .card {
   @include flex-col;
@@ -213,7 +213,7 @@
   }
 }
 
-// ─── Info List ────────────────────────────────────────────────
+
 
 .infoList {
   @include flex-col;
@@ -311,7 +311,7 @@
   }
 }
 
-// ─── Edit Section ─────────────────────────────────────────────
+
 
 .editSection {
   @include flex-col;
@@ -367,7 +367,7 @@
   }
 }
 
-// ─── Tags ─────────────────────────────────────────────────────
+
 
 .tagInput {
   @include flex(row, center, flex-start, $sp-xs);

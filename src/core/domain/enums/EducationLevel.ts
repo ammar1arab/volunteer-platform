@@ -1,4 +1,4 @@
-/** Jordanian education stages: KG + basic/secondary grades 1–12 + higher education */
+
 export enum EducationLevel {
   KINDERGARTEN = "KINDERGARTEN",
   GRADE_1 = "GRADE_1",

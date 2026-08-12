@@ -23,7 +23,7 @@ const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => 
   return (
     <div className={styles.dropdown}>
 
-      {/* ── User info (Now Clickable) ── */}
+
       <Link 
         href={ROUTES.VOLUNTEER.PROFILE} 
         className={styles.userInfoLink} 
@@ -54,14 +54,14 @@ const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => 
 
       <div className={styles.divider} />
 
-      {/* ── Links ── */}
+
       <div className={styles.list}>
         {LINKS.map(link => (
           <Link 
             key={link.href} 
             href={link.href} 
             className={styles.item}
-            onClick={onClose} // Added onClose here to improve UX
+            onClick={onClose}
           >
             <span className={styles.itemIcon}>{link.icon}</span>
             <span>{link.label}</span>
@@ -71,7 +71,7 @@ const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => 
 
       <div className={styles.divider} />
 
-      {/* ── Logout ── */}
+
       <button className={styles.logoutItem} onClick={onLogout}>
         <span className={styles.itemIcon}><LogOut size={15} /></span>
         <span>تسجيل الخروج</span>
