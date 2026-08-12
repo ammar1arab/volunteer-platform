@@ -6,6 +6,11 @@
   @include flex-col;
   gap: $sp-lg;
   width: 100%;
+  min-width: 0;
+
+  @include sm {
+    gap: $sp-md;
+  }
 }
 
 .integrationCard {
@@ -15,7 +20,14 @@
   border: 1px solid $border;
   border-radius: $radius-lg;
   gap: $sp-md;
-  flex-wrap: wrap;
+  min-width: 0;
+
+  @include sm {
+    flex-direction: column;
+    align-items: stretch;
+    padding: $sp-md;
+    gap: $sp-sm;
+  }
 }
 
 .connectedCard {
@@ -32,6 +44,10 @@
   @include flex(row, center, flex-start, $sp-md);
   min-width: 0;
   flex: 1;
+
+  @include sm {
+    gap: $sp-sm;
+  }
 }
 
 .providerMark {
@@ -42,17 +58,24 @@
   background: rgba($green, 0.1);
   color: $green;
   flex-shrink: 0;
+
+  @include sm {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 .integrationCopy {
   @include flex-col;
   gap: 4px;
   min-width: 0;
+  flex: 1;
 }
 
 .integrationTitleRow {
   @include flex(row, center, flex-start, $sp-sm);
   flex-wrap: wrap;
+  gap: 6px $sp-sm;
 }
 
 .integrationTitle {
@@ -60,6 +83,10 @@
   font-size: $font-md;
   font-weight: 800;
   color: $text;
+
+  @include sm {
+    font-size: $font-sm;
+  }
 }
 
 .connectionBadge {
@@ -83,18 +110,46 @@
   font-size: $font-xs;
   color: $text-muted;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.integrationChecked {
+  margin: 0;
+  font-size: 11px;
+  color: $text-muted;
+  font-weight: 500;
+
+  @include sm {
+    display: none;
+  }
 }
 
 .integrationError {
-  @include flex(row, center, flex-start, 6px);
+  @include flex(row, flex-start, flex-start, 6px);
   margin: 2px 0 0;
   font-size: $font-xs;
   color: $red;
+  line-height: 1.4;
 }
 
 .integrationActions {
   @include flex(row, center, flex-end, $sp-sm);
   flex-shrink: 0;
+
+  @include sm {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: $sp-xs;
+
+    > :first-child {
+      width: 100%;
+      min-height: 36px;
+    }
+  }
 }
 
 .settingsBtn {
@@ -105,16 +160,32 @@
     color: $text;
     border-color: $text;
   }
+
+  @include sm {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 .warnBanner {
-  @include flex(row, center, flex-start, $sp-sm);
+  @include flex(row, flex-start, flex-start, $sp-sm);
   padding: $sp-sm $sp-md;
   border-radius: $radius;
   background: rgba(#d97706, 0.08);
   border: 1px solid rgba(#d97706, 0.25);
   color: #b45309;
   font-size: $font-sm;
+  line-height: 1.5;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  span {
+    min-width: 0;
+    flex: 1;
+  }
 
   button {
     border: none;
@@ -125,19 +196,32 @@
     text-decoration: underline;
     padding: 0;
   }
+
+  @include sm {
+    font-size: $font-xs;
+    padding: $sp-sm;
+  }
 }
 
 .header {
   @include flex-col;
   gap: $sp-md;
+  min-width: 0;
+
+  @include sm {
+    gap: $sp-sm;
+  }
 }
 
 .sectionHead {
   @include flex(row, center, space-between, $sp-sm);
+  min-width: 0;
 }
 
 .titleGroup {
   @include flex(row, center, flex-start, $sp-sm);
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .sectionTitle {
@@ -146,30 +230,32 @@
   font-weight: 700;
   color: $text;
   white-space: nowrap;
+
+  @include sm {
+    font-size: $font-md;
+  }
 }
 
-.count {
-  @include flex-center;
-  min-width: 28px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: $radius-full;
-  background: rgba($green, 0.1);
-  color: $green;
-  font-size: $font-xs;
-  font-weight: 800;
-}
-
+.count,
 .countWarn {
   @include flex-center;
   min-width: 28px;
   height: 24px;
   padding: 0 8px;
   border-radius: $radius-full;
-  background: rgba($red, 0.1);
-  color: $red;
   font-size: $font-xs;
   font-weight: 800;
+  flex-shrink: 0;
+}
+
+.count {
+  background: rgba($green, 0.1);
+  color: $green;
+}
+
+.countWarn {
+  background: rgba($red, 0.1);
+  color: $red;
 }
 
 .actions {
@@ -177,6 +263,7 @@
   width: 100%;
   flex-wrap: wrap;
   align-items: center;
+  min-width: 0;
 
   > * {
     height: 36px;
@@ -201,6 +288,8 @@
 .actionsEnd {
   @include flex(row, center, flex-end, $sp-sm);
   flex-shrink: 0;
+  align-items: center;
+  min-width: 0;
 
   > * {
     height: 36px;
@@ -213,17 +302,40 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: $sp-xs;
+    height: 36px;
+    max-height: 36px;
+    overflow: visible;
+
+    > * {
+      width: 100% !important;
+      height: 36px !important;
+      min-height: 36px !important;
+      max-height: 36px !important;
+      overflow: visible;
+    }
+  }
+}
+
+.actionsEndSolo {
+  @include sm {
+    grid-template-columns: 1fr;
   }
 }
 
 .list {
   @include flex-col;
   gap: $sp-sm;
+  min-width: 0;
 }
 
 .settings {
   @include flex-col;
   gap: $sp-lg;
+  min-width: 0;
+
+  @include sm {
+    gap: $sp-md;
+  }
 }
 
 .infoGrid {
@@ -239,6 +351,7 @@
 .failedSection {
   @include flex-col;
   gap: $sp-md;
+  min-width: 0;
 }
 
 .failedTitle {
@@ -246,4 +359,8 @@
   font-size: $font-md;
   font-weight: 700;
   color: $text;
+
+  @include sm {
+    font-size: $font-sm;
+  }
 }

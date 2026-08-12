@@ -100,10 +100,12 @@ const GoogleMeetPage = () => {
             </div>
             <p className={styles.integrationMeta} dir="ltr">
               {organizerEmail}
-              {integration?.lastCheckedAt
-                ? ` · آخر فحص ${new Date(integration.lastCheckedAt).toLocaleString("ar-JO")}`
-                : ""}
             </p>
+            {integration?.lastCheckedAt && (
+              <p className={styles.integrationChecked}>
+                آخر فحص: {new Date(integration.lastCheckedAt).toLocaleString("ar-JO")}
+              </p>
+            )}
             {integration?.lastError && (
               <p className={styles.integrationError}>
                 <AlertTriangle size={13} />
@@ -173,10 +175,10 @@ const GoogleMeetPage = () => {
               value={searchQuery}
               onChange={setSearchQuery}
               onSearch={setAppliedSearch}
-              placeholder="ابحث بالعنوان أو المقدم..."
+              placeholder="ابحث..."
             />
           )}
-          <div className={styles.actionsEnd}>
+          <div className={`${styles.actionsEnd} ${!showMeetings ? styles.actionsEndSolo : ""}`}>
             <Dropdown
               items={viewItems}
               active={activeView}
@@ -189,7 +191,7 @@ const GoogleMeetPage = () => {
                 items={syncFilterItems}
                 active={syncFilter}
                 onChange={setSyncFilter}
-                placeholder="حالة المزامنة"
+                placeholder="المزامنة"
                 compact
               />
             )}

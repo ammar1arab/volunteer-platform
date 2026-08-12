@@ -5,6 +5,7 @@
   @include flex-col;
   gap: $sp-md;
   min-height: 180px;
+  min-width: 0;
 }
 
 .summary {
@@ -13,6 +14,7 @@
   font-size: $font-xs;
   font-weight: 600;
   color: $text-muted;
+  gap: $sp-xs;
 
   span {
     padding: 4px 10px;
@@ -32,13 +34,19 @@
   margin: 0;
   font-size: $font-sm;
   color: $text-muted;
+  line-height: 1.5;
+
+  @include sm {
+    font-size: $font-xs;
+  }
 }
 
 .list {
   @include flex-col;
   gap: $sp-sm;
-  max-height: 420px;
+  max-height: min(420px, 55vh);
   overflow: auto;
+  min-width: 0;
 }
 
 .row {
@@ -49,6 +57,13 @@
   border-radius: $radius;
   background: $bg;
   gap: $sp-sm;
+  min-width: 0;
+
+  @include sm {
+    flex-direction: column;
+    align-items: stretch;
+    padding: $sp-sm;
+  }
 }
 
 .rowWarn {
@@ -67,6 +82,13 @@
   @include flex(row, center, flex-start, 6px);
   color: $text;
   font-size: $font-sm;
+  min-width: 0;
+
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .meta {
@@ -74,9 +96,13 @@
   flex-wrap: wrap;
   font-size: $font-xs;
   color: $text-muted;
+  gap: 6px $sp-sm;
 
   span {
     @include flex(row, center, flex-start, 4px);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -95,6 +121,17 @@
   flex-wrap: wrap;
   min-width: 220px;
   flex: 1;
+
+  @include sm {
+    min-width: 0;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+
+    > * {
+      width: 100%;
+    }
+  }
 }
 
 .clearBtn {
@@ -114,5 +151,10 @@
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  @include sm {
+    width: 100%;
+    min-height: 36px;
   }
 }

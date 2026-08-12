@@ -23,7 +23,7 @@ import {
   PanelRightClose,
   PanelRightOpen,
   LayoutDashboard,
-  Video,
+  Video
 } from "lucide-react";
 
 type NavItem = {
@@ -40,11 +40,11 @@ const NAV_ITEMS: NavItem[] = [
   { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "حصاد العطاء", icon: BookOpen, permission: "MANAGE_MAGAZINE" },
   { href: ROUTES.ADMIN.REQUESTS, label: "طلبات الانضمام", icon: UserCheck, permission: "MANAGE_REQUESTS" },
   { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية", icon: Activity, permission: "MANAGE_ACTIVITIES" },
-  { href: ROUTES.ADMIN.GOOGLE_MEET, label: "إدارة الاجتماعات", icon: Video, permission: "MANAGE_MEETINGS" },
-  { href: ROUTES.ADMIN.EMAILS, label: "إدارة الإيميلات", icon: Mail, permission: "MANAGE_EMAILS" },
-  { href: ROUTES.ADMIN.NOTIFICATIONS, label: "إدارة الإشعارات", icon: Bell, permission: "MANAGE_NOTIFICATIONS" },
-  { href: ROUTES.ADMIN.USERS, label: "إدارة المستخدمين", icon: Users, permission: "MANAGE_USERS" },
-  { href: ROUTES.ADMIN.PERMISSIONS, label: "إدارة الصلاحيات", icon: ShieldCheck, superAdminOnly: true },
+  { href: ROUTES.ADMIN.GOOGLE_MEET, label: "الاجتماعات", icon: Video, permission: "MANAGE_MEETINGS" },
+  { href: ROUTES.ADMIN.EMAILS, label: "الإيميلات", icon: Mail, permission: "MANAGE_EMAILS" },
+  { href: ROUTES.ADMIN.NOTIFICATIONS, label: "الإشعارات", icon: Bell, permission: "MANAGE_NOTIFICATIONS" },
+  { href: ROUTES.ADMIN.USERS, label: "المستخدمون", icon: Users, permission: "MANAGE_USERS" },
+  { href: ROUTES.ADMIN.PERMISSIONS, label: "الصلاحيات", icon: ShieldCheck, superAdminOnly: true }
 ];
 
 type Props = {
@@ -62,7 +62,7 @@ const AdminSidebar = ({
   isSuperAdmin,
   permissions,
   onToggleCollapse,
-  onClose,
+  onClose
 }: Props) => {
   const [showLogout, setShowLogout] = useState(false);
   const pathname = usePathname();
@@ -85,19 +85,38 @@ const AdminSidebar = ({
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(max-width: 1024px)").matches) {
+      document.body.style.overflow = isOpen ? "hidden" : "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   return (
     <>
       <aside
         className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""} ${isOpen ? styles.open : ""}`}
-        aria-label="قائمة الإدارة"
+        aria-label="القائمة"
       >
+        <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="إغلاق">
+          <X size={18} strokeWidth={1.75} />
+        </button>
+
         <div className={styles.head}>
-          <div className={styles.brand}>
+          <button
+            type="button"
+            className={styles.brand}
+            onClick={onToggleCollapse}
+            aria-label={isCollapsed ? "توسيع القائمة" : "طي القائمة"}
+            title={isCollapsed ? "توسيع" : "طي"}
+          >
             <span className={styles.brandIcon}>
               <LayoutDashboard size={15} strokeWidth={1.75} />
             </span>
-            <span className={styles.brandText}>الإدارة</span>
-          </div>
+          </button>
 
           <button
             type="button"
@@ -106,22 +125,23 @@ const AdminSidebar = ({
             aria-label={isCollapsed ? "توسيع القائمة" : "طي القائمة"}
             title={isCollapsed ? "توسيع" : "طي"}
           >
-            {isCollapsed ? <PanelRightOpen size={15} strokeWidth={1.75} /> : <PanelRightClose size={15} strokeWidth={1.75} />}
-          </button>
-
-          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="إغلاق">
-            <X size={16} strokeWidth={1.75} />
+            {isCollapsed ? (
+              <PanelRightOpen size={15} strokeWidth={1.75} />
+            ) : (
+              <PanelRightClose size={15} strokeWidth={1.75} />
+            )}
           </button>
         </div>
 
         <nav className={styles.nav}>
-          {items.map((item) => {
+          {items.map((item, i) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`${styles.link} ${active ? styles.active : ""}`}
+                style={{ "--i": i } as React.CSSProperties}
                 title={isCollapsed ? item.label : undefined}
                 aria-current={active ? "page" : undefined}
               >
@@ -149,7 +169,9 @@ const AdminSidebar = ({
         </div>
       </aside>
 
-      {isOpen && <button type="button" className={styles.overlay} onClick={onClose} aria-label="إغلاق القائمة" />}
+      {isOpen && (
+        <button type="button" className={styles.overlay} onClick={onClose} aria-label="إغلاق القائمة" />
+      )}
 
       <ConfirmDialog
         isOpen={showLogout}

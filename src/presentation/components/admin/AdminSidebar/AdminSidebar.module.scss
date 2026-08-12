@@ -25,16 +25,16 @@ $row: 36px;
 
   @media (max-width: 1024px) {
     position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: min(300px, 86vw) !important;
+    inset: 0;
+    width: 100% !important;
     height: 100% !important;
-    border-left: 1px solid rgba($border, 0.75);
-    transform: translateX(105%);
-    transition: transform 0.26s $ease;
+    border: none;
+    background: $bg;
+    transform: translateX(100%);
+    transition: transform 0.32s $ease;
     z-index: 998;
-    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.08);
+    overscroll-behavior: contain;
+    box-shadow: none;
 
     &.open {
       transform: translateX(0);
@@ -52,10 +52,32 @@ $row: 36px;
     border: none;
     padding: 0;
     margin: 0;
-    background: rgba(15, 23, 42, 0.28);
+    background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     z-index: 997;
     cursor: pointer;
+    animation: fadeIn 0.25s ease forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -68,14 +90,19 @@ $row: 36px;
   flex-shrink: 0;
   padding: 0 10px;
   border-bottom: 1px solid rgba($border, 0.7);
+
+  @media (max-width: 1024px) {
+    display: none;
+  }
 }
 
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include flex(row, center, center, 0);
   min-width: 0;
-  overflow: hidden;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
 }
 
 .brandIcon {
@@ -86,13 +113,6 @@ $row: 36px;
   background: rgba($green, 0.1);
   color: $green;
   flex-shrink: 0;
-}
-
-.brandText {
-  font-size: 13px;
-  font-weight: 750;
-  color: $text;
-  white-space: nowrap;
 }
 
 .collapseBtn,
@@ -126,6 +146,23 @@ $row: 36px;
 
   @media (max-width: 1024px) {
     display: flex;
+    position: absolute;
+    top: calc(16px + env(safe-area-inset-top));
+    left: 16px;
+    width: 34px;
+    height: 34px;
+    border-radius: $radius;
+    border: 1px solid rgba($red, 0.2);
+    background: rgba($red, 0.06);
+    color: $red;
+    z-index: 1;
+
+    &:hover {
+      background: $red;
+      color: #fff;
+      border-color: $red;
+      transform: none;
+    }
   }
 }
 
@@ -153,6 +190,21 @@ $row: 36px;
   display: flex;
   flex-direction: column;
   gap: 2px;
+
+  @media (max-width: 1024px) {
+    padding-top: calc(62px + env(safe-area-inset-top));
+    padding-right: $sp-lg;
+    padding-left: $sp-lg;
+    padding-bottom: 12px;
+    gap: 4px;
+  }
+}
+
+.sidebar.open .link {
+  @media (max-width: 1024px) {
+    animation: slideIn 0.3s $ease both;
+    animation-delay: calc(var(--i, 0) * 0.04s + 0.06s);
+  }
 }
 
 .link {
@@ -193,6 +245,18 @@ $row: 36px;
       color: $green;
     }
   }
+
+  @media (max-width: 1024px) {
+    height: 50px;
+    padding: 0 14px;
+    font-size: $font-sm;
+    font-weight: 600;
+    border-radius: $radius;
+
+    &:hover {
+      transform: none;
+    }
+  }
 }
 
 .icon {
@@ -203,6 +267,11 @@ $row: 36px;
   flex-shrink: 0;
   color: inherit;
   transition: background 0.18s ease, color 0.18s ease, transform 0.2s $ease;
+
+  @media (max-width: 1024px) {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 .label {
@@ -229,6 +298,13 @@ $row: 36px;
   flex-shrink: 0;
   padding: 8px;
   border-top: 1px solid rgba($border, 0.7);
+
+  @media (max-width: 1024px) {
+    padding: 8px $sp-lg;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .logout {
@@ -245,7 +321,8 @@ $row: 36px;
   font-size: 13px;
   font-weight: 550;
   cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease, transform 0.2s $ease;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.2s $ease,
+    border-color 0.16s, box-shadow 0.16s;
 
   &:hover {
     background: rgba($red, 0.08);
@@ -255,6 +332,30 @@ $row: 36px;
     .icon {
       background: rgba($red, 0.1);
       color: $red;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    height: 50px;
+    justify-content: center;
+    border-radius: $radius-lg;
+    border: 1px solid rgba($red, 0.2);
+    background: rgba($red, 0.05);
+    color: $red;
+    font-size: $font-sm;
+    font-weight: 700;
+
+    &:hover {
+      background: $red;
+      color: #fff;
+      border-color: $red;
+      box-shadow: 0 3px 10px rgba($red, 0.22);
+      transform: none;
+
+      .icon {
+        background: transparent;
+        color: inherit;
+      }
     }
   }
 }
@@ -278,82 +379,13 @@ $row: 36px;
   .icon,
   .logout,
   .collapseBtn,
-  .closeBtn {
-    transition: none;
-  }
-}
-
-@media (max-width: 1024px) {
-  .sidebar {
-    width: min(280px, 84vw) !important;
-    background: $bg;
-    box-shadow: none;
-  }
-
+  .closeBtn,
   .overlay {
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: none;
+    transition: none;
+    animation: none;
   }
 
-  .head {
-    height: 40px;
-    justify-content: flex-end;
-    padding: 0 6px;
-    border-bottom-color: $border;
-  }
-
-  .brand {
-    display: none;
-  }
-
-  .closeBtn {
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 6px;
-  }
-
-  .nav {
-    padding: 4px;
-    gap: 1px;
-  }
-
-  .link {
-    height: 32px;
-    gap: 8px;
-    border-radius: 6px;
-
-    &:hover {
-      transform: none;
-    }
-
-    .icon {
-      width: 18px;
-      height: 18px;
-      border-radius: 0;
-      background: transparent;
-    }
-  }
-
-  .footer {
-    padding: 4px;
-    border-top-color: $border;
-  }
-
-  .logout {
-    height: 32px;
-    gap: 8px;
-    border-radius: 6px;
-
-    &:hover {
-      transform: none;
-    }
-
-    .icon {
-      width: 18px;
-      height: 18px;
-      border-radius: 0;
-      background: transparent;
-    }
+  .sidebar.open .link {
+    animation: none;
   }
 }
