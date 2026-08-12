@@ -5,8 +5,11 @@ import { useState } from "react";
 import { ActivityDto } from "@/core/application/dtos";
 import { ActivityStatus, ActivityType } from "@/core/domain/enums";
 import { getDayLabel, getActivityTypeLabel, getCityLabel, getMonthLabel } from "@/presentation/constants/labels";
-import { Share, Modal } from "@/presentation/components";
+import { Share, Modal, MeetingStatusBadge } from "@/presentation/components";
 import { Calendar, Clock, MapPin, Users, Share2, ExternalLink, Wifi, MapPinned, Timer } from "lucide-react";
+import { MeetingLinkSource, MeetingSyncStatus } from "@/core/domain/enums";
+import { ROUTES } from "@/presentation/constants";
+import Link from "next/link";
 
 export type AdminActivityCardProps = {
   activity: ActivityDto;
@@ -111,11 +114,26 @@ const AdminActivityCard = ({ activity, meta, actions }: AdminActivityCardProps) 
                 <span>{activity.placeName ?? "—"}{activity.city ? ` · ${getCityLabel(activity.city)}` : ""}</span>
               </div>
             ) : activity.meetingLink ? (
-              <a href={activity.meetingLink} target="_blank" rel="noopener noreferrer"
-                className={styles.meetingLink} onClick={(e) => e.stopPropagation()}>
-                <ExternalLink size={11} />
-                <span>رابط الاجتماع</span>
-              </a>
+              <div className={styles.onlineMeta}>
+                <a href={activity.meetingLink} target="_blank" rel="noopener noreferrer"
+                  className={styles.meetingLink} onClick={(e) => e.stopPropagation()}>
+                  <ExternalLink size={11} />
+                  <span>رابط الاجتماع</span>
+                </a>
+                {activity.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO && (
+                  <MeetingStatusBadge status={activity.meetingSyncStatus} />
+                )}
+                {activity.meetingSyncStatus === MeetingSyncStatus.FAILED && (
+                  <Link
+                    href={ROUTES.ADMIN.GOOGLE_MEET}
+                    className={styles.meetManageLink}
+                    onClick={(e) => e.stopPropagation()}
+                    title="إدارة الاجتماعات"
+                  >
+                    إدارة الاجتماع
+                  </Link>
+                )}
+              </div>
             ) : (
               <div className={styles.locationInfo}>
                 <Wifi size={11} />

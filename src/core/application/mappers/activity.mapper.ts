@@ -1,7 +1,15 @@
 import type { Activity } from "@/core/domain/entities";
 import type { ActivityDto } from "@/core/application/dtos";
 
-export const toActivityDto = (entity: Activity): ActivityDto => {
+type ToActivityDtoOptions = {
+  includePrivateMeetingFields?: boolean;
+};
+
+export const toActivityDto = (
+  entity: Activity,
+  options: ToActivityDtoOptions = {}
+): ActivityDto => {
+  const includePrivateMeetingFields = options.includePrivateMeetingFields ?? true;
   const p = entity.toObject();
   return {
     id: p.id,
@@ -27,11 +35,21 @@ export const toActivityDto = (entity: Activity): ActivityDto => {
     city: p.city,
     latitude: p.latitude,
     longitude: p.longitude,
-    meetingLink: p.meetingLink,
+    meetingLink: includePrivateMeetingFields ? p.meetingLink : null,
     meetingPlatform: p.meetingPlatform,
-    externalMeetingId: p.externalMeetingId
+    externalMeetingId: includePrivateMeetingFields ? p.externalMeetingId : null,
+    meetingLinkSource: p.meetingLinkSource,
+    meetingCode: includePrivateMeetingFields ? p.meetingCode : null,
+    meetingSpaceName: includePrivateMeetingFields ? p.meetingSpaceName : null,
+    meetingSyncStatus: p.meetingSyncStatus,
+    meetingSyncError: includePrivateMeetingFields ? p.meetingSyncError : null,
+    meetingSyncedAt: p.meetingSyncedAt?.toISOString() ?? null,
+    timeZone: p.timeZone
   };
 };
 
-export const toActivityDtoList = (entities: Activity[]): ActivityDto[] =>
-  entities.map(toActivityDto);
+export const toActivityDtoList = (
+  entities: Activity[],
+  options?: ToActivityDtoOptions
+): ActivityDto[] => entities.map((entity) => toActivityDto(entity, options));
+

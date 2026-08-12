@@ -93,5 +93,22 @@ export const API_ENDPOINTS = {
   },
   DOWNLOAD: {
     PRESIGN: (key: string) => `/api/download?key=${encodeURIComponent(key)}`
+  },
+  INTEGRATIONS: {
+    GOOGLE: {
+      STATUS: "/api/integrations/google/status",
+      CONNECT: "/api/integrations/google/connect",
+      DISCONNECT: "/api/integrations/google/disconnect"
+    }
+  },
+  MEETINGS: {
+    LIST: (filter: "upcoming" | "finished" | "all" = "upcoming") =>
+      `/api/meetings?filter=${filter}`,
+    RETRY: (activityId: string) => `/api/meetings/${activityId}/retry`,
+    LAUNCH: (activityId: string) => `/api/meetings/${activityId}/launch`,
+    REPORT: (activityId: string) => `/api/meetings/${activityId}/report`,
+    IMPORT_REPORT: (activityId: string) => `/api/meetings/${activityId}/import-report`,
+    MATCH_ATTENDEE: (activityId: string, attendeeId: string) =>
+      `/api/meetings/${activityId}/report/attendees/${attendeeId}`
   }
 } as const;

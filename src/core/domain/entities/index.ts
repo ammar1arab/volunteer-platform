@@ -8,3 +8,5 @@ export { default as FeaturedPost } from "./FeaturedPost";
 export { default as VolunteerSpotlight } from "./VolunteerSpotlight";
 export { default as MonthlyMagazine } from "./MonthlyMagazine";
 export { default as Notification } from "./Notification";
+export { default as MeetingIntegration } from "./MeetingIntegration";
+export { default as ActivityPresenter } from "./ActivityPresenter";

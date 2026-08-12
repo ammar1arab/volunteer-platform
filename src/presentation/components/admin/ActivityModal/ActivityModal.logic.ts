@@ -1,13 +1,16 @@
 "use client";
-import { revokeImagePreview } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import {
   ActivityType,
   DayOfWeek,
   DomainFeaturedPostCategory,
   JordanianCity,
+  MeetingLinkSource,
   MeetingPlatform
 } from "@/core/domain/enums";
+import { MEETING_LINK_SOURCE_CREATE_LABELS } from "@/presentation/constants/labels";
+
+export type MeetingLinkSourceForm = "" | MeetingLinkSource;
 
 export type ActivityFormData = {
   id: string;
@@ -28,6 +31,8 @@ export type ActivityFormData = {
   longitude: number;
   meetingLink: string;
   meetingPlatform: MeetingPlatform | "";
+  meetingLinkSource: MeetingLinkSourceForm;
+  primaryPresenterId: string;
 };
 
 const EMPTY_FORM: ActivityFormData = {
@@ -48,8 +53,21 @@ const EMPTY_FORM: ActivityFormData = {
   latitude: 31.9454,
   longitude: 35.9284,
   meetingLink: "",
-  meetingPlatform: ""
+  meetingPlatform: "",
+  meetingLinkSource: "",
+  primaryPresenterId: ""
 };
+
+export const MEETING_LINK_SOURCE_OPTIONS = [
+  {
+    value: MeetingLinkSource.GOOGLE_MEET_AUTO,
+    label: MEETING_LINK_SOURCE_CREATE_LABELS[MeetingLinkSource.GOOGLE_MEET_AUTO]
+  },
+  {
+    value: MeetingLinkSource.MANUAL,
+    label: MEETING_LINK_SOURCE_CREATE_LABELS[MeetingLinkSource.MANUAL]
+  }
+];
 
 export const useActivityModal = ({ initialData, onSubmit, onImageUpload, onClose }: any) => {
   const [form, setForm] = useState<ActivityFormData>(EMPTY_FORM);
@@ -59,6 +77,10 @@ export const useActivityModal = ({ initialData, onSubmit, onImageUpload, onClose
   useEffect(() => {
     if (initialData) {
       const formattedDate = initialData.date.toString().split("T")[0];
+      const isOnline = initialData.activityType === ActivityType.ONLINE;
+      const source =
+        initialData.meetingLinkSource ||
+        (isOnline ? MeetingLinkSource.MANUAL : "");
 
       setForm({
         ...EMPTY_FORM,
@@ -66,8 +88,10 @@ export const useActivityModal = ({ initialData, onSubmit, onImageUpload, onClose
         date: formattedDate,
         meetingLink: initialData.meetingLink ?? "",
         meetingPlatform: initialData.meetingPlatform ?? "",
+        meetingLinkSource: source,
         placeName: initialData.placeName ?? "",
-        city: initialData.city ?? ""
+        city: initialData.city ?? "",
+        primaryPresenterId: initialData.primaryPresenterId ?? ""
       });
     } else {
       setForm(EMPTY_FORM);

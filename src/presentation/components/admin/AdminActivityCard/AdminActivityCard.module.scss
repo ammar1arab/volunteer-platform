@@ -291,6 +291,28 @@
   }
 }
 
+.onlineMeta {
+  @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.meetManageLink {
+  font-size: 11px;
+  font-weight: 700;
+  color: $red;
+  text-decoration: none;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  border: 1px solid rgba($red, 0.25);
+  background: rgba($red, 0.06);
+
+  &:hover {
+    background: rgba($red, 0.1);
+  }
+}
+
 .mapsBtn {
   @include flex(row, center, center, 5px);
   padding: 4px 10px;

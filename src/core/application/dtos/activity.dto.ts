@@ -5,7 +5,9 @@ import {
   JordanianCity,
   AttendanceStatus,
   MeetingPlatform,
-  ActivityStatus
+  ActivityStatus,
+  MeetingLinkSource,
+  MeetingSyncStatus
 } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 
@@ -38,6 +40,15 @@ export interface ActivityDto {
   meetingLink: string | null;
   meetingPlatform: MeetingPlatform | null;
   externalMeetingId: string | null;
+  meetingLinkSource?: MeetingLinkSource;
+  meetingCode?: string | null;
+  meetingSpaceName?: string | null;
+  meetingSyncStatus?: MeetingSyncStatus;
+  meetingSyncError?: string | null;
+  meetingSyncedAt?: string | null;
+  timeZone?: string;
+  /** Primary presenter volunteer user id (online activities). */
+  primaryPresenterId?: string | null;
 }
 
 export interface CreateActivityRequest {
@@ -61,6 +72,15 @@ export interface CreateActivityRequest {
   meetingLink?: string;
   meetingPlatform?: MeetingPlatform;
   externalMeetingId?: string;
+  meetingLinkSource?: MeetingLinkSource;
+  meetingCode?: string | null;
+  meetingSpaceName?: string | null;
+  meetingSyncStatus?: MeetingSyncStatus;
+  meetingSyncError?: string | null;
+  meetingSyncedAt?: string | null;
+  timeZone?: string;
+  /** Assign primary presenter (volunteer) for online activities. */
+  primaryPresenterId?: string | null;
 }
 
 export type UpdateActivityRequest = Partial<CreateActivityRequest>;

@@ -1,0 +1,79 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.page {
+  min-height: 60vh;
+  @include flex-center;
+  padding: $sp-xl $sp-md;
+}
+
+.panel {
+  @include flex-col;
+  align-items: center;
+  text-align: center;
+  gap: $sp-md;
+  max-width: 480px;
+  width: 100%;
+  padding: $sp-xl $sp-lg;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  background: $bg;
+}
+
+.iconWrap {
+  @include flex-center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba($green, 0.1);
+  color: $green;
+  border: 1px solid rgba($green, 0.2);
+}
+
+.title {
+  margin: 0;
+  font-size: $font-xl;
+  font-weight: 800;
+  color: $text;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-sm;
+  color: $text-muted;
+  line-height: 1.6;
+}
+
+.meta {
+  @include flex(row, center, center, $sp-md);
+  flex-wrap: wrap;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+
+  span {
+    @include flex(row, center, flex-start, 6px);
+  }
+}
+
+.actions {
+  @include flex-col;
+  align-items: center;
+  gap: $sp-sm;
+  width: 100%;
+}
+
+.backBtn {
+  @include flex(row, center, center, 6px);
+  border: none;
+  background: transparent;
+  color: $text-muted;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 10px;
+
+  &:hover {
+    color: $text;
+  }
+}

@@ -1,4 +1,4 @@
-import { R2StorageService } from "@/infrastructure/external";
+import { R2StorageService, GoogleMeetingProvider } from "@/infrastructure/external";
 import {
   UserRepository,
   VolunteerProfileRepository,
@@ -11,6 +11,9 @@ import {
   NotificationRepository,
   OtpRepository,
   PendingRegistrationRepository,
+  MeetingIntegrationRepository,
+  MeetingSyncOperationRepository,
+  ActivityPresenterRepository,
 } from "@/infrastructure/persistence/repositories";
 import {
   AuthUseCase,
@@ -25,6 +28,7 @@ import {
   NotificationUseCase,
   EmailUseCase,
   OtpUseCase,
+  MeetingUseCase,
 } from "@/core/application/useCases";
 
 const makeEmailUseCase   = () => new EmailUseCase(new UserRepository());
@@ -53,7 +57,13 @@ export const providers = {
 
   user:             () => new UserUseCase(new UserRepository()),
   volunteerProfile: () => new VolunteerProfileUseCase(new VolunteerProfileRepository(), new R2StorageService()),
-  activity:         () => new ActivityUseCase(new ActivityRepository(), new ActivityParticipationRepository()),
+  activity: () =>
+    new ActivityUseCase(
+      new ActivityRepository(),
+      new ActivityParticipationRepository(),
+      new MeetingSyncOperationRepository(),
+      new ActivityPresenterRepository(),
+    ),
 
   participation: () =>
     new ActivityParticipationUseCase(
@@ -61,6 +71,7 @@ export const providers = {
       new ActivityRepository(),
       new UserRepository(),
       new VolunteerProfileRepository(),
+      new MeetingSyncOperationRepository(),
     ),
 
   featuredPost:       () => new FeaturedPostUseCase(new FeaturedPostRepository()),
@@ -77,4 +88,14 @@ export const providers = {
   notification: () => new NotificationUseCase(new NotificationRepository()),
   email:        () => makeEmailUseCase(),
   storage:      () => new R2StorageService(),
+
+  meeting: () =>
+    new MeetingUseCase(
+      new MeetingIntegrationRepository(),
+      new MeetingSyncOperationRepository(),
+      new ActivityRepository(),
+      new ActivityPresenterRepository(),
+      new ActivityParticipationRepository(),
+      new GoogleMeetingProvider(),
+    ),
 };

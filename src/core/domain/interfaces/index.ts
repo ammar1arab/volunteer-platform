@@ -8,3 +8,6 @@ export * from "./VolunteerSpotLightProps";
 export * from "./MonthlyMagazineProps";
 export * from "./CertificateProps";
 export * from "./NotificationProps";
+export * from "./MeetingIntegrationProps";
+export * from "./ActivityPresenterProps";
+export * from "./IMeetingProvider";

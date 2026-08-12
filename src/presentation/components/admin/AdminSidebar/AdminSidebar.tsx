@@ -23,6 +23,7 @@ import {
   PanelRightClose,
   PanelRightOpen,
   LayoutDashboard,
+  Video,
 } from "lucide-react";
 
 type NavItem = {
@@ -39,6 +40,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "حصاد العطاء", icon: BookOpen, permission: "MANAGE_MAGAZINE" },
   { href: ROUTES.ADMIN.REQUESTS, label: "طلبات الانضمام", icon: UserCheck, permission: "MANAGE_REQUESTS" },
   { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية", icon: Activity, permission: "MANAGE_ACTIVITIES" },
+  { href: ROUTES.ADMIN.GOOGLE_MEET, label: "إدارة الاجتماعات", icon: Video, permission: "MANAGE_MEETINGS" },
   { href: ROUTES.ADMIN.EMAILS, label: "إدارة الإيميلات", icon: Mail, permission: "MANAGE_EMAILS" },
   { href: ROUTES.ADMIN.NOTIFICATIONS, label: "إدارة الإشعارات", icon: Bell, permission: "MANAGE_NOTIFICATIONS" },
   { href: ROUTES.ADMIN.USERS, label: "إدارة المستخدمين", icon: Users, permission: "MANAGE_USERS" },

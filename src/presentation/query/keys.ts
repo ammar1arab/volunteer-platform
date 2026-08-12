@@ -43,5 +43,12 @@ export const queryKeys = {
   },
   profile: {
     me: () => ["profile", "me"] as const
+  },
+  meetings: {
+    all: ["meetings"] as const,
+    list: (filter: "upcoming" | "finished" | "all") => ["meetings", "list", filter] as const,
+    launch: (activityId: string) => ["meetings", "launch", activityId] as const,
+    report: (activityId: string) => ["meetings", "report", activityId] as const,
+    googleStatus: () => ["meetings", "google-status"] as const
   }
 } as const;

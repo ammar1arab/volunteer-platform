@@ -45,6 +45,55 @@
   color: $text;
 }
 
+.hint {
+  margin: 0;
+  font-size: 13px;
+  color: $text-muted;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: $radius;
+  background: rgba($green, 0.06);
+  border: 1px solid rgba($green, 0.15);
+}
+
+.meetWarn {
+  @include flex(row, center, flex-start, 6px);
+  margin: 0;
+  font-size: 13px;
+  color: #b45309;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: $radius;
+  background: rgba(#d97706, 0.08);
+  border: 1px solid rgba(#d97706, 0.25);
+
+  a {
+    color: #b45309;
+    font-weight: 700;
+  }
+}
+
+.meetStatusRow {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+}
+
+.meetLinkPreview {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.meetError {
+  font-size: $font-xs;
+  color: $red;
+}
+
 .labelSmall {
   font-size: 12px;
   font-weight: 600;

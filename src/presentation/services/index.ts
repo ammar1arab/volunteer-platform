@@ -10,3 +10,4 @@ export * from "./volunteerSpotlight.service";
 export * from "./monthlyMagazine.service";
 export * from "./notification.service";
 export * from "./upload.service";
+export * from "./meetings.service";

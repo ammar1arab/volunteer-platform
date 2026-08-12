@@ -8,7 +8,9 @@ import {
   ActivityType,
   DomainFeaturedPostCategory,
   JordanianCity,
-  MeetingPlatform
+  MeetingPlatform,
+  MeetingLinkSource,
+  MeetingSyncStatus
 } from "@/core/domain/enums";
 
 class ActivityRepository implements IActivityRepository {
@@ -26,6 +28,13 @@ class ActivityRepository implements IActivityRepository {
       meetingLink: data.meetingLink ?? null,
       meetingPlatform: (data.meetingPlatform as MeetingPlatform) ?? null,
       externalMeetingId: data.externalMeetingId ?? null,
+      meetingLinkSource: (data.meetingLinkSource as MeetingLinkSource) ?? MeetingLinkSource.MANUAL,
+      meetingCode: data.meetingCode ?? null,
+      meetingSpaceName: data.meetingSpaceName ?? null,
+      meetingSyncStatus: (data.meetingSyncStatus as MeetingSyncStatus) ?? MeetingSyncStatus.NONE,
+      meetingSyncError: data.meetingSyncError ?? null,
+      meetingSyncedAt: data.meetingSyncedAt ?? null,
+      timeZone: data.timeZone || Activity.DEFAULT_TIME_ZONE,
       durationHours: data.durationHours ?? 0,
       deletedAt: data.deletedAt ?? null
     });
@@ -97,7 +106,14 @@ class ActivityRepository implements IActivityRepository {
         longitude: props.longitude ?? null,
         meetingLink: props.meetingLink ?? null,
         meetingPlatform: props.meetingPlatform ?? null,
-        externalMeetingId: props.externalMeetingId ?? null
+        externalMeetingId: props.externalMeetingId ?? null,
+        meetingLinkSource: props.meetingLinkSource,
+        meetingCode: props.meetingCode ?? null,
+        meetingSpaceName: props.meetingSpaceName ?? null,
+        meetingSyncStatus: props.meetingSyncStatus,
+        meetingSyncError: props.meetingSyncError ?? null,
+        meetingSyncedAt: props.meetingSyncedAt ?? null,
+        timeZone: props.timeZone
       }
     });
     return this.mapToEntity(created);
@@ -130,7 +146,14 @@ class ActivityRepository implements IActivityRepository {
         longitude: props.longitude ?? null,
         meetingLink: props.meetingLink ?? null,
         meetingPlatform: props.meetingPlatform ?? null,
-        externalMeetingId: props.externalMeetingId ?? null
+        externalMeetingId: props.externalMeetingId ?? null,
+        meetingLinkSource: props.meetingLinkSource,
+        meetingCode: props.meetingCode ?? null,
+        meetingSpaceName: props.meetingSpaceName ?? null,
+        meetingSyncStatus: props.meetingSyncStatus,
+        meetingSyncError: props.meetingSyncError ?? null,
+        meetingSyncedAt: props.meetingSyncedAt ?? null,
+        timeZone: props.timeZone
       }
     });
     return this.mapToEntity(updated);

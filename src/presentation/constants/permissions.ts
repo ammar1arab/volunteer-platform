@@ -13,6 +13,7 @@ export const PERMISSION_ROUTE_MAP = {
   MANAGE_NOTIFICATIONS: ROUTES.ADMIN.NOTIFICATIONS,
   MANAGE_EMAILS:        ROUTES.ADMIN.EMAILS,
   MANAGE_USERS:         ROUTES.ADMIN.USERS,
+  MANAGE_MEETINGS:      ROUTES.ADMIN.GOOGLE_MEET,
 } as const satisfies Record<AdminPermission, string>;
 
 export function getRequiredPermission(pathname: string): AdminPermission | undefined {

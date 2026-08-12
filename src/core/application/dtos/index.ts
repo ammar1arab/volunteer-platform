@@ -166,3 +166,25 @@ export type {
   DeleteBroadcastResponse,
   GetBroadcastRecipientsResponse
 } from "./notification.dto";
+
+
+export type {
+  MeetingIntegrationStatusDto,
+  GetMeetingIntegrationStatusResponse,
+  GetGoogleConnectUrlResponse,
+  DisconnectGoogleMeetResponse,
+  HandleGoogleOAuthCallbackResponse,
+  OnlineMeetingFilter,
+  OnlineMeetingListItemDto,
+  ListOnlineMeetingsResponse,
+  RetryMeetingSyncResponse,
+  GetMeetingLaunchUrlResponse,
+  EnqueueMeetingSyncResponse,
+  MeetingReportSummaryDto,
+  MeetingReportAttendeeDto,
+  MeetingReportDto,
+  GetMeetingReportResponse,
+  ImportMeetingReportResponse,
+  RequestMeetingReportImportResponse,
+  MatchMeetingAttendeeResponse
+} from "./meeting.dto";

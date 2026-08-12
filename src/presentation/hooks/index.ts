@@ -14,6 +14,7 @@ export * from "./apiHooks/useMonthlyMagazine";
 export * from "./apiHooks/useNotifications";
 export * from "./apiHooks/usePushNotifications";
 export * from "./apiHooks/useCompleteActivity";
+export * from "./apiHooks/useMeetings";
 
 
 export {

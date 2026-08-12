@@ -1,17 +1,33 @@
 "use client";
 import styles from "./ActivityModal.module.scss";
-import { useActivityModal } from "./ActivityModal.logic";
+import { useActivityModal, MEETING_LINK_SOURCE_OPTIONS } from "./ActivityModal.logic";
 import Image from "next/image";
 import {
   DAY_OPTIONS,
   ACTIVITY_TYPE_OPTIONS,
   CITY_OPTIONS,
   CATEGORY_OPTIONS,
-  MEETING_PLATFORM_OPTIONS
+  MEETING_PLATFORM_OPTIONS,
+  ACTIVITY_PRESENTER_LABEL,
+  ACTIVITY_PRESENTER_PLACEHOLDER,
+  ACTIVITY_PRESENTER_NONE
 } from "@/presentation/constants/labels";
-import { Modal, SelectInput, BirthDateInput, TimePickerInput, LocationPicker, MultiSelectInput } from "@/presentation/components";
-import { Upload } from "lucide-react";
-import { ActivityType, DayOfWeek, JordanianCity, MeetingPlatform, DomainFeaturedPostCategory } from "@/core/domain/enums";
+import { Modal, SelectInput, BirthDateInput, TimePickerInput, LocationPicker, MultiSelectInput, MeetingStatusBadge } from "@/presentation/components";
+import { Upload, AlertTriangle } from "lucide-react";
+import {
+  ActivityType,
+  DayOfWeek,
+  JordanianCity,
+  MeetingLinkSource,
+  MeetingPlatform,
+  DomainFeaturedPostCategory,
+  UserRole,
+  MeetingSyncStatus
+} from "@/core/domain/enums";
+import { useUsers, useGoogleIntegrationStatus } from "@/presentation/hooks";
+import { useMemo } from "react";
+import { ROUTES } from "@/presentation/constants";
+import Link from "next/link";
 
 type Props = {
   isOpen: boolean;
@@ -27,7 +43,24 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
   const { form, preview, uploading, setForm, handleImage, handleSubmit } =
     useActivityModal({ initialData, onSubmit, onImageUpload, onClose });
 
+  const { users } = useUsers({ enabled: isOpen });
+  const { status: googleIntegration } = useGoogleIntegrationStatus({ enabled: isOpen });
+  const volunteerOptions = useMemo(
+    () => [
+      { value: "", label: ACTIVITY_PRESENTER_NONE },
+      ...users
+        .filter((u) => u.role === UserRole.VOLUNTEER && u.isActive)
+        .map((u) => ({
+          value: u.id,
+          label: `${u.fullName}${u.email ? ` · ${u.email}` : ""}`
+        }))
+    ],
+    [users]
+  );
+
   const isOnline = form.activityType === ActivityType.ONLINE;
+  const isAutoMeet = form.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO;
+  const isManualMeet = form.meetingLinkSource === MeetingLinkSource.MANUAL;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={mode === "create" ? "إنشاء فرصة تطوعية" : "تعديل الفرصة"} size="lg">
@@ -45,8 +78,21 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
                 ...p,
                 activityType: val as ActivityType,
                 ...(val === ActivityType.ONLINE
-                  ? { placeName: "", city: "" as "", latitude: 31.9454, longitude: 35.9284 }
-                  : { meetingLink: "", meetingPlatform: "" as "" }
+                  ? {
+                      placeName: "",
+                      city: "" as "",
+                      latitude: 31.9454,
+                      longitude: 35.9284,
+                      meetingLinkSource: MeetingLinkSource.MANUAL,
+                      meetingPlatform: "" as "",
+                      meetingLink: ""
+                    }
+                  : {
+                      meetingLink: "",
+                      meetingPlatform: "" as "",
+                      meetingLinkSource: "" as "",
+                      primaryPresenterId: ""
+                    }
                 )
               }))} />
           </div>
@@ -122,17 +168,92 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
         )}
 
         {isOnline && (
-          <div className={styles.row}>
+          <>
             <div className={styles.field}>
-              <SelectInput label="منصة الاجتماع" value={form.meetingPlatform} options={MEETING_PLATFORM_OPTIONS}
-                onChange={(v) => setForm(p => ({ ...p, meetingPlatform: v as MeetingPlatform }))} />
+              <SelectInput
+                label="مصدر رابط الاجتماع"
+                value={form.meetingLinkSource}
+                options={MEETING_LINK_SOURCE_OPTIONS}
+                required
+                onChange={(v) => {
+                  const source = v as MeetingLinkSource;
+                  setForm((p) => ({
+                    ...p,
+                    meetingLinkSource: source,
+                    ...(source === MeetingLinkSource.GOOGLE_MEET_AUTO
+                      ? {
+                          meetingPlatform: MeetingPlatform.GOOGLE_MEET,
+                          meetingLink: ""
+                        }
+                      : {
+                          meetingPlatform: p.meetingPlatform === MeetingPlatform.GOOGLE_MEET
+                            ? p.meetingPlatform
+                            : ("" as "")
+                        })
+                  }));
+                }}
+              />
             </div>
+
+            {isManualMeet && (
+              <div className={styles.row}>
+                <div className={styles.field}>
+                  <SelectInput label="منصة الاجتماع" value={form.meetingPlatform} options={MEETING_PLATFORM_OPTIONS}
+                    onChange={(v) => setForm(p => ({ ...p, meetingPlatform: v as MeetingPlatform }))} />
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label}>رابط الاجتماع</label>
+                  <input className={styles.input} value={form.meetingLink}
+                    onChange={(e) => setForm(p => ({ ...p, meetingLink: e.target.value }))} />
+                </div>
+              </div>
+            )}
+
+            {isAutoMeet && (
+              <>
+                <p className={styles.hint}>
+                  سيتم إنشاء رابط Google Meet تلقائياً عند نشر الفرصة وربطه بحساب المنظمة.
+                </p>
+                {googleIntegration && !googleIntegration.connected && (
+                  <p className={styles.meetWarn}>
+                    <AlertTriangle size={14} />
+                    Google غير متصل حالياً.{" "}
+                    <Link href={ROUTES.ADMIN.GOOGLE_MEET}>اربط الحساب من إدارة الاجتماعات</Link>
+                    {" "}قبل النشر التلقائي.
+                  </p>
+                )}
+                {mode === "edit" && initialData?.meetingSyncStatus && (
+                  <div className={styles.meetStatusRow}>
+                    <MeetingStatusBadge status={initialData.meetingSyncStatus} />
+                    {initialData.meetingLink && (
+                      <a
+                        href={initialData.meetingLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.meetLinkPreview}
+                      >
+                        فتح رابط الاجتماع
+                      </a>
+                    )}
+                    {initialData.meetingSyncStatus === MeetingSyncStatus.FAILED &&
+                      initialData.meetingSyncError && (
+                        <span className={styles.meetError}>{initialData.meetingSyncError}</span>
+                      )}
+                  </div>
+                )}
+              </>
+            )}
+
             <div className={styles.field}>
-              <label className={styles.label}>رابط الاجتماع</label>
-              <input className={styles.input} value={form.meetingLink}
-                onChange={(e) => setForm(p => ({ ...p, meetingLink: e.target.value }))} />
+              <SelectInput
+                label={ACTIVITY_PRESENTER_LABEL}
+                value={form.primaryPresenterId}
+                options={volunteerOptions}
+                placeholder={ACTIVITY_PRESENTER_PLACEHOLDER}
+                onChange={(v) => setForm((p) => ({ ...p, primaryPresenterId: v }))}
+              />
             </div>
-          </div>
+          </>
         )}
 
         <div className={styles.field}>

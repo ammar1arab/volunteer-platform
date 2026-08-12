@@ -62,6 +62,8 @@ export { default as NotificationPreviewModal } from "./admin/NotificationPreview
 export { default as EmailPreviewPane } from "./admin/EmailPreviewPane/EmailPreviewPane";
 export { default as PermissionsPanel } from "./admin/PermissionsPanel/PermissionsPanel";
 export { default as BroadcastRecipientsModal } from "./admin/BroadcastRecipientsModal/BroadcastRecipientsModal";
+export { default as MeetingStatusBadge } from "./admin/GoogleMeet/MeetingStatusBadge";
+export { default as MeetingReportModal } from "./admin/GoogleMeet/MeetingReportModal";
 
 export { default as NotificationBell } from "./volunteer/NotificationBell/NotificationBell";
 export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";

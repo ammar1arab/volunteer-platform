@@ -11,6 +11,7 @@ const TITLES: Record<string, string> = {
   [ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT]: "أبرز المتطوعين",
   [ROUTES.ADMIN.MONTHLY_MAGAZINE]: "حصاد العطاء",
   [ROUTES.ADMIN.ACTIVITIES]: "الفرص التطوعية",
+  [ROUTES.ADMIN.GOOGLE_MEET]: "إدارة الاجتماعات",
   [ROUTES.ADMIN.REQUESTS]: "طلبات الانضمام",
   [ROUTES.ADMIN.NOTIFICATIONS]: "إدارة الإشعارات",
   [ROUTES.ADMIN.EMAILS]: "إدارة الإيميلات",

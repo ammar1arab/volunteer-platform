@@ -10,7 +10,9 @@ import {
   ActivityType,
   ActivityStatus,
   AdminPermission,
-  UserRole
+  UserRole,
+  MeetingLinkSource,
+  MeetingSyncStatus
 } from "@/core/domain/enums";
 
 export const USER_ROLE_LABELS: Record<UserRole, string> = {
@@ -40,7 +42,8 @@ export const PERMISSION_LABELS: Record<AdminPermission, string> = {
   MANAGE_REQUESTS: "طلبات الانضمام",
   MANAGE_NOTIFICATIONS: "إدارة الإشعارات",
   MANAGE_EMAILS: "إدارة الإيميلات",
-  MANAGE_USERS: "إدارة المستخدمين"
+  MANAGE_USERS: "إدارة المستخدمين",
+  MANAGE_MEETINGS: "إدارة الاجتماعات"
 };
 
 export const GENDER_LABELS: Record<Gender, string> = {
@@ -99,6 +102,34 @@ export const MEETING_PLATFORM_LABELS: Record<MeetingPlatform, string> = {
   [MeetingPlatform.TEAMS]: "Microsoft Teams",
   [MeetingPlatform.OTHER]: "أخرى"
 };
+
+export const MEETING_LINK_SOURCE_LABELS: Record<MeetingLinkSource, string> = {
+  [MeetingLinkSource.MANUAL]: "رابط يدوي",
+  [MeetingLinkSource.GOOGLE_MEET_AUTO]: "Google Meet تلقائي"
+};
+
+export const MEETING_SYNC_STATUS_LABELS: Record<MeetingSyncStatus, string> = {
+  [MeetingSyncStatus.NONE]: "بدون مزامنة",
+  [MeetingSyncStatus.PENDING]: "قيد المزامنة",
+  [MeetingSyncStatus.SYNCED]: "مزامن",
+  [MeetingSyncStatus.FAILED]: "فشل المزامنة",
+  [MeetingSyncStatus.CANCELLED]: "ملغى"
+};
+
+export const MEETING_LINK_SOURCE_CREATE_LABELS: Record<MeetingLinkSource, string> = {
+  [MeetingLinkSource.MANUAL]: "رابط يدوي",
+  [MeetingLinkSource.GOOGLE_MEET_AUTO]: "إنشاء Google Meet تلقائياً"
+};
+
+export const PRESENTER_ROLE_LABELS: Record<string, string> = {
+  PRIMARY: "مقدم رئيسي",
+  CO_PRESENTER: "مقدم مشارك",
+  MODERATOR: "مشرف"
+};
+
+export const ACTIVITY_PRESENTER_LABEL = "مقدم النشاط";
+export const ACTIVITY_PRESENTER_PLACEHOLDER = "اختر متطوعاً كمقدم";
+export const ACTIVITY_PRESENTER_NONE = "بدون مقدم";
 
 export const CITY_LABELS: Record<JordanianCity, string> = {
   [JordanianCity.AMMAN]: "عمّان",
@@ -174,6 +205,15 @@ export const getActivityTypeLabel = (t: ActivityType) => ACTIVITY_TYPE_LABELS[t]
 export const getAttendanceStatusLabel = (s: AttendanceStatus) => ATTENDANCE_STATUS_LABELS[s] || s;
 export const getParticipationStatusLabel = (s: ParticipationStatus) => PARTICIPATION_STATUS_LABELS[s] || s;
 export const getMeetingPlatformLabel = (p: MeetingPlatform) => MEETING_PLATFORM_LABELS[p] || p;
+export const getMeetingLinkSourceLabel = (source: MeetingLinkSource | string) =>
+  MEETING_LINK_SOURCE_LABELS[source as MeetingLinkSource] || source;
+export const getMeetingSyncStatusLabel = (status: MeetingSyncStatus | string) =>
+  MEETING_SYNC_STATUS_LABELS[status as MeetingSyncStatus] || status;
+
+export const MEETING_SYNC_STATUS_FILTER_OPTIONS = [
+  { key: "ALL", label: "كل الحالات" },
+  ...Object.entries(MEETING_SYNC_STATUS_LABELS).map(([key, label]) => ({ key, label }))
+];
 
 export const ACTIVITY_TYPE_OPTIONS = Object.entries(ACTIVITY_TYPE_LABELS).map(([value, label]) => ({ value, label }));
 export const MEETING_PLATFORM_OPTIONS = Object.entries(MEETING_PLATFORM_LABELS).map(([value, label]) => ({

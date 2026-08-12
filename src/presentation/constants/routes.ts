@@ -29,13 +29,15 @@ export const ROUTES = {
     EMAILS: "/admin/dashboard/emails",
     USERS: "/admin/dashboard/users",
     USER_DETAILS: (id: string) => `/admin/dashboard/users/${id}`,
-    PERMISSIONS: "/admin/dashboard/permissions"
+    PERMISSIONS: "/admin/dashboard/permissions",
+    GOOGLE_MEET: "/admin/dashboard/google-meet"
   },
   VOLUNTEER: {
     ROOT: "/volunteer",
     PROFILE: "/volunteer/profile",
     REQUESTS: "/volunteer/requests",
     ACTIVITIES: "/volunteer/activities",
+    MEETING_LOBBY: (id: string) => `/volunteer/activities/${id}/meeting`,
     CERTIFICATES: "/volunteer/certificates"
   }
 } as const;

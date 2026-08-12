@@ -1,0 +1,118 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrap {
+  @include flex-col;
+  gap: $sp-md;
+  min-height: 180px;
+}
+
+.summary {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+
+  span {
+    padding: 4px 10px;
+    border-radius: $radius-full;
+    background: rgba($text-muted, 0.08);
+    border: 1px solid rgba($text-muted, 0.15);
+  }
+}
+
+.warn {
+  color: #d97706 !important;
+  background: rgba(#d97706, 0.08) !important;
+  border-color: rgba(#d97706, 0.25) !important;
+}
+
+.hint {
+  margin: 0;
+  font-size: $font-sm;
+  color: $text-muted;
+}
+
+.list {
+  @include flex-col;
+  gap: $sp-sm;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.row {
+  @include flex(row, flex-start, space-between, $sp-sm);
+  flex-wrap: wrap;
+  padding: $sp-sm $sp-md;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $bg;
+  gap: $sp-sm;
+}
+
+.rowWarn {
+  border-color: rgba(#d97706, 0.35);
+  background: rgba(#d97706, 0.04);
+}
+
+.rowMain {
+  @include flex-col;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.nameRow {
+  @include flex(row, center, flex-start, 6px);
+  color: $text;
+  font-size: $font-sm;
+}
+
+.meta {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+  font-size: $font-xs;
+  color: $text-muted;
+
+  span {
+    @include flex(row, center, flex-start, 4px);
+  }
+}
+
+.badgeOk {
+  color: $green;
+  font-weight: 700;
+}
+
+.badgeWarn {
+  color: #d97706;
+  font-weight: 700;
+}
+
+.matchActions {
+  @include flex(row, flex-end, flex-end, $sp-xs);
+  flex-wrap: wrap;
+  min-width: 220px;
+  flex: 1;
+}
+
+.clearBtn {
+  border: 1px solid rgba($red, 0.25);
+  background: rgba($red, 0.05);
+  color: $red;
+  border-radius: $radius;
+  padding: 6px 10px;
+  font-size: $font-xs;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: rgba($red, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

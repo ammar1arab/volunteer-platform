@@ -1,0 +1,337 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+@use "@/presentation/styles/admin-mixins" as *;
+
+.page {
+  width: 100%;
+}
+
+.header {
+  @include page-header;
+  margin-bottom: $sp-lg;
+}
+
+.tabs {
+  @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
+  padding: 4px;
+  background: rgba($text-muted, 0.06);
+  border: 1px solid $border;
+  border-radius: $radius;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.tab {
+  border: none;
+  background: transparent;
+  color: $text-muted;
+  font-size: $font-sm;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    color: $text;
+    background: rgba($white, 0.7);
+  }
+}
+
+.tabActive {
+  background: $white;
+  color: $text;
+  box-shadow: 0 1px 4px rgba($black, 0.06);
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: $sp-sm;
+  margin-bottom: $sp-lg;
+
+  @include sm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.actions {
+  @include flex(row, center, space-between, $sp-sm);
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: $sp-md;
+
+  > * {
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+  }
+
+  @include sm {
+    flex-direction: column;
+    gap: $sp-sm;
+    align-items: stretch;
+
+    > * {
+      width: 100%;
+      height: 36px;
+      min-height: 36px;
+      max-height: 36px;
+    }
+  }
+}
+
+.actionsEnd {
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+
+  > * {
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+  }
+
+  @include sm {
+    width: 100%;
+  }
+}
+
+.list {
+  @include flex-col;
+  gap: $sp-sm;
+  margin-bottom: $sp-lg;
+}
+
+.card {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: $green;
+    box-shadow:
+      0 0 0 1px $green,
+      $shadow;
+  }
+}
+
+.cardHeader {
+  @include flex(row, center, space-between, $sp-sm);
+  padding: $sp-md $sp-lg;
+  border-bottom: 1px solid $border;
+  gap: $sp-sm;
+}
+
+.cardMeta {
+  min-width: 0;
+  flex: 1;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+}
+
+.cardDate {
+  margin: 4px 0 0;
+  font-size: $font-xs;
+  color: $text-muted;
+}
+
+.cardBody {
+  @include flex(row, center, space-between, $sp-sm);
+  padding: $sp-md $sp-lg;
+  flex-wrap: wrap;
+}
+
+.metaRow {
+  @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.metaChip {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-muted;
+  background: rgba($text-muted, 0.08);
+  border: 1px solid rgba($text-muted, 0.15);
+  border-radius: $radius-full;
+  padding: 4px 10px;
+}
+
+.metaChipBtn {
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: $radius-full;
+  padding: 4px 10px;
+  cursor: pointer;
+  color: #2563eb;
+  background: rgba(#2563eb, 0.08);
+  border: 1px solid rgba(#2563eb, 0.25);
+
+  &:hover {
+    background: rgba(#2563eb, 0.14);
+  }
+}
+
+.errorText {
+  margin: 0;
+  font-size: $font-xs;
+  color: $red;
+}
+
+.cardActions {
+  @include flex(row, center, flex-end, $sp-xs);
+  flex-wrap: wrap;
+}
+
+.btn {
+  @include action-btn;
+  color: $text-muted;
+  text-decoration: none;
+
+  &:hover:not(:disabled) {
+    color: $text;
+    border-color: $text;
+  }
+}
+
+.btnInfo {
+  @include action-btn;
+  color: #2563eb;
+  border-color: rgba(#2563eb, 0.3);
+  background: rgba(#2563eb, 0.05);
+
+  &:hover:not(:disabled) {
+    background: rgba(#2563eb, 0.1);
+    border-color: #2563eb;
+  }
+}
+
+.btnSuccess {
+  @include action-btn;
+  color: $green;
+  border-color: rgba($green, 0.3);
+  background: rgba($green, 0.05);
+
+  &:hover:not(:disabled) {
+    background: rgba($green, 0.1);
+    border-color: $green;
+  }
+}
+
+.btnWarning {
+  @include action-btn;
+  color: #d97706;
+  border-color: rgba(#d97706, 0.3);
+  background: rgba(#d97706, 0.05);
+
+  &:hover:not(:disabled) {
+    background: rgba(#d97706, 0.1);
+    border-color: #d97706;
+  }
+}
+
+.settings {
+  @include flex-col;
+  gap: $sp-lg;
+}
+
+.settingsCard {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: $sp-lg;
+}
+
+.settingsHeader {
+  @include flex(row, flex-start, space-between, $sp-sm);
+  margin-bottom: $sp-md;
+  flex-wrap: wrap;
+}
+
+.settingsTitle {
+  margin: 0;
+  font-size: $font-lg;
+  font-weight: 700;
+  color: $text;
+}
+
+.settingsHint {
+  margin: 6px 0 0;
+  font-size: $font-sm;
+  color: $text-muted;
+}
+
+.connectionBadge {
+  @include status-badge;
+}
+
+.connected {
+  background: rgba($green, 0.08);
+  color: $green;
+  border: 1px solid rgba($green, 0.3);
+}
+
+.disconnected {
+  background: rgba($red, 0.08);
+  color: $red;
+  border: 1px solid rgba($red, 0.3);
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $sp-md;
+  margin-bottom: $sp-md;
+
+  @include sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settingsField {
+  @include flex-col;
+  gap: 4px;
+  padding: $sp-sm;
+  border-radius: $radius;
+  background: rgba($text-muted, 0.04);
+  border: 1px solid rgba($text-muted, 0.08);
+}
+
+.fieldLabel {
+  font-size: $font-xs;
+  color: $text-muted;
+  font-weight: 600;
+}
+
+.fieldValue {
+  font-size: $font-sm;
+  color: $text;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.lastError {
+  @include flex(row, center, flex-start, $sp-xs);
+  margin: 0 0 $sp-md;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  background: rgba($red, 0.06);
+  border: 1px solid rgba($red, 0.2);
+  color: $red;
+  font-size: $font-sm;
+}
+
+.settingsActions {
+  @include flex(row, center, flex-start, $sp-sm);
+}

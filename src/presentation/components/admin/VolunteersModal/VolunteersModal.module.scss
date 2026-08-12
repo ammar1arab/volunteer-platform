@@ -252,6 +252,62 @@
   }
 }
 
+.meetSuggest {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+  background: rgba(#2563eb, 0.08);
+  border: 1px solid rgba(#2563eb, 0.2);
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: rgba(#2563eb, 0.14);
+    border-color: #2563eb;
+  }
+}
+
+.meetBanner {
+  @include flex(row, center, space-between, $sp-sm);
+  flex-wrap: wrap;
+  margin: 0 $sp-md $sp-sm;
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  background: rgba(#2563eb, 0.06);
+  border: 1px solid rgba(#2563eb, 0.2);
+}
+
+.meetBannerBody {
+  @include flex-col;
+  gap: 2px;
+  font-size: $font-xs;
+  color: #1d4ed8;
+
+  strong {
+    font-size: $font-sm;
+  }
+}
+
+.meetApplyAll {
+  border: 1px solid rgba(#2563eb, 0.35);
+  background: rgba(#2563eb, 0.1);
+  color: #1d4ed8;
+  border-radius: $radius;
+  padding: 6px 12px;
+  font-size: $font-xs;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(#2563eb, 0.16);
+  }
+}
+
 .attendanceResult {
   @include flex(row, center, flex-start, $sp-xs);
   margin-top: 4px;

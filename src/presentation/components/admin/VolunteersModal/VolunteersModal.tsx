@@ -71,11 +71,15 @@ const VolunteersModal = ({
   const {
     volunteers, allVolunteers, filteredCount, exportData,
     loading, rejecting, confirmStep, attendanceWarning, unmarkedCount,
+    meetSuggestions,
+    unmatchedMeetCount,
+    pendingMeetSuggestionsCount,
     toasts, removeToast,
     search, handleSearch,
     genderFilter, handleGenderFilter,
     currentPage, setCurrentPage, volunteersPerPage,
-    setAttendance, rejectVolunteer, requestComplete,
+    setAttendance, applyMeetSuggestion, applyAllMeetSuggestions,
+    rejectVolunteer, requestComplete,
     confirmStep1, cancelConfirm, confirmComplete, dismissWarning, calculateAge,
   } = useVolunteersModal(
     activityId, isOpen, activityTitle, activityStatus, activityDate, activityType, durationHours
@@ -145,6 +149,28 @@ const VolunteersModal = ({
             </div>
           )}
 
+          {(pendingMeetSuggestionsCount > 0 || unmatchedMeetCount > 0) && !isCompleted && (
+            <div className={styles.meetBanner}>
+              <div className={styles.meetBannerBody}>
+                {pendingMeetSuggestionsCount > 0 && (
+                  <strong>اقتراحات Meet جاهزة: {pendingMeetSuggestionsCount}</strong>
+                )}
+                {unmatchedMeetCount > 0 && (
+                  <span>يوجد {unmatchedMeetCount} حضور غير مطابق في تقرير Meet</span>
+                )}
+              </div>
+              {pendingMeetSuggestionsCount > 0 && (
+                <button
+                  type="button"
+                  className={styles.meetApplyAll}
+                  onClick={applyAllMeetSuggestions}
+                >
+                  تطبيق الاقتراحات
+                </button>
+              )}
+            </div>
+          )}
+
           <div className={styles.scrollArea}>
             {loading ? (
               <LoadingState compact />
@@ -159,6 +185,10 @@ const VolunteersModal = ({
                   const absent    = volunteer.attendanceStatus === AttendanceStatus.ABSENT;
                   const unmarked  = volunteer.attendanceStatus === AttendanceStatus.NOT_MARKED;
                   const isRejecting = rejecting === volunteer.participationId;
+                  const suggestion = meetSuggestions.get(volunteer.id);
+                  const suggestedMinutes = suggestion
+                    ? Math.max(1, Math.round(suggestion.attendedSeconds / 60))
+                    : 0;
 
                   return (
                     <div
@@ -207,6 +237,20 @@ const VolunteersModal = ({
                             </span>
                           )}
                         </div>
+
+                        {suggestion && unmarked && (
+                          <button
+                            type="button"
+                            className={styles.meetSuggest}
+                            title="تطبيق اقتراح Meet"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              applyMeetSuggestion(volunteer.id);
+                            }}
+                          >
+                            اقتراح Meet: حضر (~{suggestedMinutes} د) · تطبيق
+                          </button>
+                        )}
 
                         {!isCompleted && (
                           <div className={styles.attendanceRow} onClick={e => e.stopPropagation()}>

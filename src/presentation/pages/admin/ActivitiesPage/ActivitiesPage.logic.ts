@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityStatus, ActivityType, DayOfWeek, UserRole } from "@/core/domain/enums";
+import { ActivityStatus, ActivityType, DayOfWeek, MeetingLinkSource, MeetingPlatform, UserRole } from "@/core/domain/enums";
 import { useActivities, useToast, useAuth } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
@@ -146,7 +146,9 @@ export const useActivitiesPage = () => {
       latitude: activity.latitude,
       longitude: activity.longitude,
       meetingLink: activity.meetingLink,
-      meetingPlatform: activity.meetingPlatform
+      meetingPlatform: activity.meetingPlatform,
+      meetingLinkSource: activity.meetingLinkSource ?? MeetingLinkSource.MANUAL,
+      primaryPresenterId: activity.primaryPresenterId ?? ""
     });
     setShowModal(true);
   }, []);
@@ -191,8 +193,13 @@ export const useActivitiesPage = () => {
     if (form.activityType === ActivityType.IN_PERSON && !form.placeName?.trim())
       return "اسم المكان مطلوب للنشاط الوجاهي";
     if (form.activityType === ActivityType.IN_PERSON && !form.city) return "المدينة مطلوبة للنشاط الوجاهي";
-    if (form.activityType === ActivityType.ONLINE && !form.meetingLink?.trim())
-      return "رابط الاجتماع مطلوب للنشاط الإلكتروني";
+    if (form.activityType === ActivityType.ONLINE) {
+      if (!form.meetingLinkSource) return "مصدر رابط الاجتماع مطلوب";
+      if (form.meetingLinkSource === MeetingLinkSource.MANUAL) {
+        if (!form.meetingPlatform) return "منصة الاجتماع مطلوبة للرابط اليدوي";
+        if (!form.meetingLink?.trim()) return "رابط الاجتماع مطلوب للنشاط الإلكتروني";
+      }
+    }
     if (form.startTime >= form.endTime) return "وقت البداية يجب أن يسبق النهاية";
     if (form.maxVolunteers < 1) return "العدد الأقصى يجب أن يكون 1 أو أكثر";
     return null;
@@ -223,8 +230,25 @@ export const useActivitiesPage = () => {
         city: formData.activityType === ActivityType.IN_PERSON ? formData.city || null : null,
         latitude: formData.activityType === ActivityType.IN_PERSON ? (formData.latitude ?? null) : null,
         longitude: formData.activityType === ActivityType.IN_PERSON ? (formData.longitude ?? null) : null,
-        meetingLink: formData.activityType === ActivityType.ONLINE ? formData.meetingLink?.trim() || null : null,
-        meetingPlatform: formData.activityType === ActivityType.ONLINE ? formData.meetingPlatform || null : null
+        meetingLink:
+          formData.activityType === ActivityType.ONLINE &&
+          formData.meetingLinkSource === MeetingLinkSource.MANUAL
+            ? formData.meetingLink?.trim() || null
+            : null,
+        meetingPlatform:
+          formData.activityType === ActivityType.ONLINE
+            ? formData.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO
+              ? MeetingPlatform.GOOGLE_MEET
+              : formData.meetingPlatform || null
+            : null,
+        meetingLinkSource:
+          formData.activityType === ActivityType.ONLINE
+            ? (formData.meetingLinkSource as MeetingLinkSource) || MeetingLinkSource.MANUAL
+            : undefined,
+        primaryPresenterId:
+          formData.activityType === ActivityType.ONLINE
+            ? formData.primaryPresenterId?.trim() || null
+            : null
       };
 
       try {

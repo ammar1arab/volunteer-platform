@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { ActivityVolunteerDto } from "@/core/application/dtos";
-import { activityApi, participationApi } from "@/presentation/services";
-import { AttendanceStatus, Gender } from "@/core/domain/enums";
+import { activityApi, participationApi, meetingsApi } from "@/presentation/services";
+import { AttendanceStatus, Gender, MeetingAttendeeMatchStatus } from "@/core/domain/enums";
 import { useToast } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { getAttendanceStatusLabel, getCityLabel, getGenderLabel } from "@/presentation/constants";
@@ -15,6 +15,11 @@ import {
   useFetchData
 } from "@/presentation/query";
 
+export type MeetAttendanceSuggestion = {
+  attendedSeconds: number;
+  displayName: string;
+};
+
 const attendanceOverrides = new Map<string, Record<string, boolean | null>>();
 const getOverrides = (activityId: string) => {
   if (!attendanceOverrides.has(activityId)) attendanceOverrides.set(activityId, {});
@@ -22,6 +27,7 @@ const getOverrides = (activityId: string) => {
 };
 
 const VOLUNTEERS_PER_PAGE = 15;
+const SUGGEST_ATTENDED_SECONDS = 60;
 
 function applyAttendanceOverrides(
   activityId: string,
@@ -85,6 +91,16 @@ export const useVolunteersModal = (
     }
   });
 
+  const reportQuery = useFetchData({
+    queryKey: queryKeys.meetings.report(activityId),
+    request: async () => unwrapResult(await meetingsApi.getReport(activityId)).report,
+    options: {
+      enabled: isOpen && Boolean(activityId),
+      staleTime: 30_000,
+      retry: false
+    }
+  });
+
   useEffect(() => {
     if (!isOpen || !activityId) return;
     setConfirmStep(0);
@@ -95,12 +111,49 @@ export const useVolunteersModal = (
 
   const serverList = (query.data ?? EMPTY_ARRAY) as ActivityVolunteerDto[];
 
+  const meetSuggestions = useMemo(() => {
+    const map = new Map<string, MeetAttendanceSuggestion>();
+    const attendees = reportQuery.data?.attendees ?? [];
+    for (const attendee of attendees) {
+      if (
+        attendee.matchStatus !== MeetingAttendeeMatchStatus.MATCHED &&
+        attendee.matchStatus !== MeetingAttendeeMatchStatus.CONFIRMED
+      ) {
+        continue;
+      }
+      if (
+        !attendee.matchedUserId ||
+        attendee.attendedSeconds < SUGGEST_ATTENDED_SECONDS
+      ) {
+        continue;
+      }
+      const existing = map.get(attendee.matchedUserId);
+      if (!existing || attendee.attendedSeconds > existing.attendedSeconds) {
+        map.set(attendee.matchedUserId, {
+          attendedSeconds: attendee.attendedSeconds,
+          displayName: attendee.displayName
+        });
+      }
+    }
+    return map;
+  }, [reportQuery.data]);
+
+  const unmatchedMeetCount = useMemo(
+    () => reportQuery.data?.unmatchedCount ?? 0,
+    [reportQuery.data]
+  );
+
   const volunteers = useMemo(
     () => applyAttendanceOverrides(activityId, serverList, rejectedIds),
-
-
     [activityId, serverList, rejectedIds, overrideTick]
   );
+
+  const pendingMeetSuggestions = useMemo(() => {
+    return volunteers.filter(
+      (v) =>
+        v.attendanceStatus === AttendanceStatus.NOT_MARKED && meetSuggestions.has(v.id)
+    );
+  }, [volunteers, meetSuggestions]);
 
   const filteredVolunteers = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -119,18 +172,49 @@ export const useVolunteersModal = (
   const handleSearch = useCallback((val: string) => {
     setSearch(val);
     setCurrentPage(1);
-  }, []);
+  }, [setSearch, setCurrentPage]);
 
   const handleGenderFilter = useCallback((val: "ALL" | "MALE" | "FEMALE") => {
     setGenderFilter(val);
     setCurrentPage(1);
-  }, []);
+  }, [setGenderFilter, setCurrentPage]);
 
   const setAttendance = useCallback((participationId: string, attended: boolean | null) => {
     getOverrides(activityId)[participationId] = attended;
     setAttendanceWarning(false);
     setOverrideTick((n) => n + 1);
   }, [activityId]);
+
+  const applyMeetSuggestion = useCallback(
+    (volunteerUserId: string) => {
+      const volunteer = volunteers.find((v) => v.id === volunteerUserId);
+      if (!volunteer || !meetSuggestions.has(volunteerUserId)) return;
+      if (volunteer.attendanceStatus !== AttendanceStatus.NOT_MARKED) return;
+      setAttendance(volunteer.participationId, true);
+      showToast(`تم تسجيل حضور ${volunteer.fullName} حسب Meet`, "success");
+    },
+    [volunteers, meetSuggestions, setAttendance, showToast]
+  );
+
+  const applyAllMeetSuggestions = useCallback(() => {
+    let applied = 0;
+    for (const volunteer of volunteers) {
+      if (
+        volunteer.attendanceStatus === AttendanceStatus.NOT_MARKED &&
+        meetSuggestions.has(volunteer.id)
+      ) {
+        getOverrides(activityId)[volunteer.participationId] = true;
+        applied += 1;
+      }
+    }
+    if (!applied) {
+      showToast("لا توجد اقتراحات قابلة للتطبيق", "info");
+      return;
+    }
+    setAttendanceWarning(false);
+    setOverrideTick((n) => n + 1);
+    showToast(`تم تطبيق ${applied} اقتراح حضور من Meet`, "success");
+  }, [volunteers, meetSuggestions, activityId, showToast]);
 
   const rejectVolunteer = useCallback(
     async (participationId: string, volunteerName: string) => {
@@ -243,6 +327,9 @@ export const useVolunteersModal = (
     confirmStep,
     attendanceWarning,
     unmarkedCount,
+    meetSuggestions,
+    unmatchedMeetCount,
+    pendingMeetSuggestionsCount: pendingMeetSuggestions.length,
     toasts,
     removeToast,
     search,
@@ -253,6 +340,8 @@ export const useVolunteersModal = (
     setCurrentPage,
     volunteersPerPage: VOLUNTEERS_PER_PAGE,
     setAttendance,
+    applyMeetSuggestion,
+    applyAllMeetSuggestions,
     rejectVolunteer,
     requestComplete,
     confirmStep1,

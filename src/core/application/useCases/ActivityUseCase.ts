@@ -1,11 +1,25 @@
-import { ActivityRepository, ActivityParticipationRepository } from "@/infrastructure/persistence/repositories";
+import {
+  ActivityRepository,
+  ActivityParticipationRepository,
+  ActivityPresenterRepository,
+  MeetingSyncOperationRepository
+} from "@/infrastructure/persistence/repositories";
 import { InputSanitizer } from "@/infrastructure/security";
 import { prisma } from "@/infrastructure/persistence/prisma";
-import { Activity } from "@/core/domain/entities";
+import { Activity, ActivityPresenter } from "@/core/domain/entities";
 import { R2StorageService } from "@/infrastructure/external";
 import { serviceError, guard, guardRange } from "@/core/application/common";
 import { toActivityDto, toActivityDtoList } from "@/core/application/mappers";
-import { ActivityStatus, ActivityType, JordanianCity, NotificationType } from "@/core/domain/enums";
+import {
+  ActivityStatus,
+  ActivityType,
+  JordanianCity,
+  MeetingLinkSource,
+  MeetingSyncOperationType,
+  MeetingSyncStatus,
+  NotificationType,
+  PresenterRole
+} from "@/core/domain/enums";
 import {
   ok,
   fail,
@@ -21,11 +35,13 @@ import {
   RestoreActivityResponse,
   GetActivityVolunteersResponse,
   ActivityVolunteerDto,
-  CompleteActivityResponse
+  CompleteActivityResponse,
+  ActivityDto
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
 import { ROUTES } from "@/presentation/constants";
 import { sendPushToMany } from "@/lib/webpush";
+import { inngest } from "@/lib/inngest/client";
 
 class ActivityUseCase {
   private static readonly SCOPE = "ActivityUseCase";
@@ -33,7 +49,9 @@ class ActivityUseCase {
 
   constructor(
     private activityRepository: ActivityRepository,
-    private participationRepository: ActivityParticipationRepository
+    private participationRepository: ActivityParticipationRepository,
+    private syncOperationRepository: MeetingSyncOperationRepository = new MeetingSyncOperationRepository(),
+    private presenterRepository: ActivityPresenterRepository = new ActivityPresenterRepository()
   ) {
     this.storageService = new R2StorageService();
   }
@@ -65,6 +83,86 @@ class ActivityUseCase {
     return activity;
   }
 
+  private async enqueueMeetingSync(activityId: string, type: MeetingSyncOperationType): Promise<void> {
+    try {
+      const operation = await this.syncOperationRepository.enqueue({
+        activityId,
+        type,
+        dedupeKey: `${activityId}:${type}`,
+        payload: { activityId, type }
+      });
+      try {
+        await inngest.send({ name: "meeting/sync.requested", data: { operationId: operation.id } });
+      } catch (error) {
+        logger.warn(ActivityUseCase.SCOPE, "enqueueMeetingSync", String(error));
+      }
+    } catch (error) {
+      logger.warn(ActivityUseCase.SCOPE, "enqueueMeetingSync", String(error));
+    }
+  }
+
+  /**
+   * Upsert PRIMARY presenter for an activity.
+   * - `undefined`: leave unchanged
+   * - `null` / `""`: deactivate current primary
+   * - string id: set as active PRIMARY
+   */
+  private async upsertPrimaryPresenter(
+    activityId: string,
+    primaryPresenterId: string | null | undefined
+  ): Promise<boolean> {
+    if (primaryPresenterId === undefined) return false;
+
+    const normalized = primaryPresenterId?.trim() || null;
+    const existing = await this.presenterRepository.findByActivity(activityId);
+    const primary = existing.find((p) => p.role === PresenterRole.PRIMARY);
+
+    if (!normalized) {
+      if (primary?.isActive) {
+        primary.update({ isActive: false });
+        await this.presenterRepository.update(primary);
+        return true;
+      }
+      return false;
+    }
+
+    if (primary?.presenterId === normalized && primary.isActive) return false;
+
+    if (primary && primary.presenterId !== normalized) {
+      primary.update({ isActive: false });
+      await this.presenterRepository.update(primary);
+    }
+
+    const existingForUser = await this.presenterRepository.findByActivityAndPresenter(
+      activityId,
+      normalized
+    );
+    if (existingForUser) {
+      existingForUser.update({ role: PresenterRole.PRIMARY, isActive: true });
+      await this.presenterRepository.update(existingForUser);
+    } else {
+      await this.presenterRepository.create(
+        ActivityPresenter.create({
+          activityId,
+          presenterId: normalized,
+          role: PresenterRole.PRIMARY
+        })
+      );
+    }
+    return true;
+  }
+
+  private async attachPrimaryPresenters(dtos: ActivityDto[]): Promise<ActivityDto[]> {
+    const onlineIds = dtos.filter((d) => d.activityType === ActivityType.ONLINE).map((d) => d.id);
+    if (!onlineIds.length) return dtos.map((d) => ({ ...d, primaryPresenterId: d.primaryPresenterId ?? null }));
+
+    const map = await this.presenterRepository.findActivePrimaryByActivities(onlineIds);
+    return dtos.map((d) => ({
+      ...d,
+      primaryPresenterId: map.get(d.id)?.presenterId ?? null
+    }));
+  }
+
   async create(dto: CreateActivityRequest, userId: string): Promise<CreateActivityResponse> {
     try {
       const sanitized = this.sanitize(dto);
@@ -75,6 +173,11 @@ class ActivityUseCase {
       guard(dto.startTime, "وقت البدء مطلوب");
       guard(dto.endTime, "وقت الانتهاء مطلوب");
       guardRange(dto.durationHours, 1, 24, "مدة النشاط مطلوبة");
+
+      const meetingLinkSource = dto.meetingLinkSource ?? MeetingLinkSource.MANUAL;
+      const isAutoMeet =
+        dto.activityType === ActivityType.ONLINE &&
+        meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO;
 
       const activity = Activity.create({
         title: sanitized.title!,
@@ -95,14 +198,31 @@ class ActivityUseCase {
         city: (dto.city as JordanianCity) ?? null,
         latitude: dto.latitude ?? null,
         longitude: dto.longitude ?? null,
-        meetingLink: dto.meetingLink ?? null,
+        meetingLink: isAutoMeet ? null : (dto.meetingLink ?? null),
         meetingPlatform: dto.meetingPlatform ?? null,
-        externalMeetingId: dto.externalMeetingId ?? null
+        externalMeetingId: dto.externalMeetingId ?? null,
+        meetingLinkSource,
+        meetingCode: dto.meetingCode ?? null,
+        meetingSpaceName: dto.meetingSpaceName ?? null,
+        meetingSyncStatus: MeetingSyncStatus.NONE,
+        meetingSyncError: null,
+        meetingSyncedAt: null,
+        timeZone: dto.timeZone ?? Activity.DEFAULT_TIME_ZONE
       });
 
+      if (isAutoMeet) {
+        activity.enableAutomaticMeeting();
+      }
+
       const created = await this.activityRepository.create(activity);
+
+      if (created.activityType === ActivityType.ONLINE && dto.primaryPresenterId !== undefined) {
+        await this.upsertPrimaryPresenter(created.id, dto.primaryPresenterId);
+      }
+
+      const [enriched] = await this.attachPrimaryPresenters([toActivityDto(created)]);
       logger.info(ActivityUseCase.SCOPE, "create", `Activity created: ${created.id}`);
-      return ok({ activity: toActivityDto(created) });
+      return ok({ activity: enriched });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "create", error, "حدث خطأ أثناء إنشاء الفرصة");
     }
@@ -111,6 +231,7 @@ class ActivityUseCase {
   async update(id: string, dto: UpdateActivityRequest): Promise<UpdateActivityResponse> {
     try {
       const existing = await this.findOrFail(id);
+      const before = existing.toObject();
 
       if (dto.imageUrl && dto.imageUrl !== existing.imageUrl) {
         await this.tryDeleteImage(existing.imageUrl);
@@ -136,12 +257,55 @@ class ActivityUseCase {
         ...(dto.longitude !== undefined && { longitude: dto.longitude }),
         ...(dto.meetingLink !== undefined && { meetingLink: dto.meetingLink }),
         ...(dto.meetingPlatform !== undefined && { meetingPlatform: dto.meetingPlatform }),
-        ...(dto.externalMeetingId !== undefined && { externalMeetingId: dto.externalMeetingId })
+        ...(dto.externalMeetingId !== undefined && { externalMeetingId: dto.externalMeetingId }),
+        ...(dto.meetingLinkSource !== undefined && { meetingLinkSource: dto.meetingLinkSource }),
+        ...(dto.timeZone !== undefined && { timeZone: dto.timeZone })
       });
 
+      if (
+        dto.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO &&
+        existing.activityType === ActivityType.ONLINE &&
+        before.meetingLinkSource !== MeetingLinkSource.GOOGLE_MEET_AUTO
+      ) {
+        existing.enableAutomaticMeeting();
+      }
+
+      const after = existing.toObject();
+      const scheduleOrTitleChanged =
+        before.title !== after.title ||
+        before.description !== after.description ||
+        before.date.getTime() !== after.date.getTime() ||
+        before.startTime !== after.startTime ||
+        before.endTime !== after.endTime ||
+        before.timeZone !== after.timeZone;
+
       const updated = await this.activityRepository.update(existing);
+
+      if (updated.activityType === ActivityType.ONLINE && "primaryPresenterId" in dto) {
+        const presenterChanged = await this.upsertPrimaryPresenter(updated.id, dto.primaryPresenterId ?? null);
+        if (
+          presenterChanged &&
+          updated.usesAutomaticMeeting() &&
+          updated.externalMeetingId
+        ) {
+          await this.enqueueMeetingSync(updated.id, MeetingSyncOperationType.SYNC_ATTENDEES);
+        }
+      } else if (updated.activityType !== ActivityType.ONLINE && "primaryPresenterId" in dto) {
+        await this.upsertPrimaryPresenter(updated.id, null);
+      }
+
+      if (
+        updated.usesAutomaticMeeting() &&
+        after.externalMeetingId &&
+        scheduleOrTitleChanged &&
+        updated.status === ActivityStatus.PUBLISHED
+      ) {
+        await this.enqueueMeetingSync(updated.id, MeetingSyncOperationType.UPDATE);
+      }
+
+      const [enriched] = await this.attachPrimaryPresenters([toActivityDto(updated)]);
       logger.info(ActivityUseCase.SCOPE, "update", `Activity updated: ${id}`);
-      return ok({ activity: toActivityDto(updated) });
+      return ok({ activity: enriched });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "update", error, "حدث خطأ أثناء تحديث الفرصة");
     }
@@ -162,7 +326,10 @@ class ActivityUseCase {
   async getOne(id: string): Promise<GetActivityResponse> {
     try {
       const activity = await this.findOrFail(id);
-      return ok({ activity: toActivityDto(activity) });
+      const [enriched] = await this.attachPrimaryPresenters([
+        toActivityDto(activity, { includePrivateMeetingFields: false })
+      ]);
+      return ok({ activity: enriched });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "getOne", error, "حدث خطأ أثناء جلب الفرصة");
     }
@@ -171,7 +338,8 @@ class ActivityUseCase {
   async getAll(): Promise<GetAllActivitiesResponse> {
     try {
       const activities = await this.activityRepository.findAll();
-      return ok({ activities: toActivityDtoList(activities) });
+      const enriched = await this.attachPrimaryPresenters(toActivityDtoList(activities));
+      return ok({ activities: enriched });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "getAll", error, "حدث خطأ أثناء جلب الفرص");
     }
@@ -180,7 +348,10 @@ class ActivityUseCase {
   async getPublished(): Promise<GetAllActivitiesResponse> {
     try {
       const activities = await this.activityRepository.findPublished();
-      return ok({ activities: toActivityDtoList(activities) });
+      const enriched = await this.attachPrimaryPresenters(
+        toActivityDtoList(activities, { includePrivateMeetingFields: false })
+      );
+      return ok({ activities: enriched });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "getPublished", error, "حدث خطأ أثناء جلب الفرص المنشورة");
     }
@@ -190,7 +361,8 @@ class ActivityUseCase {
     try {
       guard(creatorId, "معرف المنشئ مطلوب");
       const activities = await this.activityRepository.findByCreator(creatorId);
-      return ok({ activities: toActivityDtoList(activities) });
+      const enriched = await this.attachPrimaryPresenters(toActivityDtoList(activities));
+      return ok({ activities: enriched });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "getByCreator", error, "حدث خطأ أثناء جلب فرص المنشئ");
     }
@@ -200,7 +372,17 @@ class ActivityUseCase {
     try {
       const activity = await this.findOrFail(id);
       activity.publish();
+
+      if (activity.usesAutomaticMeeting()) {
+        activity.markMeetingSyncPending();
+      }
+
       const updated = await this.activityRepository.update(activity);
+
+      if (updated.usesAutomaticMeeting()) {
+        await this.enqueueMeetingSync(updated.id, MeetingSyncOperationType.CREATE);
+      }
+
       logger.info(ActivityUseCase.SCOPE, "publish", `Activity published: ${id}`);
       return ok({ activity: toActivityDto(updated) });
     } catch (error) {
@@ -211,8 +393,13 @@ class ActivityUseCase {
   async cancel(id: string): Promise<CancelActivityResponse> {
     try {
       const activity = await this.findOrFail(id);
+      const shouldCancelMeeting = activity.usesAutomaticMeeting() && !!activity.externalMeetingId;
       activity.cancel();
       const updated = await this.activityRepository.update(activity);
+
+      if (shouldCancelMeeting) {
+        await this.enqueueMeetingSync(id, MeetingSyncOperationType.CANCEL);
+      }
 
       const approved = await this.participationRepository.findApprovedByActivity(id);
       if (approved.length) {

@@ -9,3 +9,6 @@ export { default as FeaturedPostRepository } from "./FeaturedPostRepository/Feat
 export { default as VolunteerSpotlightRepository } from "./VolunteerSpotlightRepository/VolunteerSpotlightRepository";
 export { default as MonthlyMagazineRepository } from "./MonthlyMagazineRepository/MonthlyMagazineRepository";
 export { default as NotificationRepository } from "./NotificationRepository/NotificationRepository";
+export { default as MeetingIntegrationRepository } from "./MeetingIntegrationRepository/MeetingIntegrationRepository";
+export { default as MeetingSyncOperationRepository } from "./MeetingSyncOperationRepository/MeetingSyncOperationRepository";
+export { default as ActivityPresenterRepository } from "./ActivityPresenterRepository/ActivityPresenterRepository";

@@ -2,13 +2,14 @@ import {
   ActivityParticipationRepository,
   ActivityRepository,
   UserRepository,
-  VolunteerProfileRepository
+  VolunteerProfileRepository,
+  MeetingSyncOperationRepository
 } from "@/infrastructure/persistence/repositories";
 import type { Prisma } from "@prisma/client";
-import { ActivityParticipation } from "@/core/domain/entities";
+import { Activity, ActivityParticipation } from "@/core/domain/entities";
 import { serviceError, guard } from "@/core/application/common";
 import { toParticipationDto, toUserSummaryDto, toActivitySummaryDto } from "@/core/application/mappers";
-import { ActivityStatus, ParticipationStatus, NotificationType } from "@/core/domain/enums";
+import { ActivityStatus, MeetingSyncOperationType, ParticipationStatus, NotificationType } from "@/core/domain/enums";
 import {
   ok,
   fail,
@@ -26,6 +27,7 @@ import { logger } from "@/lib/utils";
 import { prisma } from "@/infrastructure/persistence/prisma";
 import { ROUTES } from "@/presentation/constants";
 import { sendPushToMany, sendPushToUser } from "@/lib/webpush";
+import { inngest } from "@/lib/inngest/client";
 
 class ActivityParticipationUseCase {
   private static readonly SCOPE = "ActivityParticipationUseCase";
@@ -34,8 +36,30 @@ class ActivityParticipationUseCase {
     private participationRepository: ActivityParticipationRepository,
     private activityRepository: ActivityRepository,
     private userRepository: UserRepository,
-    private volunteerProfileRepository: VolunteerProfileRepository
+    private volunteerProfileRepository: VolunteerProfileRepository,
+    private syncOperationRepository: MeetingSyncOperationRepository = new MeetingSyncOperationRepository()
   ) {}
+
+  private async maybeEnqueueAttendeeSync(activity: Activity | null): Promise<void> {
+    try {
+      if (!activity?.usesAutomaticMeeting() || !activity.externalMeetingId) return;
+
+      const type = MeetingSyncOperationType.SYNC_ATTENDEES;
+      const operation = await this.syncOperationRepository.enqueue({
+        activityId: activity.id,
+        type,
+        dedupeKey: `${activity.id}:${type}`,
+        payload: { activityId: activity.id, type }
+      });
+      try {
+        await inngest.send({ name: "meeting/sync.requested", data: { operationId: operation.id } });
+      } catch (error) {
+        logger.warn(ActivityParticipationUseCase.SCOPE, "maybeEnqueueAttendeeSync", String(error));
+      }
+    } catch (error) {
+      logger.warn(ActivityParticipationUseCase.SCOPE, "maybeEnqueueAttendeeSync", String(error));
+    }
+  }
 
   private async findOrFail(id: string) {
     guard(id, "معرّف الطلب مطلوب");
@@ -200,6 +224,7 @@ class ActivityParticipationUseCase {
       }
 
       logger.info(ActivityParticipationUseCase.SCOPE, "approve", `Approved: ${id}`);
+      await this.maybeEnqueueAttendeeSync(activity);
       return ok({ participation: await this.mapWithRelations(participation) });
     } catch (error) {
       return serviceError(ActivityParticipationUseCase.SCOPE, "approve", error, "حدث خطأ أثناء الموافقة على الطلب");
@@ -242,6 +267,7 @@ class ActivityParticipationUseCase {
       }
 
       logger.info(ActivityParticipationUseCase.SCOPE, "reject", `Rejected: ${id}`);
+      await this.maybeEnqueueAttendeeSync(activity);
       return ok({ participation: await this.mapWithRelations(participation) });
     } catch (error) {
       return serviceError(ActivityParticipationUseCase.SCOPE, "reject", error, "حدث خطأ أثناء رفض الطلب");
@@ -269,6 +295,7 @@ class ActivityParticipationUseCase {
       }
 
       await this.participationRepository.update(participation);
+      await this.maybeEnqueueAttendeeSync(activity);
       logger.info(ActivityParticipationUseCase.SCOPE, "cancelRequest", `Cancelled: ${id}`);
       return ok({ participation: await this.mapWithRelations(participation) });
     } catch (error) {
