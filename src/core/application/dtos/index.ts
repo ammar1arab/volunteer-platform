@@ -1,6 +1,6 @@
 // ─── Base ─────────────────────────────────────────────────────
 export { ok, fail } from "./base.dto";
-export type { Result, ErrorPayload } from "./base.dto";
+export type { Result, ErrorPayload, ErrorDetails } from "./base.dto";
 
 // ─── Shared Fragments ─────────────────────────────────────────
 export type { UserSummaryDto, VolunteerProfileSummaryDto, ActivitySummaryDto } from "./shared.dto";

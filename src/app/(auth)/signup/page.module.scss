@@ -88,6 +88,167 @@
   min-width: 0;
 }
 
+.avatarField {
+  @include flex-col;
+  align-items: center;
+  gap: $sp-xs;
+}
+
+.avatarLabel {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.avatar,
+.avatarPlaceholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+}
+
+.avatar {
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  @include flex-center;
+  background: rgba($green, 0.08);
+  color: $green;
+  border: 1px dashed rgba($green, 0.35);
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  @include flex-center;
+  width: 22px;
+  height: 22px;
+  background: $green;
+  border-radius: 50%;
+  color: $white;
+}
+
+.avatarHint {
+  font-size: 11px;
+  color: $text-muted;
+}
+
+.tagLabel {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 6px;
+
+  em {
+    font-style: normal;
+    font-weight: 400;
+    color: $text-muted;
+    font-size: 11px;
+  }
+}
+
+.tagInputRow {
+  display: flex;
+  gap: 6px;
+}
+
+.tagInput {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  background: $white;
+  font-size: $font-sm;
+}
+
+.tagAddBtn {
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: $radius-md;
+  background: rgba($green, 0.12);
+  color: $green;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.suggestionChip {
+  border: 1px dashed rgba($green, 0.35);
+  background: transparent;
+  color: $text-muted;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    color: $green;
+    border-color: $green;
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tag {
+  @include flex-center;
+  gap: 4px;
+  background: rgba($green, 0.1);
+  color: $green;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+
+  button {
+    @include flex-center;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+  }
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: $font-sm;
+  color: $text;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    width: 16px;
+    height: 16px;
+    accent-color: $green;
+  }
+}
+
 .fieldError {
   font-size: 11px;
   color: $red;

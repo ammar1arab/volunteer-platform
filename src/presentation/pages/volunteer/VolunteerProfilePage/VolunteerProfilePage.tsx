@@ -4,9 +4,9 @@ import { useProfilePage } from "./VolunteerProfilePage.logic";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { CITY_OPTIONS, ROUTES, getCityLabel, getGenderLabel, getMonthLabel } from "@/presentation/constants";
+import { CITY_OPTIONS, ROUTES, getCityLabel, getGenderLabel, getEducationLevelLabel, getMonthLabel, EDUCATION_LEVEL_OPTIONS, EXPERIENCE_OPTIONS } from "@/presentation/constants";
 import { LoadingState } from "@/presentation/components";
-import { User, Mail, Phone, MapPin, Calendar, Award, FileText, Heart, Edit2, Check, X, Upload, Plus, ChevronLeft, CalendarDays } from "lucide-react";
+import { User, Mail, Phone, MapPin, Calendar, Award, Heart, Edit2, Check, X, Upload, Plus, ChevronLeft, Hash, Briefcase, GraduationCap, Languages, Sparkles } from "lucide-react";
 import { JordanianCity, Gender } from "@/core/domain/enums";
 
 const GENDER_OPTIONS = [
@@ -105,6 +105,15 @@ export default function VolunteerProfilePage() {
               <EField icon={<Mail size={15} />} label="البريد" value={user.email} field="email" type="text" {...ef} />
               <EField icon={<Phone size={15} />} label="الهاتف" value={user.phone} field="phone" type="text" {...ef} />
               {vp && <>
+                <EField
+                  icon={<Hash size={15} />}
+                  label="رقم الانتساب"
+                  value={vp.membershipNumber || ""}
+                  displayValue={vp.membershipNumber || "غير محدد"}
+                  field="membershipNumber"
+                  type="text"
+                  {...ef}
+                />
                 <EField icon={<MapPin size={15} />} label="المدينة" value={vp.city}
                   displayValue={vp.city ? getCityLabel(vp.city as JordanianCity) : undefined}
                   field="city" type="select" options={CITY_OPTIONS} {...ef} />
@@ -114,14 +123,45 @@ export default function VolunteerProfilePage() {
                 <EField icon={<User size={15} />} label="الجنس" value={vp.gender || ""}
                   displayValue={vp.gender ? getGenderLabel(vp.gender as Gender) : "غير محدد"}
                   field="gender" type="select" options={GENDER_OPTIONS} {...ef} />
+                <EField
+                  icon={<GraduationCap size={15} />}
+                  label="المستوى التعليمي"
+                  value={vp.educationLevel || ""}
+                  displayValue={vp.educationLevel ? getEducationLevelLabel(vp.educationLevel) : "غير محدد"}
+                  field="educationLevel"
+                  type="select"
+                  options={[{ value: "", label: "غير محدد" }, ...EDUCATION_LEVEL_OPTIONS]}
+                  {...ef}
+                />
+                <EField
+                  icon={<Briefcase size={15} />}
+                  label="التخصص / المهنة"
+                  value={vp.occupation || ""}
+                  displayValue={vp.occupation || "غير محدد"}
+                  field="occupation"
+                  type="text"
+                  {...ef}
+                />
+                <EField
+                  icon={<Award size={15} />}
+                  label="خبرة تطوعية سابقة"
+                  value={vp.hasVolunteerExperience ? "true" : "false"}
+                  displayValue={vp.hasVolunteerExperience ? "نعم" : "لا"}
+                  field="hasVolunteerExperience"
+                  type="select"
+                  options={EXPERIENCE_OPTIONS}
+                  {...ef}
+                />
               </>}
             </div>
           </Card>
 
           {vp && <>
-            <ECard title="نبذة عني" field="bio" value={vp.bio}       {...ef} />
-            <TagsCard icon={<Award size={14} />} title="المهارات" field="skills" tags={vp.skills} color="green" {...ef} />
-            <TagsCard icon={<Heart size={14} />} title="الاهتمامات" field="interests" tags={vp.interests} color="red"   {...ef} />
+            <ECard title="نبذة عني" field="bio" value={vp.bio || ""} {...ef} />
+            <TagsCard icon={<Award size={14} />} title="المهارات" field="skills" tags={vp.skills ?? []} color="green" {...ef} />
+            <TagsCard icon={<Heart size={14} />} title="الاهتمامات" field="interests" tags={vp.interests ?? []} color="red"   {...ef} />
+            <TagsCard icon={<Languages size={14} />} title="اللغات" field="languages" tags={vp.languages ?? []} color="green" {...ef} />
+            <TagsCard icon={<Sparkles size={14} />} title="أنواع التطوع المفضلة" field="preferredVolunteerTypes" tags={vp.preferredVolunteerTypes ?? []} color="red" {...ef} />
           </>}
         </div>
       </div>
@@ -129,14 +169,49 @@ export default function VolunteerProfilePage() {
   );
 }
 
-const Card = ({ title, children }: any) => (
+const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className={styles.card}>
     <div className={styles.cardHeader}><h2 className={styles.cardTitle}>{title}</h2></div>
     {children}
   </div>
 );
 
-const ECard = ({ title, field, value, editingField, isSaving, onStartEdit, onCancel, onUpdate, onSave }: any) => {
+type ProfileFieldValue = string | number | boolean | string[] | null;
+
+interface EditingFieldState {
+  field: string;
+  value: ProfileFieldValue;
+}
+
+interface EditHandlers {
+  editingField: EditingFieldState | null;
+  isSaving: boolean;
+  onStartEdit: (field: string, value: ProfileFieldValue) => void;
+  onCancel: () => void;
+  onUpdate: (value: ProfileFieldValue) => void;
+  onSave: () => void;
+}
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+const ECard = ({
+  title,
+  field,
+  value,
+  editingField,
+  isSaving,
+  onStartEdit,
+  onCancel,
+  onUpdate,
+  onSave
+}: {
+  title: string;
+  field: string;
+  value: string;
+} & EditHandlers) => {
   const isEditing = editingField?.field === field;
   return (
     <div className={styles.card}>
@@ -146,7 +221,7 @@ const ECard = ({ title, field, value, editingField, isSaving, onStartEdit, onCan
       </div>
       {isEditing ? (
         <div className={styles.editSection}>
-          <textarea className={styles.textarea} rows={4} value={editingField.value}
+          <textarea className={styles.textarea} rows={4} value={String(editingField.value ?? "")}
             onChange={e => onUpdate(e.target.value)} placeholder="اكتب..." disabled={isSaving} />
           <div className={styles.actions}>
             <button className={styles.btnCancel} onClick={onCancel} disabled={isSaving}><X size={13} /> إلغاء</button>
@@ -158,7 +233,29 @@ const ECard = ({ title, field, value, editingField, isSaving, onStartEdit, onCan
   );
 };
 
-const EField = ({ icon, label, value, displayValue, field, type, options, editingField, isSaving, onStartEdit, onCancel, onUpdate, onSave }: any) => {
+const EField = ({
+  icon,
+  label,
+  value,
+  displayValue,
+  field,
+  type,
+  options,
+  editingField,
+  isSaving,
+  onStartEdit,
+  onCancel,
+  onUpdate,
+  onSave
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  displayValue?: string;
+  field: string;
+  type?: string;
+  options?: SelectOption[];
+} & EditHandlers) => {
   const isEditing = editingField?.field === field;
   return (
     <div className={styles.infoRow}>
@@ -168,11 +265,11 @@ const EField = ({ icon, label, value, displayValue, field, type, options, editin
         {isEditing ? (
           <div className={styles.inlineEdit}>
             {type === "select"
-              ? <select className={styles.input} value={editingField.value} onChange={e => onUpdate(e.target.value)} disabled={isSaving}>
-                {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              ? <select className={styles.input} value={String(editingField.value ?? "")} onChange={e => onUpdate(e.target.value)} disabled={isSaving}>
+                {(options ?? []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
               : <input type={type === "date" ? "date" : "text"} className={styles.input}
-                value={editingField.value} onChange={e => onUpdate(e.target.value)} disabled={isSaving} />
+                value={String(editingField.value ?? "")} onChange={e => onUpdate(e.target.value)} disabled={isSaving} />
             }
             <button className={styles.btnCheck} onClick={onSave} disabled={isSaving}><Check size={13} /></button>
             <button className={styles.btnX} onClick={onCancel} disabled={isSaving}><X size={13} /></button>
@@ -188,10 +285,30 @@ const EField = ({ icon, label, value, displayValue, field, type, options, editin
   );
 };
 
-const TagsCard = ({ icon, title, field, tags, editingField, isSaving, onStartEdit, onCancel, onUpdate, onSave, color }: any) => {
+const TagsCard = ({
+  icon,
+  title,
+  field,
+  tags,
+  editingField,
+  isSaving,
+  onStartEdit,
+  onCancel,
+  onUpdate,
+  onSave,
+  color
+}: {
+  icon: React.ReactNode;
+  title: string;
+  field: string;
+  tags: string[];
+  color: string;
+} & EditHandlers) => {
   const [input, setInput] = useState("");
   const isEditing = editingField?.field === field;
-  const current: string[] = isEditing ? editingField.value : (tags ?? []);
+  const current: string[] = isEditing && Array.isArray(editingField.value)
+    ? editingField.value
+    : (tags ?? []);
   const add = () => { const t = input.trim(); if (t && !current.includes(t)) { onUpdate([...current, t]); setInput(""); } };
 
   return (
@@ -224,10 +341,13 @@ const TagsCard = ({ icon, title, field, tags, editingField, isSaving, onStartEdi
             <button className={styles.btnSave} onClick={onSave} disabled={isSaving}><Check size={13} /> حفظ</button>
           </div>
         </div>
-      ) : current.length > 0
-        ? <div className={styles.tags}>{current.map((tag, i) => <span key={i} className={`${styles.tag} ${styles[color]}`}>{tag}</span>)}</div>
-        : <p className={styles.bio}>لم يتم الإضافة</p>
-      }
+      ) : (
+        <div className={styles.tags}>
+          {(tags ?? []).length
+            ? tags.map((tag, i) => <span key={i} className={`${styles.tag} ${styles[color]}`}>{tag}</span>)
+            : <span className={styles.empty}>لا يوجد</span>}
+        </div>
+      )}
     </div>
   );
 };

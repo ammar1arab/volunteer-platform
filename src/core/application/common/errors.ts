@@ -16,7 +16,7 @@ export const serviceError = (
 
   const normalized =
     error instanceof Error
-      ? { name: error.name, message: error.message, stack: error.stack }
+      ? { name: error.name, message: error.message, stack: error.stack ?? null }
       : { message: String(error) };
 
   logger.error(scope, action, normalized);

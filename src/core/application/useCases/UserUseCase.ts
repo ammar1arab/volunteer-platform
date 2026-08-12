@@ -27,12 +27,18 @@ const USER_WITH_ANALYTICS_INCLUDE = {
   volunteerProfile: {
     select: {
       profilePictureUrl: true,
+      membershipNumber: true,
       city: true,
       dateOfBirth: true,
       gender: true,
       bio: true,
       skills: true,
-      interests: true
+      interests: true,
+      educationLevel: true,
+      occupation: true,
+      languages: true,
+      preferredVolunteerTypes: true,
+      hasVolunteerExperience: true
     }
   },
   participations: {
@@ -46,23 +52,35 @@ const USER_WITH_ANALYTICS_INCLUDE = {
 function mapVolunteerProfile(
   vp: {
     profilePictureUrl: string | null;
+    membershipNumber: string | null;
     city: string | null;
     dateOfBirth: Date | null;
     gender: string | null;
     bio: string | null;
     skills: string[];
     interests: string[];
+    educationLevel: string | null;
+    occupation: string | null;
+    languages: string[];
+    preferredVolunteerTypes: string[];
+    hasVolunteerExperience: boolean;
   } | null
 ): VolunteerProfileSummaryDto | undefined {
   if (!vp) return undefined;
   return {
     profilePictureUrl: vp.profilePictureUrl ?? undefined,
+    membershipNumber: vp.membershipNumber ?? undefined,
     city: vp.city ?? undefined,
     dateOfBirth: vp.dateOfBirth?.toISOString(),
     gender: vp.gender ?? undefined,
     bio: vp.bio ?? undefined,
     skills: vp.skills ?? [],
-    interests: vp.interests ?? []
+    interests: vp.interests ?? [],
+    educationLevel: vp.educationLevel ?? undefined,
+    occupation: vp.occupation ?? undefined,
+    languages: vp.languages ?? [],
+    preferredVolunteerTypes: vp.preferredVolunteerTypes ?? [],
+    hasVolunteerExperience: vp.hasVolunteerExperience ?? false
   };
 }
 

@@ -1,6 +1,7 @@
 import { VolunteerProfileRepository } from "@/infrastructure/persistence/repositories";
 import { R2StorageService } from "@/infrastructure/external";
 import { serviceError, guard } from "@/core/application/common";
+import { InputSanitizer } from "@/infrastructure/security";
 import { toVolunteerProfileDto } from "@/core/application/mappers";
 import {
   ok,
@@ -58,8 +59,21 @@ class VolunteerProfileUseCase {
         ...(dto.dateOfBirth && { dateOfBirth: new Date(dto.dateOfBirth) }),
         ...(dto.gender && { gender: dto.gender }),
         ...(dto.bio !== undefined && { bio: dto.bio }),
+        ...(dto.membershipNumber !== undefined && {
+          membershipNumber: dto.membershipNumber
+            ? InputSanitizer.sanitizeString(dto.membershipNumber) || null
+            : null
+        }),
+        ...(dto.educationLevel !== undefined && { educationLevel: dto.educationLevel }),
+        ...(dto.occupation !== undefined && {
+          occupation: dto.occupation
+            ? InputSanitizer.sanitizeString(dto.occupation) || null
+            : null
+        }),
         ...(dto.skills && { skills: dto.skills }),
         ...(dto.interests && { interests: dto.interests }),
+        ...(dto.languages && { languages: dto.languages }),
+        ...(dto.preferredVolunteerTypes && { preferredVolunteerTypes: dto.preferredVolunteerTypes }),
         ...(dto.hasVolunteerExperience !== undefined && {
           hasVolunteerExperience: dto.hasVolunteerExperience
         })

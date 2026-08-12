@@ -2,7 +2,7 @@ import IVolunteerProfileRepository from "./IVolunteerProfileRepository";
 import type { VolunteerProfile as PrismaVolunteerProfile } from "@prisma/client";
 import { prisma } from "@/infrastructure/persistence/prisma";
 import { VolunteerProfile } from "@/core/domain/entities";
-import { JordanianCity, Gender } from "@/core/domain/enums";
+import { JordanianCity, Gender, EducationLevel } from "@/core/domain/enums";
 
 class VolunteerProfileRepository implements IVolunteerProfileRepository {
   private mapToEntity(data: PrismaVolunteerProfile): VolunteerProfile {
@@ -10,8 +10,11 @@ class VolunteerProfileRepository implements IVolunteerProfileRepository {
       ...data,
       city: data.city as JordanianCity,
       gender: (data.gender as Gender) ?? null,
+      educationLevel: (data.educationLevel as EducationLevel) ?? null,
       skills: data.skills ?? [],
       interests: data.interests ?? [],
+      languages: data.languages ?? [],
+      preferredVolunteerTypes: data.preferredVolunteerTypes ?? [],
       totalVolunteerHours: data.totalVolunteerHours ?? 0
     });
   }

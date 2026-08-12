@@ -1,27 +1,32 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { NotificationDto } from "@/core/application/dtos";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import type { NotificationDto, NotificationsDto } from "@/core/application/dtos";
 import { notificationApi } from "@/presentation/services";
+import {
+  EMPTY_ARRAY,
+  getErrorMessage,
+  queryKeys,
+  unwrapResult,
+  useApiMutation,
+  useCacheUpdater,
+  useFetchData
+} from "@/presentation/query";
 
 const POLL_INTERVAL = 10_000;
-
-interface NotificationsState {
-  list: NotificationDto[];
-  unreadCount: number;
-  loading: boolean;
-  error: string;
-}
+const NOTIFICATIONS_KEY = queryKeys.notifications.recent();
 
 let _ctx: AudioContext | null = null;
 let _masterGain: GainNode | null = null;
 let _unlocked = false;
 
+type WebkitWindow = Window & { webkitAudioContext?: typeof AudioContext };
+
 function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
   try {
     const AC: typeof AudioContext =
-      window.AudioContext ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext!;
+      window.AudioContext ?? (window as WebkitWindow).webkitAudioContext!;
     if (!AC) return null;
     if (!_ctx) {
       _ctx = new AC();
@@ -29,7 +34,7 @@ function getAudioContext(): AudioContext | null {
       _masterGain.gain.value = 0.75;
       _masterGain.connect(_ctx.destination);
     }
-    if (_ctx.state === "suspended") _ctx.resume();
+    if (_ctx.state === "suspended") void _ctx.resume();
     return _ctx;
   } catch {
     return null;
@@ -45,7 +50,14 @@ function unlockWithSilentBuffer(ctx: AudioContext): void {
   _unlocked = true;
 }
 
-function strike(ctx: AudioContext, master: GainNode, freq: number, at: number, decay: number, vol: number): void {
+function strike(
+  ctx: AudioContext,
+  master: GainNode,
+  freq: number,
+  at: number,
+  decay: number,
+  vol: number
+): void {
   const layer = (type: OscillatorType, multiplier: number, peakVol: number, decayFactor: number) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -86,125 +98,131 @@ function bootstrapAudio(): () => void {
 }
 
 export const useNotifications = () => {
-  const [state, setState] = useState<NotificationsState>({
-    list: [],
-    unreadCount: 0,
-    loading: true,
-    error: ""
-  });
-
-  const prevCountRef = useRef<number | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingReads = useRef<Set<string>>(new Set());
+  const prevCountRef = useRef<number | null>(null);
+  const { updateData } = useCacheUpdater<NotificationsDto>(NOTIFICATIONS_KEY);
 
   useEffect(() => bootstrapAudio(), []);
 
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const res = await notificationApi.getRecent();
-      const rawList = (res as { data?: { notifications?: NotificationDto[] } })?.data?.notifications ?? [];
-      const unreadCount = (res as { data?: { unreadCount?: number } })?.data?.unreadCount ?? 0;
-
-      const list = rawList.map((n) => {
+  const query = useFetchData<NotificationsDto>({
+    queryKey: NOTIFICATIONS_KEY,
+    request: async () => {
+      const data = unwrapResult(await notificationApi.getRecent());
+      const list = data.notifications.map((n) => {
         if (pendingReads.current.has(n.id)) {
           if (n.isRead) pendingReads.current.delete(n.id);
           return { ...n, isRead: true };
         }
         return n;
       });
-
-      if (prevCountRef.current !== null && unreadCount > prevCountRef.current) {
-        playNotificationSound();
-      }
-      prevCountRef.current = unreadCount;
-      setState({ list, unreadCount, loading: false, error: "" });
-    } catch {
-      setState((p) => ({ ...p, loading: false, error: "فشل في جلب الإشعارات" }));
+      return { notifications: list, unreadCount: data.unreadCount };
+    },
+    options: {
+      staleTime: 5_000,
+      refetchInterval: POLL_INTERVAL,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: true
     }
-  }, []);
+  });
 
+  // Sound belongs outside queryFn (Strict Mode / retries must not double-play)
+  const unreadCount = query.data?.unreadCount ?? 0;
   useEffect(() => {
-    fetchNotifications();
-    intervalRef.current = setInterval(fetchNotifications, POLL_INTERVAL);
+    if (prevCountRef.current !== null && unreadCount > prevCountRef.current) {
+      playNotificationSound();
+    }
+    prevCountRef.current = unreadCount;
+  }, [unreadCount]);
 
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") fetchNotifications();
-    };
-    const onFocus = () => fetchNotifications();
+  const markReadMutation = useApiMutation<{ success: boolean }, string>({
+    request: async (id) => unwrapResult(await notificationApi.markAsRead(id))
+  });
 
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("focus", onFocus);
+  const markAllMutation = useApiMutation<{ success: boolean }, void>({
+    request: async () => unwrapResult(await notificationApi.markAllAsRead())
+  });
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("focus", onFocus);
-    };
-  }, [fetchNotifications]);
+  const clearMutation = useApiMutation<{ success: boolean }, void>({
+    request: async () => unwrapResult(await notificationApi.clearHistory()),
+    invalidateQueries: NOTIFICATIONS_KEY
+  });
+
+  const refetch = query.refetch;
+  const markReadAsync = markReadMutation.mutateAsync;
+  const markAllAsync = markAllMutation.mutateAsync;
+  const clearAsync = clearMutation.mutateAsync;
 
   const markAsRead = useCallback(
     async (id: string) => {
       pendingReads.current.add(id);
-      setState((p) => {
-        const wasUnread = p.list.find((n) => n.id === id)?.isRead === false;
+      updateData((prev) => {
+        if (!prev) return { notifications: [], unreadCount: 0 };
+        const wasUnread = prev.notifications.find((n) => n.id === id)?.isRead === false;
         return {
-          ...p,
-          list: p.list.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
-          unreadCount: wasUnread ? Math.max(0, p.unreadCount - 1) : p.unreadCount
+          notifications: prev.notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
+          unreadCount: wasUnread ? Math.max(0, prev.unreadCount - 1) : prev.unreadCount
         };
       });
       try {
-        await notificationApi.markAsRead(id);
+        await markReadAsync(id);
         pendingReads.current.delete(id);
         return true;
       } catch {
         pendingReads.current.delete(id);
-        fetchNotifications();
+        await refetch();
         return false;
       }
     },
-    [fetchNotifications]
+    [markReadAsync, refetch, updateData]
   );
 
   const markAllAsRead = useCallback(async () => {
-    setState((p) => ({
-      ...p,
-      list: p.list.map((n) => {
-        pendingReads.current.add(n.id);
-        return { ...n, isRead: true };
-      }),
-      unreadCount: 0
-    }));
+    updateData((prev) => {
+      if (!prev) return { notifications: [], unreadCount: 0 };
+      return {
+        notifications: prev.notifications.map((n) => {
+          pendingReads.current.add(n.id);
+          return { ...n, isRead: true };
+        }),
+        unreadCount: 0
+      };
+    });
     try {
-      await notificationApi.markAllAsRead();
+      await markAllAsync();
       pendingReads.current.clear();
       return true;
     } catch {
       pendingReads.current.clear();
-      fetchNotifications();
+      await refetch();
       return false;
     }
-  }, [fetchNotifications]);
+  }, [markAllAsync, refetch, updateData]);
 
   const clearHistory = useCallback(async () => {
     pendingReads.current.clear();
-    setState((p) => ({ ...p, list: [], unreadCount: 0 }));
+    updateData({ notifications: [], unreadCount: 0 });
     try {
-      await notificationApi.clearHistory();
+      await clearAsync();
       return true;
     } catch {
-      fetchNotifications();
+      await refetch();
       return false;
     }
-  }, [fetchNotifications]);
+  }, [clearAsync, refetch, updateData]);
 
-  return {
-    list: state.list,
-    unreadCount: state.unreadCount,
-    loading: state.loading,
-    error: state.error,
-    markAsRead,
-    markAllAsRead,
-    clearHistory
-  };
+  const list = (query.data?.notifications ?? EMPTY_ARRAY) as NotificationDto[];
+  const error = query.error ? getErrorMessage(query.error, "فشل في جلب الإشعارات") : "";
+
+  return useMemo(
+    () => ({
+      list,
+      unreadCount,
+      loading: query.isLoading,
+      error,
+      markAsRead,
+      markAllAsRead,
+      clearHistory
+    }),
+    [list, unreadCount, query.isLoading, error, markAsRead, markAllAsRead, clearHistory]
+  );
 };

@@ -1,61 +1,45 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { CertificateDto } from "@/core/application/dtos";
 import { certificateApi } from "@/presentation/services";
+import {
+  EMPTY_ARRAY,
+  getErrorMessage,
+  queryKeys,
+  unwrapResult,
+  useFetchData
+} from "@/presentation/query";
 
-interface CertificatesState {
+interface CertificatesData {
   list: CertificateDto[];
   totalHours: number;
-  loading: boolean;
-  error: string;
 }
 
-const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
-  if (err instanceof Error) return err.message;
-  return fallback;
-};
-
-export const useCertificates = () => {
-  const [state, setState] = useState<CertificatesState>({
-    list: [],
-    totalHours: 0,
-    loading: true,
-    error: ""
+export const useCertificates = (options: { enabled?: boolean } = {}) => {
+  const query = useFetchData<CertificatesData>({
+    queryKey: queryKeys.certificates.byUser(),
+    request: async () => {
+      const data = unwrapResult(await certificateApi.getByUser());
+      return { list: data.certificates, totalHours: data.totalHours };
+    },
+    options: { enabled: options.enabled ?? true, staleTime: 60_000 }
   });
 
-  const hasLoadedRef = useRef(false);
+  const refetch = query.refetch;
+  const list = (query.data?.list ?? EMPTY_ARRAY) as CertificateDto[];
+  const totalHours = query.data?.totalHours ?? 0;
+  const error = query.error ? getErrorMessage(query.error, "فشل في جلب الشهادات") : "";
+  const refresh = useCallback(() => refetch(), [refetch]);
 
-  const refresh = useCallback(async () => {
-    setState((p) => ({ ...p, loading: true, error: "" }));
-    try {
-      const res = await certificateApi.getByUser();
-      const list: CertificateDto[] =
-        (res as { data?: { certificates?: CertificateDto[] } })?.data?.certificates ?? [];
-      const totalHours: number =
-        (res as { data?: { totalHours?: number } })?.data?.totalHours ?? 0;
-      setState((p) => ({ ...p, list, totalHours, loading: false }));
-    } catch (err) {
-      setState((p) => ({
-        ...p,
-        loading: false,
-        error: getErrMsg(err, "فشل في جلب الشهادات")
-      }));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!hasLoadedRef.current) {
-      hasLoadedRef.current = true;
-      refresh();
-    }
-  }, [refresh]);
-
-  return {
-    list: state.list,
-    totalHours: state.totalHours,
-    loading: state.loading,
-    error: state.error,
-    refresh
-  };
+  return useMemo(
+    () => ({
+      list,
+      totalHours,
+      loading: query.isLoading,
+      error,
+      refresh
+    }),
+    [list, totalHours, query.isLoading, error, refresh]
+  );
 };

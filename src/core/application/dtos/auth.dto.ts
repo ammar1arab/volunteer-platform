@@ -23,6 +23,14 @@ export interface SignUpRequest {
   city: JordanianCity;
   dateOfBirth: Date;
   gender: Gender;
+  membershipNumber?: string;
+  educationLevel?: string;
+  occupation?: string;
+  languages?: string[];
+  preferredVolunteerTypes?: string[];
+  skills?: string[];
+  interests?: string[];
+  hasVolunteerExperience?: boolean;
 }
 
 export interface SignUpUserDto {

@@ -42,15 +42,35 @@ export const useAdminUserDetailsPage = () => {
   const cancelEditing = useCallback(() => setEditingField(null), []);
   const updateFieldValue = useCallback((value: unknown) => setEditingField((p) => (p ? { ...p, value } : null)), []);
 
-  const VP_FIELDS = ["city", "dateOfBirth", "gender"];
+  const VP_FIELDS = [
+    "city",
+    "dateOfBirth",
+    "gender",
+    "membershipNumber",
+    "educationLevel",
+    "occupation",
+    "hasVolunteerExperience"
+  ];
 
   const saveField = useCallback(async () => {
     if (!editingField) return;
     setIsSaving(true);
     try {
       const isVpField = VP_FIELDS.includes(editingField.field);
+      let value: unknown = editingField.value;
+      if (editingField.field === "hasVolunteerExperience") {
+        value = value === true || value === "true";
+      }
+      if (
+        (editingField.field === "educationLevel" ||
+          editingField.field === "occupation" ||
+          editingField.field === "membershipNumber") &&
+        (value === "" || value == null)
+      ) {
+        value = null;
+      }
       const result = isVpField
-        ? await userApi.updateVolunteerProfile(userId, { [editingField.field]: editingField.value })
+        ? await userApi.updateVolunteerProfile(userId, { [editingField.field]: value })
         : await userApi.updateUserById(userId, { [editingField.field]: editingField.value });
       if (!result.success) {
         showToast(result.error.message, "error");
@@ -133,14 +153,20 @@ export const useAdminUserDetailsPage = () => {
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
+        membershipNumber: user.volunteerProfile?.membershipNumber || "-",
         city: user.volunteerProfile?.city || "-",
         dateOfBirth: user.volunteerProfile?.dateOfBirth
           ? new Date(user.volunteerProfile.dateOfBirth).toLocaleDateString("ar")
           : "-",
         gender: user.volunteerProfile?.gender || "-",
+        educationLevel: user.volunteerProfile?.educationLevel || "-",
+        occupation: user.volunteerProfile?.occupation || "-",
+        hasVolunteerExperience: user.volunteerProfile?.hasVolunteerExperience ? "نعم" : "لا",
         bio: user.volunteerProfile?.bio || "-",
         interests: user.volunteerProfile?.interests?.join(", ") || "-",
         skills: user.volunteerProfile?.skills?.join(", ") || "-",
+        languages: user.volunteerProfile?.languages?.join(", ") || "-",
+        preferredVolunteerTypes: user.volunteerProfile?.preferredVolunteerTypes?.join(", ") || "-",
         activities: activities.map((a) => a.activity.title).join(", ") || "-",
         createdAt: new Date(user.createdAt).toLocaleDateString("ar")
       }

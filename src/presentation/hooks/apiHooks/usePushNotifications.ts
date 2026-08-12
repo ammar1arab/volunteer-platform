@@ -1,38 +1,35 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
 
-// function urlBase64ToUint8Array(base64: string): Uint8Array {
-//   const pad = "=".repeat((4 - (base64.length % 4)) % 4);
-//   const b64 = (base64 + pad).replace(/-/g, "+").replace(/_/g, "/");
-//   const raw = atob(b64);
-//   const output = new Uint8Array(raw.length);
-//   for (let i = 0; i < raw.length; i++) output[i] = raw.charCodeAt(i);
-//   return output;
-// }
+import { useCallback, useState } from "react";
 
 export type PushState = "idle" | "loading" | "granted" | "denied" | "unsupported";
 
+interface NavigatorStandalone extends Navigator {
+  standalone?: boolean;
+}
+
+function getInitialPushState(): PushState {
+  if (typeof window === "undefined") return "idle";
+  const supported =
+    "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  if (!supported) return "unsupported";
+  if (Notification.permission === "granted") return "granted";
+  if (Notification.permission === "denied") return "denied";
+  return "idle";
+}
+
 export const usePushNotifications = () => {
-  const [state, setState] = useState<PushState>("idle");
+  const [state, setState] = useState<PushState>(getInitialPushState);
 
   const isIOS = typeof window !== "undefined" && /iphone|ipad|ipod/i.test(navigator.userAgent);
-
-  const isStandalone = typeof window !== "undefined" && (window.navigator as any).standalone === true;
+  const isStandalone =
+    typeof window !== "undefined" && (window.navigator as NavigatorStandalone).standalone === true;
 
   const isSupported =
     typeof window !== "undefined" &&
     "serviceWorker" in navigator &&
     "PushManager" in window &&
     "Notification" in window;
-
-  useEffect(() => {
-    if (!isSupported) {
-      setState("unsupported");
-      return;
-    }
-    if (Notification.permission === "granted") setState("granted");
-    else if (Notification.permission === "denied") setState("denied");
-  }, [isSupported]);
 
   const subscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported) return false;
@@ -79,7 +76,7 @@ export const usePushNotifications = () => {
   const unsubscribe = useCallback(async (): Promise<void> => {
     try {
       const reg = await navigator.serviceWorker.getRegistration("/sw.js");
-      const sub: PushSubscription | null = (await reg?.pushManager.getSubscription()) ?? null;
+      const sub = (await reg?.pushManager.getSubscription()) ?? null;
       if (sub) {
         await fetch("/api/push/unsubscribe", {
           method: "POST",

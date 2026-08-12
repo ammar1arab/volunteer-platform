@@ -7,7 +7,7 @@ import { EmailUseCase } from "@/core/application/useCases";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
 import { serviceError } from "@/core/application/common";
 import { prisma } from "@/infrastructure/persistence/prisma";
-import { UserRole, JordanianCity, Gender, NotificationType } from "@/core/domain/enums";
+import { UserRole, JordanianCity, Gender, EducationLevel, NotificationType } from "@/core/domain/enums";
 import { OtpType } from "@prisma/client";
 import {
   ok,
@@ -118,6 +118,14 @@ class OtpUseCase {
                   city: pending.city as JordanianCity,
                   dateOfBirth: pending.dateOfBirth,
                   gender: (pending.gender as Gender) ?? null,
+                  membershipNumber: pending.membershipNumber ?? null,
+                  educationLevel: (pending.educationLevel as EducationLevel) ?? null,
+                  occupation: pending.occupation ?? null,
+                  languages: pending.languages ?? [],
+                  preferredVolunteerTypes: pending.preferredVolunteerTypes ?? [],
+                  skills: pending.skills ?? [],
+                  interests: pending.interests ?? [],
+                  hasVolunteerExperience: pending.hasVolunteerExperience ?? false,
                   totalVolunteerHours: 0,
                   isActive: true
                 }

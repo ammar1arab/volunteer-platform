@@ -7,10 +7,15 @@ export const toVolunteerProfileDto = (entity: VolunteerProfile): VolunteerProfil
   city: entity.city,
   dateOfBirth: entity.dateOfBirth.toISOString(),
   profilePictureUrl: entity.profilePictureUrl,
+  membershipNumber: entity.membershipNumber,
   gender: entity.gender,
   bio: entity.bio,
   skills: entity.skills,
   interests: entity.interests,
+  educationLevel: entity.educationLevel,
+  occupation: entity.occupation,
+  languages: entity.languages,
+  preferredVolunteerTypes: entity.preferredVolunteerTypes,
   hasVolunteerExperience: entity.hasVolunteerExperience,
   totalVolunteerHours: entity.totalVolunteerHours
 });

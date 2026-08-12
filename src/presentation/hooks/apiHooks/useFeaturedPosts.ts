@@ -1,240 +1,139 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { FeaturedPostDto, CreateFeaturedPostRequest, UpdateFeaturedPostRequest } from "@/core/application/dtos";
-import { logger } from "@/lib/utils";
+import { useCallback, useMemo } from "react";
+import type {
+  FeaturedPostDto,
+  CreateFeaturedPostRequest,
+  UpdateFeaturedPostRequest
+} from "@/core/application/dtos";
 import { featuredPostApi, uploadApi } from "@/presentation/services";
+import {
+  EMPTY_ARRAY,
+  getErrorMessage,
+  queryKeys,
+  unwrapResult,
+  useApiMutation,
+  useBooleanMutation,
+  useFetchData
+} from "@/presentation/query";
 
-type ListState = {
-  list: FeaturedPostDto[];
-  loading: boolean;
-  submitting: boolean;
-  uploading: boolean;
-  error: string;
-};
+export const useFeaturedPosts = (
+  options: { activeOnly?: boolean; enabled?: boolean; autoLoad?: boolean } = {}
+) => {
+  const { activeOnly = false } = options;
+  const enabled = options.enabled ?? options.autoLoad ?? true;
 
-const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
-  if (err instanceof Error) return err.message;
-  return fallback;
-};
-
-export const useFeaturedPosts = (options: { activeOnly?: boolean; autoLoad?: boolean } = {}) => {
-  const { activeOnly = false, autoLoad = true } = options;
-
-  const [state, setState] = useState<ListState>({
-    list: [],
-    loading: true,
-    submitting: false,
-    uploading: false,
-    error: ""
+  const query = useFetchData<FeaturedPostDto[]>({
+    queryKey: queryKeys.featuredPosts.list(activeOnly),
+    request: async () => {
+      const posts = unwrapResult(await featuredPostApi.getAll()).posts;
+      return activeOnly ? posts.filter((x) => x.isActive !== false) : posts;
+    },
+    options: { enabled, staleTime: activeOnly ? 60_000 : 30_000 }
   });
 
-  const hasLoadedRef = useRef(false);
+  const createMutation = useBooleanMutation<CreateFeaturedPostRequest>({
+    request: async (payload) => unwrapResult(await featuredPostApi.create(payload)),
+    invalidateQueries: queryKeys.featuredPosts.all,
+    fallbackError: "فشل في الإنشاء"
+  });
 
-  const setError = (msg: string) => setState((p) => ({ ...p, error: msg || "" }));
+  const updateMutation = useBooleanMutation<{ id: string; payload: UpdateFeaturedPostRequest }>({
+    request: async ({ id, payload }) => unwrapResult(await featuredPostApi.update(id, payload)),
+    invalidateQueries: queryKeys.featuredPosts.all,
+    fallbackError: "فشل في التحديث"
+  });
 
-  const refresh = useCallback(async () => {
-    logger.info("useFeaturedPosts", "refresh-start", { activeOnly });
-    setState((p) => ({ ...p, loading: true, error: "" }));
+  const removeMutation = useBooleanMutation<string>({
+    request: async (id) => unwrapResult(await featuredPostApi.delete(id)),
+    invalidateQueries: queryKeys.featuredPosts.all,
+    fallbackError: "فشل في الحذف"
+  });
 
-    try {
-      const res = await featuredPostApi.getAll();
-      const posts: FeaturedPostDto[] = (res as { data?: { posts?: FeaturedPostDto[] } })?.data?.posts ?? [];
+  const uploadMutation = useApiMutation<string, File>({
+    request: async (file) => unwrapResult(await uploadApi.uploadFeaturedImage(file)).imageUrl
+  });
 
-      logger.info("useFeaturedPosts", "api-response", {
-        totalPosts: posts.length,
-        activeOnly
-      });
-
-      const filtered = activeOnly ? posts.filter((x) => x.isActive !== false) : posts;
-
-      logger.info("useFeaturedPosts", "filtered-result", {
-        total: posts.length,
-        filtered: filtered.length
-      });
-
-      setState((p) => ({
-        ...p,
-        list: filtered,
-        loading: false
-      }));
-    } catch (err) {
-      logger.error("useFeaturedPosts", "refresh-failed", getErrMsg(err));
-      setState((p) => ({
-        ...p,
-        loading: false,
-        error: getErrMsg(err, "فشل في جلب البيانات")
-      }));
-    }
-  }, [activeOnly]);
-
-  useEffect(() => {
-    logger.info("useFeaturedPosts", "effect-triggered", {
-      autoLoad,
-      hasLoaded: hasLoadedRef.current
-    });
-
-    if (autoLoad && !hasLoadedRef.current) {
-      hasLoadedRef.current = true;
-      refresh();
-    }
-  }, [autoLoad, refresh]);
+  const list = (query.data ?? EMPTY_ARRAY) as FeaturedPostDto[];
+  const mutationError =
+    createMutation.error ||
+    updateMutation.error ||
+    removeMutation.error ||
+    (uploadMutation.error ? getErrorMessage(uploadMutation.error, "فشل رفع الصورة") : "");
+  const queryError = query.error ? getErrorMessage(query.error, "فشل في جلب البيانات") : "";
+  const refetch = query.refetch;
+  const uploadAsync = uploadMutation.mutateAsync;
 
   const uploadImage = useCallback(async (file: File) => {
-    setState((p) => ({ ...p, uploading: true, error: "" }));
-
     try {
-      const res = await uploadApi.uploadFeaturedImage(file);
-      const imageUrl = (res as { data?: { imageUrl?: string } })?.data?.imageUrl;
-      const success = (res as { success?: boolean })?.success;
-
-      if (!success || !imageUrl) {
-        throw new Error((res as { error?: string })?.error || "فشل رفع الصورة");
-      }
-
-      setState((p) => ({ ...p, uploading: false }));
-      return imageUrl;
-    } catch (err) {
-      setError(getErrMsg(err, "فشل رفع الصورة"));
-      setState((p) => ({ ...p, uploading: false }));
+      return await uploadAsync(file);
+    } catch {
       return null;
     }
-  }, []);
+  }, [uploadAsync]);
 
   const create = useCallback(
-    async (payload: CreateFeaturedPostRequest) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await featuredPostApi.create(payload);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في الإنشاء");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في الإنشاء"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
+    (payload: CreateFeaturedPostRequest) => createMutation.run(payload),
+    [createMutation.run]
   );
-
   const update = useCallback(
-    async (id: string, payload: UpdateFeaturedPostRequest) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await featuredPostApi.update(id, payload);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في التحديث");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في التحديث"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
+    (id: string, payload: UpdateFeaturedPostRequest) => updateMutation.run({ id, payload }),
+    [updateMutation.run]
   );
+  const remove = useCallback((id: string) => removeMutation.run(id), [removeMutation.run]);
+  const refresh = useCallback(() => refetch(), [refetch]);
+  const submitting =
+    createMutation.submitting || updateMutation.submitting || removeMutation.submitting;
 
-  const remove = useCallback(
-    async (id: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await featuredPostApi.delete(id);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في الحذف");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في الحذف"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
+  return useMemo(
+    () => ({
+      list,
+      loading: query.isLoading,
+      submitting,
+      uploading: uploadMutation.isPending,
+      error: queryError || mutationError,
+      refresh,
+      uploadImage,
+      create,
+      update,
+      remove
+    }),
+    [
+      list,
+      query.isLoading,
+      submitting,
+      uploadMutation.isPending,
+      queryError,
+      mutationError,
+      refresh,
+      uploadImage,
+      create,
+      update,
+      remove
+    ]
   );
-
-  return {
-    list: state.list,
-    loading: state.loading,
-    submitting: state.submitting,
-    uploading: state.uploading,
-    error: state.error,
-    refresh,
-    uploadImage,
-    create,
-    update,
-    remove
-  };
 };
 
 export const usePostDetails = (id: string) => {
-  const [post, setPost] = useState<FeaturedPostDto | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const query = useFetchData<FeaturedPostDto>({
+    queryKey: queryKeys.featuredPosts.detail(id),
+    request: async () => unwrapResult(await featuredPostApi.getOne(id)).post,
+    options: { enabled: Boolean(id), staleTime: 60_000 }
+  });
 
-  useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
+  const refetch = query.refetch;
 
-    let cancelled = false;
-
-    const fetchPost = async () => {
-      setLoading(true);
-      setError("");
-
-      try {
-        const res = await featuredPostApi.getOne(id);
-        if (cancelled) return;
-
-        const postData: FeaturedPostDto | null = (res as { data?: { post?: FeaturedPostDto } })?.data?.post ?? null;
-
-        setPost(postData);
-
-        if (!postData) {
-          setError("المنشور غير موجود");
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(getErrMsg(err, "فشل في جلب المنشور"));
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchPost();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [id]);
-
-  return { post, loading, error };
+  return useMemo(
+    () => ({
+      post: query.data ?? null,
+      loading: query.isLoading,
+      error: query.error
+        ? getErrorMessage(query.error, "فشل في جلب المنشور")
+        : !query.isLoading && query.isFetched && !query.data
+          ? "المنشور غير موجود"
+          : "",
+      refresh: () => refetch()
+    }),
+    [query.data, query.isLoading, query.error, query.isFetched, refetch]
+  );
 };

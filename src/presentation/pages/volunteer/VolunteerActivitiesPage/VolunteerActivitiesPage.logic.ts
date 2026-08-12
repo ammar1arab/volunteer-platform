@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAuth, useToast } from "@/presentation/hooks";
+import { useAuth, useToast, useActivityParticipations } from "@/presentation/hooks";
 import { participationApi } from "@/presentation/services";
 import { JordanianCity, UserRole, ParticipationStatus } from "@/core/domain/enums";
 import { getCityLabel } from "@/presentation/constants";
-import type { ActivityParticipationDto } from "@/core/application/dtos";
+import { getErrorMessage, unwrapResult } from "@/presentation/query";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -30,9 +30,11 @@ export const SORT_OPTIONS = [
 export const useVolunteerActivitiesPage = () => {
   const { status } = useAuth({ requireRole: UserRole.VOLUNTEER });
   const { toasts, showToast, removeToast } = useToast();
+  const { requests: participations, loading, refresh } = useActivityParticipations({
+    autoFetch: true,
+    type: "my-requests"
+  });
 
-  const [participations, setParticipations] = useState<ActivityParticipationDto[]>([]);
-  const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [defaultApplied, setDefaultApplied] = useState(false);
 
@@ -76,22 +78,6 @@ export const useVolunteerActivitiesPage = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [activeFilter, appliedSearch, activeType, activeTime, sortOrder]);
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await participationApi.getMyRequests();
-      setParticipations(res.success && res.data?.requests ? res.data.requests : []);
-    } catch {
-      showToast("حدث خطأ أثناء جلب البيانات", "error");
-    } finally {
-      setLoading(false);
-    }
-  }, [showToast]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   const stats = useMemo(
     () => ({
@@ -153,9 +139,9 @@ export const useVolunteerActivitiesPage = () => {
         return new Date(a.requestedAt).getTime() - new Date(b.requestedAt).getTime();
       }
       if (sortOrder === "nearest") {
-        const now = Date.now();
-        const aT = a.activity?.date ? Math.abs(new Date(a.activity.date).getTime() - now) : Infinity;
-        const bT = b.activity?.date ? Math.abs(new Date(b.activity.date).getTime() - now) : Infinity;
+        const nowMs = Date.now();
+        const aT = a.activity?.date ? Math.abs(new Date(a.activity.date).getTime() - nowMs) : Infinity;
+        const bT = b.activity?.date ? Math.abs(new Date(b.activity.date).getTime() - nowMs) : Infinity;
         return aT - bT;
       }
       return new Date(b.requestedAt).getTime() - new Date(a.requestedAt).getTime();
@@ -169,7 +155,7 @@ export const useVolunteerActivitiesPage = () => {
 
   const handleSortChange = useCallback((key: string) => {
     if (key === "IN_PERSON" || key === "ONLINE") {
-      setActiveType((prev) => (prev === key ? "all" : (key as "IN_PERSON" | "ONLINE")));
+      setActiveType((prev) => (prev === key ? "all" : key));
     } else {
       setSortOrder(key as SortOrder);
     }
@@ -179,20 +165,16 @@ export const useVolunteerActivitiesPage = () => {
     async (activityId: string) => {
       setActionLoading(activityId);
       try {
-        const res = await participationApi.create(activityId);
-        if (res.success) {
-          showToast("تم إرسال طلب الانضمام مجدداً", "success");
-          await fetchData();
-        } else {
-          showToast((res as any).error?.message || "فشل إرسال الطلب", "error");
-        }
-      } catch {
-        showToast("حدث خطأ غير متوقع", "error");
+        unwrapResult(await participationApi.create(activityId));
+        showToast("تم إرسال طلب الانضمام مجدداً", "success");
+        await refresh();
+      } catch (err) {
+        showToast(getErrorMessage(err, "فشل إرسال الطلب"), "error");
       } finally {
         setActionLoading(null);
       }
     },
-    [fetchData, showToast]
+    [refresh, showToast]
   );
 
   const cancelRequest = useCallback(
@@ -209,21 +191,11 @@ export const useVolunteerActivitiesPage = () => {
 
       setActionLoading(participationId);
       try {
-        const res = await participationApi.cancel(participationId);
-        if (res.success) {
-          showToast("تم إلغاء الطلب", "success");
-          await fetchData();
-        } else {
-          const code = (res as any).error?.code ?? "";
-          showToast(
-            code === "INVALID_STATE"
-              ? "لا يمكن الإلغاء — تبقى أقل من 24 ساعة على موعد النشاط"
-              : (res as any).error?.message || "فشل إلغاء الطلب",
-            "error"
-          );
-        }
-      } catch (err: any) {
-        const msg = err?.message ?? "";
+        unwrapResult(await participationApi.cancel(participationId));
+        showToast("تم إلغاء الطلب", "success");
+        await refresh();
+      } catch (err) {
+        const msg = getErrorMessage(err);
         showToast(
           msg.includes("24") || msg.includes("INVALID_STATE")
             ? "لا يمكن الإلغاء — تبقى أقل من 24 ساعة على موعد النشاط"
@@ -234,7 +206,7 @@ export const useVolunteerActivitiesPage = () => {
         setActionLoading(null);
       }
     },
-    [confirm, fetchData, showToast]
+    [confirm, refresh, showToast]
   );
 
   return {

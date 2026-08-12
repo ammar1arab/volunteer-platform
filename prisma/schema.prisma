@@ -33,21 +33,26 @@ model User {
 }
 
 model VolunteerProfile {
-  id                     String        @id @default(uuid())
-  userId                 String        @unique
-  city                   JordanianCity
-  dateOfBirth            DateTime
-  profilePictureUrl      String?
-  gender                 Gender?
-  bio                    String?
-  skills                 String[]      @default([])
-  interests              String[]      @default([])
-  hasVolunteerExperience Boolean       @default(false)
-  isActive               Boolean       @default(true)
-  createdAt              DateTime      @default(now())
-  updatedAt              DateTime      @updatedAt
-  totalVolunteerHours    Float         @default(0)
-  user                   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                       String          @id @default(uuid())
+  userId                   String          @unique
+  city                     JordanianCity
+  dateOfBirth              DateTime
+  profilePictureUrl        String?
+  membershipNumber         String?
+  gender                   Gender?
+  bio                      String?
+  skills                   String[]        @default([])
+  interests                String[]        @default([])
+  educationLevel           EducationLevel?
+  occupation               String?
+  languages                String[]        @default([])
+  preferredVolunteerTypes  String[]        @default([])
+  hasVolunteerExperience   Boolean         @default(false)
+  isActive                 Boolean         @default(true)
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+  totalVolunteerHours      Float           @default(0)
+  user                     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("volunteer_profiles")
@@ -205,16 +210,24 @@ model OtpCode {
 }
 
 model PendingRegistration {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  password    String
-  fullName    String
-  phone       String
-  city        String
-  dateOfBirth DateTime
-  gender      String?
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
+  id                      String   @id @default(uuid())
+  email                   String   @unique
+  password                String
+  fullName                String
+  phone                   String
+  city                    String
+  dateOfBirth             DateTime
+  gender                  String?
+  membershipNumber        String?
+  educationLevel          String?
+  occupation              String?
+  languages               String[] @default([])
+  preferredVolunteerTypes String[] @default([])
+  skills                  String[] @default([])
+  interests               String[] @default([])
+  hasVolunteerExperience  Boolean  @default(false)
+  expiresAt               DateTime
+  createdAt               DateTime @default(now())
 
   @@map("pending_registrations")
 }
@@ -246,6 +259,27 @@ enum OtpType {
 enum Gender {
   MALE
   FEMALE
+}
+
+enum EducationLevel {
+  KINDERGARTEN
+  GRADE_1
+  GRADE_2
+  GRADE_3
+  GRADE_4
+  GRADE_5
+  GRADE_6
+  GRADE_7
+  GRADE_8
+  GRADE_9
+  GRADE_10
+  GRADE_11
+  GRADE_12
+  DIPLOMA
+  BACHELOR
+  MASTER
+  PHD
+  OTHER
 }
 
 enum CertificateStatus {

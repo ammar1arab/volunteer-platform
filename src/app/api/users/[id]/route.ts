@@ -7,7 +7,15 @@ import type { UpdateUserRequest, UpdateVolunteerProfileRequest } from "@/core/ap
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const VP_FIELDS = new Set(["city", "gender", "dateOfBirth"]);
+const VP_FIELDS = new Set([
+  "city",
+  "gender",
+  "dateOfBirth",
+  "membershipNumber",
+  "educationLevel",
+  "occupation",
+  "hasVolunteerExperience"
+]);
 
 export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
   try {

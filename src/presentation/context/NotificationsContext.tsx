@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, createElement, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import { useNotifications } from "@/presentation/hooks";
 
 type NotificationsContextValue = ReturnType<typeof useNotifications>;
@@ -9,7 +9,9 @@ const NotificationsContext = createContext<NotificationsContextValue | null>(nul
 
 export const NotificationsProvider = ({ children }: { children: ReactNode }) => {
   const value = useNotifications();
-  return createElement(NotificationsContext.Provider, { value }, children);
+  return (
+    <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>
+  );
 };
 
 export const useNotificationsContext = (): NotificationsContextValue => {

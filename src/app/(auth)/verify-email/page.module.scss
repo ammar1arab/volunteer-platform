@@ -78,6 +78,12 @@
   @include animate-shake;
 }
 
+.warning {
+  @include alert-warning;
+  margin-bottom: $sp-sm;
+  font-size: $font-sm;
+}
+
 .resend {
   text-align: center;
   margin-top: $sp-sm;

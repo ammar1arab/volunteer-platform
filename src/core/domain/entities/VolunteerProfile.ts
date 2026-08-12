@@ -1,6 +1,6 @@
 import { BaseEntity } from "@/core/domain/entities";
 import { VolunteerProfileProps } from "@/core/domain/interfaces";
-import { Gender, JordanianCity } from "@/core/domain/enums";
+import { Gender, JordanianCity, EducationLevel } from "@/core/domain/enums";
 
 class VolunteerProfile extends BaseEntity {
   private props: VolunteerProfileProps;
@@ -34,10 +34,15 @@ class VolunteerProfile extends BaseEntity {
         | "city"
         | "dateOfBirth"
         | "profilePictureUrl"
+        | "membershipNumber"
         | "gender"
         | "bio"
         | "skills"
         | "interests"
+        | "educationLevel"
+        | "occupation"
+        | "languages"
+        | "preferredVolunteerTypes"
         | "hasVolunteerExperience"
         | "isActive"
       >
@@ -57,6 +62,10 @@ class VolunteerProfile extends BaseEntity {
       this.props.profilePictureUrl = input.profilePictureUrl;
       changed = true;
     }
+    if (input.membershipNumber !== undefined) {
+      this.props.membershipNumber = input.membershipNumber?.trim() || null;
+      changed = true;
+    }
     if (input.gender !== undefined) {
       this.props.gender = input.gender;
       changed = true;
@@ -71,6 +80,22 @@ class VolunteerProfile extends BaseEntity {
     }
     if (input.interests !== undefined) {
       this.props.interests = input.interests;
+      changed = true;
+    }
+    if (input.educationLevel !== undefined) {
+      this.props.educationLevel = input.educationLevel;
+      changed = true;
+    }
+    if (input.occupation !== undefined) {
+      this.props.occupation = input.occupation?.trim() || null;
+      changed = true;
+    }
+    if (input.languages !== undefined) {
+      this.props.languages = input.languages;
+      changed = true;
+    }
+    if (input.preferredVolunteerTypes !== undefined) {
+      this.props.preferredVolunteerTypes = input.preferredVolunteerTypes;
       changed = true;
     }
     if (input.hasVolunteerExperience !== undefined) {
@@ -110,6 +135,9 @@ class VolunteerProfile extends BaseEntity {
   get profilePictureUrl(): string | null {
     return this.props.profilePictureUrl ?? null;
   }
+  get membershipNumber(): string | null {
+    return this.props.membershipNumber ?? null;
+  }
   get gender(): Gender | null {
     return this.props.gender ?? null;
   }
@@ -121,6 +149,18 @@ class VolunteerProfile extends BaseEntity {
   }
   get interests(): string[] {
     return this.props.interests ?? [];
+  }
+  get educationLevel(): EducationLevel | null {
+    return this.props.educationLevel ?? null;
+  }
+  get occupation(): string | null {
+    return this.props.occupation ?? null;
+  }
+  get languages(): string[] {
+    return this.props.languages ?? [];
+  }
+  get preferredVolunteerTypes(): string[] {
+    return this.props.preferredVolunteerTypes ?? [];
   }
   get hasVolunteerExperience(): boolean {
     return this.props.hasVolunteerExperience ?? false;

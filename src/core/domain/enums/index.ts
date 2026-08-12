@@ -1,6 +1,7 @@
 export * from "./AdminPermission";
 export { UserRole } from "./UserRole";
 export { Gender } from "./Gender";
+export { EducationLevel } from "./EducationLevel";
 export { JordanianCity } from "./JordanianCity";
 export { DayOfWeek } from "./DayOfWeek";
 export { DomainFeaturedPostCategory } from "./DomainFeaturedPostCategory";

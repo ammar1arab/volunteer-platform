@@ -1,207 +1,140 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import type { ActivityParticipationDto } from "@/core/application/dtos";
 import { participationApi } from "@/presentation/services";
+import {
+  EMPTY_ARRAY,
+  getErrorMessage,
+  queryKeys,
+  unwrapResult,
+  useBooleanMutation,
+  useFetchData
+} from "@/presentation/query";
 
 type RequestType = "my-requests" | "pending";
 
-interface ParticipationsState {
-  requests: ActivityParticipationDto[];
-  loading: boolean;
-  submitting: boolean;
-  error: string;
-}
-
 interface UseActivityParticipationsOptions {
+  enabled?: boolean;
   autoFetch?: boolean;
   type?: RequestType;
 }
 
-const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
-  if (err instanceof Error) return err.message;
-  return fallback;
-};
+const INVALIDATE_ON_WRITE = [queryKeys.participations.all, queryKeys.activities.all] as const;
 
 export const useActivityParticipations = (options: UseActivityParticipationsOptions = {}) => {
-  const { autoFetch = false, type = "my-requests" } = options;
+  const { type = "my-requests" } = options;
+  const enabled = options.enabled ?? options.autoFetch ?? false;
 
-  const [state, setState] = useState<ParticipationsState>({
-    requests: [],
-    loading: false,
-    submitting: false,
-    error: ""
+  const query = useFetchData<ActivityParticipationDto[]>({
+    queryKey: queryKeys.participations.list(type),
+    request: async () => {
+      const res = type === "pending" ? await participationApi.getPending() : await participationApi.getMyRequests();
+      return unwrapResult(res).requests;
+    },
+    options: { enabled, staleTime: 20_000 }
   });
 
-  const hasLoadedRef = useRef(false);
+  const createMutation = useBooleanMutation<string>({
+    request: async (activityId) => unwrapResult(await participationApi.create(activityId)),
+    invalidateQueries: [...INVALIDATE_ON_WRITE],
+    fallbackError: "فشل في إنشاء الطلب"
+  });
 
-  const setError = (msg: string) => setState((p) => ({ ...p, error: msg || "" }));
+  const approveMutation = useBooleanMutation<string>({
+    request: async (id) => unwrapResult(await participationApi.approve(id)),
+    invalidateQueries: [...INVALIDATE_ON_WRITE],
+    fallbackError: "فشل في الموافقة"
+  });
 
-  const refresh = useCallback(async () => {
-    setState((p) => ({ ...p, loading: true, error: "" }));
+  const rejectMutation = useBooleanMutation<string>({
+    request: async (id) => unwrapResult(await participationApi.reject(id)),
+    invalidateQueries: [...INVALIDATE_ON_WRITE],
+    fallbackError: "فشل في الرفض"
+  });
 
-    try {
-      const res = type === "pending" ? await participationApi.getPending() : await participationApi.getMyRequests();
+  const cancelMutation = useBooleanMutation<string>({
+    request: async (id) => unwrapResult(await participationApi.cancel(id)),
+    invalidateQueries: [...INVALIDATE_ON_WRITE],
+    fallbackError: "فشل في إلغاء الطلب"
+  });
 
-      const requests: ActivityParticipationDto[] =
-        (res as { data?: { requests?: ActivityParticipationDto[] } })?.data?.requests ?? [];
+  const attendanceMutation = useBooleanMutation<{ id: string; attended: boolean }>({
+    request: async ({ id, attended }) =>
+      unwrapResult(await participationApi.markAttendance(id, attended)),
+    invalidateQueries: [...INVALIDATE_ON_WRITE],
+    fallbackError: "فشل في تسجيل الحضور"
+  });
 
-      setState((p) => ({
-        ...p,
-        requests,
-        loading: false
-      }));
-    } catch (err) {
-      setState((p) => ({
-        ...p,
-        loading: false,
-        error: getErrMsg(err, "فشل في جلب البيانات")
-      }));
-    }
-  }, [type]);
-
-  useEffect(() => {
-    if (autoFetch && !hasLoadedRef.current) {
-      hasLoadedRef.current = true;
-      refresh();
-    }
-  }, [autoFetch, refresh]);
-
-  const createRequest = useCallback(
-    async (activityId: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await participationApi.create(activityId);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في إنشاء الطلب");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في إنشاء الطلب"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
-  );
-
-  const approve = useCallback(
-    async (id: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await participationApi.approve(id);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في الموافقة");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في الموافقة"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
-  );
-
-  const reject = useCallback(
-    async (id: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await participationApi.reject(id);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في الرفض");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في الرفض"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
-  );
-
-  const cancelRequest = useCallback(
-    async (id: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-      try {
-        const res = await participationApi.cancel(id);
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في إلغاء الطلب");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في إلغاء الطلب"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
-  );
-
-  const markAttendance = useCallback(
-    async (id: string, attended: boolean) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-      try {
-        const res = await participationApi.markAttendance(id, attended);
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في تسجيل الحضور");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في تسجيل الحضور"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
-  );
+  const requests = (query.data ?? EMPTY_ARRAY) as ActivityParticipationDto[];
+  const requestsRef = useRef(requests);
+  requestsRef.current = requests;
 
   const getRequestForActivity = useCallback(
-    (activityId: string) => state.requests.find((r) => r.activityId === activityId),
-    [state.requests]
+    (activityId: string) => requestsRef.current.find((r) => r.activityId === activityId),
+    []
   );
 
-  return {
-    requests: state.requests,
-    loading: state.loading,
-    submitting: state.submitting,
-    error: state.error,
-    refresh,
-    createRequest,
-    approve,
-    reject,
-    getRequestForActivity,
-    cancelRequest,
-    markAttendance
-  };
+  const mutationError =
+    createMutation.error ||
+    approveMutation.error ||
+    rejectMutation.error ||
+    cancelMutation.error ||
+    attendanceMutation.error;
+
+  const queryError = query.error ? getErrorMessage(query.error, "فشل في جلب البيانات") : "";
+  const refetch = query.refetch;
+
+  const createRequest = useCallback(
+    (activityId: string) => createMutation.run(activityId),
+    [createMutation.run]
+  );
+  const approve = useCallback((id: string) => approveMutation.run(id), [approveMutation.run]);
+  const reject = useCallback((id: string) => rejectMutation.run(id), [rejectMutation.run]);
+  const cancelRequest = useCallback(
+    (id: string) => cancelMutation.run(id),
+    [cancelMutation.run]
+  );
+  const markAttendance = useCallback(
+    (id: string, attended: boolean) => attendanceMutation.run({ id, attended }),
+    [attendanceMutation.run]
+  );
+  const refresh = useCallback(() => refetch(), [refetch]);
+
+  const submitting =
+    createMutation.submitting ||
+    approveMutation.submitting ||
+    rejectMutation.submitting ||
+    cancelMutation.submitting ||
+    attendanceMutation.submitting;
+
+  return useMemo(
+    () => ({
+      requests,
+      loading: query.isLoading,
+      submitting,
+      error: queryError || mutationError,
+      refresh,
+      createRequest,
+      approve,
+      reject,
+      cancelRequest,
+      markAttendance,
+      getRequestForActivity
+    }),
+    [
+      requests,
+      query.isLoading,
+      submitting,
+      queryError,
+      mutationError,
+      refresh,
+      createRequest,
+      approve,
+      reject,
+      cancelRequest,
+      markAttendance,
+      getRequestForActivity
+    ]
+  );
 };

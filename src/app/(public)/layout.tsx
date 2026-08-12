@@ -7,15 +7,18 @@ import ChatbotWrapper from "@/presentation/components/volunteer/Chatbot/ChatbotW
 
 const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <NotificationsProvider>
+    <>
       <IntroWrapper />
-      <Header />
+      {/* Isolate notification polling so it cannot re-render page content every 10s */}
+      <NotificationsProvider>
+        <Header />
+      </NotificationsProvider>
       <main className="main-content">{children}</main>
       <Footer />
       <PushBannerWrapper />
       <ChatbotWrapper />
-    </NotificationsProvider>
+    </>
   );
-};;
+};
 
 export default PublicLayout;

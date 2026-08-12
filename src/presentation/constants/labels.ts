@@ -1,6 +1,7 @@
 import {
   JordanianCity,
   Gender,
+  EducationLevel,
   DomainFeaturedPostCategory,
   DayOfWeek,
   MeetingPlatform,
@@ -45,6 +46,27 @@ export const PERMISSION_LABELS: Record<AdminPermission, string> = {
 export const GENDER_LABELS: Record<Gender, string> = {
   [Gender.MALE]: "ذكر",
   [Gender.FEMALE]: "أنثى"
+};
+
+export const EDUCATION_LEVEL_LABELS: Record<EducationLevel, string> = {
+  [EducationLevel.KINDERGARTEN]: "رياض الأطفال",
+  [EducationLevel.GRADE_1]: "الصف الأول",
+  [EducationLevel.GRADE_2]: "الصف الثاني",
+  [EducationLevel.GRADE_3]: "الصف الثالث",
+  [EducationLevel.GRADE_4]: "الصف الرابع",
+  [EducationLevel.GRADE_5]: "الصف الخامس",
+  [EducationLevel.GRADE_6]: "الصف السادس",
+  [EducationLevel.GRADE_7]: "الصف السابع",
+  [EducationLevel.GRADE_8]: "الصف الثامن",
+  [EducationLevel.GRADE_9]: "الصف التاسع",
+  [EducationLevel.GRADE_10]: "الصف العاشر",
+  [EducationLevel.GRADE_11]: "الصف الحادي عشر",
+  [EducationLevel.GRADE_12]: "الصف الثاني عشر / توجيهي",
+  [EducationLevel.DIPLOMA]: "دبلوم",
+  [EducationLevel.BACHELOR]: "بكالوريوس",
+  [EducationLevel.MASTER]: "ماجستير",
+  [EducationLevel.PHD]: "دكتوراه",
+  [EducationLevel.OTHER]: "أخرى"
 };
 export const ACTIVITY_STATUS_LABELS: Record<ActivityStatus, string> = {
   [ActivityStatus.DRAFT]: "مسودة",
@@ -139,6 +161,10 @@ export const MONTH_LABELS: Record<number, string> = {
 
 // Helper functions for components
 export const getGenderLabel = (gender: Gender) => GENDER_LABELS[gender] || gender;
+export const getEducationLevelLabel = (level: EducationLevel | string) => {
+  if (level === "HIGH_SCHOOL") return "الصف الثاني عشر / توجيهي";
+  return EDUCATION_LEVEL_LABELS[level as EducationLevel] || level;
+};
 export const getCityLabel = (city: JordanianCity) => CITY_LABELS[city] || city;
 export const getCategoryLabel = (cat: DomainFeaturedPostCategory) => CATEGORY_LABELS[cat] || cat;
 export const getDayLabel = (day: DayOfWeek) => DAY_LABELS[day] || day;
@@ -155,9 +181,31 @@ export const MEETING_PLATFORM_OPTIONS = Object.entries(MEETING_PLATFORM_LABELS).
   label
 }));
 export const GENDER_OPTIONS = Object.entries(GENDER_LABELS).map(([value, label]) => ({ value, label }));
+export const EDUCATION_LEVEL_OPTIONS = Object.entries(EDUCATION_LEVEL_LABELS).map(([value, label]) => ({
+  value,
+  label
+}));
 export const CITY_OPTIONS = Object.entries(CITY_LABELS).map(([value, label]) => ({ value, label }));
 export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 export const DAY_OPTIONS = Object.entries(DAY_LABELS).map(([value, label]) => ({ value, label }));
+
+export const LANGUAGE_SUGGESTIONS = ["العربية", "الإنجليزية", "الفرنسية", "الألمانية", "التركية"];
+export const VOLUNTEER_TYPE_SUGGESTIONS = [
+  "تعليمي",
+  "صحي",
+  "بيئي",
+  "اجتماعي",
+  "تقني",
+  "فعاليات",
+  "إغاثة"
+];
+export const SKILL_SUGGESTIONS = ["تنظيم فعاليات", "تصوير", "كتابة محتوى", "تصميم", "قيادة فرق", "ترجمة"];
+export const INTEREST_SUGGESTIONS = ["شباب", "تعليم", "بيئة", "صحة", "ريادة", "ثقافة"];
+
+export const EXPERIENCE_OPTIONS = [
+  { value: "true", label: "نعم، لدي خبرة تطوعية" },
+  { value: "false", label: "لا، هذه بدايتي" }
+];
 
 export const getPermissionLabel = (permission: AdminPermission) => PERMISSION_LABELS[permission] ?? permission;
 export const getUserRoleLabel = (role: UserRole | string) => USER_ROLE_LABELS[role as UserRole] ?? role;

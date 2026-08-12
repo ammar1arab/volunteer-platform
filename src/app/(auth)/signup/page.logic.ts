@@ -4,17 +4,23 @@ import { useRouter } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { Gender, JordanianCity } from "@/core/domain/enums";
 import { authApi } from "@/presentation/services";
+import { signupDraft } from "../signupDraft";
 
 interface FormData {
   fullName: string;
   email: string;
   phone: string;
+  membershipNumber: string;
   dateOfBirth: string;
   city: string;
   gender: string;
+  educationLevel: string;
+  occupation: string;
   password: string;
   confirmPassword: string;
 }
+
+type TagField = "languages" | "preferredVolunteerTypes" | "skills" | "interests";
 
 type FieldErrors = Partial<Record<keyof FormData, string>>;
 
@@ -34,6 +40,10 @@ const validate = (field: keyof FormData, value: string, all: FormData): string =
       return "";
     case "phone":
       if (!value.trim()) return "رقم الهاتف مطلوب";
+      return "";
+    case "membershipNumber":
+    case "educationLevel":
+    case "occupation":
       return "";
     case "city":
       return value ? "" : "اختر المدينة";
@@ -62,9 +72,12 @@ const EMPTY: FormData = {
   fullName: "",
   email: "",
   phone: "",
+  membershipNumber: "",
   dateOfBirth: "",
   city: "",
   gender: "",
+  educationLevel: "",
+  occupation: "",
   password: "",
   confirmPassword: ""
 };
@@ -79,12 +92,20 @@ export const useSignup = () => {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailStatus, setEmailStatus] = useState<"idle" | "checking" | "taken" | "ok">("idle");
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [languages, setLanguages] = useState<string[]>([]);
+  const [preferredVolunteerTypes, setPreferredVolunteerTypes] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>([]);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [hasVolunteerExperience, setHasVolunteerExperience] = useState(false);
 
   useEffect(
     () => () => {
       if (timer.current) clearTimeout(timer.current);
+      if (profilePreview) URL.revokeObjectURL(profilePreview);
     },
-    []
+    [profilePreview]
   );
 
   const checkEmail = async (email: string) => {
@@ -131,6 +152,38 @@ export const useSignup = () => {
     if (field === "email" && !msg) checkEmail(form.email);
   };
 
+  const handleProfileFileChange = (file: File | null) => {
+    if (profilePreview) URL.revokeObjectURL(profilePreview);
+    setProfileFile(file);
+    setProfilePreview(file ? URL.createObjectURL(file) : null);
+  };
+
+  const tagSetters: Record<TagField, (v: string[]) => void> = {
+    languages: setLanguages,
+    preferredVolunteerTypes: setPreferredVolunteerTypes,
+    skills: setSkills,
+    interests: setInterests
+  };
+
+  const tagValues: Record<TagField, string[]> = {
+    languages,
+    preferredVolunteerTypes,
+    skills,
+    interests
+  };
+
+  const addTag = (field: TagField, value: string) => {
+    const t = value.trim();
+    if (!t) return;
+    const current = tagValues[field];
+    if (current.includes(t)) return;
+    tagSetters[field]([...current, t]);
+  };
+
+  const removeTag = (field: TagField, value: string) => {
+    tagSetters[field](tagValues[field].filter((t) => t !== value));
+  };
+
   const handleNext = () => {
     if (emailStatus === "taken") {
       setErrors((p) => ({ ...p, email: "البريد مستخدم مسبقاً" }));
@@ -174,7 +227,15 @@ export const useSignup = () => {
         phone: form.phone,
         city: form.city as JordanianCity,
         dateOfBirth: new Date(form.dateOfBirth),
-        gender: form.gender as Gender
+        gender: form.gender as Gender,
+        membershipNumber: form.membershipNumber.trim() || undefined,
+        educationLevel: form.educationLevel || undefined,
+        occupation: form.occupation.trim() || undefined,
+        languages,
+        preferredVolunteerTypes,
+        skills,
+        interests,
+        hasVolunteerExperience
       });
 
       if (res.success) {
@@ -186,9 +247,11 @@ export const useSignup = () => {
             phone: form.phone,
             city: form.city,
             gender: form.gender,
-            dateOfBirth: form.dateOfBirth
+            dateOfBirth: form.dateOfBirth,
+            membershipNumber: form.membershipNumber.trim() || undefined
           })
         );
+        signupDraft.setProfileFile(profileFile);
         router.replace(`/verify-email?email=${encodeURIComponent(form.email)}&flow=signup`);
         return;
       }
@@ -208,8 +271,18 @@ export const useSignup = () => {
     serverError,
     loading,
     emailStatus,
+    profilePreview,
+    languages,
+    preferredVolunteerTypes,
+    skills,
+    interests,
+    hasVolunteerExperience,
+    setHasVolunteerExperience,
+    addTag,
+    removeTag,
     handleChange,
     handleBlur,
+    handleProfileFileChange,
     handleNext,
     handleBack,
     handleSubmit

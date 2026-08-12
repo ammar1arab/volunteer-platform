@@ -1,324 +1,189 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
 import { activityApi, uploadApi } from "@/presentation/services";
-
-type ListState = {
-  list: ActivityDto[];
-  loading: boolean;
-  submitting: boolean;
-  uploading: boolean;
-  error: string;
-};
-
-const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
-  if (err instanceof Error) return err.message;
-  return fallback;
-};
+import {
+  EMPTY_ARRAY,
+  getErrorMessage,
+  queryKeys,
+  unwrapResult,
+  useApiMutation,
+  useBooleanMutation,
+  useFetchData
+} from "@/presentation/query";
 
 export type ActivitiesFilter = "all" | "published";
 
-export const useActivities = (opts?: { filter?: ActivitiesFilter }) => {
+export const useActivities = (opts?: { filter?: ActivitiesFilter; enabled?: boolean }) => {
   const filter = opts?.filter ?? "all";
 
-  const [state, setState] = useState<ListState>({
-    list: [],
-    loading: false,
-    submitting: false,
-    uploading: false,
-    error: ""
+  const query = useFetchData<ActivityDto[]>({
+    queryKey: queryKeys.activities.list(filter),
+    request: async () => {
+      const res = filter === "published" ? await activityApi.getPublished() : await activityApi.getAll();
+      return unwrapResult(res).activities;
+    },
+    options: {
+      enabled: opts?.enabled ?? true,
+      staleTime: filter === "published" ? 60_000 : 30_000
+    }
   });
 
-  const hasLoadedRef = useRef(false);
+  const createMutation = useBooleanMutation<CreateActivityRequest>({
+    request: async (payload) => unwrapResult(await activityApi.create(payload)),
+    invalidateQueries: queryKeys.activities.all,
+    fallbackError: "فشل في الإنشاء"
+  });
 
-  const setError = (msg: string) => setState((p) => ({ ...p, error: msg || "" }));
+  const updateMutation = useBooleanMutation<{ id: string; payload: UpdateActivityRequest }>({
+    request: async ({ id, payload }) => unwrapResult(await activityApi.update(id, payload)),
+    invalidateQueries: queryKeys.activities.all,
+    fallbackError: "فشل في التحديث"
+  });
 
-  const refresh = useCallback(async () => {
-    setState((p) => ({ ...p, loading: true, error: "" }));
+  const removeMutation = useBooleanMutation<string>({
+    request: async (id) => unwrapResult(await activityApi.delete(id)),
+    invalidateQueries: queryKeys.activities.all,
+    fallbackError: "فشل في الحذف"
+  });
 
-    try {
-      const res = filter === "published" ? await activityApi.getPublished() : await activityApi.getAll();
+  const publishMutation = useBooleanMutation<string>({
+    request: async (id) => unwrapResult(await activityApi.publish(id)),
+    invalidateQueries: queryKeys.activities.all,
+    fallbackError: "فشل في النشر"
+  });
 
-      const activities: ActivityDto[] = (res as { data?: { activities?: ActivityDto[] } })?.data?.activities ?? [];
+  const cancelMutation = useBooleanMutation<string>({
+    request: async (id) => unwrapResult(await activityApi.cancel(id)),
+    invalidateQueries: queryKeys.activities.all,
+    fallbackError: "فشل في الإلغاء"
+  });
 
-      setState((p) => ({
-        ...p,
-        list: activities,
-        loading: false
-      }));
-    } catch (err) {
-      setState((p) => ({
-        ...p,
-        loading: false,
-        error: getErrMsg(err, "فشل في جلب البيانات")
-      }));
-    }
-  }, [filter]);
+  const restoreMutation = useBooleanMutation<string>({
+    request: async (id) => unwrapResult(await activityApi.restore(id)),
+    invalidateQueries: queryKeys.activities.all,
+    fallbackError: "فشل في الاستعادة"
+  });
 
-  useEffect(() => {
-    if (!hasLoadedRef.current) {
-      hasLoadedRef.current = true;
-      refresh();
-    }
-  }, [refresh]);
+  const completeMutation = useBooleanMutation<string>({
+    request: async (id) => unwrapResult(await activityApi.complete(id)),
+    invalidateQueries: queryKeys.activities.all,
+    fallbackError: "فشل في إكمال النشاط"
+  });
 
-  const uploadImage = useCallback(async (file: File) => {
-    setState((p) => ({ ...p, uploading: true, error: "" }));
+  const uploadMutation = useApiMutation<string, File>({
+    request: async (file) => unwrapResult(await uploadApi.uploadActivityImage(file)).imageUrl
+  });
 
-    try {
-      const res = await uploadApi.uploadActivityImage(file);
-      const imageUrl = (res as { data?: { imageUrl?: string } })?.data?.imageUrl;
-      const success = (res as { success?: boolean })?.success;
+  const list = (query.data ?? EMPTY_ARRAY) as ActivityDto[];
+  const mutationError =
+    createMutation.error ||
+    updateMutation.error ||
+    removeMutation.error ||
+    publishMutation.error ||
+    cancelMutation.error ||
+    restoreMutation.error ||
+    completeMutation.error ||
+    (uploadMutation.error ? getErrorMessage(uploadMutation.error, "فشل رفع الصورة") : "");
 
-      if (!success || !imageUrl) {
-        throw new Error((res as { error?: string })?.error || "فشل رفع الصورة");
+  const queryError = query.error ? getErrorMessage(query.error, "فشل في جلب البيانات") : "";
+  const refetch = query.refetch;
+  const uploadAsync = uploadMutation.mutateAsync;
+
+  const uploadImage = useCallback(
+    async (file: File) => {
+      try {
+        return await uploadAsync(file);
+      } catch {
+        return null;
       }
-
-      setState((p) => ({ ...p, uploading: false }));
-      return imageUrl;
-    } catch (err) {
-      setError(getErrMsg(err, "فشل رفع الصورة"));
-      setState((p) => ({ ...p, uploading: false }));
-      return null;
-    }
-  }, []);
+    },
+    [uploadAsync]
+  );
 
   const create = useCallback(
-    async (payload: CreateActivityRequest) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await activityApi.create(payload);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في الإنشاء");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في الإنشاء"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
+    (payload: CreateActivityRequest) => createMutation.run(payload),
+    [createMutation.run]
   );
-
   const update = useCallback(
-    async (id: string, payload: UpdateActivityRequest) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await activityApi.update(id, payload);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في التحديث");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في التحديث"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
+    (id: string, payload: UpdateActivityRequest) => updateMutation.run({ id, payload }),
+    [updateMutation.run]
   );
+  const remove = useCallback((id: string) => removeMutation.run(id), [removeMutation.run]);
+  const publish = useCallback((id: string) => publishMutation.run(id), [publishMutation.run]);
+  const cancel = useCallback((id: string) => cancelMutation.run(id), [cancelMutation.run]);
+  const restore = useCallback((id: string) => restoreMutation.run(id), [restoreMutation.run]);
+  const complete = useCallback((id: string) => completeMutation.run(id), [completeMutation.run]);
+  const refresh = useCallback(() => refetch(), [refetch]);
 
-  const remove = useCallback(
-    async (id: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
+  const submitting =
+    createMutation.submitting ||
+    updateMutation.submitting ||
+    removeMutation.submitting ||
+    publishMutation.submitting ||
+    cancelMutation.submitting ||
+    restoreMutation.submitting ||
+    completeMutation.submitting;
 
-      try {
-        const res = await activityApi.delete(id);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في الحذف");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في الحذف"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
+  return useMemo(
+    () => ({
+      list,
+      loading: query.isLoading,
+      submitting,
+      uploading: uploadMutation.isPending,
+      error: queryError || mutationError,
+      refresh,
+      uploadImage,
+      create,
+      update,
+      remove,
+      publish,
+      cancel,
+      restore,
+      complete
+    }),
+    [
+      list,
+      query.isLoading,
+      submitting,
+      uploadMutation.isPending,
+      queryError,
+      mutationError,
+      refresh,
+      uploadImage,
+      create,
+      update,
+      remove,
+      publish,
+      cancel,
+      restore,
+      complete
+    ]
   );
-
-  const publish = useCallback(
-    async (id: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await activityApi.publish(id);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في النشر");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في النشر"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
-  );
-
-  const cancel = useCallback(
-    async (id: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await activityApi.cancel(id);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في الإلغاء");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في الإلغاء"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
-  );
-
-  const restore = useCallback(
-    async (id: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-
-      try {
-        const res = await activityApi.restore(id);
-
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في الاستعادة");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في الاستعادة"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
-  );
-
-  const complete = useCallback(
-    async (id: string) => {
-      setState((p) => ({ ...p, submitting: true, error: "" }));
-      try {
-        const res = await activityApi.complete(id);
-        if (!(res as { success?: boolean })?.success) {
-          setError((res as { error?: string })?.error || "فشل في إكمال النشاط");
-          setState((p) => ({ ...p, submitting: false }));
-          return false;
-        }
-        await refresh();
-        setState((p) => ({ ...p, submitting: false }));
-        return true;
-      } catch (err) {
-        setError(getErrMsg(err, "فشل في إكمال النشاط"));
-        setState((p) => ({ ...p, submitting: false }));
-        return false;
-      }
-    },
-    [refresh]
-  );
-
-  return {
-    list: state.list,
-    loading: state.loading,
-    submitting: state.submitting,
-    uploading: state.uploading,
-    error: state.error,
-    refresh,
-    uploadImage,
-    create,
-    update,
-    remove,
-    publish,
-    cancel,
-    restore,
-    complete
-  };
 };
 
 export const useActivityDetails = (id: string) => {
-  const [activity, setActivity] = useState<ActivityDto | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const query = useFetchData<ActivityDto>({
+    queryKey: queryKeys.activities.detail(id),
+    request: async () => unwrapResult(await activityApi.getOne(id)).activity,
+    options: { enabled: Boolean(id), staleTime: 30_000 }
+  });
 
-  useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
+  const refetch = query.refetch;
 
-    let cancelled = false;
-
-    const fetchActivity = async () => {
-      setLoading(true);
-      setError("");
-
-      try {
-        const res = await activityApi.getOne(id);
-        if (cancelled) return;
-
-        const activityData: ActivityDto | null = (res as { data?: { activity?: ActivityDto } })?.data?.activity ?? null;
-
-        setActivity(activityData);
-
-        if (!activityData) {
-          setError("النشاط غير موجود");
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(getErrMsg(err, "فشل في جلب النشاط"));
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchActivity();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [id]);
-
-  return { activity, loading, error };
+  return useMemo(
+    () => ({
+      activity: query.data ?? null,
+      loading: query.isLoading,
+      error: query.error
+        ? getErrorMessage(query.error, "فشل في جلب النشاط")
+        : !query.isLoading && query.isFetched && !query.data
+          ? "النشاط غير موجود"
+          : "",
+      isNotFound: query.isNotFound || (query.isFetched && !query.data && !query.error),
+      refresh: () => refetch()
+    }),
+    [query.data, query.isLoading, query.error, query.isFetched, query.isNotFound, refetch]
+  );
 };

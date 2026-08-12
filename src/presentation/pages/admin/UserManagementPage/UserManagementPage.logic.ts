@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { UserRole } from "@/core/domain/enums";
 import { useUsers, useToast, useAuth } from "@/presentation/hooks";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
-import { getCityLabel } from "@/presentation/constants";
+import { getCityLabel, getEducationLevelLabel } from "@/presentation/constants";
 
 type SortOption = "default" | "oldest" | "newest" | "name" | "age" | "most-active" | "most-hours" | "most-certs";
 
@@ -86,7 +86,15 @@ export const useUserManagementPage = () => {
         (u) =>
           u.fullName.toLowerCase().includes(q) ||
           u.email.toLowerCase().includes(q) ||
-          u.phone?.toLowerCase().includes(q)
+          u.phone?.toLowerCase().includes(q) ||
+          u.volunteerProfile?.membershipNumber?.toLowerCase().includes(q) ||
+          u.volunteerProfile?.occupation?.toLowerCase().includes(q) ||
+          (u.volunteerProfile?.educationLevel &&
+            getEducationLevelLabel(u.volunteerProfile.educationLevel).toLowerCase().includes(q)) ||
+          u.volunteerProfile?.educationLevel?.toLowerCase().includes(q) ||
+          u.volunteerProfile?.languages?.some((l) => l.toLowerCase().includes(q)) ||
+          u.volunteerProfile?.preferredVolunteerTypes?.some((t) => t.toLowerCase().includes(q)) ||
+          u.volunteerProfile?.skills?.some((s) => s.toLowerCase().includes(q))
       );
     }
 
@@ -133,11 +141,19 @@ export const useUserManagementPage = () => {
         age: calculateAge(user.volunteerProfile?.dateOfBirth),
         phone: user.phone,
         email: user.email,
+        membershipNumber: user.volunteerProfile?.membershipNumber || "-",
         city: getCityLabel(user.volunteerProfile?.city as any) || "-",
+        educationLevel: user.volunteerProfile?.educationLevel
+          ? getEducationLevelLabel(user.volunteerProfile.educationLevel)
+          : "-",
+        occupation: user.volunteerProfile?.occupation || "-",
+        hasVolunteerExperience: user.volunteerProfile?.hasVolunteerExperience ? "نعم" : "لا",
         totalHours: user.stats.totalHours || 0,
         approvedActivities: user.stats.approvedActivities || 0,
         skills: user.volunteerProfile?.skills?.join(", ") || "-",
         interests: user.volunteerProfile?.interests?.join(", ") || "-",
+        languages: user.volunteerProfile?.languages?.join(", ") || "-",
+        preferredVolunteerTypes: user.volunteerProfile?.preferredVolunteerTypes?.join(", ") || "-",
         createdAt: new Date(user.createdAt).toLocaleDateString("ar"),
         certificatesCount: user.stats.certificatesCount || 0,
       })),

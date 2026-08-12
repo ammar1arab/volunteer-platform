@@ -9,11 +9,12 @@ import {
 import {
   ArrowRight, Activity, CheckCircle, Clock, XCircle,
   Mail, Phone, User, Edit2, Check, X, Trash2,
-  ToggleLeft, ToggleRight, MapPin, Calendar, User2,
+  ToggleLeft, ToggleRight, MapPin, Calendar, User2, Hash, GraduationCap, Briefcase, Award,
 } from "lucide-react";
 import {
   ROUTES, CITY_OPTIONS, getMonthLabel, getParticipationStatusLabel,
-  getUserRoleLabel, getCityLabel, getGenderLabel,
+  getUserRoleLabel, getCityLabel, getGenderLabel, getEducationLevelLabel,
+  EDUCATION_LEVEL_OPTIONS, EXPERIENCE_OPTIONS,
 } from "@/presentation/constants";
 import { ParticipationStatus, JordanianCity, Gender } from "@/core/domain/enums";
 
@@ -35,12 +36,18 @@ const EXPORT_COLUMNS = [
   { key: "fullName",    label: "الاسم"             },
   { key: "email",       label: "البريد الإلكتروني" },
   { key: "phone",       label: "رقم الهاتف"        },
+  { key: "membershipNumber", label: "رقم الانتساب" },
   { key: "city",        label: "المدينة"            },
   { key: "dateOfBirth", label: "تاريخ الميلاد"     },
   { key: "gender",      label: "الجنس"              },
+  { key: "educationLevel", label: "المستوى التعليمي" },
+  { key: "occupation", label: "التخصص / المهنة" },
+  { key: "hasVolunteerExperience", label: "خبرة تطوعية" },
   { key: "bio",         label: "النبذة"             },
   { key: "interests",   label: "الاهتمامات"        },
   { key: "skills",      label: "المهارات"           },
+  { key: "languages",   label: "اللغات" },
+  { key: "preferredVolunteerTypes", label: "أنواع التطوع المفضلة" },
   { key: "activities",  label: "الفرص التطوعية"     },
   { key: "createdAt",   label: "تاريخ الانضمام"     },
 ];
@@ -159,6 +166,12 @@ const AdminUserDetailsPage = () => {
               <EField icon={<User     size={14} />} label="الاسم الكامل"  field="fullName"    value={user.fullName} {...ef} />
               {vp && <>
                 <EField
+                  icon={<Hash size={14} />} label="رقم الانتساب"
+                  field="membershipNumber" value={vp.membershipNumber || ""}
+                  displayValue={vp.membershipNumber || "غير محدد"}
+                  {...ef}
+                />
+                <EField
                   icon={<MapPin   size={14} />} label="المدينة"
                   field="city"        value={vp.city || ""}
                   displayValue={vp.city ? getCityLabel(vp.city as JordanianCity) : "غير محدد"}
@@ -175,6 +188,25 @@ const AdminUserDetailsPage = () => {
                   field="gender"      value={vp.gender || ""}
                   displayValue={vp.gender ? getGenderLabel(vp.gender as Gender) : "غير محدد"}
                   type="select"       options={GENDER_OPTIONS} {...ef}
+                />
+                <EField
+                  icon={<GraduationCap size={14} />} label="المستوى التعليمي"
+                  field="educationLevel" value={vp.educationLevel || ""}
+                  displayValue={vp.educationLevel ? getEducationLevelLabel(vp.educationLevel) : "غير محدد"}
+                  type="select" options={[{ value: "", label: "غير محدد" }, ...EDUCATION_LEVEL_OPTIONS]} {...ef}
+                />
+                <EField
+                  icon={<Briefcase size={14} />} label="التخصص / المهنة"
+                  field="occupation" value={vp.occupation || ""}
+                  displayValue={vp.occupation || "غير محدد"}
+                  {...ef}
+                />
+                <EField
+                  icon={<Award size={14} />} label="خبرة تطوعية سابقة"
+                  field="hasVolunteerExperience"
+                  value={vp.hasVolunteerExperience ? "true" : "false"}
+                  displayValue={vp.hasVolunteerExperience ? "نعم" : "لا"}
+                  type="select" options={EXPERIENCE_OPTIONS} {...ef}
                 />
               </>}
             </div>
@@ -197,6 +229,20 @@ const AdminUserDetailsPage = () => {
             {vp?.interests?.length
               ? <div className={styles.tags}>{vp.interests.map(i => <span key={i} className={styles.tag}>{i}</span>)}</div>
               : <Empty text="لا توجد اهتمامات مضافة" />}
+          </section>
+
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>اللغات</h3>
+            {vp?.languages?.length
+              ? <div className={styles.tags}>{vp.languages.map(l => <span key={l} className={styles.tag}>{l}</span>)}</div>
+              : <Empty text="لا توجد لغات مضافة" />}
+          </section>
+
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>أنواع التطوع المفضلة</h3>
+            {vp?.preferredVolunteerTypes?.length
+              ? <div className={styles.tags}>{vp.preferredVolunteerTypes.map(t => <span key={t} className={styles.tag}>{t}</span>)}</div>
+              : <Empty text="لا توجد أنواع مفضلة" />}
           </section>
 
         </div>

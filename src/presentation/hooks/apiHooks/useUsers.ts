@@ -1,65 +1,37 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { UserAnalyticsDto } from "@/core/application/dtos";
+import { useCallback, useMemo } from "react";
+import type { UserAnalyticsDto } from "@/core/application/dtos";
 import { userApi } from "@/presentation/services";
+import {
+  EMPTY_ARRAY,
+  getErrorMessage,
+  queryKeys,
+  unwrapResult,
+  useFetchData
+} from "@/presentation/query";
 
-interface UsersState {
-  users: UserAnalyticsDto[];
-  loading: boolean;
-  error: string;
-}
+export const useUsers = (options: { enabled?: boolean; autoLoad?: boolean } = {}) => {
+  const enabled = options.enabled ?? options.autoLoad ?? true;
 
-const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
-  if (err instanceof Error) return err.message;
-  return fallback;
-};
-
-export const useUsers = (options: { autoLoad?: boolean } = {}) => {
-  const { autoLoad = true } = options;
-
-  const [state, setState] = useState<UsersState>({
-    users: [],
-    loading: false,
-    error: "",
+  const query = useFetchData<UserAnalyticsDto[]>({
+    queryKey: queryKeys.users.list(),
+    request: async () => unwrapResult(await userApi.getAll()).users,
+    options: { enabled, staleTime: 45_000 }
   });
 
-  const hasLoadedRef = useRef(false);
+  const refetch = query.refetch;
+  const users = (query.data ?? EMPTY_ARRAY) as UserAnalyticsDto[];
+  const error = query.error ? getErrorMessage(query.error, "فشل في جلب المستخدمين") : "";
+  const refresh = useCallback(() => refetch(), [refetch]);
 
-  const refresh = useCallback(async () => {
-    setState((p) => ({ ...p, loading: true, error: "" }));
-
-    try {
-      const res = await userApi.getAll();
-
-      const users: UserAnalyticsDto[] =
-        (res as { data?: { users?: UserAnalyticsDto[] } })?.data?.users ?? [];
-
-      setState((p) => ({
-        ...p,
-        users,
-        loading: false,
-      }));
-    } catch (err) {
-      setState((p) => ({
-        ...p,
-        loading: false,
-        error: getErrMsg(err, "فشل في جلب المستخدمين"),
-      }));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (autoLoad && !hasLoadedRef.current) {
-      hasLoadedRef.current = true;
-      refresh();
-    }
-  }, [autoLoad, refresh]);
-
-  return {
-    users: state.users,
-    loading: state.loading,
-    error: state.error,
-    refresh,
-  };
+  return useMemo(
+    () => ({
+      users,
+      loading: query.isLoading,
+      error,
+      refresh
+    }),
+    [users, query.isLoading, error, refresh]
+  );
 };

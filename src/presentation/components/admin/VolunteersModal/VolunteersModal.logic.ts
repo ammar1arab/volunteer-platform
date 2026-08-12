@@ -1,29 +1,61 @@
+"use client";
+
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { ActivityVolunteerDto } from "@/core/application/dtos";
 import { activityApi, participationApi } from "@/presentation/services";
 import { AttendanceStatus, Gender } from "@/core/domain/enums";
 import { useToast } from "@/presentation/hooks";
 import { getAttendanceStatusLabel, getCityLabel, getGenderLabel } from "@/presentation/constants";
+import {
+  EMPTY_ARRAY,
+  getErrorMessage,
+  queryKeys,
+  unwrapResult,
+  useFetchData
+} from "@/presentation/query";
 
-const cache = new Map<string, Record<string, boolean | null>>();
-const getCache = (activityId: string) => {
-  if (!cache.has(activityId)) cache.set(activityId, {});
-  return cache.get(activityId)!;
+const attendanceOverrides = new Map<string, Record<string, boolean | null>>();
+const getOverrides = (activityId: string) => {
+  if (!attendanceOverrides.has(activityId)) attendanceOverrides.set(activityId, {});
+  return attendanceOverrides.get(activityId)!;
 };
 
 const VOLUNTEERS_PER_PAGE = 15;
+
+function applyAttendanceOverrides(
+  activityId: string,
+  list: ActivityVolunteerDto[],
+  rejectedIds: Set<string>
+): ActivityVolunteerDto[] {
+  const overrides = getOverrides(activityId);
+  return list
+    .filter((v) => !rejectedIds.has(v.participationId))
+    .map((v) => {
+      if (!(v.participationId in overrides)) return v;
+      const val = overrides[v.participationId];
+      return {
+        ...v,
+        attendanceStatus:
+          val === true
+            ? AttendanceStatus.ATTENDED
+            : val === false
+              ? AttendanceStatus.ABSENT
+              : AttendanceStatus.NOT_MARKED
+      };
+    });
+}
 
 export const useVolunteersModal = (
   activityId: string,
   isOpen: boolean,
   activityTitle: string,
-  activityStatus: string,
+  _activityStatus: string,
   activityDate: string,
   activityType: string,
   durationHours: number
 ) => {
-  const [volunteers, setVolunteers] = useState<ActivityVolunteerDto[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [overrideTick, setOverrideTick] = useState(0);
+  const [rejectedIds, setRejectedIds] = useState<Set<string>>(() => new Set());
   const [completing, setCompleting] = useState(false);
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [confirmStep, setConfirmStep] = useState<0 | 1 | 2>(0);
@@ -34,39 +66,14 @@ export const useVolunteersModal = (
   const { toasts, showToast, removeToast } = useToast();
   const prefetchRef = useRef<Promise<void> | null>(null);
 
-  const applyCache = useCallback(
-    (list: ActivityVolunteerDto[]) => {
-      const overrides = getCache(activityId);
-      return list.map((v) => {
-        if (!(v.participationId in overrides)) return v;
-        const val = overrides[v.participationId];
-        return {
-          ...v,
-          attendanceStatus:
-            val === true
-              ? AttendanceStatus.ATTENDED
-              : val === false
-                ? AttendanceStatus.ABSENT
-                : AttendanceStatus.NOT_MARKED
-        };
-      });
-    },
-    [activityId]
-  );
-
-  const fetchVolunteers = useCallback(async () => {
-    if (!activityId) return;
-    setLoading(true);
-    try {
-      const res = await activityApi.getVolunteers(activityId);
-      setVolunteers(res.success && res.data?.volunteers ? applyCache(res.data.volunteers) : []);
-    } catch {
-      showToast("حدث خطأ أثناء جلب المتطوعين", "error");
-      setVolunteers([]);
-    } finally {
-      setLoading(false);
+  const query = useFetchData<ActivityVolunteerDto[]>({
+    queryKey: queryKeys.activities.volunteers(activityId),
+    request: async () => unwrapResult(await activityApi.getVolunteers(activityId)).volunteers,
+    options: {
+      enabled: isOpen && Boolean(activityId),
+      staleTime: 15_000
     }
-  }, [activityId, applyCache, showToast]);
+  });
 
   useEffect(() => {
     if (!isOpen || !activityId) return;
@@ -75,9 +82,18 @@ export const useVolunteersModal = (
     setSearch("");
     setGenderFilter("ALL");
     setCurrentPage(1);
+    setRejectedIds(new Set());
     prefetchRef.current = null;
-    fetchVolunteers();
-  }, [isOpen, activityId, fetchVolunteers]);
+  }, [isOpen, activityId]);
+
+  const serverList = (query.data ?? EMPTY_ARRAY) as ActivityVolunteerDto[];
+
+  const volunteers = useMemo(
+    () => applyAttendanceOverrides(activityId, serverList, rejectedIds),
+    // overrideTick forces recompute after attendance edits
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activityId, serverList, rejectedIds, overrideTick]
+  );
 
   const filteredVolunteers = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -103,43 +119,22 @@ export const useVolunteersModal = (
     setCurrentPage(1);
   }, []);
 
-  const setAttendance = useCallback(
-    (participationId: string, attended: boolean | null) => {
-      getCache(activityId)[participationId] = attended;
-      setVolunteers((prev) =>
-        prev.map((v) =>
-          v.participationId !== participationId
-            ? v
-            : {
-                ...v,
-                attendanceStatus:
-                  attended === true
-                    ? AttendanceStatus.ATTENDED
-                    : attended === false
-                      ? AttendanceStatus.ABSENT
-                      : AttendanceStatus.NOT_MARKED
-              }
-        )
-      );
-      setAttendanceWarning(false);
-    },
-    [activityId]
-  );
+  const setAttendance = useCallback((participationId: string, attended: boolean | null) => {
+    getOverrides(activityId)[participationId] = attended;
+    setAttendanceWarning(false);
+    setOverrideTick((n) => n + 1);
+  }, [activityId]);
 
   const rejectVolunteer = useCallback(
     async (participationId: string, volunteerName: string) => {
       setRejecting(participationId);
       try {
-        const res = await participationApi.reject(participationId);
-        if (res.success) {
-          delete getCache(activityId)[participationId];
-          setVolunteers((prev) => prev.filter((v) => v.participationId !== participationId));
-          showToast(`تم إزالة ${volunteerName} من النشاط`, "success");
-        } else {
-          showToast("حدث خطأ أثناء إزالة المتطوع", "error");
-        }
-      } catch {
-        showToast("حدث خطأ غير متوقع", "error");
+        unwrapResult(await participationApi.reject(participationId));
+        delete getOverrides(activityId)[participationId];
+        setRejectedIds((prev) => new Set(prev).add(participationId));
+        showToast(`تم إزالة ${volunteerName} من النشاط`, "success");
+      } catch (err) {
+        showToast(getErrorMessage(err, "حدث خطأ أثناء إزالة المتطوع"), "error");
       } finally {
         setRejecting(null);
       }
@@ -148,10 +143,13 @@ export const useVolunteersModal = (
   );
 
   const flushAttendance = useCallback(() => {
-    const overrides = getCache(activityId);
+    const overrides = getOverrides(activityId);
     const items = Object.entries(overrides)
       .filter(([, val]) => val !== null)
-      .map(([participationId, attended]) => ({ participationId, attended: attended as boolean }));
+      .map(([participationId, attended]) => ({
+        participationId,
+        attended: attended as boolean
+      }));
     if (!items.length) return Promise.resolve();
     return participationApi.bulkMarkAttendance(items).then(() => undefined);
   }, [activityId]);
@@ -181,11 +179,11 @@ export const useVolunteersModal = (
         await prefetchRef.current;
         const success = await onComplete();
         if (success) {
-          cache.delete(activityId);
+          attendanceOverrides.delete(activityId);
           onClose();
         } else showToast("حدث خطأ أثناء إكمال النشاط", "error");
-      } catch {
-        showToast("حدث خطأ غير متوقع", "error");
+      } catch (err) {
+        showToast(getErrorMessage(err, "حدث خطأ غير متوقع"), "error");
       } finally {
         setCompleting(false);
         setConfirmStep(0);
@@ -195,16 +193,19 @@ export const useVolunteersModal = (
     [activityId, showToast]
   );
 
-  const calculateAge = (dateOfBirth: string): number => {
+  const calculateAge = useCallback((dateOfBirth: string): number => {
     const today = new Date();
     const birth = new Date(dateOfBirth);
     let age = today.getFullYear() - birth.getFullYear();
     const m = today.getMonth() - birth.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
     return age;
-  };
+  }, []);
 
-  const unmarkedCount = volunteers.filter((v) => v.attendanceStatus === AttendanceStatus.NOT_MARKED).length;
+  const unmarkedCount = useMemo(
+    () => volunteers.filter((v) => v.attendanceStatus === AttendanceStatus.NOT_MARKED).length,
+    [volunteers]
+  );
 
   const exportData = useMemo(
     () =>
@@ -221,7 +222,7 @@ export const useVolunteersModal = (
         gender: v.gender ? getGenderLabel(v.gender as Gender) : "-",
         attendanceStatus: getAttendanceStatusLabel(v.attendanceStatus)
       })),
-    [volunteers, activityTitle, activityDate, activityType, durationHours]
+    [volunteers, activityTitle, activityDate, activityType, durationHours, calculateAge]
   );
 
   return {
@@ -229,7 +230,7 @@ export const useVolunteersModal = (
     allVolunteers: volunteers,
     filteredCount: filteredVolunteers.length,
     exportData,
-    loading,
+    loading: query.isLoading,
     completing,
     rejecting,
     confirmStep,

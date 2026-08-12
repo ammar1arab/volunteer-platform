@@ -100,7 +100,23 @@ class AuthUseCase {
           phone,
           city: dto.city,
           dateOfBirth: dto.dateOfBirth,
-          gender: dto.gender ?? null
+          gender: dto.gender ?? null,
+          membershipNumber: dto.membershipNumber
+            ? InputSanitizer.sanitizeString(dto.membershipNumber) || null
+            : null,
+          educationLevel: dto.educationLevel
+            ? InputSanitizer.sanitizeString(dto.educationLevel) || null
+            : null,
+          occupation: dto.occupation
+            ? InputSanitizer.sanitizeString(dto.occupation) || null
+            : null,
+          languages: (dto.languages ?? []).map((l) => InputSanitizer.sanitizeString(l)).filter(Boolean),
+          preferredVolunteerTypes: (dto.preferredVolunteerTypes ?? [])
+            .map((t) => InputSanitizer.sanitizeString(t))
+            .filter(Boolean),
+          skills: (dto.skills ?? []).map((s) => InputSanitizer.sanitizeString(s)).filter(Boolean),
+          interests: (dto.interests ?? []).map((i) => InputSanitizer.sanitizeString(i)).filter(Boolean),
+          hasVolunteerExperience: dto.hasVolunteerExperience ?? false
         },
         new Date(Date.now() + PENDING_EXPIRY_MS)
       );

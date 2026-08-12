@@ -1,4 +1,4 @@
-import { JordanianCity, Gender } from "@/core/domain/enums";
+import { JordanianCity, Gender, EducationLevel } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 
 export interface VolunteerProfileDto {
@@ -7,10 +7,15 @@ export interface VolunteerProfileDto {
   city: string;
   dateOfBirth: string;
   profilePictureUrl?: string | null;
+  membershipNumber?: string | null;
   gender?: string | null;
   bio?: string | null;
   skills: string[];
   interests: string[];
+  educationLevel?: string | null;
+  occupation?: string | null;
+  languages: string[];
+  preferredVolunteerTypes: string[];
   hasVolunteerExperience: boolean;
   totalVolunteerHours: number;
 }
@@ -20,10 +25,15 @@ export interface UpdateVolunteerProfileRequest {
   city?: JordanianCity;
   dateOfBirth?: Date;
   profilePictureUrl?: string;
+  membershipNumber?: string | null;
   gender?: Gender;
   bio?: string;
   skills?: string[];
   interests?: string[];
+  educationLevel?: EducationLevel | null;
+  occupation?: string | null;
+  languages?: string[];
+  preferredVolunteerTypes?: string[];
   hasVolunteerExperience?: boolean;
 }
 

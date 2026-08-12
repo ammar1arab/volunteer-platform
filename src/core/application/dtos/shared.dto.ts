@@ -8,12 +8,18 @@ export interface UserSummaryDto {
 
 export interface VolunteerProfileSummaryDto {
   profilePictureUrl?: string;
+  membershipNumber?: string;
   city?: string;
   dateOfBirth?: string;
   gender?: string;
   bio?: string;
   skills?: string[];
   interests?: string[];
+  educationLevel?: string;
+  occupation?: string;
+  languages?: string[];
+  preferredVolunteerTypes?: string[];
+  hasVolunteerExperience?: boolean;
 }
 
 export interface ActivitySummaryDto {

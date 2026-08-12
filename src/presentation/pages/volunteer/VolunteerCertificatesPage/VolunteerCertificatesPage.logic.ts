@@ -1,39 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/presentation/hooks";
-import { certificateApi } from "@/presentation/services";
+import { useEffect, useMemo, useState } from "react";
+import { useAuth, useCertificates } from "@/presentation/hooks";
 import { UserRole } from "@/core/domain/enums";
-import type { CertificateDto } from "@/core/application/dtos";
 
 const ITEMS_PER_PAGE = 12;
 
 export const useVolunteerCertificatesPage = () => {
-  const { status }                               = useAuth({ requireRole: UserRole.VOLUNTEER });
-  const [certificates, setCertificates]          = useState<CertificateDto[]>([]);
-  const [totalHours,   setTotalHours]            = useState(0);
-  const [loading,      setLoading]               = useState(true);
-  const [activeFilter, setActiveFilter]          = useState("all");
-  const [searchQuery,  setSearchQuery]           = useState("");
-  const [appliedSearch, setAppliedSearch]        = useState("");
-  const [currentPage,  setCurrentPage]           = useState(1);
+  const { status } = useAuth({ requireRole: UserRole.VOLUNTEER });
+  const { list: certificates, totalHours, loading } = useCertificates();
 
-  useEffect(() => { setCurrentPage(1); }, [activeFilter, appliedSearch]);
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await certificateApi.getByUser();
-      if (res.success && res.data) {
-        setCertificates(res.data.certificates ?? []);
-        setTotalHours(res.data.totalHours ?? 0);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter, appliedSearch]);
 
   const filtered = useMemo(() => {
     let result = certificates;
@@ -51,13 +35,20 @@ export const useVolunteerCertificatesPage = () => {
   }, [filtered, currentPage]);
 
   return {
-    status, loading,
-    certificates, totalHours,
-    filtered, paginated,
-    currentPage, setCurrentPage,
+    status,
+    loading,
+    certificates,
+    totalHours,
+    filtered,
+    paginated,
+    currentPage,
+    setCurrentPage,
     itemsPerPage: ITEMS_PER_PAGE,
-    activeFilter, setActiveFilter,
-    searchQuery, setSearchQuery,
-    setAppliedSearch, appliedSearch,
+    activeFilter,
+    setActiveFilter,
+    searchQuery,
+    setSearchQuery,
+    setAppliedSearch,
+    appliedSearch
   };
 };

@@ -1,23 +1,27 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, getSession } from "next-auth/react";
+import { signIn, getSession, useSession } from "next-auth/react";
 import * as Sentry from "@sentry/nextjs";
 import { OtpType } from "@prisma/client";
 
-import { authApi } from "@/presentation/services";
+import { authApi, volunteerProfileApi } from "@/presentation/services";
 import { useOtpTimer } from "@/presentation/hooks";
 import { redirectByRole } from "@/presentation/constants";
+import { signupDraft } from "../signupDraft";
 
 const NETWORK_ERROR = "لا يوجد اتصال بالإنترنت، يرجى التحقق من اتصالك والمحاولة مجدداً";
+const PICTURE_UPLOAD_WARNING = "تم إنشاء الحساب، لكن تعذّر رفع الصورة الشخصية. يمكنك رفعها لاحقاً من الملف الشخصي.";
 
 export const useVerifyEmail = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
+  const { update: updateSession } = useSession();
 
   const [code, setCode] = useState<string[]>(Array(6).fill(""));
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
   const [loading, setLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -35,18 +39,47 @@ export const useVerifyEmail = () => {
     submitCode(full);
   }, [code]);
 
+  const uploadPendingPicture = async (): Promise<boolean> => {
+    const profileFile = signupDraft.getProfileFile();
+    if (!profileFile) return true;
+
+    try {
+      const upload = await volunteerProfileApi.uploadPicture(profileFile);
+      if (upload.success && upload.data?.imageUrl) {
+        await updateSession({ profilePictureUrl: upload.data.imageUrl });
+        return true;
+      }
+      Sentry.captureMessage("Signup picture upload unsuccessful", { level: "warning" });
+      return false;
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error("Signup picture upload failed"));
+      return false;
+    } finally {
+      signupDraft.clear();
+    }
+  };
+
   const doRedirect = async (password: string) => {
     const res = await signIn("credentials", { email, password, redirect: false });
     if (res?.ok) {
+      const uploaded = await uploadPendingPicture();
+      signupDraft.clear();
+      if (!uploaded) {
+        setShowSuccess(false);
+        setWarning(PICTURE_UPLOAD_WARNING);
+        await new Promise((r) => setTimeout(r, 2200));
+      }
       const session = await getSession();
       window.location.href = redirectByRole(session?.user?.role);
       return;
     }
+    signupDraft.clear();
     router.replace(`/signin?email=${encodeURIComponent(email)}`);
   };
 
   const submitCode = async (codeStr: string) => {
     setError("");
+    setWarning("");
     setLoading(true);
     try {
       const flow = searchParams.get("flow");
@@ -87,7 +120,10 @@ export const useVerifyEmail = () => {
       setShowSuccess(true);
       setTimeout(() => {
         if (password) doRedirect(password);
-        else router.replace(`/signin?email=${encodeURIComponent(email)}`);
+        else {
+          signupDraft.clear();
+          router.replace(`/signin?email=${encodeURIComponent(email)}`);
+        }
       }, 1500);
     } catch (err) {
       Sentry.captureException(err instanceof Error ? err : new Error("Verify email network error"));
@@ -131,6 +167,7 @@ export const useVerifyEmail = () => {
     code,
     setCode,
     error,
+    warning,
     loading,
     cooldown,
     total,

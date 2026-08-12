@@ -1,92 +1,58 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { UserAnalyticsDto, UserActivityDto } from "@/core/application/dtos";
+import { useCallback, useMemo } from "react";
+import type { UserAnalyticsDto, UserActivityDto } from "@/core/application/dtos";
 import { userApi } from "@/presentation/services";
-
-interface UserDetailsState {
-  user: UserAnalyticsDto | null;
-  activities: UserActivityDto[];
-  loadingUser: boolean;
-  loadingActivities: boolean;
-  error: string;
-}
-
-const getErrMsg = (err: unknown, fallback = "حدث خطأ غير متوقع") => {
-  if (err instanceof Error) return err.message;
-  return fallback;
-};
+import {
+  EMPTY_ARRAY,
+  getErrorMessage,
+  queryKeys,
+  unwrapResult,
+  useFetchData
+} from "@/presentation/query";
 
 export const useUserDetails = (userId: string) => {
-  const [state, setState] = useState<UserDetailsState>({
-    user: null,
-    activities: [],
-    loadingUser: false,
-    loadingActivities: false,
-    error: "",
+  const userQuery = useFetchData<UserAnalyticsDto>({
+    queryKey: queryKeys.users.detail(userId),
+    request: async () => unwrapResult(await userApi.getById(userId)).user,
+    options: { enabled: Boolean(userId), staleTime: 30_000 }
   });
 
-  const loadUser = useCallback(async () => {
-    setState((p) => ({ ...p, loadingUser: true, error: "" }));
+  const activitiesQuery = useFetchData<UserActivityDto[]>({
+    queryKey: queryKeys.users.activities(userId),
+    request: async () => unwrapResult(await userApi.getActivities(userId)).activities,
+    options: { enabled: Boolean(userId), staleTime: 30_000 }
+  });
 
-    try {
-      const res = await userApi.getById(userId);
+  const error =
+    (userQuery.error ? getErrorMessage(userQuery.error, "فشل في جلب بيانات المستخدم") : "") ||
+    (activitiesQuery.error ? getErrorMessage(activitiesQuery.error, "فشل في جلب الفرص") : "");
 
-      const user: UserAnalyticsDto | null =
-        (res as { data?: { user?: UserAnalyticsDto } })?.data?.user ?? null;
+  const userRefetch = userQuery.refetch;
+  const activitiesRefetch = activitiesQuery.refetch;
 
-      setState((p) => ({
-        ...p,
-        user,
-        loadingUser: false,
-      }));
-    } catch (err) {
-      setState((p) => ({
-        ...p,
-        loadingUser: false,
-        error: getErrMsg(err, "فشل في جلب بيانات المستخدم"),
-      }));
-    }
-  }, [userId]);
+  const refresh = useCallback(async () => {
+    await Promise.all([userRefetch(), activitiesRefetch()]);
+  }, [userRefetch, activitiesRefetch]);
 
-  const loadActivities = useCallback(async () => {
-    setState((p) => ({ ...p, loadingActivities: true }));
+  const activities = (activitiesQuery.data ?? EMPTY_ARRAY) as UserActivityDto[];
 
-    try {
-      const res = await userApi.getActivities(userId);
-
-      const activities: UserActivityDto[] =
-        (res as { data?: { activities?: UserActivityDto[] } })?.data?.activities ?? [];
-
-      setState((p) => ({
-        ...p,
-        activities,
-        loadingActivities: false,
-      }));
-    } catch (err) {
-      setState((p) => ({
-        ...p,
-        loadingActivities: false,
-        error: getErrMsg(err, "فشل في جلب الفرص"),
-      }));
-    }
-  }, [userId]);
-
-  const refresh = useCallback(() => {
-    loadUser();
-    loadActivities();
-  }, [loadUser, loadActivities]);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  return {
-    user: state.user,
-    activities: state.activities,
-    loadingUser: state.loadingUser,
-    loadingActivities: state.loadingActivities,
-    error: state.error,
-    refresh,
-  };
+  return useMemo(
+    () => ({
+      user: userQuery.data ?? null,
+      activities,
+      loadingUser: userQuery.isLoading,
+      loadingActivities: activitiesQuery.isLoading,
+      error,
+      refresh
+    }),
+    [
+      userQuery.data,
+      activities,
+      userQuery.isLoading,
+      activitiesQuery.isLoading,
+      error,
+      refresh
+    ]
+  );
 };

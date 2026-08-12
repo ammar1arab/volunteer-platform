@@ -1,116 +1,138 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
-import { useState, useEffect, useCallback } from "react";
-import type { UserProfileDto, Result } from "@/core/application/dtos";
+import { useCallback, useState } from "react";
+import type {
+  Result,
+  UpdateUserRequest,
+  UpdateVolunteerProfileRequest,
+  UserProfileDto
+} from "@/core/application/dtos";
 import { userApi, volunteerProfileApi, certificateApi } from "@/presentation/services";
+import {
+  getErrorMessage,
+  queryKeys,
+  unwrapResult,
+  useApiMutation,
+  useFetchData
+} from "@/presentation/query";
+
+type ProfileFieldValue = string | number | boolean | string[] | null;
 
 interface EditingField {
   field: string;
-  value: unknown;
+  value: ProfileFieldValue;
 }
 
-function extractError(result: Result<unknown>): string {
+interface ProfilePageData {
+  user: UserProfileDto;
+  totalHours: number;
+  certCount: number;
+}
+
+const USER_FIELDS = new Set(["email", "phone", "fullName"]);
+
+function extractError<T>(result: Result<T>): string {
   return !result.success ? result.error.message : "";
 }
 
-const USER_FIELDS = ["email", "phone", "fullName"];
-
 export function useProfilePage() {
   const { update: updateSession } = useSession();
-
-  const [user, setUser]                         = useState<UserProfileDto | null>(null);
-  const [totalHours, setTotalHours]             = useState(0);
-  const [certCount, setCertCount]               = useState(0);
-  const [isLoading, setIsLoading]               = useState(true);
-  const [error, setError]                       = useState<string | null>(null);
-  const [successMessage, setSuccessMessage]     = useState<string | null>(null);
-  const [editingField, setEditingField]         = useState<EditingField | null>(null);
-  const [isSaving, setIsSaving]                 = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<EditingField | null>(null);
 
   const showSuccess = useCallback((msg: string) => {
     setSuccessMessage(msg);
     setTimeout(() => setSuccessMessage(null), 3000);
   }, []);
 
-  const fetchData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
+  const query = useFetchData<ProfilePageData>({
+    queryKey: queryKeys.profile.me(),
+    request: async () => {
       const [userResult, certsResult] = await Promise.all([
         userApi.getProfile(),
         certificateApi.getByUser()
       ]);
+      const user = unwrapResult(userResult).user;
+      const certs = certsResult.success ? certsResult.data : { certificates: [], totalHours: 0 };
+      return {
+        user,
+        totalHours: certs.totalHours ?? 0,
+        certCount: certs.certificates?.length ?? 0
+      };
+    },
+    errorCallback: (err) => setError(getErrorMessage(err, "حدث خطأ غير متوقع"))
+  });
 
-      if (!userResult.success) { setError(extractError(userResult)); return; }
-      setUser(userResult.data.user);
-
-      if (certsResult.success && certsResult.data) {
-        setTotalHours(certsResult.data.totalHours ?? 0);
-        setCertCount(certsResult.data.certificates?.length ?? 0);
+  const saveMutation = useApiMutation<void, EditingField>({
+    request: async (field) => {
+      let value: ProfileFieldValue = field.value;
+      if (field.field === "hasVolunteerExperience") {
+        value = value === true || value === "true";
       }
-    } catch {
-      setError("حدث خطأ غير متوقع");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      if (
+        (field.field === "educationLevel" ||
+          field.field === "occupation" ||
+          field.field === "membershipNumber") &&
+        (value === "" || value == null)
+      ) {
+        value = null;
+      }
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+      if (USER_FIELDS.has(field.field)) {
+        const payload = { [field.field]: value } as UpdateUserRequest;
+        unwrapResult(await userApi.updateBasicInfo(payload));
+      } else {
+        const payload = { [field.field]: value } as Omit<UpdateVolunteerProfileRequest, "userId">;
+        unwrapResult(await volunteerProfileApi.update(payload));
+      }
+    },
+    invalidateQueries: queryKeys.profile.me()
+  });
 
-  const startEditing    = useCallback((field: string, v: unknown) => {
+  const uploadMutation = useApiMutation<string, File>({
+    request: async (file) => unwrapResult(await volunteerProfileApi.uploadPicture(file)).imageUrl,
+    invalidateQueries: queryKeys.profile.me()
+  });
+
+  const startEditing = useCallback((field: string, v: ProfileFieldValue) => {
     setEditingField({ field, value: v });
     setError(null);
     setSuccessMessage(null);
   }, []);
-  const cancelEditing   = useCallback(() => setEditingField(null), []);
-  const updateFieldValue = useCallback((value: unknown) => {
-    setEditingField(prev => prev ? { ...prev, value } : null);
+
+  const cancelEditing = useCallback(() => setEditingField(null), []);
+
+  const updateFieldValue = useCallback((value: ProfileFieldValue) => {
+    setEditingField((prev) => (prev ? { ...prev, value } : null));
   }, []);
 
   const saveField = useCallback(async () => {
     if (!editingField) return;
-    setIsSaving(true);
     setError(null);
     try {
-      const result: Result<unknown> = USER_FIELDS.includes(editingField.field)
-        ? await userApi.updateBasicInfo({ [editingField.field]: editingField.value })
-        : await volunteerProfileApi.update({ [editingField.field]: editingField.value });
-      if (!result.success) { setError(extractError(result)); return; }
+      await saveMutation.mutateAsync(editingField);
       showSuccess("تم الحفظ بنجاح");
       setEditingField(null);
-      await fetchData();
-    } catch {
-      setError("حدث خطأ أثناء الحفظ");
-    } finally {
-      setIsSaving(false);
+    } catch (err) {
+      setError(getErrorMessage(err, "حدث خطأ أثناء الحفظ"));
     }
-  }, [editingField, fetchData, showSuccess]);
+  }, [editingField, saveMutation, showSuccess]);
 
-  const handleProfilePictureUpload = useCallback(async (file: File) => {
-    setIsUploadingImage(true);
-    setError(null);
-    try {
-      const result = await volunteerProfileApi.uploadPicture(file);
-      if (!result.success) { setError(extractError(result)); return; }
-
-      // refresh page data
-      await fetchData();
-
-      // update JWT so header avatar updates immediately without re-login
-      const newUrl = (result as any)?.data?.imageUrl ?? null;
-      if (newUrl) {
+  const handleProfilePictureUpload = useCallback(
+    async (file: File) => {
+      setError(null);
+      try {
+        const newUrl = await uploadMutation.mutateAsync(file);
         await updateSession({ profilePictureUrl: newUrl });
+        showSuccess("تم رفع الصورة بنجاح ✓");
+      } catch (err) {
+        setError(getErrorMessage(err, "حدث خطأ أثناء رفع الصورة"));
       }
-
-      showSuccess("تم رفع الصورة بنجاح ✓");
-    } catch {
-      setError("حدث خطأ أثناء رفع الصورة");
-    } finally {
-      setIsUploadingImage(false);
-    }
-  }, [fetchData, showSuccess, updateSession]);
+    },
+    [showSuccess, updateSession, uploadMutation]
+  );
 
   const handleSignOut = useCallback(async () => {
     await signOut({ callbackUrl: "/" });
@@ -126,10 +148,24 @@ export function useProfilePage() {
   }, []);
 
   return {
-    user, isLoading, error, successMessage,
-    editingField, isSaving, isUploadingImage,
-    startEditing, cancelEditing, updateFieldValue, saveField,
-    handleProfilePictureUpload, handleSignOut, calculateAge,
-    totalHours, certCount
+    user: query.data?.user ?? null,
+    isLoading: query.isLoading,
+    error: error ?? (query.error ? getErrorMessage(query.error) : null),
+    successMessage,
+    editingField,
+    isSaving: saveMutation.isPending,
+    isUploadingImage: uploadMutation.isPending,
+    startEditing,
+    cancelEditing,
+    updateFieldValue,
+    saveField,
+    handleProfilePictureUpload,
+    handleSignOut,
+    calculateAge,
+    totalHours: query.data?.totalHours ?? 0,
+    certCount: query.data?.certCount ?? 0
   };
 }
+
+// Keep helper exported for any callers that still need it
+export { extractError };

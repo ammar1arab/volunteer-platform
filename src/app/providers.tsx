@@ -3,6 +3,7 @@
 import { SessionProvider, useSession } from "next-auth/react";
 import { ReactNode, useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
+import { QueryProvider } from "@/presentation/query";
 
 function SentryUserSync() {
   const { data: session } = useSession();
@@ -10,9 +11,9 @@ function SentryUserSync() {
   useEffect(() => {
     if (session?.user?.id) {
       Sentry.setUser({
-        id:       session.user.id,
-        email:    session.user.email    ?? undefined,
-        username: session.user.name     ?? undefined,
+        id: session.user.id,
+        email: session.user.email ?? undefined,
+        username: session.user.name ?? undefined
       });
     } else {
       Sentry.setUser(null);
@@ -29,8 +30,10 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
-      <SentryUserSync />
-      {children}
+      <QueryProvider>
+        <SentryUserSync />
+        {children}
+      </QueryProvider>
     </SessionProvider>
   );
 }

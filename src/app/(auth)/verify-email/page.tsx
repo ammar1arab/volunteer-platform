@@ -8,7 +8,7 @@ import { OtpInput, Button, OtpSuccessOverlay, OtpCircularTimer } from "@/present
 
 const VerifyEmailContent = () => {
   const {
-    code, setCode, error, loading,
+    code, setCode, error, warning, loading,
     cooldown, total,
     showSuccess, resendSent,
     handleSubmit, handleResend, email, isResending,
@@ -28,6 +28,7 @@ const VerifyEmailContent = () => {
         </header>
 
         {error && <div className={styles.error} role="alert">{error}</div>}
+        {warning && <div className={styles.warning} role="status">{warning}</div>}
 
         <form onSubmit={handleSubmit} noValidate>
           <OtpInput value={code} onChange={setCode} disabled={loading} />

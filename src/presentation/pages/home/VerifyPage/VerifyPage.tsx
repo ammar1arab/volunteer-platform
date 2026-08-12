@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, Download, Calendar, Clock, Share2 } from "lucide-react";
 import styles from "./VerifyPage.module.scss";
 import { certificateApi } from "@/presentation/services";
-import { LoadingState } from "@/presentation/components";
-import { Share } from "@/presentation/components";
+import { LoadingState, Share } from "@/presentation/components";
 import type { CertificateDto } from "@/core/application/dtos";
+import { queryKeys, unwrapResult, useFetchData } from "@/presentation/query";
 
 const fmt = (d: string) => {
   const dt = new Date(d);
@@ -29,34 +28,34 @@ async function downloadAsPdf(url: string) {
   const img = new window.Image();
   img.crossOrigin = "anonymous";
   img.src = url;
-  await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; });
+  await new Promise<void>((res, rej) => {
+    img.onload = () => res();
+    img.onerror = rej;
+  });
   const canvas = document.createElement("canvas");
   canvas.width = img.naturalWidth;
   canvas.height = img.naturalHeight;
   canvas.getContext("2d")!.drawImage(img, 0, 0);
   const { jsPDF } = await import("jspdf");
-  const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [img.naturalWidth, img.naturalHeight] });
+  const pdf = new jsPDF({
+    orientation: "landscape",
+    unit: "px",
+    format: [img.naturalWidth, img.naturalHeight]
+  });
   pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, img.naturalWidth, img.naturalHeight);
   pdf.save("certificate.pdf");
 }
 
 const VerifyPage = ({ certificateId }: { certificateId: string }) => {
-  const [cert, setCert] = useState<CertificateDto | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const { data: cert, isLoading, isNotFound } = useFetchData<CertificateDto | null>({
+    queryKey: [...queryKeys.certificates.all, "verify", certificateId],
+    request: async () => unwrapResult(await certificateApi.getById(certificateId)).certificate,
+    options: { enabled: Boolean(certificateId) }
+  });
 
-  useEffect(() => {
-    if (!certificateId) return;
-    certificateApi.getById(certificateId).then((res) => {
-      if (res.success && res.data?.certificate) setCert(res.data.certificate);
-      else setNotFound(true);
-      setLoading(false);
-    });
-  }, [certificateId]);
+  if (isLoading) return <LoadingState />;
 
-  if (loading) return <LoadingState />;
-
-  if (notFound || !cert) {
+  if (isNotFound || !cert) {
     return (
       <div className={styles.page}>
         <div className={styles.notFound}>
@@ -73,7 +72,6 @@ const VerifyPage = ({ certificateId }: { certificateId: string }) => {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-
         <div className={styles.verified}>
           <ShieldCheck size={15} />
           <span>شهادة موثقة</span>
@@ -131,8 +129,9 @@ const VerifyPage = ({ certificateId }: { certificateId: string }) => {
           />
         </div>
 
-        <Link href="/" className={styles.brand}>youthprints.online</Link>
-
+        <Link href="/" className={styles.brand}>
+          youthprints.online
+        </Link>
       </div>
     </div>
   );
