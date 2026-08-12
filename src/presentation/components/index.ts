@@ -67,3 +67,4 @@ export { default as NotificationDropdown } from "./volunteer/NotificationDropdow
 export { default as CertificateCard } from "./volunteer/CertificateCard/CertificateCard";
 export { default as UserMenuDropdown } from "./volunteer/UserMenuDropdown/UserMenuDropdown.tsx";
 export { default as PushBanner } from "./volunteer/PushBanner/PushBanner";
+export { default as ProfileTagsSection } from "./volunteer/ProfileTagsSection/ProfileTagsSection";

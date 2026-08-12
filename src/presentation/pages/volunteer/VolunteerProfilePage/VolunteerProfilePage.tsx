@@ -3,10 +3,25 @@ import styles from "./VolunteerProfilePage.module.scss";
 import { useProfilePage } from "./VolunteerProfilePage.logic";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { CITY_OPTIONS, ROUTES, getCityLabel, getGenderLabel, getEducationLevelLabel, getMonthLabel, EDUCATION_LEVEL_OPTIONS, EXPERIENCE_OPTIONS } from "@/presentation/constants";
-import { LoadingState } from "@/presentation/components";
-import { User, Mail, Phone, MapPin, Calendar, Award, Heart, Edit2, Check, X, Upload, Plus, ChevronLeft, Hash, Briefcase, GraduationCap, Languages, Sparkles } from "lucide-react";
+import {
+  CITY_OPTIONS,
+  ROUTES,
+  getCityLabel,
+  getGenderLabel,
+  getEducationLevelLabel,
+  getMonthLabel,
+  EDUCATION_LEVEL_OPTIONS,
+  EXPERIENCE_OPTIONS,
+  LANGUAGE_SUGGESTIONS,
+  VOLUNTEER_TYPE_SUGGESTIONS,
+  SKILL_SUGGESTIONS,
+  INTEREST_SUGGESTIONS
+} from "@/presentation/constants";
+import { LoadingState, ProfileTagsSection } from "@/presentation/components";
+import {
+  User, Mail, Phone, MapPin, Calendar, Award, Heart, Edit2, Check, X, Upload,
+  ChevronLeft, Hash, Briefcase, GraduationCap, Languages, Sparkles
+} from "lucide-react";
 import { JordanianCity, Gender } from "@/core/domain/enums";
 
 const GENDER_OPTIONS = [
@@ -156,14 +171,49 @@ export default function VolunteerProfilePage() {
             </div>
           </Card>
 
-          {vp && <>
+          {vp && (
             <ECard title="نبذة عني" field="bio" value={vp.bio || ""} {...ef} />
-            <TagsCard icon={<Award size={14} />} title="المهارات" field="skills" tags={vp.skills ?? []} color="green" {...ef} />
-            <TagsCard icon={<Heart size={14} />} title="الاهتمامات" field="interests" tags={vp.interests ?? []} color="red"   {...ef} />
-            <TagsCard icon={<Languages size={14} />} title="اللغات" field="languages" tags={vp.languages ?? []} color="green" {...ef} />
-            <TagsCard icon={<Sparkles size={14} />} title="أنواع التطوع المفضلة" field="preferredVolunteerTypes" tags={vp.preferredVolunteerTypes ?? []} color="red" {...ef} />
-          </>}
+          )}
         </div>
+
+        {vp && (
+          <div className={styles.themesBlock}>
+            <ProfileTagsSection
+              title="اهتماماتي التطوعية"
+              items={[
+                {
+                  field: "skills",
+                  title: "المهارات",
+                  icon: <Award size={14} />,
+                  tags: vp.skills ?? [],
+                  suggestions: SKILL_SUGGESTIONS
+                },
+                {
+                  field: "interests",
+                  title: "الاهتمامات",
+                  icon: <Heart size={14} />,
+                  tags: vp.interests ?? [],
+                  suggestions: INTEREST_SUGGESTIONS
+                },
+                {
+                  field: "languages",
+                  title: "اللغات",
+                  icon: <Languages size={14} />,
+                  tags: vp.languages ?? [],
+                  suggestions: LANGUAGE_SUGGESTIONS
+                },
+                {
+                  field: "preferredVolunteerTypes",
+                  title: "أنواع التطوع المفضلة",
+                  icon: <Sparkles size={14} />,
+                  tags: vp.preferredVolunteerTypes ?? [],
+                  suggestions: VOLUNTEER_TYPE_SUGGESTIONS
+                }
+              ]}
+              {...ef}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -281,73 +331,6 @@ const EField = ({
           </div>
         )}
       </div>
-    </div>
-  );
-};
-
-const TagsCard = ({
-  icon,
-  title,
-  field,
-  tags,
-  editingField,
-  isSaving,
-  onStartEdit,
-  onCancel,
-  onUpdate,
-  onSave,
-  color
-}: {
-  icon: React.ReactNode;
-  title: string;
-  field: string;
-  tags: string[];
-  color: string;
-} & EditHandlers) => {
-  const [input, setInput] = useState("");
-  const isEditing = editingField?.field === field;
-  const current: string[] = isEditing && Array.isArray(editingField.value)
-    ? editingField.value
-    : (tags ?? []);
-  const add = () => { const t = input.trim(); if (t && !current.includes(t)) { onUpdate([...current, t]); setInput(""); } };
-
-  return (
-    <div className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2 className={styles.cardTitle}>{icon}{title}</h2>
-        {!isEditing && <button className={styles.btnEdit} onClick={() => onStartEdit(field, tags)}><Edit2 size={13} /></button>}
-      </div>
-      {isEditing ? (
-        <div className={styles.editSection}>
-          <div className={styles.tagInput}>
-            <input type="text" className={styles.input} value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && (e.preventDefault(), add())}
-              placeholder="أضف..." disabled={isSaving} />
-            <button className={styles.btnAdd} onClick={add} disabled={isSaving || !input.trim()}><Plus size={14} /></button>
-          </div>
-          {current.length > 0 && (
-            <div className={styles.tags}>
-              {current.map((tag, i) => (
-                <span key={i} className={`${styles.tag} ${styles[color]}`}>
-                  {tag}
-                  <button className={styles.btnRemove} onClick={() => onUpdate(current.filter(t => t !== tag))} disabled={isSaving}><X size={10} /></button>
-                </span>
-              ))}
-            </div>
-          )}
-          <div className={styles.actions}>
-            <button className={styles.btnCancel} onClick={onCancel} disabled={isSaving}><X size={13} /> إلغاء</button>
-            <button className={styles.btnSave} onClick={onSave} disabled={isSaving}><Check size={13} /> حفظ</button>
-          </div>
-        </div>
-      ) : (
-        <div className={styles.tags}>
-          {(tags ?? []).length
-            ? tags.map((tag, i) => <span key={i} className={`${styles.tag} ${styles[color]}`}>{tag}</span>)
-            : <span className={styles.empty}>لا يوجد</span>}
-        </div>
-      )}
     </div>
   );
 };

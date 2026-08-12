@@ -1,0 +1,186 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-sm;
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  background: $white;
+  padding: $sp-sm $sp-md;
+  min-width: 0;
+}
+
+.cardHeader {
+  @include flex(row, center, space-between, $sp-xs);
+  margin-bottom: $sp-sm;
+}
+
+.cardTitle {
+  @include flex(row, center, flex-start, 6px);
+  margin: 0;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $text;
+}
+
+.cardIcon {
+  @include flex-center;
+  color: $green;
+}
+
+.btnEdit {
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: $radius;
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    color: $green;
+    background: rgba($green, 0.08);
+  }
+}
+
+.editBody {
+  @include flex-col;
+  gap: $sp-sm;
+}
+
+.inputRow {
+  display: flex;
+  gap: 6px;
+}
+
+.input {
+  @include input;
+  flex: 1;
+  min-width: 0;
+  padding: $sp-xs $sp-sm;
+  font-size: $font-sm;
+}
+
+.btnAdd {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: $radius;
+  background: rgba($green, 0.12);
+  color: $green;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.suggestion {
+  border: 1px dashed rgba($green, 0.3);
+  background: transparent;
+  color: $text-muted;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: $green;
+    border-color: $green;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  @include flex(row, center, center, 4px);
+  background: rgba($green, 0.1);
+  color: $green;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.btnRemove {
+  @include flex-center;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.empty {
+  font-size: $font-sm;
+  color: $text-muted;
+}
+
+.actions {
+  @include flex(row, center, flex-end, $sp-xs);
+}
+
+.btnCancel,
+.btnSave {
+  @include flex(row, center, center, 4px);
+  border: none;
+  border-radius: $radius;
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btnCancel {
+  background: transparent;
+  color: $text-muted;
+}
+
+.btnSave {
+  background: $green;
+  color: $white;
+}

@@ -20,8 +20,6 @@ interface FormData {
   confirmPassword: string;
 }
 
-type TagField = "languages" | "preferredVolunteerTypes" | "skills" | "interests";
-
 type FieldErrors = Partial<Record<keyof FormData, string>>;
 
 const STEP1_FIELDS: (keyof FormData)[] = ["fullName", "email", "phone", "dateOfBirth"];
@@ -94,11 +92,6 @@ export const useSignup = () => {
   const [emailStatus, setEmailStatus] = useState<"idle" | "checking" | "taken" | "ok">("idle");
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  const [languages, setLanguages] = useState<string[]>([]);
-  const [preferredVolunteerTypes, setPreferredVolunteerTypes] = useState<string[]>([]);
-  const [skills, setSkills] = useState<string[]>([]);
-  const [interests, setInterests] = useState<string[]>([]);
-  const [hasVolunteerExperience, setHasVolunteerExperience] = useState(false);
 
   useEffect(
     () => () => {
@@ -158,32 +151,6 @@ export const useSignup = () => {
     setProfilePreview(file ? URL.createObjectURL(file) : null);
   };
 
-  const tagSetters: Record<TagField, (v: string[]) => void> = {
-    languages: setLanguages,
-    preferredVolunteerTypes: setPreferredVolunteerTypes,
-    skills: setSkills,
-    interests: setInterests
-  };
-
-  const tagValues: Record<TagField, string[]> = {
-    languages,
-    preferredVolunteerTypes,
-    skills,
-    interests
-  };
-
-  const addTag = (field: TagField, value: string) => {
-    const t = value.trim();
-    if (!t) return;
-    const current = tagValues[field];
-    if (current.includes(t)) return;
-    tagSetters[field]([...current, t]);
-  };
-
-  const removeTag = (field: TagField, value: string) => {
-    tagSetters[field](tagValues[field].filter((t) => t !== value));
-  };
-
   const handleNext = () => {
     if (emailStatus === "taken") {
       setErrors((p) => ({ ...p, email: "البريد مستخدم مسبقاً" }));
@@ -230,12 +197,7 @@ export const useSignup = () => {
         gender: form.gender as Gender,
         membershipNumber: form.membershipNumber.trim() || undefined,
         educationLevel: form.educationLevel || undefined,
-        occupation: form.occupation.trim() || undefined,
-        languages,
-        preferredVolunteerTypes,
-        skills,
-        interests,
-        hasVolunteerExperience
+        occupation: form.occupation.trim() || undefined
       });
 
       if (res.success) {
@@ -272,14 +234,6 @@ export const useSignup = () => {
     loading,
     emailStatus,
     profilePreview,
-    languages,
-    preferredVolunteerTypes,
-    skills,
-    interests,
-    hasVolunteerExperience,
-    setHasVolunteerExperience,
-    addTag,
-    removeTag,
     handleChange,
     handleBlur,
     handleProfileFileChange,
