@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "./layout.module.scss";
 import { AdminSidebar, AdminTopbar } from "@/presentation/components";
+
+const COLLAPSE_KEY = "admin.sidebar.collapsed";
 
 interface Props {
   children: React.ReactNode;
@@ -13,13 +15,35 @@ export default function AdminLayoutClient({ children, isSuperAdmin, permissions 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(COLLAPSE_KEY) === "1") setCollapsed(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const toggleCollapse = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(COLLAPSE_KEY, next ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
+
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+
   return (
     <div className={styles.shell}>
       <AdminSidebar
         isOpen={sidebarOpen}
         isCollapsed={collapsed}
-        onToggleCollapse={() => setCollapsed((p) => !p)}
-        onClose={() => setSidebarOpen(false)}
+        onToggleCollapse={toggleCollapse}
+        onClose={closeSidebar}
         isSuperAdmin={isSuperAdmin}
         permissions={permissions}
       />

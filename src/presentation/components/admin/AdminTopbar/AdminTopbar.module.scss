@@ -2,63 +2,58 @@
 @use "@/presentation/styles/mixins" as *;
 
 .bar {
-  @include flex(row, center, space-between, $sp-md);
-  padding: 0 $sp-lg;
-  border-bottom: 2px solid $border;
-  border-radius: $radius-full;
+  @include flex(row, center, space-between, $sp-sm);
+  height: 40px;
+  padding: 0 $sp-md;
+  border-bottom: 1px solid $border;
   background: $bg;
   position: sticky;
   top: 0;
   z-index: 10;
-
-  @media (max-width: 1024px) {
-    padding: $sp-sm $sp-md;
-    border-radius: 0;
-  }
+  flex-shrink: 0;
 }
 
-.rightSide {
-  @include flex(row, center, flex-start, $sp-md);
+.start {
+  @include flex(row, center, flex-start, 6px);
+  min-width: 0;
 }
 
 .menuBtn {
   display: none;
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
 
   @media (max-width: 1024px) {
-    @include flex-center;
-    background: $green;
-    color: $bg;
-    border: none;
-    border-radius: $radius;
-    padding: $sp-xs;
-    cursor: pointer;
-    transition: $transition;
+    display: flex;
+  }
 
-    &:active {
-      transform: scale(0.95);
-    }
+  &:hover {
+    color: $green;
   }
 }
 
 .title {
-  font-size: $font-xl;
+  margin: 0;
+  font-size: 14px;
   font-weight: 700;
   color: $text;
-
-  @media (max-width: 1024px) {
-    font-size: $font-lg;
-  }
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.userBadge {
-  @include flex(row, center, flex-start, $sp-sm);
-  padding: $sp-xs $sp-md;
-  background: rgba($green, 0.1);
-  border-radius: $radius-full;
-}
-
-.userName {
-  font-size: $font-sm;
+.user {
+  font-size: 12px;
   font-weight: 600;
-  color: $green;
+  color: $text-muted;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
 }

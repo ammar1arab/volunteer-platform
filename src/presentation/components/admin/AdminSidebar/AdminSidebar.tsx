@@ -7,35 +7,42 @@ import { signOut } from "next-auth/react";
 import { ROUTES } from "@/presentation/constants";
 import type { AdminPermission } from "@/core/domain/enums";
 import { ConfirmDialog } from "@/presentation/components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  LayoutDashboard, FileText, Activity, Users,
-  UserCheck, X, LogOut, Trophy, BookOpen, Bell, Mail, ShieldCheck
+  FileText,
+  Activity,
+  Users,
+  UserCheck,
+  X,
+  LogOut,
+  Trophy,
+  BookOpen,
+  Bell,
+  Mail,
+  ShieldCheck,
+  PanelRightClose,
+  PanelRightOpen,
 } from "lucide-react";
 
-const NAV_ITEMS: {
+type NavItem = {
   href: string;
   label: string;
   icon: React.ElementType;
-  permission: AdminPermission;
-  color: string;
-}[] = [
-    { href: ROUTES.ADMIN.FEATURED_POSTS, label: "المنشورات", icon: FileText, permission: "MANAGE_POSTS", color: "#6366f1" },
-    { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: "أبرز المتطوعين", icon: Trophy, permission: "MANAGE_SPOTLIGHT", color: "#f59e0b" },
-    { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "حصاد العطاء", icon: BookOpen, permission: "MANAGE_MAGAZINE", color: "#ec4899" },
-    { href: ROUTES.ADMIN.REQUESTS, label: "طلبات الانضمام", icon: UserCheck, permission: "MANAGE_REQUESTS", color: "#3b82f6" },
-    { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية", icon: Activity, permission: "MANAGE_ACTIVITIES", color: "#10b981" },
-    { href: ROUTES.ADMIN.EMAILS, label: "إدارة الإيميلات", icon: Mail, permission: "MANAGE_EMAILS", color: "#8b5cf6" },
-    { href: ROUTES.ADMIN.NOTIFICATIONS, label: "إدارة الإشعارات", icon: Bell, permission: "MANAGE_NOTIFICATIONS", color: "#f97316" },
-    { href: ROUTES.ADMIN.USERS, label: "إدارة المستخدمين", icon: Users, permission: "MANAGE_USERS", color: "#14b8a6" },
-  ];
-
-const PERMISSIONS_ITEM = {
-  href: ROUTES.ADMIN.PERMISSIONS,
-  label: "إدارة الصلاحيات",
-  icon: ShieldCheck,
-  color: "#64748b",
+  permission?: AdminPermission;
+  superAdminOnly?: boolean;
 };
+
+const NAV_ITEMS: NavItem[] = [
+  { href: ROUTES.ADMIN.FEATURED_POSTS, label: "المنشورات", icon: FileText, permission: "MANAGE_POSTS" },
+  { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: "أبرز المتطوعين", icon: Trophy, permission: "MANAGE_SPOTLIGHT" },
+  { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "حصاد العطاء", icon: BookOpen, permission: "MANAGE_MAGAZINE" },
+  { href: ROUTES.ADMIN.REQUESTS, label: "طلبات الانضمام", icon: UserCheck, permission: "MANAGE_REQUESTS" },
+  { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية", icon: Activity, permission: "MANAGE_ACTIVITIES" },
+  { href: ROUTES.ADMIN.EMAILS, label: "إدارة الإيميلات", icon: Mail, permission: "MANAGE_EMAILS" },
+  { href: ROUTES.ADMIN.NOTIFICATIONS, label: "إدارة الإشعارات", icon: Bell, permission: "MANAGE_NOTIFICATIONS" },
+  { href: ROUTES.ADMIN.USERS, label: "إدارة المستخدمين", icon: Users, permission: "MANAGE_USERS" },
+  { href: ROUTES.ADMIN.PERMISSIONS, label: "إدارة الصلاحيات", icon: ShieldCheck, superAdminOnly: true },
+];
 
 type Props = {
   isOpen: boolean;
@@ -46,60 +53,88 @@ type Props = {
   onClose: () => void;
 };
 
-const AdminSidebar = ({ isOpen, isCollapsed, isSuperAdmin, permissions, onToggleCollapse, onClose }: Props) => {
+const AdminSidebar = ({
+  isOpen,
+  isCollapsed,
+  isSuperAdmin,
+  permissions,
+  onToggleCollapse,
+  onClose,
+}: Props) => {
   const [showLogout, setShowLogout] = useState(false);
   const pathname = usePathname();
 
-  const visibleItems = NAV_ITEMS.filter(({ permission }) =>
-    isSuperAdmin || permissions.includes(permission)
-  );
+  const items = NAV_ITEMS.filter((item) => {
+    if (item.superAdminOnly) return isSuperAdmin;
+    return isSuperAdmin || (item.permission ? permissions.includes(item.permission) : false);
+  });
 
-  const closeOnMobile = () => { if (window.innerWidth < 1024) onClose(); };
+  useEffect(() => {
+    onClose();
+  }, [pathname, onClose]);
 
-  const renderLink = (item: typeof visibleItems[0] | typeof PERMISSIONS_ITEM, i: number) => {
-    const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-    return (
-      <Link
-        key={item.href}
-        href={item.href}
-        className={`${styles.link} ${isActive ? styles.active : ""}`}
-        style={{ "--c": item.color, "--i": i } as React.CSSProperties}
-        onClick={closeOnMobile}
-      >
-        <span className={styles.iconWrap}>
-          <item.icon size={17} />
-        </span>
-        <span className={styles.label}>{item.label}</span>
-      </Link>
-    );
-  };
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
 
   return (
     <>
-      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""} ${isOpen ? styles.open : ""}`}>
-        <button className={styles.closeBtn} onClick={onClose} aria-label="إغلاق">
-          <X size={18} />
-        </button>
-
-        <button className={styles.brand} onClick={onToggleCollapse}>
-          <LayoutDashboard size={20} />
-          <span>لوحة التحكم</span>
-        </button>
+      <aside
+        className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""} ${isOpen ? styles.open : ""}`}
+        aria-label="قائمة الإدارة"
+      >
+        <div className={styles.head}>
+          <button
+            type="button"
+            className={styles.collapseBtn}
+            onClick={onToggleCollapse}
+            aria-label={isCollapsed ? "توسيع القائمة" : "طي القائمة"}
+            title={isCollapsed ? "توسيع" : "طي"}
+          >
+            {isCollapsed ? <PanelRightOpen size={16} /> : <PanelRightClose size={16} />}
+          </button>
+          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="إغلاق">
+            <X size={16} />
+          </button>
+        </div>
 
         <nav className={styles.nav}>
-          {visibleItems.map((item, i) => renderLink(item, i))}
-          {isSuperAdmin && renderLink(PERMISSIONS_ITEM, visibleItems.length)}
+          {items.map((item) => {
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`${styles.link} ${active ? styles.active : ""}`}
+                title={isCollapsed ? item.label : undefined}
+                aria-current={active ? "page" : undefined}
+              >
+                <item.icon size={17} strokeWidth={1.75} />
+                <span className={styles.label}>{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
         <div className={styles.footer}>
-          <button className={styles.logout} onClick={() => setShowLogout(true)}>
-            <LogOut size={17} />
+          <button
+            type="button"
+            className={styles.logout}
+            onClick={() => setShowLogout(true)}
+            title={isCollapsed ? "تسجيل الخروج" : undefined}
+          >
+            <LogOut size={17} strokeWidth={1.75} />
             <span>تسجيل الخروج</span>
           </button>
         </div>
       </aside>
 
-      {isOpen && <div className={styles.overlay} onClick={onClose} />}
+      {isOpen && <button type="button" className={styles.overlay} onClick={onClose} aria-label="إغلاق القائمة" />}
 
       <ConfirmDialog
         isOpen={showLogout}

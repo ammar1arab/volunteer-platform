@@ -6,39 +6,45 @@ import { Menu, X } from "lucide-react";
 import styles from "./AdminTopbar.module.scss";
 import { ROUTES } from "@/presentation/constants";
 
-const navItems = [
-  { href: ROUTES.ADMIN.FEATURED_POSTS,      label: "المنشورات"          },
-  { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: "أبرز المتطوعين"     },
-  { href: ROUTES.ADMIN.MONTHLY_MAGAZINE,    label: "حصاد العطاء"        },
-  { href: ROUTES.ADMIN.ACTIVITIES,          label: "الفرص التطوعية"     },
-  { href: ROUTES.ADMIN.REQUESTS,            label: "طلبات الانضمام"     },
-  { href: ROUTES.ADMIN.NOTIFICATIONS,       label: "إدارة الإشعارات"    },
-  { href: ROUTES.ADMIN.EMAILS,              label: "إدارة الإيميلات"    },
-  { href: ROUTES.ADMIN.USERS,               label: "إدارة المستخدمين"   },
-  { href: ROUTES.ADMIN.PERMISSIONS,         label: "إدارة الصلاحيات"    },
-];
+const TITLES: Record<string, string> = {
+  [ROUTES.ADMIN.FEATURED_POSTS]: "المنشورات",
+  [ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT]: "أبرز المتطوعين",
+  [ROUTES.ADMIN.MONTHLY_MAGAZINE]: "حصاد العطاء",
+  [ROUTES.ADMIN.ACTIVITIES]: "الفرص التطوعية",
+  [ROUTES.ADMIN.REQUESTS]: "طلبات الانضمام",
+  [ROUTES.ADMIN.NOTIFICATIONS]: "إدارة الإشعارات",
+  [ROUTES.ADMIN.EMAILS]: "إدارة الإيميلات",
+  [ROUTES.ADMIN.USERS]: "إدارة المستخدمين",
+  [ROUTES.ADMIN.PERMISSIONS]: "إدارة الصلاحيات",
+};
 
-type Props = { onMenuClick: () => void; isMenuOpen: boolean };
+type Props = {
+  onMenuClick: () => void;
+  isMenuOpen: boolean;
+};
 
 const AdminTopbar = ({ onMenuClick, isMenuOpen }: Props) => {
   const { data } = useSession();
   const pathname = usePathname();
   const name = data?.user?.name || "Admin";
-  const currentItem = navItems.find(
-    (item) => pathname === item.href || pathname.startsWith(`${item.href}/`)
-  );
+  const title =
+    Object.entries(TITLES).find(([href]) => pathname === href || pathname.startsWith(`${href}/`))?.[1] ??
+    "لوحة التحكم";
 
   return (
     <header className={styles.bar}>
-      <div className={styles.rightSide}>
-        <button className={styles.menuBtn} onClick={onMenuClick}>
-          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+      <div className={styles.start}>
+        <button
+          type="button"
+          className={styles.menuBtn}
+          onClick={onMenuClick}
+          aria-label={isMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
+        >
+          {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
-        <h1 className={styles.title}>{currentItem?.label ?? "لوحة التحكم"}</h1>
+        <h1 className={styles.title}>{title}</h1>
       </div>
-      <div className={styles.userBadge}>
-        <span className={styles.userName}>{name}</span>
-      </div>
+      <span className={styles.user}>{name}</span>
     </header>
   );
 };
