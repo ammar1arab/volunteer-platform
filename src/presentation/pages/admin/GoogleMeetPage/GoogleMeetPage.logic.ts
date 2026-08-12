@@ -6,15 +6,18 @@ import { useAuth, useToast, useMeetings, useGoogleIntegrationStatus } from "@/pr
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { MeetingsFilter, MeetingListItemDto } from "@/presentation/services/meetings.service";
 import { activityApi } from "@/presentation/services";
-import { getMeetingSyncStatusLabel, MEETING_SYNC_STATUS_FILTER_OPTIONS } from "@/presentation/constants/labels";
+import {
+  getMeetingSyncStatusLabel,
+  MEETING_SYNC_STATUS_FILTER_OPTIONS
+} from "@/presentation/constants/labels";
 import { unwrapResult } from "@/presentation/query";
 
-export type GoogleMeetTab = "upcoming" | "finished" | "settings";
+export type GoogleMeetView = "upcoming" | "finished" | "settings";
 
-export const TABS: { key: GoogleMeetTab; label: string }[] = [
+export const VIEW_ITEMS = [
   { key: "upcoming", label: "قادمة / مباشرة" },
   { key: "finished", label: "منتهية / مراجعة" },
-  { key: "settings", label: "الاتصال والإعدادات" }
+  { key: "settings", label: "الإعدادات" }
 ];
 
 export const SYNC_FILTER_ITEMS = MEETING_SYNC_STATUS_FILTER_OPTIONS;
@@ -32,7 +35,7 @@ export const useGoogleMeetPage = () => {
   const { toasts, showToast, removeToast } = useToast();
   const ITEMS_PER_PAGE = 20;
 
-  const [activeTab, setActiveTab] = useSessionStorageState<GoogleMeetTab>(
+  const [activeView, setActiveView] = useSessionStorageState<GoogleMeetView>(
     "filters.admin.googleMeet.activeTab",
     "upcoming"
   );
@@ -58,7 +61,7 @@ export const useGoogleMeetPage = () => {
   const [matchOptions, setMatchOptions] = useState<{ value: string; label: string }[]>([]);
 
   const meetingsFilter: MeetingsFilter =
-    activeTab === "settings" ? "all" : (activeTab as MeetingsFilter);
+    activeView === "settings" ? "all" : (activeView as MeetingsFilter);
 
   const {
     list,
@@ -97,7 +100,7 @@ export const useGoogleMeetPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, appliedSearch, syncFilter, setCurrentPage]);
+  }, [activeView, appliedSearch, syncFilter, setCurrentPage]);
 
   useEffect(() => {
     if (!reportMeeting) {
@@ -130,11 +133,9 @@ export const useGoogleMeetPage = () => {
     return list.filter((m) => {
       if (syncFilter !== "ALL" && m.meetingSyncStatus !== syncFilter) return false;
       if (!q) return true;
-      const sourceLabel = String(m.meetingLinkSource || "").toLowerCase();
       const syncLabel = getMeetingSyncStatusLabel(m.meetingSyncStatus || "").toLowerCase();
       return (
         m.title.toLowerCase().includes(q) ||
-        sourceLabel.includes(q) ||
         syncLabel.includes(q) ||
         (m.presenter?.fullName?.toLowerCase().includes(q) ?? false)
       );
@@ -145,13 +146,6 @@ export const useGoogleMeetPage = () => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, currentPage]);
-
-  const stats = useMemo(() => {
-    const failed = list.filter((m) => m.meetingSyncStatus === MeetingSyncStatus.FAILED).length;
-    const pending = list.filter((m) => m.meetingSyncStatus === MeetingSyncStatus.PENDING).length;
-    const synced = list.filter((m) => m.meetingSyncStatus === MeetingSyncStatus.SYNCED).length;
-    return { total: list.length, failed, pending, synced };
-  }, [list]);
 
   const confirm = useCallback((opts: ConfirmOptions) => {
     setConfirmOptions(opts);
@@ -257,10 +251,17 @@ export const useGoogleMeetPage = () => {
     [list]
   );
 
+  const sectionTitle =
+    activeView === "upcoming"
+      ? "الاجتماعات القادمة"
+      : activeView === "finished"
+        ? "الاجتماعات المنتهية"
+        : "إعدادات التكامل";
+
   return {
     status,
-    activeTab,
-    setActiveTab,
+    activeView,
+    setActiveView,
     currentPage,
     setCurrentPage,
     itemsPerPage: ITEMS_PER_PAGE,
@@ -271,9 +272,10 @@ export const useGoogleMeetPage = () => {
     syncFilter,
     setSyncFilter,
     syncFilterItems: SYNC_FILTER_ITEMS,
+    viewItems: VIEW_ITEMS,
     filtered,
     paginated,
-    stats,
+    sectionTitle,
     meetingsLoading,
     integrationLoading,
     submitting,

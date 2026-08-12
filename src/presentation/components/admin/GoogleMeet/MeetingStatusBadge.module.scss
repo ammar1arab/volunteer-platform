@@ -2,9 +2,10 @@
 @use "@/presentation/styles/mixins" as *;
 @use "@/presentation/styles/admin-mixins" as *;
 
-.badge {
+.status {
   @include status-badge;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .none {
@@ -34,5 +35,5 @@
 .cancelled {
   background: rgba($text-muted, 0.08);
   color: $text-muted;
-  border: 1px solid rgba($text-muted, 0.25);
+  border: 1px solid rgba($text-muted, 0.2);
 }

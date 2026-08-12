@@ -21,7 +21,7 @@ const MeetingStatusBadge = ({ status }: Props) => {
   const className = STATUS_CLASS[key] ?? "none";
 
   return (
-    <span className={`${styles.badge} ${styles[className]}`}>
+    <span className={`${styles.status} ${styles[className]}`}>
       {getMeetingSyncStatusLabel(key)}
     </span>
   );

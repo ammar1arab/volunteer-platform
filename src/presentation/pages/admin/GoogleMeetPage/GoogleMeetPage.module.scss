@@ -3,57 +3,173 @@
 @use "@/presentation/styles/admin-mixins" as *;
 
 .page {
+  @include flex-col;
+  gap: $sp-lg;
   width: 100%;
 }
 
-.header {
-  @include page-header;
-  margin-bottom: $sp-lg;
-}
-
-.tabs {
-  @include flex(row, center, flex-start, $sp-xs);
-  flex-wrap: wrap;
-  padding: 4px;
-  background: rgba($text-muted, 0.06);
+.integrationCard {
+  @include flex(row, center, space-between, $sp-md);
+  padding: $sp-md $sp-lg;
+  background: $bg;
   border: 1px solid $border;
-  border-radius: $radius;
-  width: fit-content;
-  max-width: 100%;
+  border-radius: $radius-lg;
+  gap: $sp-md;
+  flex-wrap: wrap;
 }
 
-.tab {
-  border: none;
-  background: transparent;
-  color: $text-muted;
-  font-size: $font-sm;
-  font-weight: 600;
-  padding: 10px 14px;
+.connectedCard {
+  border-color: rgba($green, 0.35);
+  box-shadow: 0 0 0 1px rgba($green, 0.08);
+}
+
+.disconnectedCard {
+  border-color: rgba($red, 0.28);
+  box-shadow: 0 0 0 1px rgba($red, 0.06);
+}
+
+.integrationMain {
+  @include flex(row, center, flex-start, $sp-md);
+  min-width: 0;
+  flex: 1;
+}
+
+.providerMark {
+  @include flex-center;
+  width: 44px;
+  height: 44px;
   border-radius: $radius;
-  cursor: pointer;
-  transition: $transition;
+  background: rgba($green, 0.1);
+  color: $green;
+  flex-shrink: 0;
+}
+
+.integrationCopy {
+  @include flex-col;
+  gap: 4px;
+  min-width: 0;
+}
+
+.integrationTitleRow {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+}
+
+.integrationTitle {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 800;
+  color: $text;
+}
+
+.connectionBadge {
+  @include status-badge;
+}
+
+.connected {
+  background: rgba($green, 0.08);
+  color: $green;
+  border: 1px solid rgba($green, 0.3);
+}
+
+.disconnected {
+  background: rgba($red, 0.08);
+  color: $red;
+  border: 1px solid rgba($red, 0.3);
+}
+
+.integrationMeta {
+  margin: 0;
+  font-size: $font-xs;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.integrationError {
+  @include flex(row, center, flex-start, 6px);
+  margin: 2px 0 0;
+  font-size: $font-xs;
+  color: $red;
+}
+
+.integrationActions {
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+}
+
+.settingsBtn {
+  @include action-btn;
+  color: $text-muted;
 
   &:hover {
     color: $text;
-    background: rgba($white, 0.7);
+    border-color: $text;
   }
 }
 
-.tabActive {
-  background: $white;
+.warnBanner {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  background: rgba(#d97706, 0.08);
+  border: 1px solid rgba(#d97706, 0.25);
+  color: #b45309;
+  font-size: $font-sm;
+
+  button {
+    border: none;
+    background: transparent;
+    color: #b45309;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+}
+
+.header {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.sectionHead {
+  @include flex(row, center, space-between, $sp-sm);
+}
+
+.titleGroup {
+  @include flex(row, center, flex-start, $sp-sm);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $font-lg;
+  font-weight: 700;
   color: $text;
-  box-shadow: 0 1px 4px rgba($black, 0.06);
+  white-space: nowrap;
 }
 
-.statsRow {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: $sp-sm;
-  margin-bottom: $sp-lg;
+.count {
+  @include flex-center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: $radius-full;
+  background: rgba($green, 0.1);
+  color: $green;
+  font-size: $font-xs;
+  font-weight: 800;
+}
 
-  @include sm {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.countWarn {
+  @include flex-center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: $radius-full;
+  background: rgba($red, 0.1);
+  color: $red;
+  font-size: $font-xs;
+  font-weight: 800;
 }
 
 .actions {
@@ -61,7 +177,6 @@
   width: 100%;
   flex-wrap: wrap;
   align-items: center;
-  margin-bottom: $sp-md;
 
   > * {
     height: 36px;
@@ -95,150 +210,15 @@
 
   @include sm {
     width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-xs;
   }
 }
 
 .list {
   @include flex-col;
   gap: $sp-sm;
-  margin-bottom: $sp-lg;
-}
-
-.card {
-  background: $bg;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  overflow: hidden;
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    border-color: $green;
-    box-shadow:
-      0 0 0 1px $green,
-      $shadow;
-  }
-}
-
-.cardHeader {
-  @include flex(row, center, space-between, $sp-sm);
-  padding: $sp-md $sp-lg;
-  border-bottom: 1px solid $border;
-  gap: $sp-sm;
-}
-
-.cardMeta {
-  min-width: 0;
-  flex: 1;
-}
-
-.cardTitle {
-  margin: 0;
-  font-size: $font-md;
-  font-weight: 700;
-  color: $text;
-}
-
-.cardDate {
-  margin: 4px 0 0;
-  font-size: $font-xs;
-  color: $text-muted;
-}
-
-.cardBody {
-  @include flex(row, center, space-between, $sp-sm);
-  padding: $sp-md $sp-lg;
-  flex-wrap: wrap;
-}
-
-.metaRow {
-  @include flex(row, center, flex-start, $sp-xs);
-  flex-wrap: wrap;
-  flex: 1;
-  min-width: 0;
-}
-
-.metaChip {
-  font-size: 11px;
-  font-weight: 600;
-  color: $text-muted;
-  background: rgba($text-muted, 0.08);
-  border: 1px solid rgba($text-muted, 0.15);
-  border-radius: $radius-full;
-  padding: 4px 10px;
-}
-
-.metaChipBtn {
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: $radius-full;
-  padding: 4px 10px;
-  cursor: pointer;
-  color: #2563eb;
-  background: rgba(#2563eb, 0.08);
-  border: 1px solid rgba(#2563eb, 0.25);
-
-  &:hover {
-    background: rgba(#2563eb, 0.14);
-  }
-}
-
-.errorText {
-  margin: 0;
-  font-size: $font-xs;
-  color: $red;
-}
-
-.cardActions {
-  @include flex(row, center, flex-end, $sp-xs);
-  flex-wrap: wrap;
-}
-
-.btn {
-  @include action-btn;
-  color: $text-muted;
-  text-decoration: none;
-
-  &:hover:not(:disabled) {
-    color: $text;
-    border-color: $text;
-  }
-}
-
-.btnInfo {
-  @include action-btn;
-  color: #2563eb;
-  border-color: rgba(#2563eb, 0.3);
-  background: rgba(#2563eb, 0.05);
-
-  &:hover:not(:disabled) {
-    background: rgba(#2563eb, 0.1);
-    border-color: #2563eb;
-  }
-}
-
-.btnSuccess {
-  @include action-btn;
-  color: $green;
-  border-color: rgba($green, 0.3);
-  background: rgba($green, 0.05);
-
-  &:hover:not(:disabled) {
-    background: rgba($green, 0.1);
-    border-color: $green;
-  }
-}
-
-.btnWarning {
-  @include action-btn;
-  color: #d97706;
-  border-color: rgba(#d97706, 0.3);
-  background: rgba(#d97706, 0.05);
-
-  &:hover:not(:disabled) {
-    background: rgba(#d97706, 0.1);
-    border-color: #d97706;
-  }
 }
 
 .settings {
@@ -246,92 +226,24 @@
   gap: $sp-lg;
 }
 
-.settingsCard {
-  background: $bg;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  padding: $sp-lg;
-}
-
-.settingsHeader {
-  @include flex(row, flex-start, space-between, $sp-sm);
-  margin-bottom: $sp-md;
-  flex-wrap: wrap;
-}
-
-.settingsTitle {
-  margin: 0;
-  font-size: $font-lg;
-  font-weight: 700;
-  color: $text;
-}
-
-.settingsHint {
-  margin: 6px 0 0;
-  font-size: $font-sm;
-  color: $text-muted;
-}
-
-.connectionBadge {
-  @include status-badge;
-}
-
-.connected {
-  background: rgba($green, 0.08);
-  color: $green;
-  border: 1px solid rgba($green, 0.3);
-}
-
-.disconnected {
-  background: rgba($red, 0.08);
-  color: $red;
-  border: 1px solid rgba($red, 0.3);
-}
-
-.settingsGrid {
+.infoGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: $sp-md;
-  margin-bottom: $sp-md;
+  gap: $sp-sm;
 
   @include sm {
     grid-template-columns: 1fr;
   }
 }
 
-.settingsField {
+.failedSection {
   @include flex-col;
-  gap: 4px;
-  padding: $sp-sm;
-  border-radius: $radius;
-  background: rgba($text-muted, 0.04);
-  border: 1px solid rgba($text-muted, 0.08);
+  gap: $sp-md;
 }
 
-.fieldLabel {
-  font-size: $font-xs;
-  color: $text-muted;
-  font-weight: 600;
-}
-
-.fieldValue {
-  font-size: $font-sm;
+.failedTitle {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
   color: $text;
-  font-weight: 600;
-  word-break: break-word;
-}
-
-.lastError {
-  @include flex(row, center, flex-start, $sp-xs);
-  margin: 0 0 $sp-md;
-  padding: $sp-sm $sp-md;
-  border-radius: $radius;
-  background: rgba($red, 0.06);
-  border: 1px solid rgba($red, 0.2);
-  color: $red;
-  font-size: $font-sm;
-}
-
-.settingsActions {
-  @include flex(row, center, flex-start, $sp-sm);
 }

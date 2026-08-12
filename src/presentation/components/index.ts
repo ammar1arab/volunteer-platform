@@ -64,6 +64,7 @@ export { default as PermissionsPanel } from "./admin/PermissionsPanel/Permission
 export { default as BroadcastRecipientsModal } from "./admin/BroadcastRecipientsModal/BroadcastRecipientsModal";
 export { default as MeetingStatusBadge } from "./admin/GoogleMeet/MeetingStatusBadge";
 export { default as MeetingReportModal } from "./admin/GoogleMeet/MeetingReportModal";
+export { default as MeetingListItem } from "./admin/GoogleMeet/MeetingListItem";
 
 export { default as NotificationBell } from "./volunteer/NotificationBell/NotificationBell";
 export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";
