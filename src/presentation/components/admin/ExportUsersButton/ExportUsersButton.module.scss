@@ -29,136 +29,114 @@
   }
 }
 
-.actions {
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+}
+
+.toolbar {
   @include flex(row, center, flex-start, $sp-sm);
-  margin-bottom: $sp-lg;
+  flex-wrap: wrap;
 }
 
 .selectBtn {
-  padding: $sp-xs $sp-md;
-  background: transparent;
-  border: 1px solid $border;
+  @include btn-secondary;
+  padding: 8px 14px;
+  font-size: $font-xs;
+}
+
+.chipGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $sp-xs;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chip {
+  @include flex(row, center, flex-start, 6px);
+  padding: 8px 10px;
   border-radius: $radius;
-  font-size: $font-sm;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: $font-xs;
   font-weight: 600;
-  color: $text;
-  cursor: pointer;
-  transition: $transition;
+  transition: all 0.18s ease;
+  width: 100%;
+  text-align: right;
+}
+
+.chipOn {
+  background: rgba($green, 0.08);
+  border-color: rgba($green, 0.3);
+  color: $green;
 
   &:hover {
-    background: rgba($green, 0.1);
-    border-color: $green;
-    color: $green;
+    background: rgba($green, 0.14);
   }
 }
 
-.columns {
-  @include flex-col;
-  gap: $sp-sm;
-  max-height: 400px;
-  overflow-y: auto;
-  margin-bottom: $sp-lg;
-  padding: 2px;
-}
-
-.checkbox {
-  @include flex(row, center, flex-start, $sp-md);
-  padding: $sp-sm $sp-md;
-  border: 1px solid $border;
-  border-radius: $radius;
-  cursor: pointer;
-  transition: $transition;
+.chipOff {
+  background: rgba($black, 0.02);
+  border-color: $border;
+  color: $text-muted;
 
   &:hover {
-    background: rgba($green, 0.05);
-    border-color: rgba($green, 0.3);
-  }
-
-  input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    width: 0;
-    height: 0;
-
-    &:checked ~ .checkmark {
-      background: $green;
-      border-color: $green;
-
-      &::after {
-        display: block;
-      }
-    }
-  }
-
-  .checkmark {
-    position: relative;
-    width: 20px;
-    height: 20px;
-    border: 2px solid $border;
-    border-radius: $sp-xs;
-    background: $bg;
-    transition: $transition;
-    flex-shrink: 0;
-
-    &::after {
-      content: "";
-      position: absolute;
-      display: none;
-      left: 6px;
-      top: 2px;
-      width: 5px;
-      height: 10px;
-      border: solid $bg;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-    }
-  }
-
-  .label {
-    font-size: $font-sm;
-    font-weight: 500;
+    background: rgba($black, 0.05);
     color: $text;
   }
 }
 
-.footer {
-  @include flex(row, center, flex-end, $sp-sm);
+.chipDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  .chipOn & {
+    background: $green;
+    box-shadow: 0 0 4px rgba($green, 0.5);
+  }
+
+  .chipOff & {
+    background: $border;
+  }
+}
+
+.modalActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $sp-sm;
   padding-top: $sp-md;
   border-top: 1px solid $border;
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    flex-direction: column-reverse;
+
+    > * {
+      width: 100%;
+    }
+  }
 }
 
-.cancelBtn,
-.exportBtn {
-  @include flex(row, center, center, $sp-xs);
-  padding: $sp-sm $sp-lg;
-  border-radius: $radius;
+.btnCancel {
+  @include btn-secondary;
+  padding: 10px 24px;
+  font-size: $font-sm;
+}
+
+.btnSubmit {
+  @include btn-primary;
+  gap: $sp-xs;
+  padding: 10px 28px;
   font-size: $font-sm;
   font-weight: 600;
-  cursor: pointer;
-  transition: $transition;
-}
-
-.cancelBtn {
-  background: transparent;
-  border: 1px solid $border;
-  color: $text;
-
-  &:hover {
-    background: rgba($red, 0.1);
-    border-color: $red;
-    color: $red;
-  }
-}
-
-.exportBtn {
-  background: $green;
-  border: none;
-  color: $bg;
-
-  &:hover:not(:disabled) {
-    background:$green;
-  }
+  min-width: 120px;
 
   &:disabled {
     opacity: 0.5;

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { FileDown, Download } from "lucide-react";
 import { Modal } from "@/presentation/components";
 import { useExportUsersButton } from "./ExportUsersButton.logic";
@@ -16,11 +18,12 @@ interface ExportUsersButtonProps {
   buttonText?: string;
 }
 
-const ExportUsersButton = ({ 
-  data, 
-  columns, 
-  buttonText = "تصدير Excel" 
+const ExportUsersButton = ({
+  data,
+  columns,
+  buttonText = "تصدير Excel",
 }: ExportUsersButtonProps) => {
+  const [mounted, setMounted] = useState(false);
   const {
     isModalOpen,
     selectedColumns,
@@ -32,51 +35,62 @@ const ExportUsersButton = ({
     exportToExcel,
   } = useExportUsersButton(data, columns);
 
-  return (
-    <>
-      <button className={styles.btn} onClick={openModal}>
-        <FileDown size={18} />
-        {buttonText}
-      </button>
+  useEffect(() => setMounted(true), []);
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title="اختر الحقول للتصدير" size="md">
-        <div className={styles.actions}>
-          <button className={styles.selectBtn} onClick={selectAll}>
+  const modal = (
+    <Modal isOpen={isModalOpen} onClose={closeModal} title="اختر الحقول للتصدير" size="md">
+      <div className={styles.body}>
+        <div className={styles.toolbar}>
+          <button type="button" className={styles.selectBtn} onClick={selectAll}>
             تحديد الكل
           </button>
-          <button className={styles.selectBtn} onClick={deselectAll}>
+          <button type="button" className={styles.selectBtn} onClick={deselectAll}>
             إلغاء التحديد
           </button>
         </div>
 
-        <div className={styles.columns}>
-          {columns.map((col) => (
-            <label key={col.key} className={styles.checkbox}>
-              <input
-                type="checkbox"
-                checked={selectedColumns.includes(col.key)}
-                onChange={() => toggleColumn(col.key)}
-              />
-              <span className={styles.checkmark}></span>
-              <span className={styles.label}>{col.label}</span>
-            </label>
-          ))}
+        <div className={styles.chipGrid}>
+          {columns.map((col) => {
+            const isOn = selectedColumns.includes(col.key);
+            return (
+              <button
+                key={col.key}
+                type="button"
+                className={`${styles.chip} ${isOn ? styles.chipOn : styles.chipOff}`}
+                onClick={() => toggleColumn(col.key)}
+              >
+                <span className={styles.chipDot} />
+                {col.label}
+              </button>
+            );
+          })}
         </div>
 
-        <div className={styles.footer}>
-          <button className={styles.cancelBtn} onClick={closeModal}>
+        <div className={styles.modalActions}>
+          <button type="button" className={styles.btnCancel} onClick={closeModal}>
             إلغاء
           </button>
           <button
-            className={styles.exportBtn}
+            type="button"
+            className={styles.btnSubmit}
             onClick={exportToExcel}
             disabled={selectedColumns.length === 0}
           >
-            <Download size={18} />
-            تصدير ({selectedColumns.length})
+            <Download size={16} />
+            Export ({selectedColumns.length})
           </button>
         </div>
-      </Modal>
+      </div>
+    </Modal>
+  );
+
+  return (
+    <>
+      <button type="button" className={styles.btn} onClick={openModal}>
+        <FileDown size={18} />
+        {buttonText}
+      </button>
+      {mounted ? createPortal(modal, document.body) : null}
     </>
   );
 };
