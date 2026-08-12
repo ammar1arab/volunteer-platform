@@ -19,7 +19,10 @@
 
 .content {
   flex: 1;
+  min-width: 0;
   padding: $sp-md $sp-lg;
+  overflow-x: hidden;
+  overflow-y: visible;
 
   @media (max-width: 768px) {
     padding: $sp-sm $sp-md;

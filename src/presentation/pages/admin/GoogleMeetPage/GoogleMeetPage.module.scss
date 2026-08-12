@@ -7,6 +7,7 @@
   gap: $sp-lg;
   width: 100%;
   min-width: 0;
+  overflow: visible;
 
   @include sm {
     gap: $sp-md;
@@ -133,17 +134,20 @@
   font-size: $font-xs;
   color: $red;
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .integrationActions {
   @include flex(row, center, flex-end, $sp-sm);
   flex-shrink: 0;
+  overflow: visible;
 
   @include sm {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr 36px;
     gap: $sp-xs;
+    align-items: stretch;
 
     > :first-child {
       width: 100%;
@@ -207,6 +211,7 @@
   @include flex-col;
   gap: $sp-md;
   min-width: 0;
+  overflow: visible;
 
   @include sm {
     gap: $sp-sm;
@@ -229,7 +234,6 @@
   font-size: $font-lg;
   font-weight: 700;
   color: $text;
-  white-space: nowrap;
 
   @include sm {
     font-size: $font-md;
@@ -264,24 +268,25 @@
   flex-wrap: wrap;
   align-items: center;
   min-width: 0;
-
-  > * {
-    height: 36px;
-    min-height: 36px;
-    max-height: 36px;
-  }
+  overflow: visible;
 
   @include sm {
     flex-direction: column;
     gap: $sp-sm;
     align-items: stretch;
+  }
+}
 
-    > * {
-      width: 100%;
-      height: 36px;
-      min-height: 36px;
-      max-height: 36px;
-    }
+.searchWrap {
+  flex: 1;
+  min-width: 0;
+  max-width: 420px;
+  height: 36px;
+  overflow: visible;
+
+  @include sm {
+    width: 100%;
+    max-width: none;
   }
 }
 
@@ -290,29 +295,13 @@
   flex-shrink: 0;
   align-items: center;
   min-width: 0;
-
-  > * {
-    height: 36px;
-    min-height: 36px;
-    max-height: 36px;
-  }
+  overflow: visible;
 
   @include sm {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: $sp-xs;
-    height: 36px;
-    max-height: 36px;
-    overflow: visible;
-
-    > * {
-      width: 100% !important;
-      height: 36px !important;
-      min-height: 36px !important;
-      max-height: 36px !important;
-      overflow: visible;
-    }
   }
 }
 

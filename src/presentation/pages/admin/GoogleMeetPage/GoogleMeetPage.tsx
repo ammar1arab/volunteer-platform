@@ -171,12 +171,14 @@ const GoogleMeetPage = () => {
 
         <div className={styles.actions}>
           {showMeetings && (
-            <Search
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onSearch={setAppliedSearch}
-              placeholder="ابحث..."
-            />
+            <div className={styles.searchWrap}>
+              <Search
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSearch={setAppliedSearch}
+                placeholder="ابحث..."
+              />
+            </div>
           )}
           <div className={`${styles.actionsEnd} ${!showMeetings ? styles.actionsEndSolo : ""}`}>
             <Dropdown

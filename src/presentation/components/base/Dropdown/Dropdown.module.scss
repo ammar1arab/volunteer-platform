@@ -5,6 +5,7 @@
   position: relative;
   width: 100%;
   max-width: 350px;
+  overflow: visible;
 
   @media (min-width: 1024px) {
     max-width: 300px;
@@ -14,46 +15,11 @@
 .compactWrapper {
   flex-shrink: 0;
   width: auto;
-  max-width: 160px;
+  max-width: 180px;
   height: 36px;
   min-height: 36px;
   max-height: 36px;
   overflow: visible;
-}
-
-.compactMenu {
-  inset-inline-start: 0;
-  inset-inline-end: auto;
-  left: auto;
-  right: auto;
-  width: max-content;
-  min-width: max(100%, 200px);
-  max-width: min(340px, calc(100vw - 2rem));
-  z-index: 200;
-
-  .item {
-    padding: 10px 12px;
-    gap: $sp-sm;
-  }
-
-  .itemLabel {
-    flex: 1;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 280px;
-  }
-
-  @include sm {
-    .itemLabel {
-      max-width: none;
-      white-space: normal;
-      overflow: visible;
-      text-overflow: unset;
-      line-height: 1.4;
-    }
-  }
 }
 
 .trigger {
@@ -164,24 +130,33 @@
 }
 
 .menu {
-  position: absolute;
-  top: calc(100% + $sp-xs);
-  left: 0;
-  right: 0;
   background: $bg;
   border: 1.5px solid $border;
   border-radius: $radius-md;
-  box-shadow: 0 4px 12px rgba($black, 0.12);
-  z-index: 50;
+  box-shadow: 0 8px 28px rgba($black, 0.14);
   overflow-x: hidden;
   overflow-y: auto;
-  max-height: 280px;
-  animation: slideDown 0.2s ease;
+  animation: slideDown 0.16s ease;
   scrollbar-width: none;
   -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+.compactMenu {
+  .item {
+    padding: 10px 12px;
+    gap: $sp-sm;
+  }
+
+  .itemLabel {
+    flex: 1;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.35;
+    word-break: break-word;
   }
 }
 
@@ -258,5 +233,16 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
