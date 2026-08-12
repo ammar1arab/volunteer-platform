@@ -14,7 +14,7 @@
 .inputWrapper {
   display: flex;
   flex-direction: column;
-  gap: $sp-sm;
+  gap: $sp-xs;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
@@ -23,7 +23,8 @@
 .input {
   box-sizing: border-box;
   width: 100%;
-  padding: $sp-sm $sp-md;
+  height: 42px;
+  padding: 0 $sp-md;
   font-size: $font-base;
   border: 1px solid $border;
   border-radius: $radius;
