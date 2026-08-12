@@ -19,10 +19,12 @@ const Input: React.FC<InputProps> = ({ label, error, onChange, className = '', d
 
   return (
     <div className={styles.inputWrapper}>
-      <label className={styles.label}>
-        {label}
-        {rest.required && <span className={styles.required}>*</span>}
-      </label>
+      {label && (
+        <label className={styles.label}>
+          {label}
+          {rest.required && <span className={styles.required}>*</span>}
+        </label>
+      )}
 
       <input
         dir={dir}

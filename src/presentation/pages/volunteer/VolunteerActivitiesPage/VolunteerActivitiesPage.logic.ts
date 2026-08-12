@@ -6,8 +6,10 @@ import { participationApi } from "@/presentation/services";
 import { JordanianCity, UserRole, ParticipationStatus } from "@/core/domain/enums";
 import { getCityLabel } from "@/presentation/constants";
 import { getErrorMessage, unwrapResult } from "@/presentation/query";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 const ITEMS_PER_PAGE = 10;
+const ACTIVE_FILTER_STORAGE_KEY = "filters.volunteer.activities.activeFilter";
 
 type SortOrder = "newest" | "oldest" | "nearest";
 
@@ -38,14 +40,35 @@ export const useVolunteerActivitiesPage = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [defaultApplied, setDefaultApplied] = useState(false);
 
-  const [activeFilter, setActiveFilter] = useState<string>("all");
-  const [activeType, setActiveType] = useState<"all" | "ONLINE" | "IN_PERSON">("all");
-  const [activeTime, setActiveTime] = useState<"all" | "upcoming" | "past">("all");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  const [activeFilter, setActiveFilterState] = useSessionStorageState<string>(
+    ACTIVE_FILTER_STORAGE_KEY,
+    "all"
+  );
+  const [activeType, setActiveTypeState] = useSessionStorageState<"all" | "ONLINE" | "IN_PERSON">(
+    "filters.volunteer.activities.activeType",
+    "all"
+  );
+  const [activeTime, setActiveTimeState] = useSessionStorageState<"all" | "upcoming" | "past">(
+    "filters.volunteer.activities.activeTime",
+    "all"
+  );
+  const [sortOrder, setSortOrderState] = useSessionStorageState<SortOrder>(
+    "filters.volunteer.activities.sortOrder",
+    "newest"
+  );
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.volunteer.activities.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearchState] = useSessionStorageState(
+    "filters.volunteer.activities.appliedSearch",
+    ""
+  );
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.volunteer.activities.currentPage",
+    1
+  );
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
@@ -75,9 +98,30 @@ export const useVolunteerActivitiesPage = () => {
     setConfirmResolver(null);
   }, [confirmResolver]);
 
-  useEffect(() => {
+  const setActiveFilter: typeof setActiveFilterState = useCallback((value) => {
+    setActiveFilterState(value);
     setCurrentPage(1);
-  }, [activeFilter, appliedSearch, activeType, activeTime, sortOrder]);
+  }, [setActiveFilterState, setCurrentPage]);
+
+  const setActiveType: typeof setActiveTypeState = useCallback((value) => {
+    setActiveTypeState(value);
+    setCurrentPage(1);
+  }, [setActiveTypeState, setCurrentPage]);
+
+  const setActiveTime: typeof setActiveTimeState = useCallback((value) => {
+    setActiveTimeState(value);
+    setCurrentPage(1);
+  }, [setActiveTimeState, setCurrentPage]);
+
+  const setSortOrder: typeof setSortOrderState = useCallback((value) => {
+    setSortOrderState(value);
+    setCurrentPage(1);
+  }, [setSortOrderState, setCurrentPage]);
+
+  const setAppliedSearch: typeof setAppliedSearchState = useCallback((value) => {
+    setAppliedSearchState(value);
+    setCurrentPage(1);
+  }, [setAppliedSearchState, setCurrentPage]);
 
   const stats = useMemo(
     () => ({
@@ -93,10 +137,23 @@ export const useVolunteerActivitiesPage = () => {
 
   useEffect(() => {
     if (defaultApplied || loading || participations.length === 0) return;
-    if (stats.pending > 0) setActiveFilter(ParticipationStatus.PENDING);
-    else if (stats.approved > 0) setActiveFilter(ParticipationStatus.APPROVED);
+
+    if (window.sessionStorage.getItem(ACTIVE_FILTER_STORAGE_KEY) !== null) {
+      setDefaultApplied(true);
+      return;
+    }
+
+    if (stats.pending > 0) setActiveFilterState(ParticipationStatus.PENDING);
+    else if (stats.approved > 0) setActiveFilterState(ParticipationStatus.APPROVED);
     setDefaultApplied(true);
-  }, [loading, participations.length, stats.pending, stats.approved, defaultApplied]);
+  }, [
+    loading,
+    participations.length,
+    stats.pending,
+    stats.approved,
+    defaultApplied,
+    setActiveFilterState
+  ]);
 
   const filtered = useMemo(() => {
     let result = participations;

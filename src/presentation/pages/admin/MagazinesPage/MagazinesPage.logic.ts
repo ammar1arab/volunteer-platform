@@ -5,6 +5,7 @@ import { UserRole } from "@/core/domain/enums";
 import { useMonthlyMagazines, useToast, useAuth } from "@/presentation/hooks";
 import { MonthlyMagazineDto } from "@/core/application/dtos";
 import { processPdfForUpload } from "@/lib/utils";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 type ConfirmOptions = {
   title?: string;
@@ -47,13 +48,25 @@ export const useMagazinesPage = () => {
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [showModal, setShowModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.magazines.currentPage",
+    1
+  );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
-  const [activeYear, setActiveYear] = useState("all");
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.admin.magazines.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.admin.magazines.appliedSearch",
+    ""
+  );
+  const [activeYear, setActiveYear] = useSessionStorageState(
+    "filters.admin.magazines.activeYear",
+    "all"
+  );
 
   const filteredList = useMemo(() => {
     if (!appliedSearch.trim()) return list;

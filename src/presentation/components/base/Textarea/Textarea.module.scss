@@ -1,0 +1,55 @@
+@use "@/presentation/styles/variables" as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+  width: 100%;
+  min-width: 0;
+}
+
+.label {
+  font-size: $font-sm;
+  font-weight: 500;
+  color: $text;
+}
+
+.required {
+  color: $red;
+  margin-inline-start: $sp-xs;
+}
+
+.textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100px;
+  padding: $sp-sm $sp-md;
+  resize: vertical;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $bg;
+  color: $text;
+  font: inherit;
+  line-height: 1.6;
+  transition: $transition;
+
+  &:focus {
+    outline: none;
+    border-color: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.1);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.textareaError {
+  border-color: $red;
+}
+
+.error {
+  color: $red;
+  font-size: $font-xs;
+}

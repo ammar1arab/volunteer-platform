@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityStatus, ActivityType, DayOfWeek, UserRole } from "@/core/domain/enums";
 import { useActivities, useToast, useAuth } from "@/presentation/hooks";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
 import { processImageForUpload } from "@/lib/utils";
 import { ACTIVITY_STATUS_LABELS } from "@/presentation/constants";
@@ -49,8 +50,14 @@ export const useActivitiesPage = () => {
   const { list, loading, submitting, uploadImage, create, update, remove, publish, cancel, restore, complete } =
     useActivities({ filter: "all" });
 
-  const [activeFilter, setActiveFilter] = useState<string>(ActivityStatus.PUBLISHED);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [activeFilter, setActiveFilter] = useSessionStorageState<string>(
+    "filters.admin.activities.activeFilter",
+    ActivityStatus.PUBLISHED
+  );
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.activities.currentPage",
+    1
+  );
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [showModal, setShowModal] = useState(false);
   const [showVolunteersModal, setShowVolunteersModal] = useState(false);
@@ -60,8 +67,14 @@ export const useActivitiesPage = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.admin.activities.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.admin.activities.appliedSearch",
+    ""
+  );
 
   const filtered = useMemo(() => {
     let result = activeFilter === "all" ? list : list.filter((a) => a.status === activeFilter);

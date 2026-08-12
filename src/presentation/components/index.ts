@@ -11,6 +11,7 @@ export { default as Avatar } from "./base/Avatar/Avatar";
 export { default as Pagination } from "./base/Pagination/Pagination";
 export { default as SectionHeader } from "./base/SectionHeader/SectionHeader";
 export { default as Input } from "./base/Input/Input";
+export { default as Textarea } from "./base/Textarea/Textarea";
 export { default as Button } from "./base/Button/Button";
 export { default as SelectInput } from "./base/SelectInput/SelectInput";
 export { default as DateInput } from "./base/DateInput/DateInput";

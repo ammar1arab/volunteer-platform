@@ -7,6 +7,7 @@ import { useFeaturedPosts, useToast, useAuth } from "@/presentation/hooks";
 import { FeaturedPostDto } from "@/core/application/dtos";
 import { normalizeWhitespace, processImageForUpload, revokeImagePreview } from "@/lib/utils";
 import { CATEGORY_OPTIONS, MONTH_LABELS } from "@/presentation/constants";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 type ConfirmOptions = {
   title?: string;
@@ -52,15 +53,27 @@ export const useFeaturedPostsPage = () => {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [preview, setPreview] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.featuredPosts.currentPage",
+    1
+  );
+  const [activeCategory, setActiveCategory] = useSessionStorageState(
+    "filters.admin.featuredPosts.activeCategory",
+    "all"
+  );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
     message: ""
   });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.admin.featuredPosts.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.admin.featuredPosts.appliedSearch",
+    ""
+  );
 
   const filteredList = useMemo(() => {
     let result =

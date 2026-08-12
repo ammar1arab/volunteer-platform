@@ -75,12 +75,14 @@
 .inputRow {
   display: flex;
   gap: 6px;
+
+  > :first-child {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .input {
-  @include input;
-  flex: 1;
-  min-width: 0;
   padding: $sp-xs $sp-sm;
   font-size: $font-sm;
 }

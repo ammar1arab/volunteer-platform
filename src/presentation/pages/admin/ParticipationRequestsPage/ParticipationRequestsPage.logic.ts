@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { JordanianCity, UserRole } from "@/core/domain/enums";
 import { useActivityParticipations, useToast, useAuth } from "@/presentation/hooks";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { getCityLabel } from "@/presentation/constants";
 
 type ConfirmOptions = {
@@ -23,10 +24,22 @@ export const useParticipationRequestsPage = () => {
   });
 
   const ITEMS_PER_PAGE = 20;
-  const [filter, setFilter] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [filter, setFilter] = useSessionStorageState<string>(
+    "filters.admin.participationRequests.filter",
+    "all"
+  );
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.admin.participationRequests.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.admin.participationRequests.appliedSearch",
+    ""
+  );
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.participationRequests.currentPage",
+    1
+  );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);

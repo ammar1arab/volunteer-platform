@@ -4,11 +4,11 @@ import { useAdminUserDetailsPage } from "./AdminUserDetailsPage.logic";
 import Link from "next/link";
 import {
   LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown,
-  ActivityItem, ToastContainer, Pagination, ExportUsersButton, ConfirmDialog,
+  ActivityItem, ToastContainer, Pagination, ExportUsersButton, ConfirmDialog, EditableField,
 } from "@/presentation/components";
 import {
   ArrowRight, Activity, CheckCircle, Clock, XCircle,
-  Mail, Phone, User, Edit2, Check, X, Trash2,
+  Mail, Phone, User, Trash2,
   ToggleLeft, ToggleRight, MapPin, Calendar, User2, Hash, GraduationCap, Briefcase, Award,
 } from "lucide-react";
 import {
@@ -161,47 +161,47 @@ const AdminUserDetailsPage = () => {
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>معلومات التواصل</h3>
             <div className={styles.infoList}>
-              <EField icon={<Mail     size={14} />} label="البريد"        field="email"       value={user.email}    {...ef} />
-              <EField icon={<Phone    size={14} />} label="الهاتف"        field="phone"       value={user.phone}    {...ef} />
-              <EField icon={<User     size={14} />} label="الاسم الكامل"  field="fullName"    value={user.fullName} {...ef} />
+              <EditableField icon={<Mail size={14} />} label="البريد" field="email" value={user.email} type="email" {...ef} />
+              <EditableField icon={<Phone size={14} />} label="الهاتف" field="phone" value={user.phone} type="tel" {...ef} />
+              <EditableField icon={<User size={14} />} label="الاسم الكامل" field="fullName" value={user.fullName} {...ef} />
               {vp && <>
-                <EField
+                <EditableField
                   icon={<Hash size={14} />} label="رقم الانتساب"
                   field="membershipNumber" value={vp.membershipNumber || ""}
                   displayValue={vp.membershipNumber || "غير محدد"}
                   {...ef}
                 />
-                <EField
+                <EditableField
                   icon={<MapPin   size={14} />} label="المدينة"
                   field="city"        value={vp.city || ""}
                   displayValue={vp.city ? getCityLabel(vp.city as JordanianCity) : "غير محدد"}
                   type="select"       options={CITY_OPTIONS} {...ef}
                 />
-                <EField
+                <EditableField
                   icon={<Calendar size={14} />} label="تاريخ الميلاد"
                   field="dateOfBirth" value={vp.dateOfBirth?.split("T")[0] ?? ""}
                   displayValue={vp.dateOfBirth ? fmt(vp.dateOfBirth) : "غير محدد"}
                   type="date" {...ef}
                 />
-                <EField
+                <EditableField
                   icon={<User2    size={14} />} label="الجنس"
                   field="gender"      value={vp.gender || ""}
                   displayValue={vp.gender ? getGenderLabel(vp.gender as Gender) : "غير محدد"}
                   type="select"       options={GENDER_OPTIONS} {...ef}
                 />
-                <EField
+                <EditableField
                   icon={<GraduationCap size={14} />} label="المستوى التعليمي"
                   field="educationLevel" value={vp.educationLevel || ""}
                   displayValue={vp.educationLevel ? getEducationLevelLabel(vp.educationLevel) : "غير محدد"}
                   type="select" options={[{ value: "", label: "غير محدد" }, ...EDUCATION_LEVEL_OPTIONS]} {...ef}
                 />
-                <EField
+                <EditableField
                   icon={<Briefcase size={14} />} label="التخصص / المهنة"
                   field="occupation" value={vp.occupation || ""}
                   displayValue={vp.occupation || "غير محدد"}
                   {...ef}
                 />
-                <EField
+                <EditableField
                   icon={<Award size={14} />} label="خبرة تطوعية سابقة"
                   field="hasVolunteerExperience"
                   value={vp.hasVolunteerExperience ? "true" : "false"}
@@ -292,33 +292,3 @@ const AdminUserDetailsPage = () => {
 };
 
 export default AdminUserDetailsPage;
-
-const EField = ({ icon, label, value, displayValue, field, type = "text", options, editingField, isSaving, onStartEdit, onCancel, onUpdate, onSave }: any) => {
-  const isEditing = editingField?.field === field;
-  return (
-    <div className={styles.infoRow}>
-      <div className={styles.infoIcon}>{icon}</div>
-      <div className={styles.infoContent}>
-        <span className={styles.infoLabel}>{label}</span>
-        {isEditing ? (
-          <div className={styles.inlineEdit}>
-            {type === "select"
-              ? <select className={styles.input} value={editingField.value as string} onChange={e => onUpdate(e.target.value)} disabled={isSaving}>
-                  {options.map((o: any) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
-              : <input type={type === "date" ? "date" : "text"} className={styles.input}
-                  value={editingField.value as string} onChange={e => onUpdate(e.target.value)} disabled={isSaving} autoFocus />
-            }
-            <button className={styles.btnCheck} onClick={onSave}   disabled={isSaving}><Check size={12} /></button>
-            <button className={styles.btnX}     onClick={onCancel} disabled={isSaving}><X     size={12} /></button>
-          </div>
-        ) : (
-          <div className={styles.infoValueRow}>
-            <span className={styles.infoText}>{displayValue || value || <span className={styles.emptyText}>غير محدد</span>}</span>
-            <button className={styles.btnEditIcon} onClick={() => onStartEdit(field, value)}><Edit2 size={12} /></button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};

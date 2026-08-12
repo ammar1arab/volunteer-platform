@@ -17,7 +17,7 @@ import {
   SKILL_SUGGESTIONS,
   INTEREST_SUGGESTIONS
 } from "@/presentation/constants";
-import { LoadingState, ProfileTagsSection } from "@/presentation/components";
+import { EditableField, LoadingState, ProfileTagsSection, Textarea } from "@/presentation/components";
 import {
   User, Mail, Phone, MapPin, Calendar, Award, Heart, Edit2, Check, X, Upload,
   ChevronLeft, Hash, Briefcase, GraduationCap, Languages, Sparkles
@@ -117,10 +117,10 @@ export default function VolunteerProfilePage() {
         <div className={styles.grid}>
           <Card title="المعلومات الشخصية">
             <div className={styles.infoList}>
-              <EField icon={<Mail size={15} />} label="البريد" value={user.email} field="email" type="text" {...ef} />
-              <EField icon={<Phone size={15} />} label="الهاتف" value={user.phone} field="phone" type="text" {...ef} />
+              <EditableField icon={<Mail size={15} />} label="البريد" value={user.email} field="email" type="email" {...ef} />
+              <EditableField icon={<Phone size={15} />} label="الهاتف" value={user.phone} field="phone" type="tel" {...ef} />
               {vp && <>
-                <EField
+                <EditableField
                   icon={<Hash size={15} />}
                   label="رقم الانتساب"
                   value={vp.membershipNumber || ""}
@@ -129,16 +129,16 @@ export default function VolunteerProfilePage() {
                   type="text"
                   {...ef}
                 />
-                <EField icon={<MapPin size={15} />} label="المدينة" value={vp.city}
+                <EditableField icon={<MapPin size={15} />} label="المدينة" value={vp.city}
                   displayValue={vp.city ? getCityLabel(vp.city as JordanianCity) : undefined}
                   field="city" type="select" options={CITY_OPTIONS} {...ef} />
-                <EField icon={<Calendar size={15} />} label="العمر" value={vp.dateOfBirth?.split("T")[0] ?? ""}
+                <EditableField icon={<Calendar size={15} />} label="العمر" value={vp.dateOfBirth?.split("T")[0] ?? ""}
                   displayValue={vp.dateOfBirth ? `${calculateAge(vp.dateOfBirth)} سنة` : "غير محدد"}
                   field="dateOfBirth" type="date" {...ef} />
-                <EField icon={<User size={15} />} label="الجنس" value={vp.gender || ""}
+                <EditableField icon={<User size={15} />} label="الجنس" value={vp.gender || ""}
                   displayValue={vp.gender ? getGenderLabel(vp.gender as Gender) : "غير محدد"}
                   field="gender" type="select" options={GENDER_OPTIONS} {...ef} />
-                <EField
+                <EditableField
                   icon={<GraduationCap size={15} />}
                   label="المستوى التعليمي"
                   value={vp.educationLevel || ""}
@@ -148,7 +148,7 @@ export default function VolunteerProfilePage() {
                   options={[{ value: "", label: "غير محدد" }, ...EDUCATION_LEVEL_OPTIONS]}
                   {...ef}
                 />
-                <EField
+                <EditableField
                   icon={<Briefcase size={15} />}
                   label="التخصص / المهنة"
                   value={vp.occupation || ""}
@@ -157,7 +157,7 @@ export default function VolunteerProfilePage() {
                   type="text"
                   {...ef}
                 />
-                <EField
+                <EditableField
                   icon={<Award size={15} />}
                   label="خبرة تطوعية سابقة"
                   value={vp.hasVolunteerExperience ? "true" : "false"}
@@ -242,11 +242,6 @@ interface EditHandlers {
   onSave: () => void;
 }
 
-interface SelectOption {
-  value: string;
-  label: string;
-}
-
 const ECard = ({
   title,
   field,
@@ -271,7 +266,7 @@ const ECard = ({
       </div>
       {isEditing ? (
         <div className={styles.editSection}>
-          <textarea className={styles.textarea} rows={4} value={String(editingField.value ?? "")}
+          <Textarea label="" className={styles.textarea} rows={4} value={String(editingField.value ?? "")}
             onChange={e => onUpdate(e.target.value)} placeholder="اكتب..." disabled={isSaving} />
           <div className={styles.actions}>
             <button className={styles.btnCancel} onClick={onCancel} disabled={isSaving}><X size={13} /> إلغاء</button>
@@ -283,54 +278,3 @@ const ECard = ({
   );
 };
 
-const EField = ({
-  icon,
-  label,
-  value,
-  displayValue,
-  field,
-  type,
-  options,
-  editingField,
-  isSaving,
-  onStartEdit,
-  onCancel,
-  onUpdate,
-  onSave
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  displayValue?: string;
-  field: string;
-  type?: string;
-  options?: SelectOption[];
-} & EditHandlers) => {
-  const isEditing = editingField?.field === field;
-  return (
-    <div className={styles.infoRow}>
-      <div className={styles.infoIcon}>{icon}</div>
-      <div className={styles.infoContent}>
-        <span className={styles.infoLabel}>{label}</span>
-        {isEditing ? (
-          <div className={styles.inlineEdit}>
-            {type === "select"
-              ? <select className={styles.input} value={String(editingField.value ?? "")} onChange={e => onUpdate(e.target.value)} disabled={isSaving}>
-                {(options ?? []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-              : <input type={type === "date" ? "date" : "text"} className={styles.input}
-                value={String(editingField.value ?? "")} onChange={e => onUpdate(e.target.value)} disabled={isSaving} />
-            }
-            <button className={styles.btnCheck} onClick={onSave} disabled={isSaving}><Check size={13} /></button>
-            <button className={styles.btnX} onClick={onCancel} disabled={isSaving}><X size={13} /></button>
-          </div>
-        ) : (
-          <div className={styles.infoValueRow}>
-            <span className={styles.infoValue}>{displayValue || value || "غير محدد"}</span>
-            <button className={styles.btnEditIcon} onClick={() => onStartEdit(field, value)}><Edit2 size={13} /></button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};

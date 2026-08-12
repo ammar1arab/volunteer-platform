@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { userApi, type UpdateAdminInfoRequest } from "@/presentation/services";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 import type { AdminPermission } from "@/core/domain/enums";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 type ConfirmOptions = {
   title?: string;
@@ -46,8 +47,14 @@ export const usePermissionsPage = () => {
   const [createForm,      setCreateForm]      = useState<CreateForm>(EMPTY_CREATE);
   const [editForm,        setEditForm]        = useState<EditForm>(EMPTY_EDIT);
   const [submitting,      setSubmitting]      = useState(false);
-  const [searchQuery,     setSearchQuery]     = useState("");
-  const [appliedSearch,   setAppliedSearch]   = useState("");
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.admin.permissions.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.admin.permissions.appliedSearch",
+    ""
+  );
 
   const [emailStatus, setEmailStatus] = useState<"idle" | "checking" | "taken" | "available">("idle");
 

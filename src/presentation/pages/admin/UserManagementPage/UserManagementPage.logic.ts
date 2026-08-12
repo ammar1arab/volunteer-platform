@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { UserRole } from "@/core/domain/enums";
 import { useUsers, useToast, useAuth } from "@/presentation/hooks";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 import { getCityLabel, getEducationLevelLabel } from "@/presentation/constants";
 
@@ -23,19 +24,11 @@ const calculateAge = (dateOfBirth?: string): number => {
 const sortUsers = (users: UserAnalyticsDto[], sortBy: SortOption): UserAnalyticsDto[] => {
   return [...users].sort((a, b) => {
     switch (sortBy) {
-      case "default": {
-        const aHasImage = !!a.volunteerProfile?.profilePictureUrl;
-        const bHasImage = !!b.volunteerProfile?.profilePictureUrl;
-        if (aHasImage !== bHasImage) return aHasImage ? -1 : 1;
-        if (a.stats.approvedActivities !== b.stats.approvedActivities) {
-          return b.stats.approvedActivities - a.stats.approvedActivities;
-        }
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      }
-      case "oldest":
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case "default":
       case "newest":
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case "oldest":
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       case "name":
         return a.fullName.localeCompare(b.fullName, "ar");
       case "age": {
@@ -50,7 +43,7 @@ const sortUsers = (users: UserAnalyticsDto[], sortBy: SortOption): UserAnalytics
       case "most-certs":
         return b.stats.certificatesCount - a.stats.certificatesCount;
       default:
-        return 0;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
   });
 };
@@ -59,11 +52,26 @@ export const useUserManagementPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
   const { users, loading, error } = useUsers();
-  const [sortBy, setSortBy] = useState<SortOption>("default");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
-  const [activeCity, setActiveCity] = useState("all");
+  const [sortBy, setSortBy] = useSessionStorageState<SortOption>(
+    "filters.admin.userManagement.sortBy",
+    "newest"
+  );
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.userManagement.currentPage",
+    1
+  );
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.admin.userManagement.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.admin.userManagement.appliedSearch",
+    ""
+  );
+  const [activeCity, setActiveCity] = useSessionStorageState(
+    "filters.admin.userManagement.activeCity",
+    "all"
+  );
 
   const ITEMS_PER_PAGE = 32;
 

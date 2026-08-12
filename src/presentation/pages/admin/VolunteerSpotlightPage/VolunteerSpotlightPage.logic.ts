@@ -6,6 +6,7 @@ import { useVolunteerSpotlight, useToast, useAuth } from "@/presentation/hooks";
 import { VolunteerSpotlightDto } from "@/core/application/dtos";
 import { normalizeWhitespace, processImageForUpload, revokeImagePreview } from "@/lib/utils";
 import { CITY_OPTIONS } from "@/presentation/constants/labels";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 type ConfirmOptions = {
   title?: string;
@@ -48,15 +49,27 @@ export const useVolunteerSpotlightPage = () => {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [preview, setPreview] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [activeCity, setActiveCity] = useState("all");
+  const [currentPage, setCurrentPage] = useSessionStorageState(
+    "filters.admin.volunteerSpotlight.currentPage",
+    1
+  );
+  const [activeCity, setActiveCity] = useSessionStorageState(
+    "filters.admin.volunteerSpotlight.activeCity",
+    "all"
+  );
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
     message: ""
   });
   const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useSessionStorageState(
+    "filters.admin.volunteerSpotlight.searchQuery",
+    ""
+  );
+  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+    "filters.admin.volunteerSpotlight.appliedSearch",
+    ""
+  );
 
   const filteredList = useMemo(() => {
     let result = activeCity === "all" ? list : list.filter((s) => s.city === activeCity);

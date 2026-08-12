@@ -1,8 +1,43 @@
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
 
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: $sp-sm;
+  padding: $sp-sm 0;
+  border-bottom: 1px solid rgba($border, 0.55);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.icon {
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: $radius;
+  background: rgba($green, 0.07);
+  color: $green;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  display: block;
+  margin-bottom: 3px;
+  font-size: $font-xs;
+  color: $text-muted;
+}
+
 .view {
-  @include flex(row, center, space-between, $sp-sm);
+  @include flex(row, center, space-between, $sp-xs);
+  min-height: 28px;
 }
 
 .value {
@@ -10,6 +45,8 @@
   font-weight: 500;
   color: $text;
   flex: 1;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .btnEdit {
@@ -30,47 +67,28 @@
 }
 
 .edit {
-  @include flex-col;
-  gap: $sp-sm;
+  display: flex;
+  align-items: flex-end;
+  gap: $sp-xs;
+  width: 100%;
 }
 
-.input,
-.select,
-.textarea {
-  padding: $sp-sm;
-  border: 1px solid $border;
-  border-radius: $radius;
-  font-size: $font-sm;
-  font-family: inherit;
-  color: $text;
-  background: $bg;
-  transition: $transition;
-
-  &:focus {
-    outline: none;
-    border-color: $green;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.textarea {
-  resize: vertical;
-  min-height: 100px;
+.control {
+  flex: 1;
+  min-width: 0;
 }
 
 .actions {
-  @include flex(row, center, flex-end, $sp-xs);
+  @include flex(row, center, flex-end, 3px);
+  flex-shrink: 0;
+  padding-bottom: 3px;
 }
 
 .btnSave,
 .btnCancel {
   @include flex-center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border: none;
   border-radius: $radius;
   cursor: pointer;
@@ -83,11 +101,11 @@
 }
 
 .btnSave {
-  background: rgba($green, 0.1);
-  color: $green;
+  background: $green;
+  color: $white;
 
   &:hover:not(:disabled) {
-    background: rgba($green, 0.2);
+    background: darken($green, 5%);
   }
 }
 
@@ -97,5 +115,16 @@
 
   &:hover:not(:disabled) {
     background: rgba($red, 0.2);
+  }
+}
+
+@media (max-width: 560px) {
+  .edit {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .actions {
+    padding-bottom: 0;
   }
 }

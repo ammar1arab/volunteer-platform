@@ -20,6 +20,7 @@ import {
   useApiMutation,
   useFetchData
 } from "@/presentation/query";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 type SubmitStatus = "idle" | "loading";
 
@@ -87,14 +88,20 @@ export function useNotificationsPageLogic() {
 
   const [form, setFormState] = useState<SendCustomNotificationInput>(EMPTY_FORM);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
-  const [broadcastsPage, setBroadcastsPage] = useState(1);
+  const [broadcastsPage, setBroadcastsPage] = useSessionStorageState(
+    "filters.admin.notifications.broadcastsPage",
+    1
+  );
   const [previewUsers, setPreviewUsers] = useState<PreviewUserDto[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showPreview, setShowPreview] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [volunteerSearch, setVolunteerSearch] = useState("");
+  const [volunteerSearch, setVolunteerSearch] = useSessionStorageState(
+    "filters.admin.notifications.volunteerSearch",
+    ""
+  );
   const [directSelectedIds, setDirectSelectedIds] = useState<Set<string>>(new Set());
   const [recipientsState, setRecipientsState] = useState<RecipientsState>(INITIAL_RECIPIENTS);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);

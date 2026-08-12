@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import { Edit2, Check, X, Plus } from "lucide-react";
+import Input from "@/presentation/components/base/Input/Input";
 import styles from "./ProfileTagsSection.module.scss";
 
+type ProfileTagsValue = string | number | boolean | string[] | null;
+
 export interface ProfileTagsEditHandlers {
-  editingField: { field: string; value: unknown } | null;
+  editingField: { field: string; value: ProfileTagsValue } | null;
   isSaving: boolean;
-  onStartEdit: (field: string, value: unknown) => void;
+  onStartEdit: (field: string, value: ProfileTagsValue) => void;
   onCancel: () => void;
-  onUpdate: (value: unknown) => void;
+  onUpdate: (value: ProfileTagsValue) => void;
   onSave: () => void;
 }
 
@@ -106,7 +109,8 @@ function ProfileTagsCard({
       {isEditing ? (
         <div className={styles.editBody}>
           <div className={styles.inputRow}>
-            <input
+            <Input
+              label=""
               type="text"
               className={styles.input}
               value={input}
