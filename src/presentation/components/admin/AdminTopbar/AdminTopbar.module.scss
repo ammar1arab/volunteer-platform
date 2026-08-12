@@ -86,9 +86,8 @@
 }
 
 .user {
-  @include flex(row, center, flex-start, 8px);
   min-width: 0;
-  padding: 4px 10px 4px 4px;
+  padding: 7px 11px;
   border-radius: 999px;
   background: rgba($green, 0.06);
   border: 1px solid rgba($green, 0.12);
@@ -98,18 +97,6 @@
     background: rgba($green, 0.085);
     border-color: rgba($green, 0.2);
   }
-}
-
-.avatar {
-  @include flex-center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, rgba($green, 0.2), rgba($green, 0.08));
-  color: $green;
-  font-size: 12px;
-  font-weight: 750;
-  flex-shrink: 0;
 }
 
 .userName {

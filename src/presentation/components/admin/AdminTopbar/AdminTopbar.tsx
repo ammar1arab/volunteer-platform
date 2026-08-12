@@ -27,7 +27,6 @@ const AdminTopbar = ({ onMenuClick, isMenuOpen }: Props) => {
   const { data } = useSession();
   const pathname = usePathname();
   const name = data?.user?.name || "Admin";
-  const initial = name.trim().charAt(0) || "A";
   const title =
     Object.entries(TITLES).find(([href]) => pathname === href || pathname.startsWith(`${href}/`))?.[1] ??
     "لوحة التحكم";
@@ -50,9 +49,6 @@ const AdminTopbar = ({ onMenuClick, isMenuOpen }: Props) => {
       </div>
 
       <div className={styles.user}>
-        <span className={styles.avatar} aria-hidden>
-          {initial}
-        </span>
         <span className={styles.userName}>{name}</span>
       </div>
     </header>
