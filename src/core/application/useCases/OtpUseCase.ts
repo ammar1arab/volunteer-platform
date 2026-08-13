@@ -7,8 +7,7 @@ import { EmailUseCase } from "@/core/application/useCases";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
 import { serviceError } from "@/core/application/common";
 import { prisma } from "@/infrastructure/persistence/prisma";
-import { UserRole, JordanianCity, Gender, EducationLevel, NotificationType } from "@/core/domain/enums";
-import { OtpType } from "@prisma/client";
+import { UserRole, JordanianCity, Gender, EducationLevel, NotificationType, OtpType } from "@/core/domain/enums";
 import {
   ok,
   fail,

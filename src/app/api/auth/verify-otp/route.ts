@@ -1,6 +1,6 @@
 import { SignJWT } from "jose";
 import { NextResponse } from "next/server";
-import { OtpType } from "@prisma/client";
+import { OtpType } from "@/core/domain/enums";
 import { providers } from "@/lib/providers";
 import { parseJson, badRequest, apiError, csrfCheck } from "@/lib/api-utils";
 import type { VerifyOtpRequest } from "@/core/application/dtos";

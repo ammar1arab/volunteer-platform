@@ -1,10 +1,9 @@
 import { UserRepository, PendingRegistrationRepository } from "@/infrastructure/persistence/repositories";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
-import { UserRole } from "@/core/domain/enums";
+import { UserRole, OtpType } from "@/core/domain/enums";
 import { Email } from "@/core/domain/valueObjects";
 import { serviceError } from "@/core/application/common";
 import { OtpUseCase } from "@/core/application/useCases";
-import { OtpType } from "@prisma/client";
 import {
   ok,
   fail,
