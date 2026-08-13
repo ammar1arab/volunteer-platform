@@ -1,4 +1,4 @@
-import { OtpType } from "@prisma/client";
+import type { OtpType } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 
 export interface SendOtpRequest {

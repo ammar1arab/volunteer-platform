@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession, useSession } from "next-auth/react";
 import * as Sentry from "@sentry/nextjs";
-import { OtpType } from "@prisma/client";
+import { OtpType } from "@/core/domain/enums";
 
 import { authApi, volunteerProfileApi } from "@/presentation/services";
 import { useOtpTimer } from "@/presentation/hooks";

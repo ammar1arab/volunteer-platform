@@ -2,7 +2,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
-import { OtpType } from "@prisma/client";
+import { OtpType } from "@/core/domain/enums";
 import { authApi } from "@/presentation/services";
 import { useOtpTimer } from "@/presentation/hooks";
 

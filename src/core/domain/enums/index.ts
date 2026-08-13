@@ -18,3 +18,4 @@ export { MeetingReportStatus, MeetingAttendeeMatchStatus } from "./MeetingReport
 export { PresenterRole } from "./PresenterRole";
 export { NotificationType } from "./NotificationType";
 export { CertificateStatus } from "./CertificateStatus";
+export { OtpType } from "./OtpType";

@@ -1,0 +1,4 @@
+export enum OtpType {
+  EMAIL_VERIFY = "EMAIL_VERIFY",
+  FORGOT_PASSWORD = "FORGOT_PASSWORD",
+}
