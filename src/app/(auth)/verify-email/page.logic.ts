@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession, useSession } from "next-auth/react";
 import * as Sentry from "@sentry/nextjs";
@@ -7,7 +7,7 @@ import { OtpType } from "@/core/domain/enums";
 
 import { authApi, volunteerProfileApi } from "@/presentation/services";
 import { useOtpTimer } from "@/presentation/hooks";
-import { redirectByRole } from "@/presentation/constants";
+import { redirectByRole, ROUTES } from "@/presentation/constants";
 import { signupDraft } from "../signupDraft";
 
 const NETWORK_ERROR = "لا يوجد اتصال بالإنترنت، يرجى التحقق من اتصالك والمحاولة مجدداً";
@@ -30,9 +30,9 @@ export const useVerifyEmail = () => {
 
   const { cooldown, total, start } = useOtpTimer();
 
-  useEffect(() => {
-    if (!email) window.location.replace("/signin");
-  }, [email]);
+  if (!email && typeof window !== "undefined") {
+    window.location.replace(ROUTES.LOGIN);
+  }
 
   const uploadPendingPicture = async (): Promise<boolean> => {
     const profileFile = signupDraft.getProfileFile();

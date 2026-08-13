@@ -15,9 +15,7 @@ import {
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { MeetingListItemDto } from "@/presentation/services/meetings.service";
 import { activityApi } from "@/presentation/services";
-import {
-  getMeetingSyncStatusLabel
-} from "@/presentation/constants/labels";
+import { ROUTES, getMeetingSyncStatusLabel } from "@/presentation/constants";
 import { queryKeys, unwrapResult, useFetchData } from "@/presentation/query";
 import type { ActivityVolunteerDto } from "@/core/application/dtos";
 
@@ -125,7 +123,7 @@ export const useGoogleMeetPage = () => {
     enabled: activeView === "settings"
   });
 
-  const { submitting, retry, importReport, connect, disconnect, launch } = useMeetingActions();
+  const { submitting, retry, importReport, connect, disconnect } = useMeetingActions();
 
   const {
     status: integration,
@@ -255,15 +253,10 @@ export const useGoogleMeetPage = () => {
   );
 
   const handleLaunch = useCallback(
-    async (meeting: MeetingListItemDto) => {
-      const url = await launch(meeting.activityId);
-      if (!url) {
-        showToast("تعذر فتح رابط الاجتماع", "error");
-        return;
-      }
-      window.open(url, "_blank", "noopener,noreferrer");
+    (meeting: MeetingListItemDto) => {
+      router.push(ROUTES.VOLUNTEER.MEETING_LOBBY(meeting.activityId));
     },
-    [launch, showToast]
+    [router]
   );
 
   const openReport = useCallback((meeting: MeetingListItemDto) => {

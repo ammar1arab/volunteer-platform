@@ -78,55 +78,59 @@ const GoogleMeetPage = () => {
 
       <header className={styles.header}>
         <div className={styles.actions}>
-          {showMeetings && (
-            <div className={styles.searchSlot}>
-              <Search
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onSearch={setAppliedSearch}
-                placeholder="ابحث..."
-              />
-            </div>
-          )}
-          {showMeetings && (
-            <div className={styles.filters}>
-              <Dropdown
-                items={viewItems}
-                active={activeView}
-                onChange={(key) => setActiveView(key as GoogleMeetView)}
-                placeholder="العرض"
-                compact
-              />
-              <Dropdown
-                items={syncFilterItems}
-                active={syncFilter}
-                onChange={setSyncFilter}
-                placeholder="المزامنة"
-                compact
-              />
-            </div>
-          )}
-          <button
-            type="button"
-            className={`${styles.btnSettings} ${activeView === "settings" ? styles.btnSettingsActive : ""}`}
-            title="الإعدادات"
-            aria-label="الإعدادات"
-            aria-pressed={activeView === "settings"}
-            onClick={() =>
-              setActiveView(activeView === "settings" ? listView : "settings")
-            }
-          >
-            <Settings2 size={16} />
-          </button>
-          <button
-            type="button"
-            className={connected ? styles.btnDisconnect : styles.btnConnect}
-            onClick={connected ? handleDisconnect : handleConnect}
-            disabled={submitting}
-          >
-            {connected ? <Unplug size={16} /> : <PlugZap size={16} />}
-            {connected ? "قطع الاتصال" : "ربط Google"}
-          </button>
+          <div className={styles.primaryRow}>
+            {showMeetings && (
+              <div className={styles.searchSlot}>
+                <Search
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  onSearch={setAppliedSearch}
+                  placeholder="ابحث..."
+                />
+              </div>
+            )}
+            <button
+              type="button"
+              className={`${styles.btnSettings} ${activeView === "settings" ? styles.btnSettingsActive : ""}`}
+              title="الإعدادات"
+              aria-label="الإعدادات"
+              aria-pressed={activeView === "settings"}
+              onClick={() =>
+                setActiveView(activeView === "settings" ? listView : "settings")
+              }
+            >
+              <Settings2 size={16} />
+            </button>
+          </div>
+          <div className={styles.secondaryRow}>
+            {showMeetings && (
+              <div className={styles.filters}>
+                <Dropdown
+                  items={viewItems}
+                  active={activeView}
+                  onChange={(key) => setActiveView(key as GoogleMeetView)}
+                  placeholder="العرض"
+                  compact
+                />
+                <Dropdown
+                  items={syncFilterItems}
+                  active={syncFilter}
+                  onChange={setSyncFilter}
+                  placeholder="المزامنة"
+                  compact
+                />
+              </div>
+            )}
+            <button
+              type="button"
+              className={connected ? styles.btnDisconnect : styles.btnConnect}
+              onClick={connected ? handleDisconnect : handleConnect}
+              disabled={submitting}
+            >
+              {connected ? <Unplug size={16} /> : <PlugZap size={16} />}
+              {connected ? "قطع الاتصال" : "ربط Google"}
+            </button>
+          </div>
         </div>
       </header>
 

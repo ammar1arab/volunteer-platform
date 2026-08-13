@@ -1,6 +1,6 @@
 "use client";
 
-import { useCaptureOnce } from "@/lib/utils/captureOnce";
+import { captureOnce } from "@/lib/utils/captureOnce";
 
 export default function GlobalError({
   error,
@@ -9,7 +9,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useCaptureOnce(error);
+  captureOnce(error);
 
   return (
     <html lang="ar" dir="rtl">

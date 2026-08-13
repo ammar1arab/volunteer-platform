@@ -652,7 +652,7 @@ class MeetingUseCase {
 
       const props = activity.toObject();
       const link = props.meetingLink;
-      if (!link) return fail("NOT_FOUND", "رابط الاجتماع غير متوفر بعد");
+      if (!link) return fail("INVALID_STATE", "رابط الاجتماع غير متوفر بعد");
 
       const payload = {
         url: link,

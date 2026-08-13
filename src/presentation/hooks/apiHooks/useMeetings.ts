@@ -13,6 +13,7 @@ import {
 import {
   EMPTY_ARRAY,
   getErrorMessage,
+  ApiError,
   queryKeys,
   unwrapResult,
   useBooleanMutation,
@@ -225,6 +226,7 @@ export const useMeetingLaunch = (activityId: string, opts?: { enabled?: boolean 
       launch: query.data ?? null,
       loading: query.isLoading,
       error: query.error ? getErrorMessage(query.error, "تعذر تحميل رابط الاجتماع") : "",
+      errorCode: query.error instanceof ApiError ? query.error.code : "",
       isNotFound: query.isNotFound,
       refresh: () => refetch()
     }),

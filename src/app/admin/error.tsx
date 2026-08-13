@@ -1,6 +1,6 @@
 "use client";
 
-import { useCaptureOnce } from "@/lib/utils/captureOnce";
+import { captureOnce } from "@/lib/utils/captureOnce";
 
 export default function AdminError({
   error,
@@ -9,7 +9,7 @@ export default function AdminError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useCaptureOnce(error);
+  captureOnce(error);
 
   return (
     <div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCaptureOnce } from "@/lib/utils/captureOnce";
+import { captureOnce } from "@/lib/utils/captureOnce";
 import Link from "next/link";
 
 export default function AuthError({
@@ -10,7 +10,7 @@ export default function AuthError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useCaptureOnce(error);
+  captureOnce(error);
 
   return (
     <div

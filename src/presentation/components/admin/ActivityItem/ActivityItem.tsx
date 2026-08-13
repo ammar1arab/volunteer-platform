@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Calendar, Clock, MapPin, Wifi, CheckCircle2, XCircle, Navigation, ExternalLink, Award } from "lucide-react";
+import { Calendar, Clock, MapPin, Wifi, CheckCircle2, XCircle, Navigation, Award } from "lucide-react";
 import styles from "./ActivityItem.module.scss";
 import { Modal, Share } from "@/presentation/components";
 import {
@@ -155,7 +155,6 @@ const ActivityItem = ({
                 <Link href={ROUTES.VOLUNTEER.MEETING_LOBBY(activityId)} className={styles.linkBtn}>
                   <Wifi size={12} />
                   انضم للاجتماع
-                  <ExternalLink size={11} />
                 </Link>
               )}
               {joinState === "pending" && (

@@ -4,20 +4,7 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import styles from "./AdminTopbar.module.scss";
-import { ROUTES } from "@/presentation/constants";
-
-const TITLES: Record<string, string> = {
-  [ROUTES.ADMIN.FEATURED_POSTS]: "المنشورات",
-  [ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT]: "أبرز المتطوعين",
-  [ROUTES.ADMIN.MONTHLY_MAGAZINE]: "حصاد العطاء",
-  [ROUTES.ADMIN.ACTIVITIES]: "الفرص التطوعية",
-  [ROUTES.ADMIN.GOOGLE_MEET]: "إدارة الاجتماعات",
-  [ROUTES.ADMIN.REQUESTS]: "طلبات الانضمام",
-  [ROUTES.ADMIN.NOTIFICATIONS]: "إدارة الإشعارات",
-  [ROUTES.ADMIN.EMAILS]: "إدارة الإيميلات",
-  [ROUTES.ADMIN.USERS]: "إدارة المستخدمين",
-  [ROUTES.ADMIN.PERMISSIONS]: "إدارة الصلاحيات",
-};
+import { ROUTES, getPermissionLabel, getRequiredPermission } from "@/presentation/constants";
 
 type Props = {
   onMenuClick: () => void;
@@ -28,9 +15,13 @@ const AdminTopbar = ({ onMenuClick, isMenuOpen }: Props) => {
   const { data } = useSession();
   const pathname = usePathname();
   const name = data?.user?.name || "Admin";
+  const requiredPermission = getRequiredPermission(pathname);
   const title =
-    Object.entries(TITLES).find(([href]) => pathname === href || pathname.startsWith(`${href}/`))?.[1] ??
-    "لوحة التحكم";
+    pathname === ROUTES.ADMIN.PERMISSIONS || pathname.startsWith(`${ROUTES.ADMIN.PERMISSIONS}/`)
+      ? "إدارة الصلاحيات"
+      : requiredPermission
+        ? getPermissionLabel(requiredPermission)
+        : "لوحة التحكم";
 
   return (
     <header className={styles.bar}>

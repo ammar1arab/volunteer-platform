@@ -4,7 +4,7 @@ import styles from "./AdminSidebar.module.scss";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { ROUTES } from "@/presentation/constants";
+import { ROUTES, PERMISSION_LABELS } from "@/presentation/constants";
 import type { AdminPermission } from "@/core/domain/enums";
 import { ConfirmDialog } from "@/presentation/components";
 import { useState } from "react";
@@ -35,16 +35,16 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: ROUTES.ADMIN.FEATURED_POSTS, label: "المنشورات", icon: FileText, permission: "MANAGE_POSTS" },
-  { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: "أبرز المتطوعين", icon: Trophy, permission: "MANAGE_SPOTLIGHT" },
-  { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "حصاد العطاء", icon: BookOpen, permission: "MANAGE_MAGAZINE" },
-  { href: ROUTES.ADMIN.REQUESTS, label: "طلبات الانضمام", icon: UserCheck, permission: "MANAGE_REQUESTS" },
-  { href: ROUTES.ADMIN.ACTIVITIES, label: "الفرص التطوعية", icon: Activity, permission: "MANAGE_ACTIVITIES" },
-  { href: ROUTES.ADMIN.GOOGLE_MEET, label: "الاجتماعات", icon: Video, permission: "MANAGE_MEETINGS" },
-  { href: ROUTES.ADMIN.EMAILS, label: "الإيميلات", icon: Mail, permission: "MANAGE_EMAILS" },
-  { href: ROUTES.ADMIN.NOTIFICATIONS, label: "الإشعارات", icon: Bell, permission: "MANAGE_NOTIFICATIONS" },
-  { href: ROUTES.ADMIN.USERS, label: "المستخدمون", icon: Users, permission: "MANAGE_USERS" },
-  { href: ROUTES.ADMIN.PERMISSIONS, label: "الصلاحيات", icon: ShieldCheck, superAdminOnly: true }
+  { href: ROUTES.ADMIN.FEATURED_POSTS, label: PERMISSION_LABELS.MANAGE_POSTS, icon: FileText, permission: "MANAGE_POSTS" },
+  { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: PERMISSION_LABELS.MANAGE_SPOTLIGHT, icon: Trophy, permission: "MANAGE_SPOTLIGHT" },
+  { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: PERMISSION_LABELS.MANAGE_MAGAZINE, icon: BookOpen, permission: "MANAGE_MAGAZINE" },
+  { href: ROUTES.ADMIN.REQUESTS, label: PERMISSION_LABELS.MANAGE_REQUESTS, icon: UserCheck, permission: "MANAGE_REQUESTS" },
+  { href: ROUTES.ADMIN.ACTIVITIES, label: PERMISSION_LABELS.MANAGE_ACTIVITIES, icon: Activity, permission: "MANAGE_ACTIVITIES" },
+  { href: ROUTES.ADMIN.GOOGLE_MEET, label: PERMISSION_LABELS.MANAGE_MEETINGS, icon: Video, permission: "MANAGE_MEETINGS" },
+  { href: ROUTES.ADMIN.EMAILS, label: PERMISSION_LABELS.MANAGE_EMAILS, icon: Mail, permission: "MANAGE_EMAILS" },
+  { href: ROUTES.ADMIN.NOTIFICATIONS, label: PERMISSION_LABELS.MANAGE_NOTIFICATIONS, icon: Bell, permission: "MANAGE_NOTIFICATIONS" },
+  { href: ROUTES.ADMIN.USERS, label: PERMISSION_LABELS.MANAGE_USERS, icon: Users, permission: "MANAGE_USERS" },
+  { href: ROUTES.ADMIN.PERMISSIONS, label: "إدارة الصلاحيات", icon: ShieldCheck, superAdminOnly: true }
 ];
 
 type Props = {

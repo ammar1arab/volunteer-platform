@@ -72,3 +72,4 @@ export { default as CertificateCard } from "./volunteer/CertificateCard/Certific
 export { default as UserMenuDropdown } from "./volunteer/UserMenuDropdown/UserMenuDropdown.tsx";
 export { default as PushBanner } from "./volunteer/PushBanner/PushBanner";
 export { default as ProfileTagsSection } from "./volunteer/ProfileTagsSection/ProfileTagsSection";
+export { default as MeetingRoom } from "./volunteer/MeetingRoom/MeetingRoom";

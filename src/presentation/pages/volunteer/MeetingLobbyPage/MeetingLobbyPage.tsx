@@ -1,100 +1,74 @@
 "use client";
 
 import styles from "./MeetingLobbyPage.module.scss";
-import { useParams, useRouter } from "next/navigation";
-import { UserRole } from "@/core/domain/enums";
-import { useAuth, useMeetingLaunch } from "@/presentation/hooks";
-import { LoadingState, EmptyState, Button } from "@/presentation/components";
+import { useRouter } from "next/navigation";
+import { LoadingState, EmptyState, MeetingRoom } from "@/presentation/components";
 import { ROUTES } from "@/presentation/constants";
-import { VideoOff, Video, ArrowRight, CalendarDays, Clock3 } from "lucide-react";
-
-const formatDate = (date?: string) => {
-  if (!date) return null;
-  try {
-    return new Date(date).toLocaleDateString("ar-JO", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
-  } catch {
-    return date;
-  }
-};
+import { VideoOff, ShieldOff, CalendarClock } from "lucide-react";
+import { useMeetingLobbyPage } from "./MeetingLobbyPage.logic";
 
 const MeetingLobbyPage = () => {
-  const params = useParams<{ id: string }>();
-  const activityId = params?.id ?? "";
   const router = useRouter();
-  const { status } = useAuth({ requireRole: UserRole.VOLUNTEER });
-  const { launch, loading, error, isNotFound } = useMeetingLaunch(activityId);
+  const { view, launch, error } = useMeetingLobbyPage();
 
-  if (status === "loading" || loading) return <LoadingState />;
+  const backToActivities = () => router.push(ROUTES.VOLUNTEER.ACTIVITIES);
 
-  if (isNotFound || error || !launch?.url) {
+  if (view === "loading") {
     return (
       <div className={styles.page}>
-        <EmptyState
-          icon={VideoOff}
-          message={error || "لا يمكنك فتح هذا الاجتماع حالياً"}
-          action={{
-            label: "العودة للفرص",
-            onClick: () => router.push(ROUTES.VOLUNTEER.ACTIVITIES)
-          }}
-        />
+        <div className={styles.container}>
+          <LoadingState />
+        </div>
       </div>
     );
   }
 
-  const dateLabel = formatDate(launch.date);
-  const timeLabel =
-    launch.startTime && launch.endTime ? `${launch.startTime} – ${launch.endTime}` : null;
+  if (view === "notFound") {
+    return (
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <EmptyState
+            icon={VideoOff}
+            message="النشاط غير موجود"
+            action={{ label: "العودة للفرص", onClick: backToActivities }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "empty") {
+    return (
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <EmptyState
+            icon={CalendarClock}
+            message="رابط الاجتماع غير متوفر بعد"
+            action={{ label: "العودة للفرص", onClick: backToActivities }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "error" || !launch) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <EmptyState
+            icon={error?.includes("صلاحية") ? ShieldOff : VideoOff}
+            message={error || "تعذر فتح هذا الاجتماع حالياً"}
+            action={{ label: "العودة للفرص", onClick: backToActivities }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
-      <div className={styles.panel}>
-        <div className={styles.iconWrap}>
-          <Video size={28} />
-        </div>
-        <h1 className={styles.title}>{launch.title || "قاعة الاجتماع"}</h1>
-        {(dateLabel || timeLabel) && (
-          <div className={styles.meta}>
-            {dateLabel && (
-              <span>
-                <CalendarDays size={14} />
-                {dateLabel}
-              </span>
-            )}
-            {timeLabel && (
-              <span>
-                <Clock3 size={14} />
-                {timeLabel}
-              </span>
-            )}
-          </div>
-        )}
-        <p className={styles.subtitle}>
-          سيتم فتح Google Meet في نافذة جديدة. تأكد من السماح بالنوافذ المنبثقة إن لزم الأمر.
-          الدخول متاح للمشاركين المعتمدين ومقدمي النشاط.
-        </p>
-        <div className={styles.actions}>
-          <Button
-            variant="primary"
-            size="lg"
-            icon={<Video size={18} />}
-            onClick={() => window.open(launch.url, "_blank", "noopener,noreferrer")}
-          >
-            فتح Google Meet
-          </Button>
-          <button
-            type="button"
-            className={styles.backBtn}
-            onClick={() => router.push(ROUTES.VOLUNTEER.ACTIVITIES)}
-          >
-            <ArrowRight size={14} />
-            العودة للفرص
-          </button>
-        </div>
+      <div className={styles.container}>
+        <MeetingRoom launch={launch} onLeave={backToActivities} />
       </div>
     </div>
   );

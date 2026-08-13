@@ -22,32 +22,46 @@
   min-width: 0;
 
   @include sm {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "search settings"
-      "filters disconnect";
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
   }
+}
 
-  &:not(:has(.searchSlot)) {
-    @include sm {
-      grid-template-columns: auto minmax(0, 1fr);
-      grid-template-areas: "settings disconnect";
-    }
+.primaryRow,
+.secondaryRow {
+  display: flex;
+  align-items: center;
+  gap: $sp-sm;
+  min-width: 0;
+}
+
+.primaryRow {
+  flex: 1 1 220px;
+
+  @include sm {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+}
+
+.secondaryRow {
+  flex-shrink: 0;
+
+  @include sm {
+    width: 100%;
   }
 }
 
 .searchSlot {
   flex: 1 1 auto;
   min-width: 0;
+  width: 100%;
 
   > * {
     width: 100%;
     min-width: 0;
-  }
-
-  @include sm {
-    grid-area: search;
+    max-width: none;
   }
 }
 
@@ -55,12 +69,10 @@
   @include flex(row, center, flex-end, $sp-sm);
   flex-shrink: 0;
   min-width: 0;
-  margin-inline-start: auto;
 
   @include sm {
-    grid-area: filters;
-    width: 100%;
-    margin-inline-start: 0;
+    flex: 1 1 auto;
+    width: auto;
     justify-content: stretch;
 
     > * {
@@ -82,10 +94,6 @@
     color: $green;
     border-color: $green;
   }
-
-  @include sm {
-    grid-area: settings;
-  }
 }
 
 .btnSettingsActive {
@@ -99,7 +107,7 @@
   @include create-btn;
 
   @include sm {
-    grid-area: disconnect;
+    flex-shrink: 0;
     min-width: 0;
   }
 }

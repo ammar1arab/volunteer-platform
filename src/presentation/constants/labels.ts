@@ -35,11 +35,11 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
 };
 
 export const PERMISSION_LABELS: Record<AdminPermission, string> = {
-  MANAGE_POSTS: "المنشورات",
-  MANAGE_SPOTLIGHT: "أبرز المتطوعين",
-  MANAGE_MAGAZINE: "حصاد العطاء",
-  MANAGE_ACTIVITIES: "الفرص التطوعية",
-  MANAGE_REQUESTS: "طلبات الانضمام",
+  MANAGE_POSTS: "إدارة المنشورات",
+  MANAGE_SPOTLIGHT: "إدارة أبرز المتطوعين",
+  MANAGE_MAGAZINE: "إدارة حصاد العطاء",
+  MANAGE_ACTIVITIES: "إدارة الفرص التطوعية",
+  MANAGE_REQUESTS: "إدارة طلبات الانضمام",
   MANAGE_NOTIFICATIONS: "إدارة الإشعارات",
   MANAGE_EMAILS: "إدارة الإيميلات",
   MANAGE_USERS: "إدارة المستخدمين",
