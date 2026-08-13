@@ -103,7 +103,6 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
     sessionLoading,
     sessionError,
     identityName,
-    identityEmail,
     canEnterMedia,
     admit,
     admitting,
@@ -223,7 +222,7 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
               <h2>{gateCopy.title}</h2>
               <p>{gateCopy.message}</p>
               <span>
-                {MEETING_LABELS.identityVia}: {identityName} · {identityEmail}
+                {MEETING_LABELS.identityVia}: {identityName}
               </span>
               {gateStage === "denied" && (
                 <Button type="button" variant="secondary" size="sm" onClick={onLeave}>

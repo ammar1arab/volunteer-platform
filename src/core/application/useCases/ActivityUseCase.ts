@@ -40,7 +40,12 @@ import {
   ActivityDto
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
-import { ROUTES } from "@/presentation/constants";
+import {
+  HOST_ASSIGNED_NOTIFICATION_KIND,
+  HOST_ASSIGNED_NOTIFICATION_TITLE,
+  hostAssignedNotificationMessage,
+  ROUTES
+} from "@/presentation/constants";
 import { sendPushToMany } from "@/lib/webpush";
 import { inngest } from "@/lib/inngest/client";
 
@@ -174,6 +179,28 @@ class ActivityUseCase {
     return true;
   }
 
+  private async notifyHostAssigned(presenterId: string, activityId: string, activityTitle: string) {
+    const userId = presenterId.trim();
+    if (!userId) return;
+    const title = HOST_ASSIGNED_NOTIFICATION_TITLE;
+    const message = hostAssignedNotificationMessage(activityTitle);
+    const link = ROUTES.ACTIVITY_DETAILS(activityId);
+    try {
+      await prisma.notification.create({
+        data: {
+          userId,
+          type: NotificationType.ANNOUNCEMENT,
+          title,
+          message,
+          metadata: { activityId, kind: HOST_ASSIGNED_NOTIFICATION_KIND, link }
+        }
+      });
+      void sendPushToMany([userId], { title, body: message, url: link, tag: `host-${activityId}` });
+    } catch (error) {
+      logger.warn(ActivityUseCase.SCOPE, "notifyHostAssigned", String(error));
+    }
+  }
+
   private async attachPrimaryPresenters(dtos: ActivityDto[]): Promise<ActivityDto[]> {
     const onlineIds = dtos.filter((d) => d.activityType === ActivityType.ONLINE).map((d) => d.id);
     if (!onlineIds.length) {
@@ -263,6 +290,9 @@ class ActivityUseCase {
 
       if (created.activityType === ActivityType.ONLINE && dto.primaryPresenterId !== undefined) {
         await this.upsertPrimaryPresenter(created.id, dto.primaryPresenterId);
+        if (dto.primaryPresenterId?.trim()) {
+          await this.notifyHostAssigned(dto.primaryPresenterId, created.id, created.title);
+        }
       }
 
       const [enriched] = await this.attachPrimaryPresenters([toActivityDto(created)]);
@@ -333,6 +363,10 @@ class ActivityUseCase {
 
       if (updated.activityType === ActivityType.ONLINE && "primaryPresenterId" in dto) {
         const presenterChanged = await this.upsertPrimaryPresenter(updated.id, dto.primaryPresenterId ?? null);
+        const assignedId = dto.primaryPresenterId?.trim();
+        if (presenterChanged && assignedId) {
+          await this.notifyHostAssigned(assignedId, updated.id, updated.title);
+        }
         if (
           presenterChanged &&
           updated.usesAutomaticMeeting() &&

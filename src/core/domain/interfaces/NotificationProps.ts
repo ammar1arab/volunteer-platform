@@ -5,6 +5,7 @@ export interface NotificationMetadata {
   activityId?: string;
   activityType?: string;
   link?: string | null;
+  kind?: string;
   certificateId?: string;
   hours?: number;
   icon?: string;

@@ -39,7 +39,6 @@ export interface MeetingReportSummaryDto {
 export interface OnlineMeetingPresenterSummaryDto {
   presenterId: string;
   fullName: string;
-  email: string;
 }
 
 export interface OnlineMeetingListItemDto {

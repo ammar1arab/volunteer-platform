@@ -3,12 +3,13 @@ import { useRouter } from "next/navigation";
 import {
   Bell, CheckCheck, Clock, Trash2,
   Gift, CheckCircle, XCircle, Award,
-  Megaphone, Sprout, Flame, Crown, Rocket, Ban, Users,
+  Megaphone, Sprout, Flame, Crown, Rocket, Ban, Users, Mic,
 } from "lucide-react";
 import styles from "./NotificationDropdown.module.scss";
 import type { NotificationDto } from "@/core/application/dtos";
 import type { NotificationMetadata } from "@/core/domain/interfaces";
 import { NotificationType } from "@/core/domain/enums";
+import { HOST_ASSIGNED_NOTIFICATION_KIND } from "@/presentation/constants";
 import { relativeTime } from "@/lib/utils";
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const getNotificationIcon = (type: string, metadata?: NotificationMetadata | null) => {
+  if (metadata?.kind === HOST_ASSIGNED_NOTIFICATION_KIND) return <Mic size={15} />;
   if (type === NotificationType.HOURS_MILESTONE) {
     const map: Record<string, React.ReactNode> = {
       Sprout: <Sprout size={15} />,

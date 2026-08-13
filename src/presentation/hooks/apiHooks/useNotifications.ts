@@ -18,7 +18,6 @@ const NOTIFICATIONS_KEY = queryKeys.notifications.recent();
 
 let _ctx: AudioContext | null = null;
 let _masterGain: GainNode | null = null;
-let _unlocked = false;
 
 type WebkitWindow = Window & { webkitAudioContext?: typeof AudioContext };
 
@@ -34,20 +33,24 @@ function getAudioContext(): AudioContext | null {
       _masterGain.gain.value = 0.75;
       _masterGain.connect(_ctx.destination);
     }
-    if (_ctx.state === "suspended") void _ctx.resume();
     return _ctx;
   } catch {
     return null;
   }
 }
 
-function unlockWithSilentBuffer(ctx: AudioContext): void {
-  const buffer = ctx.createBuffer(1, 1, 22050);
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
-  source.connect(ctx.destination);
-  source.start(0);
-  _unlocked = true;
+async function ensureAudioReady(): Promise<AudioContext | null> {
+  const ctx = getAudioContext();
+  if (!ctx || !_masterGain) return null;
+  if (ctx.state === "suspended") {
+    try {
+      await ctx.resume();
+    } catch {
+      return null;
+    }
+  }
+  if (ctx.state !== "running") return null;
+  return ctx;
 }
 
 function strike(
@@ -77,24 +80,30 @@ function strike(
 }
 
 function playNotificationSound(): void {
-  if (!_unlocked) return;
-  const ctx = getAudioContext();
-  if (!ctx || !_masterGain) return;
-  const t = ctx.currentTime + 0.05;
-  strike(ctx, _masterGain, 1046.5, t, 1.0, 0.55);
-  strike(ctx, _masterGain, 1318.5, t + 0.18, 1.2, 0.42);
+  void ensureAudioReady().then((ctx) => {
+    if (!ctx || !_masterGain) return;
+    const t = ctx.currentTime + 0.05;
+    strike(ctx, _masterGain, 1046.5, t, 1.0, 0.55);
+    strike(ctx, _masterGain, 1318.5, t + 0.18, 1.2, 0.42);
+  });
 }
 
 function bootstrapAudio(): () => void {
   if (typeof window === "undefined") return () => {};
   const EVENTS = ["touchstart", "touchend", "pointerdown", "mousedown", "keydown", "click"] as const;
   const unlock = () => {
-    const ctx = getAudioContext();
-    if (ctx && !_unlocked) unlockWithSilentBuffer(ctx);
-    EVENTS.forEach((e) => document.removeEventListener(e, unlock, true));
+    void ensureAudioReady();
   };
-  EVENTS.forEach((e) => document.addEventListener(e, unlock, { once: true, capture: true }));
-  return () => EVENTS.forEach((e) => document.removeEventListener(e, unlock, true));
+  const onVisible = () => {
+    if (document.visibilityState === "visible") void ensureAudioReady();
+  };
+  EVENTS.forEach((e) => document.addEventListener(e, unlock, { capture: true }));
+  document.addEventListener("visibilitychange", onVisible);
+  void ensureAudioReady();
+  return () => {
+    EVENTS.forEach((e) => document.removeEventListener(e, unlock, true));
+    document.removeEventListener("visibilitychange", onVisible);
+  };
 }
 
 let audioSubs = 0;

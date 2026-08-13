@@ -585,7 +585,7 @@ class MeetingUseCase {
             where: { isActive: true, role: "PRIMARY" },
             take: 1,
             include: {
-              presenter: { select: { id: true, fullName: true, email: true } }
+              presenter: { select: { id: true, fullName: true } }
             }
           },
           meetingReport: {
@@ -634,8 +634,7 @@ class MeetingUseCase {
             presenter: primary?.presenter
               ? {
                   presenterId: primary.presenter.id,
-                  fullName: primary.presenter.fullName,
-                  email: primary.presenter.email
+                  fullName: primary.presenter.fullName
                 }
               : null,
             reportSummary: this.toReportSummary(row.meetingReport)
