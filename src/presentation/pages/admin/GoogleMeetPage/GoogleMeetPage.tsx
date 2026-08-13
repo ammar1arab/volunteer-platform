@@ -56,6 +56,7 @@ const GoogleMeetPage = () => {
     submitting,
     integration,
     organizerEmail,
+    connected,
     failedMeetings,
     toasts,
     removeToast,
@@ -77,7 +78,6 @@ const GoogleMeetPage = () => {
 
   if (status === "loading") return <LoadingState />;
 
-  const connected = Boolean(integration?.connected);
   const showMeetings = activeView === "upcoming" || activeView === "finished";
   const loadingMeetings = showMeetings && (meetingsLoading || integrationLoading);
   const loadingSettings = activeView === "settings" && (integrationLoading || meetingsLoading);
@@ -146,11 +146,13 @@ const GoogleMeetPage = () => {
         </div>
       </section>
 
-      {!connected && showMeetings && (
+      {!connected && (
         <div className={styles.warnBanner}>
           <AlertTriangle size={16} />
           <span>
-            لن يتم إنشاء روابط Meet تلقائياً حتى يتم ربط حساب المنظمة.{" "}
+            اربط حساب Google حقيقي (Gmail) مضاف كـ Test user في Google Cloud. البريد{" "}
+            <span dir="ltr">contact@youthprints.online</span> ليس حساب Google.
+            {" "}
             <button type="button" onClick={handleConnect}>
               ربط الآن
             </button>

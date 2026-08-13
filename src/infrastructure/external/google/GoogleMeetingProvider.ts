@@ -17,18 +17,21 @@ const SCOPES = [
 ];
 
 class GoogleMeetingProvider implements IMeetingProvider {
-  private getRedirectUri(): string {
+  private resolveRedirectUri(explicit?: string): string {
+    if (explicit?.trim()) return explicit.replace(/\/$/, "");
+    const configured = process.env.GOOGLE_OAUTH_REDIRECT_URI?.trim();
+    if (configured) return configured.replace(/\/$/, "");
     const base = (process.env.NEXTAUTH_URL || "http://localhost:3000").replace(/\/$/, "");
     return `${base}/api/integrations/google/callback`;
   }
 
-  private createOAuthClient() {
+  private createOAuthClient(redirectUri?: string) {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     if (!clientId || !clientSecret) {
       throw new Error("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are required");
     }
-    return new google.auth.OAuth2(clientId, clientSecret, this.getRedirectUri());
+    return new google.auth.OAuth2(clientId, clientSecret, this.resolveRedirectUri(redirectUri));
   }
 
   private async authWithRefreshToken(refreshToken: string) {
@@ -37,8 +40,8 @@ class GoogleMeetingProvider implements IMeetingProvider {
     return client;
   }
 
-  getAuthUrl(state: string): string {
-    const client = this.createOAuthClient();
+  getAuthUrl(state: string, redirectUri?: string): string {
+    const client = this.createOAuthClient(redirectUri);
     return client.generateAuthUrl({
       access_type: "offline",
       prompt: "consent",
@@ -47,8 +50,11 @@ class GoogleMeetingProvider implements IMeetingProvider {
     });
   }
 
-  async exchangeCode(code: string): Promise<{ refreshToken: string; email: string; scopes: string[] }> {
-    const client = this.createOAuthClient();
+  async exchangeCode(
+    code: string,
+    redirectUri?: string
+  ): Promise<{ refreshToken: string; email: string; scopes: string[] }> {
+    const client = this.createOAuthClient(redirectUri);
     const { tokens } = await client.getToken(code);
     if (!tokens.refresh_token) {
       throw new Error("Google did not return a refresh token. Reconnect with consent prompt.");

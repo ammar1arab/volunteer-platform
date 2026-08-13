@@ -99,6 +99,34 @@ export const useGoogleMeetPage = () => {
   }, [integrationError, showToast]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const connectedFlag = params.get("connected");
+    const oauthError = params.get("error");
+    if (!connectedFlag && !oauthError) return;
+
+    if (connectedFlag === "1") {
+      showToast("تم ربط حساب Google بنجاح", "success");
+      refreshIntegration();
+      refreshMeetings();
+    } else if (oauthError) {
+      const decoded = decodeURIComponent(oauthError);
+      const message =
+        /access_denied/i.test(decoded)
+          ? "تم رفض الوصول. تأكد أن الحساب مضاف كـ Test user في Google Cloud وأن التطبيق في وضع Testing."
+          : /redirect_uri_mismatch/i.test(decoded)
+            ? "رابط الإرجاع غير مطابق. أضف رابط الـ callback في Google Cloud Credentials."
+            : `فشل الربط: ${decoded}`;
+      showToast(message, "error");
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("connected");
+    url.searchParams.delete("error");
+    window.history.replaceState({}, "", url.pathname + url.search);
+  }, [showToast, refreshIntegration, refreshMeetings]);
+
+  useEffect(() => {
     setCurrentPage(1);
   }, [activeView, appliedSearch, syncFilter, setCurrentPage]);
 
@@ -167,7 +195,8 @@ export const useGoogleMeetPage = () => {
     setConfirmResolver(null);
   }, [confirmResolver]);
 
-  const organizerEmail = integration?.organizerEmail || "contact@youthprints.online";
+  const organizerEmail = integration?.organizerEmail || "—";
+  const connected = Boolean(integration?.connected);
 
   const handleConnect = useCallback(async () => {
     const ok = await connect();
@@ -177,7 +206,7 @@ export const useGoogleMeetPage = () => {
   const handleDisconnect = useCallback(async () => {
     const ok = await confirm({
       title: "قطع اتصال Google",
-      message: `هل تريد قطع اتصال حساب ${organizerEmail}؟ لن يتم إنشاء اجتماعات تلقائية حتى إعادة الاتصال.`,
+      message: `هل تريد قطع اتصال حساب ${organizerEmail !== "—" ? organizerEmail : "Google"}؟ لن يتم إنشاء اجتماعات تلقائية حتى إعادة الاتصال.`,
       confirmText: "قطع الاتصال",
       cancelText: "إلغاء",
       variant: "danger"
@@ -281,6 +310,7 @@ export const useGoogleMeetPage = () => {
     submitting,
     integration,
     organizerEmail,
+    connected,
     failedMeetings,
     toasts,
     removeToast,

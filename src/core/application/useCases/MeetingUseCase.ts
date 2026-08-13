@@ -264,26 +264,41 @@ class MeetingUseCase {
     }
   }
 
-  async getConnectUrl(userId: string): Promise<GetGoogleConnectUrlResponse> {
+  async getConnectUrl(
+    userId: string,
+    redirectUri?: string
+  ): Promise<GetGoogleConnectUrlResponse> {
     try {
       guard(userId, "معرّف المستخدم مطلوب");
+      const resolvedRedirect =
+        redirectUri?.trim() ||
+        `${(process.env.NEXTAUTH_URL || "http://localhost:3000").replace(/\/$/, "")}/api/integrations/google/callback`;
       const state = Buffer.from(
-        JSON.stringify({ userId, nonce: crypto.randomUUID(), ts: Date.now() }),
+        JSON.stringify({
+          userId,
+          nonce: crypto.randomUUID(),
+          ts: Date.now(),
+          redirectUri: resolvedRedirect
+        }),
         "utf8"
       ).toString("base64url");
-      const url = this.meetingProvider.getAuthUrl(state);
+      const url = this.meetingProvider.getAuthUrl(state, resolvedRedirect);
       return ok({ url, state });
     } catch (error) {
       return serviceError(MeetingUseCase.SCOPE, "getConnectUrl", error, "تعذر إنشاء رابط الربط");
     }
   }
 
-  async handleOAuthCallback(code: string, connectedById: string): Promise<HandleGoogleOAuthCallbackResponse> {
+  async handleOAuthCallback(
+    code: string,
+    connectedById: string,
+    redirectUri?: string
+  ): Promise<HandleGoogleOAuthCallbackResponse> {
     try {
       guard(code, "رمز التفويض مطلوب");
       guard(connectedById, "معرّف المستخدم مطلوب");
 
-      const exchanged = await this.meetingProvider.exchangeCode(code);
+      const exchanged = await this.meetingProvider.exchangeCode(code, redirectUri);
       const encryptedRefreshToken = encrypt(exchanged.refreshToken);
 
       const existing = await this.integrationRepository.findByProvider(MeetingUseCase.PROVIDER);

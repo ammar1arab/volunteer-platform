@@ -37,8 +37,11 @@ export interface MeetingReportResult {
 }
 
 export interface IMeetingProvider {
-  getAuthUrl(state: string): string;
-  exchangeCode(code: string): Promise<{ refreshToken: string; email: string; scopes: string[] }>;
+  getAuthUrl(state: string, redirectUri?: string): string;
+  exchangeCode(
+    code: string,
+    redirectUri?: string
+  ): Promise<{ refreshToken: string; email: string; scopes: string[] }>;
   refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresAt: Date }>;
   createMeeting(
     refreshToken: string,
