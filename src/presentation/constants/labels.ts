@@ -128,8 +128,10 @@ export const PRESENTER_ROLE_LABELS: Record<string, string> = {
 };
 
 export const ACTIVITY_PRESENTER_LABEL = "مقدم النشاط";
-export const ACTIVITY_PRESENTER_PLACEHOLDER = "اختر متطوعاً كمقدم";
+export const ACTIVITY_PRESENTER_PLACEHOLDER = "ابحث بالاسم أو البريد...";
 export const ACTIVITY_PRESENTER_NONE = "بدون مقدم";
+export const ACTIVITY_PRESENTER_HINT =
+  "المقدم متطوع عادي من المنصة. يفتح قاعة الاجتماع ليشرح للمشاركين دون طلب انضمام، ويُضاف لدعوة التقويم. بعد انتهاء الجلسة ينتهي دوره."
 
 export const CITY_LABELS: Record<JordanianCity, string> = {
   [JordanianCity.AMMAN]: "عمّان",

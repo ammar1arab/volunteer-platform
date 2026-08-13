@@ -65,6 +65,7 @@ export { default as BroadcastRecipientsModal } from "./admin/BroadcastRecipients
 export { default as MeetingStatusBadge } from "./admin/GoogleMeet/MeetingStatusBadge";
 export { default as MeetingReportModal } from "./admin/GoogleMeet/MeetingReportModal";
 export { default as MeetingListItem } from "./admin/GoogleMeet/MeetingListItem";
+export { default as PresenterPicker } from "./admin/PresenterPicker/PresenterPicker";
 
 export { default as NotificationBell } from "./volunteer/NotificationBell/NotificationBell";
 export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";

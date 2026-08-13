@@ -8,11 +8,9 @@ import {
   CITY_OPTIONS,
   CATEGORY_OPTIONS,
   MEETING_PLATFORM_OPTIONS,
-  ACTIVITY_PRESENTER_LABEL,
-  ACTIVITY_PRESENTER_PLACEHOLDER,
-  ACTIVITY_PRESENTER_NONE
 } from "@/presentation/constants/labels";
 import { Modal, SelectInput, BirthDateInput, TimePickerInput, LocationPicker, MultiSelectInput, MeetingStatusBadge } from "@/presentation/components";
+import PresenterPicker from "@/presentation/components/admin/PresenterPicker/PresenterPicker";
 import { Upload, AlertTriangle } from "lucide-react";
 import {
   ActivityType,
@@ -44,18 +42,10 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
   const { form, preview, uploading, setForm, handleImage, handleSubmit } =
     useActivityModal({ initialData, onSubmit, onImageUpload, onClose });
 
-  const { users } = useUsers({ enabled: isOpen });
+  const { users, loading: usersLoading } = useUsers({ enabled: isOpen });
   const { status: googleIntegration } = useGoogleIntegrationStatus({ enabled: isOpen });
-  const volunteerOptions = useMemo(
-    () => [
-      { value: "", label: ACTIVITY_PRESENTER_NONE },
-      ...users
-        .filter((u) => u.role === UserRole.VOLUNTEER && u.isActive)
-        .map((u) => ({
-          value: u.id,
-          label: `${u.fullName}${u.email ? ` · ${u.email}` : ""}`
-        }))
-    ],
+  const volunteers = useMemo(
+    () => users.filter((u) => u.role === UserRole.VOLUNTEER && u.isActive),
     [users]
   );
 
@@ -248,15 +238,12 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
               </>
             )}
 
-            <div className={styles.field}>
-              <SelectInput
-                label={ACTIVITY_PRESENTER_LABEL}
-                value={form.primaryPresenterId}
-                options={volunteerOptions}
-                placeholder={ACTIVITY_PRESENTER_PLACEHOLDER}
-                onChange={(v) => setForm((p) => ({ ...p, primaryPresenterId: v }))}
-              />
-            </div>
+            <PresenterPicker
+              volunteers={volunteers}
+              value={form.primaryPresenterId}
+              onChange={(id) => setForm((p) => ({ ...p, primaryPresenterId: id }))}
+              loading={usersLoading}
+            />
           </>
         )}
 
