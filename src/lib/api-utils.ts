@@ -52,16 +52,29 @@ export function checkRateLimit(key: string, limit: number, windowMs: number): bo
 }
 
 
+const PRIVATE_LAN = /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/;
+
+function isAllowedOrigin(origin: string): boolean {
+  const normalized = origin.replace(/\/$/, "");
+  const configured = (process.env.NEXTAUTH_URL ?? "").replace(/\/$/, "");
+  if (configured && normalized === configured) return true;
+  if (process.env.NODE_ENV !== "development") return false;
+
+  try {
+    const { hostname, protocol } = new URL(origin);
+    if (protocol !== "http:" && protocol !== "https:") return false;
+    return hostname === "localhost" || hostname === "127.0.0.1" || PRIVATE_LAN.test(hostname);
+  } catch {
+    return false;
+  }
+}
+
 export function csrfCheck(req: Request): NextResponse | null {
   const origin = req.headers.get("origin");
   if (!origin) return null;
-
-  const allowed = (process.env.NEXTAUTH_URL ?? "").replace(/\/$/, "");
-  if (allowed && origin.replace(/\/$/, "") !== allowed) {
-    logger.warn("CSRF", "csrfCheck", `Blocked origin: ${origin}`);
-    return forbidden("Invalid origin");
-  }
-  return null;
+  if (isAllowedOrigin(origin)) return null;
+  logger.warn("CSRF", "csrfCheck", `Blocked origin: ${origin}`);
+  return forbidden("Invalid origin");
 }
 
 
