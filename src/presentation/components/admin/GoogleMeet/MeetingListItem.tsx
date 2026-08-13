@@ -1,6 +1,8 @@
 "use client";
 
-import { LoadingState, Button, Share, Modal, ActivityPresenterBadge, MeetingStatusBadge } from "@/presentation/components";
+import MeetingStatusBadge from "./MeetingStatusBadge";
+import ActivityPresenterBadge from "@/presentation/components/activity/ActivityPresenterBadge/ActivityPresenterBadge";
+import { getMeetingLinkSourceLabel } from "@/presentation/constants/labels";
 import { MeetingSyncStatus } from "@/core/domain/enums";
 import { ROUTES } from "@/presentation/constants";
 import Link from "next/link";
@@ -8,7 +10,6 @@ import type { MeetingListItemDto } from "@/presentation/services/meetings.servic
 import {
   Calendar,
   Users,
-  User,
   ExternalLink,
   RotateCcw,
   Link2,
@@ -89,8 +90,7 @@ const MeetingListItem = ({
 
           {meeting.presenter?.fullName && (
             <div className={`${styles.cell} ${styles.hideMobile}`}>
-              <User size={13} className={styles.icon} />
-              <span className={styles.text}>{meeting.presenter.fullName}</span>
+              <ActivityPresenterBadge name={meeting.presenter.fullName} />
             </div>
           )}
 
