@@ -1,0 +1,113 @@
+const DEFAULT_JITSI_HOST = "meet.jit.si";
+const DEFAULT_ROOM_PREFIX = "YouthPrints";
+const DEFAULT_LOAD_TIMEOUT_MS = 12_000;
+
+const readEnv = (key: "NEXT_PUBLIC_JITSI_HOST" | "NEXT_PUBLIC_JITSI_ROOM_PREFIX") => {
+  const value = process.env[key];
+  return value?.trim() || "";
+};
+
+export const DEFAULT_ACTIVITY_TIME_ZONE = "Asia/Amman";
+
+export const getJitsiHost = () =>
+  (readEnv("NEXT_PUBLIC_JITSI_HOST") || DEFAULT_JITSI_HOST)
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "");
+
+export const getJitsiRoomPrefix = () => readEnv("NEXT_PUBLIC_JITSI_ROOM_PREFIX") || DEFAULT_ROOM_PREFIX;
+
+export const getMeetingEmbedTimeoutMs = () => DEFAULT_LOAD_TIMEOUT_MS;
+
+export const JITSI_LANGUAGE = "ar";
+
+export const getJitsiRoomName = (activityId: string) =>
+  `${getJitsiRoomPrefix()}${activityId.replace(/-/g, "")}`;
+
+export const getJitsiExternalApiSrc = () => `https://${getJitsiHost()}/external_api.js`;
+
+export const MEETING_PHASES = ["upcoming", "live", "ended"] as const;
+export type MeetingPhase = (typeof MEETING_PHASES)[number];
+
+export const MEETING_PHASE_LABELS: Record<MeetingPhase, string> = {
+  upcoming: "قادم",
+  live: "مباشر",
+  ended: "منتهٍ"
+};
+
+export const MEETING_LABELS = {
+  roomTitle: "قاعة الاجتماع",
+  leave: "مغادرة القاعة",
+  back: "العودة",
+  retry: "إعادة المحاولة",
+  rejoin: "العودة للقاعة",
+  notFound: "النشاط غير موجود",
+  emptyLink: "رابط الاجتماع غير متوفر بعد",
+  forbidden: "ليس لديك صلاحية للانضمام إلى هذا الاجتماع",
+  launchError: "تعذر فتح هذا الاجتماع حالياً",
+  loadError: "تعذر تحميل القاعة",
+  loadErrorMessage: "تحقق من الاتصال ثم أعد المحاولة.",
+  leftTitle: "غادرت القاعة",
+  leftMessage: "يمكنك العودة للقاعة أو مغادرة الصفحة.",
+  guestName: "متطوع",
+  participants: "مشاركون",
+  leaveTitle: "مغادرة القاعة",
+  leaveMessage: "هل تريد مغادرة قاعة الاجتماع؟",
+  leaveConfirm: "مغادرة",
+  leaveCancel: "البقاء",
+  leaveWarning: "سيتم إغلاق الكاميرا والميكروفون."
+} as const;
+
+export const MEETING_TOASTS = {
+  joined: "تم الانضمام إلى القاعة",
+  left: "غادرت القاعة",
+  cancelled: "تم إلغاء الانضمام",
+  failed: "تعذر تشغيل القاعة",
+  retrying: "جاري إعادة المحاولة"
+} as const;
+
+export const JITSI_TOOLBAR_BUTTONS = [
+  "microphone",
+  "camera",
+  "desktop",
+  "chat",
+  "raisehand",
+  "participants-pane",
+  "tileview",
+  "toggle-camera",
+  "fullscreen",
+  "select-background",
+  "videoquality",
+  "filmstrip",
+  "noisesuppression",
+  "settings",
+  "hangup"
+] as const;
+
+export const JITSI_CONFIG_OVERWRITE = {
+  prejoinConfig: { enabled: true },
+  prejoinPageEnabled: true,
+  disableDeepLinking: true,
+  startWithAudioMuted: true,
+  startWithVideoMuted: true,
+  defaultLanguage: JITSI_LANGUAGE,
+  disableInviteFunctions: true,
+  enableWelcomePage: false,
+  enableClosePage: false,
+  welcomePageEnabled: false,
+  analytics: { disabled: true },
+  hideConferenceSubject: false,
+  toolbarButtons: [...JITSI_TOOLBAR_BUTTONS]
+} as const;
+
+export const JITSI_INTERFACE_OVERWRITE = {
+  SHOW_JITSI_WATERMARK: false,
+  SHOW_BRAND_WATERMARK: false,
+  SHOW_POWERED_BY: false,
+  SHOW_CHROME_EXTENSION_BANNER: false,
+  MOBILE_APP_PROMO: false,
+  DISPLAY_WELCOME_FOOTER: false,
+  DISPLAY_WELCOME_PAGE_CONTENT: false,
+  DISPLAY_WELCOME_PAGE_TOOLBAR_ADDITIONAL_CONTENT: false,
+  CLOSE_PAGE_GUEST_HINT: false,
+  DEFAULT_REMOTE_DISPLAY_NAME: MEETING_LABELS.guestName
+} as const;

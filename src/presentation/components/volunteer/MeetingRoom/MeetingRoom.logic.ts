@@ -1,21 +1,38 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import { useNow } from "@/presentation/query";
+import { useConfirmDialog, useToast } from "@/presentation/hooks";
+import {
+  DEFAULT_ACTIVITY_TIME_ZONE,
+  getJitsiRoomName,
+  getMeetingEmbedTimeoutMs,
+  MEETING_LABELS,
+  MEETING_PHASE_LABELS,
+  MEETING_TOASTS,
+  type MeetingPhase
+} from "@/presentation/constants/meetingEmbed";
+import {
+  connectJitsiConference,
+  getIdleJitsiSnapshot,
+  getJitsiScriptStatus,
+  getJitsiSnapshot,
+  subscribeJitsiScript,
+  type JitsiConferenceStatus,
+  type JitsiSnapshot
+} from "./jitsiClient";
 
-export const MEETING_EMBED_TIMEOUT_MS = 12_000;
+export type MeetingEmbedStatus = JitsiConferenceStatus;
 
-export type MeetingEmbedStatus = "loading" | "ready" | "failed";
-export type MeetingPhase = "upcoming" | "live" | "ended";
-
-export const formatMeetingDate = (date?: string) => {
+export const formatMeetingDate = (date?: string, timeZone = DEFAULT_ACTIVITY_TIME_ZONE) => {
   if (!date) return null;
   try {
     return new Date(date).toLocaleDateString("ar-JO", {
       weekday: "long",
       year: "numeric",
       month: "long",
-      day: "numeric"
+      day: "numeric",
+      timeZone
     });
   } catch {
     return date;
@@ -62,7 +79,7 @@ export const getMeetingPhase = (
   startTime?: string,
   endTime?: string,
   now = Date.now(),
-  timeZone = "Asia/Amman"
+  timeZone = DEFAULT_ACTIVITY_TIME_ZONE
 ): MeetingPhase | null => {
   if (!date || !startTime || !endTime) return null;
   const start = wallClockToMs(date, startTime, timeZone);
@@ -75,57 +92,109 @@ export const getMeetingPhase = (
   return "live";
 };
 
-export const getMeetingPhaseLabel = (phase: MeetingPhase) => {
-  if (phase === "live") return "مباشر";
-  if (phase === "upcoming") return "قادم";
-  return "منتهٍ";
-};
+export const getMeetingPhaseLabel = (phase: MeetingPhase) => MEETING_PHASE_LABELS[phase];
 
-export const getInAppMeetingSrc = (activityId: string, displayName?: string, retry = 0) => {
-  const room = `YouthPrints${activityId.replace(/-/g, "")}`;
-  const name = displayName?.trim() || "متطوع";
-  const hash = [
-    "config.prejoinConfig.enabled=true",
-    "config.prejoinPageEnabled=true",
-    "config.disableDeepLinking=true",
-    "config.startWithAudioMuted=true",
-    "config.startWithVideoMuted=true",
-    'config.defaultLanguage="ar"',
-    "config.disableInviteFunctions=true",
-    "interfaceConfig.SHOW_JITSI_WATERMARK=false",
-    "interfaceConfig.SHOW_BRAND_WATERMARK=false",
-    "interfaceConfig.MOBILE_APP_PROMO=false",
-    "interfaceConfig.SHOW_CHROME_EXTENSION_BANNER=false",
-    `userInfo.displayName=${JSON.stringify(name)}`,
-    retry > 0 ? `retry=${retry}` : ""
-  ]
-    .filter(Boolean)
-    .join("&");
-
-  return `https://meet.jit.si/${encodeURIComponent(room)}#${hash}`;
-};
-
-export function useMeetingRoomEmbed(activityId: string, displayName?: string) {
+export function useMeetingRoomEmbed(input: {
+  activityId: string;
+  displayName?: string;
+  subject: string;
+}) {
+  const { showToast, toasts, removeToast } = useToast();
+  const { confirm, confirmDialog } = useConfirmDialog();
   const [retry, setRetry] = useState(0);
-  const src = getInAppMeetingSrc(activityId, displayName, retry);
-  const [session, setSession] = useState({ src, startedAt: Date.now(), loaded: false });
+  const [parentNode, setParentNode] = useState<HTMLDivElement | null>(null);
+  const [startedAt, setStartedAt] = useState(Date.now());
 
-  if (session.src !== src) {
-    setSession({ src, startedAt: Date.now(), loaded: false });
-  }
+  const scriptStatus = useSyncExternalStore(
+    subscribeJitsiScript,
+    getJitsiScriptStatus,
+    () => "idle" as const
+  );
 
-  const waiting = !session.loaded;
+  const roomName = getJitsiRoomName(input.activityId);
+  const displayName = input.displayName?.trim() || MEETING_LABELS.guestName;
+  const conferenceKey =
+    parentNode && scriptStatus === "ready" ? `${roomName}:${retry}:${displayName}` : "";
+
+  const callbacks = useMemo(
+    () => ({
+      onJoined: () => showToast(MEETING_TOASTS.joined, "success"),
+      onLeft: (reason: "hangup" | "cancel") =>
+        showToast(reason === "cancel" ? MEETING_TOASTS.cancelled : MEETING_TOASTS.left, "info"),
+      onFailed: () => showToast(MEETING_TOASTS.failed, "error")
+    }),
+    [showToast]
+  );
+
+  const subscribeConference = useCallback(
+    (onStoreChange: () => void) => {
+      if (!parentNode || !conferenceKey || scriptStatus !== "ready") return () => undefined;
+      return connectJitsiConference(
+        conferenceKey,
+        {
+          roomName,
+          displayName,
+          subject: input.subject,
+          parentNode,
+          callbacks
+        },
+        onStoreChange
+      );
+    },
+    [parentNode, conferenceKey, scriptStatus, roomName, displayName, input.subject, callbacks]
+  );
+
+  const getConferenceSnapshot = useCallback(
+    () => (conferenceKey ? getJitsiSnapshot(conferenceKey) : getIdleJitsiSnapshot()),
+    [conferenceKey]
+  );
+
+  const snapshot: JitsiSnapshot = useSyncExternalStore(
+    subscribeConference,
+    getConferenceSnapshot,
+    getIdleJitsiSnapshot
+  );
+
+  const waiting = snapshot.status === "boot" && scriptStatus !== "error";
   const now = useNow(waiting);
-  const timedOut = waiting && now > 0 && now - session.startedAt >= MEETING_EMBED_TIMEOUT_MS;
-  const status: MeetingEmbedStatus = session.loaded ? "ready" : timedOut ? "failed" : "loading";
-
-  const handleLoad = useCallback(() => {
-    setSession((current) => (current.src === src ? { ...current, loaded: true } : current));
-  }, [src]);
+  const timedOut =
+    waiting && now > 0 && now - startedAt >= getMeetingEmbedTimeoutMs();
+  const status: MeetingEmbedStatus =
+    scriptStatus === "error" || timedOut ? "failed" : snapshot.status;
 
   const retryLoad = useCallback(() => {
+    showToast(MEETING_TOASTS.retrying, "info");
+    setStartedAt(Date.now());
     setRetry((count) => count + 1);
-  }, []);
+  }, [showToast]);
 
-  return { src, status, handleLoad, retryLoad };
+  const requestLeave = useCallback(
+    async (onLeave: () => void) => {
+      if (status !== "joined") {
+        onLeave();
+        return;
+      }
+      const ok = await confirm({
+        title: MEETING_LABELS.leaveTitle,
+        message: MEETING_LABELS.leaveMessage,
+        confirmText: MEETING_LABELS.leaveConfirm,
+        cancelText: MEETING_LABELS.leaveCancel,
+        variant: "danger",
+        warning: MEETING_LABELS.leaveWarning
+      });
+      if (ok) onLeave();
+    },
+    [confirm, status]
+  );
+
+  return {
+    status,
+    participantCount: snapshot.participantCount,
+    setParentNode,
+    retryLoad,
+    requestLeave,
+    toasts,
+    removeToast,
+    confirmDialog
+  };
 }

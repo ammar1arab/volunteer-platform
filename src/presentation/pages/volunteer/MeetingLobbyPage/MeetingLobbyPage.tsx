@@ -5,6 +5,7 @@ import styles from "./MeetingLobbyPage.module.scss";
 import { useRouter } from "next/navigation";
 import { LoadingState, EmptyState, MeetingRoom } from "@/presentation/components";
 import { VideoOff, ShieldOff, CalendarClock } from "lucide-react";
+import { MEETING_LABELS } from "@/presentation/constants";
 import { useMeetingLobbyPage } from "./MeetingLobbyPage.logic";
 
 const MeetingLobbyPage = () => {
@@ -20,32 +21,32 @@ const MeetingLobbyPage = () => {
     body = (
       <EmptyState
         icon={VideoOff}
-        message="النشاط غير موجود"
-        action={{ label: "العودة", onClick: goBack }}
+        message={MEETING_LABELS.notFound}
+        action={{ label: MEETING_LABELS.back, onClick: goBack }}
       />
     );
   } else if (view === "empty") {
     body = (
       <EmptyState
         icon={CalendarClock}
-        message={error || "رابط الاجتماع غير متوفر بعد"}
-        action={{ label: "العودة", onClick: goBack }}
+        message={error || MEETING_LABELS.emptyLink}
+        action={{ label: MEETING_LABELS.back, onClick: goBack }}
       />
     );
   } else if (view === "forbidden") {
     body = (
       <EmptyState
         icon={ShieldOff}
-        message={error || "ليس لديك صلاحية للانضمام إلى هذا الاجتماع"}
-        action={{ label: "العودة", onClick: goBack }}
+        message={error || MEETING_LABELS.forbidden}
+        action={{ label: MEETING_LABELS.back, onClick: goBack }}
       />
     );
   } else if (view === "error" || !launch) {
     body = (
       <EmptyState
         icon={VideoOff}
-        message={error || "تعذر فتح هذا الاجتماع حالياً"}
-        action={{ label: "إعادة المحاولة", onClick: refresh }}
+        message={error || MEETING_LABELS.launchError}
+        action={{ label: MEETING_LABELS.retry, onClick: refresh }}
       />
     );
   } else {
