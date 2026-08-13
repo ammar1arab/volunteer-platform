@@ -30,45 +30,45 @@
 }
 
 .topBar {
-  @include flex(row, center, space-between, $sp-sm);
+  @include flex(row, flex-start, space-between, $sp-sm);
   flex-shrink: 0;
   width: 100%;
   min-width: 0;
-  padding: $sp-sm $sp-md;
-  background: rgba($white, 0.04);
+  padding: 10px $sp-md;
+  background: rgba($white, 0.03);
   border-bottom: 1px solid rgba($white, 0.08);
 }
 
 .heading {
   @include flex-col;
-  gap: 4px;
+  gap: 2px;
   min-width: 0;
   flex: 1;
 }
 
 .titleRow {
-  @include flex(row, center, flex-start, $sp-sm);
+  @include flex(row, center, flex-start, $sp-xs);
   min-width: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .title {
   margin: 0;
-  font-size: $font-md;
+  font-size: $font-sm;
   font-weight: 800;
   color: $white;
-  line-height: 1.4;
+  line-height: 1.35;
   @include truncate;
-  max-width: min(100%, 42ch);
+  max-width: min(100%, 36ch);
 }
 
 .phase,
 .hostBadge {
   flex-shrink: 0;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   line-height: 1;
-  padding: 5px 8px;
+  padding: 4px 7px;
   border-radius: $radius-full;
 }
 
@@ -94,46 +94,48 @@
 
 .meta {
   @include flex(row, center, flex-start, $sp-sm);
-  flex-wrap: wrap;
-  font-size: $font-xs;
+  flex-wrap: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 11px;
   font-weight: 600;
-  color: rgba($white, 0.65);
+  color: rgba($white, 0.55);
 }
 
-.metaChip {
-  @include flex(row, center, flex-start, 6px);
-  min-width: 0;
-  padding: 5px 8px;
-  border-radius: $radius;
-  border: 1px solid rgba($white, 0.12);
-  background: rgba($white, 0.04);
-
-  em {
-    font-style: normal;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: rgba($white, 0.45);
-  }
+.metaText {
+  @include flex(row, center, flex-start, 4px);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .actions {
   @include flex(row, center, flex-end, $sp-xs);
   flex-shrink: 0;
+  padding-top: 1px;
 }
 
 .leaveBtn,
 .iconBtn {
   width: auto;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
   flex-shrink: 0;
   white-space: nowrap;
   color: $white;
-  border-color: rgba($white, 0.2);
+  border-color: rgba($white, 0.18);
+  border-radius: $radius-full;
 
   &:hover:not(:disabled) {
     color: $green;
     border-color: $green;
     background: rgba($green, 0.1);
+  }
+}
+
+.btnLabel {
+  @include sm {
+    @include hidden;
   }
 }
 
@@ -320,13 +322,23 @@
   }
 
   .topBar {
-    padding: $sp-sm;
-    align-items: flex-start;
+    padding: 8px $sp-sm;
+    align-items: center;
   }
 
   .title {
     font-size: $font-sm;
-    max-width: 100%;
+    max-width: min(100%, 22ch);
+  }
+
+  .meta {
+    gap: 6px;
+  }
+
+  .leaveBtn,
+  .iconBtn {
+    padding: 0;
+    width: 34px;
   }
 
   .workspace {

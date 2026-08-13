@@ -4,9 +4,7 @@ import styles from "./MeetingRoom.module.scss";
 import type { MeetingSessionDto } from "@/core/application/dtos";
 import {
   ArrowRight,
-  CalendarDays,
   Check,
-  Clock3,
   Maximize2,
   Minimize2,
   RefreshCw,
@@ -147,29 +145,19 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
             )}
             {session?.role === "host" && <span className={styles.hostBadge}>{MEETING_LABELS.hostBadge}</span>}
           </div>
-          <div className={styles.meta}>
-            {dateLabel && (
-              <span className={styles.metaChip}>
-                <CalendarDays size={14} />
-                <em>{MEETING_LABELS.dateLabel}</em>
-                {dateLabel}
-              </span>
-            )}
-            {timeLabel && (
-              <span className={styles.metaChip}>
-                <Clock3 size={14} />
-                <em>{MEETING_LABELS.timeLabel}</em>
-                {timeLabel}
-              </span>
-            )}
-            <ActivityPresenterBadge name={session?.presenterName} />
-            {status === "joined" && (
-              <span className={styles.metaChip}>
-                <Users size={14} />
-                {participantCount} {MEETING_LABELS.participants}
-              </span>
-            )}
-          </div>
+          {(dateLabel || timeLabel || session?.presenterName || status === "joined") && (
+            <div className={styles.meta}>
+              {dateLabel && <span className={styles.metaText}>{dateLabel}</span>}
+              {timeLabel && <span className={styles.metaText}>{timeLabel}</span>}
+              <ActivityPresenterBadge name={session?.presenterName} />
+              {status === "joined" && (
+                <span className={styles.metaText}>
+                  <Users size={12} />
+                  {participantCount}
+                </span>
+              )}
+            </div>
+          )}
         </div>
         <div className={styles.actions}>
           <Button
@@ -181,7 +169,9 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
             aria-label={fullscreen.active ? MEETING_LABELS.exitFullscreen : MEETING_LABELS.fullscreen}
             onClick={fullscreen.toggle}
           >
-            {fullscreen.active ? MEETING_LABELS.exitFullscreen : MEETING_LABELS.fullscreen}
+            <span className={styles.btnLabel}>
+              {fullscreen.active ? MEETING_LABELS.exitFullscreen : MEETING_LABELS.fullscreen}
+            </span>
           </Button>
           <Button
             type="button"
@@ -189,11 +179,12 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
             size="sm"
             className={styles.leaveBtn}
             icon={<ArrowRight size={16} />}
+            aria-label={MEETING_LABELS.back}
             onClick={() => {
               void requestLeave(onLeave);
             }}
           >
-            {MEETING_LABELS.back}
+            <span className={styles.btnLabel}>{MEETING_LABELS.back}</span>
           </Button>
         </div>
       </div>

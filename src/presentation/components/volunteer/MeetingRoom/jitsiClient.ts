@@ -43,6 +43,7 @@ type JitsiApiConstructor = new (
     lang: string;
     width: number;
     height: number;
+    jwt?: string;
     userInfo: { displayName: string; email?: string };
     configOverwrite: typeof JITSI_CONFIG_OVERWRITE;
     interfaceConfigOverwrite: typeof JITSI_INTERFACE_OVERWRITE;
@@ -56,25 +57,35 @@ const SCRIPT_SCOPE = "JitsiClient";
 const IDLE_SNAPSHOT: JitsiSnapshot = { status: "boot", participantCount: 0 };
 
 let scriptStatus: ScriptStatus = "idle";
+let scriptHost = "";
 const scriptListeners = new Set<() => void>();
 
 const emitScript = () => {
   scriptListeners.forEach((listener) => listener());
 };
 
-const ensureJitsiScript = () => {
+const normalizeHost = (host?: string) =>
+  (host?.trim() || getJitsiHost()).replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+const ensureJitsiScript = (host?: string) => {
   if (typeof window === "undefined") return;
+  const targetHost = normalizeHost(host);
   const existing = window.JitsiMeetExternalAPI;
-  if (existing) {
+  if (existing && scriptHost === targetHost) {
     scriptStatus = "ready";
     return;
   }
-  if (scriptStatus === "loading" || scriptStatus === "ready") return;
+  if (scriptStatus === "loading" && scriptHost === targetHost) return;
 
   scriptStatus = "loading";
+  scriptHost = targetHost;
+  const previous = document.querySelector<HTMLScriptElement>("script[data-jitsi-external-api]");
+  previous?.remove();
+
   const script = document.createElement("script");
-  script.src = getJitsiExternalApiSrc();
+  script.src = getJitsiExternalApiSrc(targetHost);
   script.async = true;
+  script.dataset.jitsiExternalApi = targetHost;
   script.onload = () => {
     scriptStatus = window.JitsiMeetExternalAPI ? "ready" : "error";
     emitScript();
@@ -87,9 +98,9 @@ const ensureJitsiScript = () => {
   document.body.appendChild(script);
 };
 
-export const subscribeJitsiScript = (listener: () => void) => {
+export const subscribeJitsiScript = (listener: () => void, host?: string) => {
   scriptListeners.add(listener);
-  ensureJitsiScript();
+  ensureJitsiScript(host);
   return () => {
     scriptListeners.delete(listener);
   };
@@ -151,6 +162,8 @@ export const connectJitsiConference = (
   key: string,
   options: {
     roomName: string;
+    host?: string;
+    jwt?: string | null;
     displayName: string;
     email?: string;
     subject: string;
@@ -198,12 +211,13 @@ export const connectJitsiConference = (
   const width = Math.max(options.parentNode.clientWidth, host?.clientWidth ?? 0, 1);
   const height = Math.max(options.parentNode.clientHeight, host?.clientHeight ?? 0, 1);
 
-  const api = new Ctor(getJitsiHost(), {
+  const api = new Ctor(options.host?.trim() || getJitsiHost(), {
     roomName: options.roomName,
     parentNode: options.parentNode,
     lang: JITSI_LANGUAGE,
     width,
     height,
+    ...(options.jwt ? { jwt: options.jwt } : {}),
     userInfo: {
       displayName: options.displayName,
       ...(options.email ? { email: options.email } : {})

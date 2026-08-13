@@ -2,17 +2,23 @@ const DEFAULT_JITSI_HOST = "meet.jit.si";
 const DEFAULT_ROOM_PREFIX = "YouthPrints";
 const DEFAULT_LOAD_TIMEOUT_MS = 12_000;
 
-const readEnv = (key: "NEXT_PUBLIC_JITSI_HOST" | "NEXT_PUBLIC_JITSI_ROOM_PREFIX") => {
+const readEnv = (
+  key: "NEXT_PUBLIC_JITSI_HOST" | "NEXT_PUBLIC_JITSI_ROOM_PREFIX" | "NEXT_PUBLIC_JITSI_JAAS_APP_ID"
+) => {
   const value = process.env[key];
   return value?.trim() || "";
 };
 
 export const DEFAULT_ACTIVITY_TIME_ZONE = "Asia/Amman";
 
-export const getJitsiHost = () =>
-  (readEnv("NEXT_PUBLIC_JITSI_HOST") || DEFAULT_JITSI_HOST)
+export const getJitsiHost = () => {
+  const custom = readEnv("NEXT_PUBLIC_JITSI_HOST")
     .replace(/^https?:\/\//, "")
     .replace(/\/$/, "");
+  if (custom) return custom;
+  if (readEnv("NEXT_PUBLIC_JITSI_JAAS_APP_ID")) return "8x8.vc";
+  return DEFAULT_JITSI_HOST;
+};
 
 export const getJitsiRoomPrefix = () => readEnv("NEXT_PUBLIC_JITSI_ROOM_PREFIX") || DEFAULT_ROOM_PREFIX;
 
@@ -25,7 +31,12 @@ export const JITSI_LANGUAGE = "ar";
 export const getJitsiRoomName = (activityId: string) =>
   `${getJitsiRoomPrefix()}${activityId.replace(/-/g, "")}`;
 
-export const getJitsiExternalApiSrc = () => `https://${getJitsiHost()}/external_api.js`;
+export const getJitsiExternalApiSrc = (host?: string) => {
+  const domain = (host?.trim() || getJitsiHost())
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "");
+  return `https://${domain}/external_api.js`;
+};
 
 export const MEETING_PHASES = ["upcoming", "live", "ended"] as const;
 export type MeetingPhase = (typeof MEETING_PHASES)[number];
@@ -130,8 +141,22 @@ export const JITSI_CONFIG_OVERWRITE = {
   enableClosePage: false,
   welcomePageEnabled: false,
   hideConferenceName: true,
+  hideConferenceSubject: true,
   analytics: { disabled: true },
-  hideConferenceSubject: false,
+  disableThirdPartyRequests: true,
+  notifications: [],
+  disabledNotifications: [
+    "dialog.slowLink",
+    "notify.disconnected",
+    "notify.connectedOneMember",
+    "notify.connectedTwoMembers",
+    "notify.connectedThreeMembers",
+    "notify.leftOneMember",
+    "notify.leftTwoMembers",
+    "notify.leftThreeMembers",
+    "notify.newDeviceAudioTitle",
+    "notify.newDeviceVideoTitle"
+  ],
   toolbarButtons: [...JITSI_TOOLBAR_BUTTONS]
 } as const;
 
@@ -141,9 +166,13 @@ export const JITSI_INTERFACE_OVERWRITE = {
   SHOW_POWERED_BY: false,
   SHOW_CHROME_EXTENSION_BANNER: false,
   MOBILE_APP_PROMO: false,
+  DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+  DISABLE_PRESENCE_STATUS: true,
   DISPLAY_WELCOME_FOOTER: false,
   DISPLAY_WELCOME_PAGE_CONTENT: false,
   DISPLAY_WELCOME_PAGE_TOOLBAR_ADDITIONAL_CONTENT: false,
   CLOSE_PAGE_GUEST_HINT: false,
+  HIDE_INVITE_MORE_HEADER: true,
+  SETTINGS_SECTIONS: ["devices", "language"],
   DEFAULT_REMOTE_DISPLAY_NAME: MEETING_LABELS.guestName
 } as const;

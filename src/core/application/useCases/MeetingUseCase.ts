@@ -11,6 +11,7 @@ import {
   leaveMeetingGate,
   touchMeetingGate
 } from "@/core/application/meetings/meetingGateStore";
+import { createJitsiEmbed } from "@/core/application/meetings/jitsiEmbed";
 import { GoogleMeetingProvider } from "@/infrastructure/external";
 import { encrypt, decrypt } from "@/infrastructure/security";
 import { MeetingIntegration } from "@/core/domain/entities";
@@ -768,18 +769,28 @@ class MeetingUseCase {
       };
     }
   ) {
+    const snapshot = touchMeetingGate({
+      activityId,
+      identity: actor.identity,
+      role: actor.isHost ? "host" : "guest"
+    });
     return {
-      ...touchMeetingGate({
-        activityId,
-        identity: actor.identity,
-        role: actor.isHost ? "host" : "guest"
-      }),
+      ...snapshot,
       title: actor.payload.title,
       date: actor.payload.date,
       startTime: actor.payload.startTime,
       endTime: actor.payload.endTime,
       timeZone: actor.payload.timeZone,
-      presenterName: actor.presenterName ?? null
+      presenterName: actor.presenterName ?? null,
+      embed: snapshot.canEnterMedia
+        ? createJitsiEmbed({
+            activityId,
+            userId: actor.identity.userId,
+            displayName: actor.identity.fullName,
+            email: actor.identity.email,
+            moderator: actor.isHost
+          })
+        : null
     };
   }
 
@@ -864,15 +875,7 @@ class MeetingUseCase {
         return fail("NOT_FOUND", "المشارك غير موجود في قائمة الانتظار");
       }
 
-      return ok({
-        ...result,
-        title: actor.data.payload.title,
-        date: actor.data.payload.date,
-        startTime: actor.data.payload.startTime,
-        endTime: actor.data.payload.endTime,
-        timeZone: actor.data.payload.timeZone,
-        presenterName: actor.data.presenterName ?? null
-      });
+      return ok(this.toSession(activityId, actor.data));
     } catch (error) {
       return serviceError(MeetingUseCase.SCOPE, "admitMeetingGuest", error, "تعذر تحديث طلب الدخول");
     }

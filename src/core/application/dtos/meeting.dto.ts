@@ -103,6 +103,12 @@ export interface MeetingGateSnapshotDto {
   waiting: MeetingWaitingGuestDto[];
 }
 
+export interface MeetingJitsiEmbedDto {
+  host: string;
+  roomName: string;
+  jwt: string | null;
+}
+
 export interface MeetingSessionDto extends MeetingGateSnapshotDto {
   title: string;
   date: string;
@@ -110,6 +116,7 @@ export interface MeetingSessionDto extends MeetingGateSnapshotDto {
   endTime: string;
   timeZone: string;
   presenterName?: string | null;
+  embed?: MeetingJitsiEmbedDto | null;
 }
 
 export type GetMeetingSessionResponse = Result<MeetingSessionDto>;

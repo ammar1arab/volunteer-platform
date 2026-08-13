@@ -186,6 +186,7 @@ export type {
   MeetingGateIdentityDto,
   MeetingWaitingGuestDto,
   MeetingGateSnapshotDto,
+  MeetingJitsiEmbedDto,
   MeetingSessionDto,
   GetMeetingSessionResponse,
   LeaveMeetingSessionResponse,

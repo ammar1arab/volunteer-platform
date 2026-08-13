@@ -8,7 +8,6 @@ import { meetingsApi } from "@/presentation/services/meetings.service";
 import { getMonthLabel } from "@/presentation/constants/labels";
 import {
   DEFAULT_ACTIVITY_TIME_ZONE,
-  getJitsiRoomName,
   getMeetingEmbedTimeoutMs,
   MEETING_LABELS,
   MEETING_PHASE_LABELS,
@@ -218,6 +217,9 @@ export function useMeetingFullscreen() {
 
 export function useMeetingRoomEmbed(input: {
   activityId: string;
+  roomName?: string | null;
+  host?: string | null;
+  jwt?: string | null;
   displayName?: string;
   email?: string;
   subject: string;
@@ -234,19 +236,24 @@ export function useMeetingRoomEmbed(input: {
     if (input.enabled) setStartedAt(Date.now());
   }
 
-  const subscribeScript = input.enabled ? subscribeJitsiScript : noopSubscribe;
+  const roomName = input.roomName?.trim() || "";
+  const host = input.host?.trim() || "";
+  const subscribeScript =
+    input.enabled && roomName
+      ? (onChange: () => void) => subscribeJitsiScript(onChange, host || undefined)
+      : noopSubscribe;
   const scriptStatus = useSyncExternalStore(
     subscribeScript,
     input.enabled ? getJitsiScriptStatus : () => "idle" as const,
     () => "idle" as const
   );
 
-  const roomName = getJitsiRoomName(input.activityId);
   const displayName = input.displayName?.trim() || MEETING_LABELS.guestName;
   const email = input.email?.trim() || "";
+  const jwt = input.jwt?.trim() || "";
   const conferenceKey =
-    input.enabled && parentNode && scriptStatus === "ready"
-      ? `${roomName}:${retry}:${displayName}:${email}`
+    input.enabled && parentNode && scriptStatus === "ready" && roomName
+      ? `${host}:${roomName}:${retry}:${displayName}:${email}:${jwt.slice(0, 12)}`
       : "";
 
   const callbacks = useMemo(
@@ -266,6 +273,8 @@ export function useMeetingRoomEmbed(input: {
         conferenceKey,
         {
           roomName,
+          host: host || undefined,
+          jwt: jwt || null,
           displayName,
           email: email || undefined,
           subject: input.subject,
@@ -275,7 +284,7 @@ export function useMeetingRoomEmbed(input: {
         onStoreChange
       );
     },
-    [parentNode, conferenceKey, scriptStatus, roomName, displayName, email, input.subject, callbacks]
+    [parentNode, conferenceKey, scriptStatus, roomName, host, jwt, displayName, email, input.subject, callbacks]
   );
 
   const getConferenceSnapshot = useCallback(
@@ -339,15 +348,19 @@ export function useMeetingRoom(activityId: string) {
   const identityName = gate.session?.identity.fullName || MEETING_LABELS.guestName;
   const identityEmail = gate.session?.identity.email || "";
   const canEnterMedia = gate.session?.stage === "admitted" && Boolean(gate.session.identity.email);
+  const embedConfig = canEnterMedia ? gate.session?.embed : null;
 
   useMeetingPresence(activityId, Boolean(gate.session));
 
   const embed = useMeetingRoomEmbed({
     activityId,
+    roomName: embedConfig?.roomName,
+    host: embedConfig?.host,
+    jwt: embedConfig?.jwt,
     displayName: identityName,
     email: identityEmail,
     subject: gate.session?.title?.trim() || MEETING_LABELS.roomTitle,
-    enabled: canEnterMedia
+    enabled: Boolean(canEnterMedia && embedConfig?.roomName)
   });
 
   const fullscreen = useMeetingFullscreen();
