@@ -96,6 +96,7 @@ export const providers = {
       new ActivityRepository(),
       new ActivityPresenterRepository(),
       new ActivityParticipationRepository(),
+      new UserRepository(),
       new GoogleMeetingProvider(),
     ),
 };

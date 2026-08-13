@@ -18,6 +18,8 @@ export const getJitsiRoomPrefix = () => readEnv("NEXT_PUBLIC_JITSI_ROOM_PREFIX")
 
 export const getMeetingEmbedTimeoutMs = () => DEFAULT_LOAD_TIMEOUT_MS;
 
+export const MEETING_GATE_POLL_MS = 3_000;
+
 export const JITSI_LANGUAGE = "ar";
 
 export const getJitsiRoomName = (activityId: string) =>
@@ -54,7 +56,22 @@ export const MEETING_LABELS = {
   leaveMessage: "هل تريد مغادرة قاعة الاجتماع؟",
   leaveConfirm: "مغادرة",
   leaveCancel: "البقاء",
-  leaveWarning: "سيتم إغلاق الكاميرا والميكروفون."
+  leaveWarning: "سيتم إغلاق الكاميرا والميكروفون.",
+  hostBadge: "مضيف",
+  guestBadge: "مشارك",
+  identityVia: "الدخول عبر",
+  fullscreen: "ملء الشاشة",
+  exitFullscreen: "إنهاء ملء الشاشة",
+  waitingHostTitle: "بانتظار المضيف",
+  waitingHostMessage: "المضيف لم يدخل القاعة بعد. سيظهر طلبك في قائمة الانتظار فور وصوله.",
+  waitingAdmitTitle: "بانتظار الموافقة",
+  waitingAdmitMessage: "المضيف داخل القاعة. سيتم إدخالك بعد الموافقة على طلبك.",
+  deniedTitle: "لم يتم قبول دخولك",
+  deniedMessage: "المضيف رفض انضمامك إلى هذا الاجتماع.",
+  dockTitle: "بانتظار الدخول",
+  admit: "قبول",
+  deny: "رفض",
+  emptyWaiting: "لا يوجد منتظرون"
 } as const;
 
 export const MEETING_TOASTS = {
@@ -62,7 +79,9 @@ export const MEETING_TOASTS = {
   left: "غادرت القاعة",
   cancelled: "تم إلغاء الانضمام",
   failed: "تعذر تشغيل القاعة",
-  retrying: "جاري إعادة المحاولة"
+  retrying: "جاري إعادة المحاولة",
+  admitted: "تم قبول المشارك",
+  rejected: "تم رفض المشارك"
 } as const;
 
 export const JITSI_TOOLBAR_BUTTONS = [
@@ -74,7 +93,6 @@ export const JITSI_TOOLBAR_BUTTONS = [
   "participants-pane",
   "tileview",
   "toggle-camera",
-  "fullscreen",
   "select-background",
   "videoquality",
   "filmstrip",
@@ -84,8 +102,8 @@ export const JITSI_TOOLBAR_BUTTONS = [
 ] as const;
 
 export const JITSI_CONFIG_OVERWRITE = {
-  prejoinConfig: { enabled: true },
-  prejoinPageEnabled: true,
+  prejoinConfig: { enabled: false },
+  prejoinPageEnabled: false,
   disableDeepLinking: true,
   startWithAudioMuted: true,
   startWithVideoMuted: true,

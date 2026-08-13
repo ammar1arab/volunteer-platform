@@ -30,6 +30,7 @@ export const useMeetingLobbyPage = () => {
     error,
     activityId,
     displayName: user?.name ?? "",
+    email: user?.email ?? "",
     refresh,
     leaveHref: role === UserRole.ADMIN ? ROUTES.ADMIN.GOOGLE_MEET : ROUTES.VOLUNTEER.ACTIVITIES
   };

@@ -11,6 +11,8 @@
   flex-direction: column;
   height: 100dvh;
   overflow: hidden;
+  padding: 0;
+  background: $black;
 }
 
 .container {
@@ -26,11 +28,11 @@
   flex: 1;
   min-height: 0;
   gap: 0;
-  padding: $sp-sm $sp-md $sp-md;
+  padding: $sp-sm;
 }
 
 @include sm {
   .containerLive {
-    padding: $sp-xs $sp-sm $sp-sm;
+    padding: 0;
   }
 }

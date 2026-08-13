@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
-import { ROUTES } from '@/presentation/constants';
+import { ROUTES, isVolunteerMeetingPath } from '@/presentation/constants';
 import Button from '@/presentation/components/base/Button/Button';
 import ConfirmDialog from '@/presentation/components/base/ConfirmDialog/ConfirmDialog';
 import NotificationBell from '@/presentation/components/volunteer/NotificationBell/NotificationBell';
@@ -130,7 +130,7 @@ const Header = () => {
 
   const handleLogout = () => { setOpenMenu(null); setShowLogout(true); };
 
-  if (pathname === '/signin' || pathname === '/signup') return null;
+  if (isVolunteerMeetingPath(pathname) || pathname === '/signin' || pathname === '/signup') return null;
 
   const sharedProps: ActionsProps = {
     isLoading, isVolunteer, userName, userInitial, avatarUrl,

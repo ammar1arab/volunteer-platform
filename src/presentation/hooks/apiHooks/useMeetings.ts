@@ -2,12 +2,14 @@
 
 import { useCallback, useMemo } from "react";
 import { MeetingIntegrationStatus, MeetingSyncStatus } from "@/core/domain/enums";
+import { MEETING_GATE_POLL_MS } from "@/presentation/constants";
 import {
   meetingsApi,
   type MeetingsFilter,
   type MeetingListItemDto,
   type GoogleIntegrationStatusDto,
   type MeetingLaunchDto,
+  type MeetingSessionDto,
   type MeetingReportDto
 } from "@/presentation/services/meetings.service";
 import {
@@ -231,6 +233,53 @@ export const useMeetingLaunch = (activityId: string, opts?: { enabled?: boolean 
       refresh: () => refetch()
     }),
     [query.data, query.isLoading, query.error, query.isNotFound, refetch]
+  );
+};
+
+export const useMeetingSession = (activityId: string, opts?: { enabled?: boolean }) => {
+  const query = useFetchData<MeetingSessionDto>({
+    queryKey: queryKeys.meetings.session(activityId),
+    request: async () => unwrapResult(await meetingsApi.getSession(activityId)),
+    options: {
+      enabled: (opts?.enabled ?? true) && Boolean(activityId),
+      staleTime: 1_000,
+      retry: false,
+      refetchInterval: MEETING_GATE_POLL_MS,
+      refetchIntervalInBackground: true,
+      refetchOnWindowFocus: true
+    }
+  });
+
+  const admitMutation = useApiMutation<MeetingSessionDto, { userId: string; allow: boolean }>({
+    request: async ({ userId, allow }) =>
+      unwrapResult(await meetingsApi.admitGuest(activityId, userId, allow)),
+    invalidateQueries: [queryKeys.meetings.session(activityId)]
+  });
+
+  const refetch = query.refetch;
+  const admit = useCallback(
+    (userId: string, allow: boolean) => admitMutation.mutateAsync({ userId, allow }),
+    [admitMutation.mutateAsync]
+  );
+
+  return useMemo(
+    () => ({
+      session: query.data ?? null,
+      loading: query.isLoading && !query.data,
+      error: query.error && !query.data ? getErrorMessage(query.error, "تعذر تحديث جلسة الاجتماع") : "",
+      errorCode: query.error instanceof ApiError ? query.error.code : "",
+      refresh: () => refetch(),
+      admit,
+      admitting: admitMutation.isPending
+    }),
+    [
+      query.data,
+      query.isLoading,
+      query.error,
+      refetch,
+      admit,
+      admitMutation.isPending
+    ]
   );
 };
 

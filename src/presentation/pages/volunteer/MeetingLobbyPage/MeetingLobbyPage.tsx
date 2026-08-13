@@ -10,7 +10,7 @@ import { useMeetingLobbyPage } from "./MeetingLobbyPage.logic";
 
 const MeetingLobbyPage = () => {
   const router = useRouter();
-  const { view, launch, error, activityId, displayName, refresh, leaveHref } = useMeetingLobbyPage();
+  const { view, launch, error, activityId, displayName, email, refresh, leaveHref } = useMeetingLobbyPage();
   const goBack = () => router.push(leaveHref);
   const live = view === "ready";
 
@@ -54,6 +54,7 @@ const MeetingLobbyPage = () => {
       <MeetingRoom
         activityId={activityId}
         displayName={displayName}
+        email={email}
         launch={launch}
         onLeave={goBack}
       />
@@ -61,7 +62,7 @@ const MeetingLobbyPage = () => {
   }
 
   return (
-    <div className={`${styles.page} ${live ? styles.live : ""}`}>
+    <div className={`${styles.page} ${live ? styles.live : ""}`} {...(live ? { "data-lock-scroll": "" } : {})}>
       <div className={`${styles.container} ${live ? styles.containerLive : ""}`}>{body}</div>
     </div>
   );

@@ -59,6 +59,28 @@ export type MeetingLaunchDto = {
   timeZone?: string;
 };
 
+export type MeetingSessionDto = {
+  role: "host" | "guest";
+  stage: "waiting_host" | "waiting_admit" | "admitted" | "denied";
+  identity: {
+    userId: string;
+    fullName: string;
+    email: string;
+  };
+  hostPresent: boolean;
+  canEnterMedia: boolean;
+  waiting: Array<{
+    userId: string;
+    fullName: string;
+    email: string;
+    requestedAt: number;
+  }>;
+};
+
+export type LaunchMeetingResponse = Result<MeetingLaunchDto>;
+export type GetMeetingSessionResponse = Result<MeetingSessionDto>;
+export type LeaveMeetingSessionResponse = Result<{ left: boolean }>;
+
 export type MeetingReportAttendeeDto = {
   id: string;
   displayName: string;
@@ -89,7 +111,6 @@ export type GetGoogleConnectResponse = Result<{ url: string; state?: string }>;
 export type DisconnectGoogleResponse = Result<{ disconnected: boolean }>;
 export type GetMeetingsResponse = Result<{ meetings: MeetingListItemDto[] }>;
 export type RetryMeetingSyncResponse = Result<{ operationId: string; activityId: string }>;
-export type LaunchMeetingResponse = Result<MeetingLaunchDto>;
 export type GetMeetingReportResponse = Result<{ report: MeetingReportDto | null }>;
 export type ImportMeetingReportResponse = Result<{ report: MeetingReportDto }>;
 export type MatchMeetingAttendeeResponse = Result<{
@@ -115,6 +136,21 @@ export const meetingsApi = {
 
   getLaunchUrl: (activityId: string) =>
     apiClient.get<LaunchMeetingResponse>(API_ENDPOINTS.MEETINGS.LAUNCH(activityId)),
+
+  getSession: (activityId: string) =>
+    apiClient.get<GetMeetingSessionResponse>(API_ENDPOINTS.MEETINGS.SESSION(activityId)),
+
+  leaveSession: (activityId: string) =>
+    apiClient.post<LeaveMeetingSessionResponse>(API_ENDPOINTS.MEETINGS.SESSION(activityId), {
+      action: "leave"
+    }),
+
+  admitGuest: (activityId: string, userId: string, allow: boolean) =>
+    apiClient.post<GetMeetingSessionResponse>(API_ENDPOINTS.MEETINGS.SESSION(activityId), {
+      action: "admit",
+      userId,
+      allow
+    }),
 
   getReport: (activityId: string) =>
     apiClient.get<GetMeetingReportResponse>(API_ENDPOINTS.MEETINGS.REPORT(activityId)),

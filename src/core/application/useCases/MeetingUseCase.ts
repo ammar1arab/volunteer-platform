@@ -3,8 +3,14 @@ import {
   ActivityParticipationRepository,
   ActivityPresenterRepository,
   MeetingIntegrationRepository,
-  MeetingSyncOperationRepository
+  MeetingSyncOperationRepository,
+  UserRepository
 } from "@/infrastructure/persistence/repositories";
+import {
+  admitMeetingGuest as admitGuestInGate,
+  leaveMeetingGate,
+  touchMeetingGate
+} from "@/infrastructure/meetings/meetingGateStore";
 import { GoogleMeetingProvider } from "@/infrastructure/external";
 import { encrypt, decrypt } from "@/infrastructure/security";
 import { MeetingIntegration } from "@/core/domain/entities";
@@ -21,6 +27,8 @@ import {
   OnlineMeetingListItemDto,
   RetryMeetingSyncResponse,
   GetMeetingLaunchUrlResponse,
+  GetMeetingSessionResponse,
+  LeaveMeetingSessionResponse,
   EnqueueMeetingSyncResponse,
   GetMeetingReportResponse,
   ImportMeetingReportResponse,
@@ -57,6 +65,7 @@ class MeetingUseCase {
     private activityRepository: ActivityRepository,
     private presenterRepository: ActivityPresenterRepository,
     private participationRepository: ActivityParticipationRepository,
+    private userRepository: UserRepository,
     private meetingProvider: IMeetingProvider = new GoogleMeetingProvider()
   ) {}
 
@@ -638,62 +647,180 @@ class MeetingUseCase {
     }
   }
 
-  async getMeetingLaunchUrl(
-    activityId: string,
-    userId: string,
-    role: string
-  ): Promise<GetMeetingLaunchUrlResponse> {
-    try {
-      guard(activityId, "معرّف النشاط مطلوب");
-      guard(userId, "معرّف المستخدم مطلوب");
+  private emailsMatch(left: string, right: string) {
+    return left.trim().toLowerCase() === right.trim().toLowerCase();
+  }
 
-      const activity = await this.activityRepository.findById(activityId);
-      if (!activity) return fail("NOT_FOUND", "النشاط غير موجود");
+  private async resolveMeetingAccess(activityId: string, userId: string, role: string) {
+    guard(activityId, "معرّف النشاط مطلوب");
+    guard(userId, "معرّف المستخدم مطلوب");
 
-      const props = activity.toObject();
-      if (props.activityType !== ActivityType.ONLINE) {
-        return fail("INVALID_STATE", "هذا النشاط ليس اجتماعاً إلكترونياً");
+    const activity = await this.activityRepository.findById(activityId);
+    if (!activity) return fail("NOT_FOUND", "النشاط غير موجود");
+
+    const props = activity.toObject();
+    if (props.activityType !== ActivityType.ONLINE) {
+      return fail("INVALID_STATE", "هذا النشاط ليس اجتماعاً إلكترونياً");
+    }
+    if (props.status === ActivityStatus.CANCELLED) {
+      return fail("INVALID_STATE", "تم إلغاء هذا النشاط");
+    }
+    if (role !== UserRole.ADMIN && props.status !== ActivityStatus.PUBLISHED) {
+      return fail(
+        "INVALID_STATE",
+        props.status === ActivityStatus.COMPLETED ? "انتهى هذا الاجتماع" : "الاجتماع غير متاح حالياً"
+      );
+    }
+
+    const link = props.meetingLink;
+    if (!link) return fail("INVALID_STATE", "رابط الاجتماع غير متوفر بعد");
+
+    let isHost = role === UserRole.ADMIN;
+    if (!isHost) {
+      const presenter = await this.presenterRepository.findByActivityAndPresenter(activityId, userId);
+      isHost = Boolean(presenter?.isActive);
+    }
+
+    if (!isHost) {
+      const participation = await this.participationRepository.findByActivityAndVolunteer(
+        activityId,
+        userId
+      );
+      if (!participation || participation.status !== ParticipationStatus.APPROVED) {
+        return fail("FORBIDDEN", "ليس لديك صلاحية للانضمام إلى هذا الاجتماع");
       }
-      if (props.status === ActivityStatus.CANCELLED) {
-        return fail("INVALID_STATE", "تم إلغاء هذا النشاط");
-      }
-      if (role !== UserRole.ADMIN && props.status !== ActivityStatus.PUBLISHED) {
-        return fail(
-          "INVALID_STATE",
-          props.status === ActivityStatus.COMPLETED ? "انتهى هذا الاجتماع" : "الاجتماع غير متاح حالياً"
-        );
-      }
+    }
 
-      const link = props.meetingLink;
-      if (!link) return fail("INVALID_STATE", "رابط الاجتماع غير متوفر بعد");
-
-      const payload = {
+    return ok({
+      isHost,
+      payload: {
         url: link,
         title: props.title,
         date: props.date instanceof Date ? props.date.toISOString() : String(props.date),
         startTime: props.startTime,
         endTime: props.endTime,
         timeZone: props.timeZone
-      };
-
-      if (role === UserRole.ADMIN) {
-        return ok(payload);
       }
+    });
+  }
 
-      const presenter = await this.presenterRepository.findByActivityAndPresenter(activityId, userId);
-      if (presenter?.isActive) return ok(payload);
+  private async resolveMeetingIdentity(userId: string, sessionEmail: string | null | undefined) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) return fail("NOT_FOUND", "المستخدم غير موجود");
+    if (user.role !== UserRole.ADMIN && !user.emailVerified) {
+      return fail("FORBIDDEN", "يجب تأكيد البريد الإلكتروني على المنصة قبل دخول الاجتماع");
+    }
 
-      const participation = await this.participationRepository.findByActivityAndVolunteer(
-        activityId,
-        userId
-      );
-      if (participation && participation.status === ParticipationStatus.APPROVED) {
-        return ok(payload);
-      }
+    const email = user.email.trim();
+    if (!email) return fail("FORBIDDEN", "لا يوجد بريد إلكتروني مرتبط بحسابك");
 
-      return fail("FORBIDDEN", "ليس لديك صلاحية للانضمام إلى هذا الاجتماع");
+    const claimed = sessionEmail?.trim();
+    if (claimed && !this.emailsMatch(claimed, email)) {
+      return fail("FORBIDDEN", "البريد الإلكتروني للجلسة لا يطابق حسابك على المنصة");
+    }
+
+    return ok({
+      userId: user.id,
+      fullName: user.fullName.trim() || email,
+      email
+    });
+  }
+
+  async getMeetingLaunchUrl(
+    activityId: string,
+    userId: string,
+    role: string
+  ): Promise<GetMeetingLaunchUrlResponse> {
+    try {
+      const access = await this.resolveMeetingAccess(activityId, userId, role);
+      if (!access.success) return access;
+      return ok(access.data.payload);
     } catch (error) {
       return serviceError(MeetingUseCase.SCOPE, "getMeetingLaunchUrl", error, "تعذر جلب رابط الاجتماع");
+    }
+  }
+
+  async touchMeetingSession(
+    activityId: string,
+    userId: string,
+    role: string,
+    sessionEmail: string | null | undefined
+  ): Promise<GetMeetingSessionResponse> {
+    try {
+      const access = await this.resolveMeetingAccess(activityId, userId, role);
+      if (!access.success) return access;
+
+      const identity = await this.resolveMeetingIdentity(userId, sessionEmail);
+      if (!identity.success) return identity;
+
+      return ok(
+        touchMeetingGate({
+          activityId,
+          identity: identity.data,
+          role: access.data.isHost ? "host" : "guest"
+        })
+      );
+    } catch (error) {
+      return serviceError(MeetingUseCase.SCOPE, "touchMeetingSession", error, "تعذر تحديث جلسة الاجتماع");
+    }
+  }
+
+  async leaveMeetingSession(
+    activityId: string,
+    userId: string,
+    role: string
+  ): Promise<LeaveMeetingSessionResponse> {
+    try {
+      const access = await this.resolveMeetingAccess(activityId, userId, role);
+      if (!access.success) return access;
+      return ok({ left: leaveMeetingGate(activityId, userId) });
+    } catch (error) {
+      return serviceError(MeetingUseCase.SCOPE, "leaveMeetingSession", error, "تعذر مغادرة جلسة الاجتماع");
+    }
+  }
+
+  async admitMeetingGuest(
+    activityId: string,
+    hostUserId: string,
+    hostRole: string,
+    guestUserId: string,
+    allow: boolean,
+    sessionEmail: string | null | undefined
+  ): Promise<GetMeetingSessionResponse> {
+    try {
+      guard(guestUserId, "معرّف المشارك مطلوب");
+      const access = await this.resolveMeetingAccess(activityId, hostUserId, hostRole);
+      if (!access.success) return access;
+      if (!access.data.isHost) {
+        return fail("FORBIDDEN", "فقط المضيف يمكنه قبول المشاركين");
+      }
+
+      const identity = await this.resolveMeetingIdentity(hostUserId, sessionEmail);
+      if (!identity.success) return identity;
+
+      touchMeetingGate({
+        activityId,
+        identity: identity.data,
+        role: "host"
+      });
+
+      const result = admitGuestInGate({
+        activityId,
+        hostUserId,
+        guestUserId: guestUserId.trim(),
+        allow
+      });
+
+      if (result === "not_host") {
+        return fail("FORBIDDEN", "فقط المضيف يمكنه قبول المشاركين");
+      }
+      if (result === "not_waiting") {
+        return fail("NOT_FOUND", "المشارك غير موجود في قائمة الانتظار");
+      }
+
+      return ok(result);
+    } catch (error) {
+      return serviceError(MeetingUseCase.SCOPE, "admitMeetingGuest", error, "تعذر تحديث طلب الدخول");
     }
   }
 

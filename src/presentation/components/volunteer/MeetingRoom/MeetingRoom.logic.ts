@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { API_ENDPOINTS } from "@/lib/config";
 import { useNow } from "@/presentation/query";
-import { useConfirmDialog, useToast } from "@/presentation/hooks";
+import { useConfirmDialog, useMeetingSession, useToast } from "@/presentation/hooks";
+import { meetingsApi } from "@/presentation/services/meetings.service";
 import {
   DEFAULT_ACTIVITY_TIME_ZONE,
   getJitsiRoomName,
@@ -23,6 +25,19 @@ import {
 } from "./jitsiClient";
 
 export type MeetingEmbedStatus = JitsiConferenceStatus;
+
+type FullscreenDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => Promise<void> | void;
+};
+
+type FullscreenNode = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
+
+const pendingLeaves = new Map<string, ReturnType<typeof setTimeout>>();
+
+const noopSubscribe = () => () => undefined;
 
 export const formatMeetingDate = (date?: string, timeZone = DEFAULT_ACTIVITY_TIME_ZONE) => {
   if (!date) return null;
@@ -94,27 +109,136 @@ export const getMeetingPhase = (
 
 export const getMeetingPhaseLabel = (phase: MeetingPhase) => MEETING_PHASE_LABELS[phase];
 
+const cancelPendingLeave = (activityId: string) => {
+  const timer = pendingLeaves.get(activityId);
+  if (!timer) return;
+  clearTimeout(timer);
+  pendingLeaves.delete(activityId);
+};
+
+const sendLeave = (activityId: string) => {
+  const url = API_ENDPOINTS.MEETINGS.SESSION(activityId);
+  const body = JSON.stringify({ action: "leave" });
+  const blob = new Blob([body], { type: "application/json" });
+  const sent = typeof navigator.sendBeacon === "function" && navigator.sendBeacon(url, blob);
+  if (sent) return;
+  void fetch(url, {
+    method: "POST",
+    body,
+    headers: { "Content-Type": "application/json" },
+    keepalive: true,
+    credentials: "same-origin"
+  });
+};
+
+const scheduleLeave = (activityId: string) => {
+  cancelPendingLeave(activityId);
+  pendingLeaves.set(
+    activityId,
+    setTimeout(() => {
+      pendingLeaves.delete(activityId);
+      sendLeave(activityId);
+    }, 500)
+  );
+};
+
+export function useMeetingPresence(activityId: string, enabled: boolean) {
+  const subscribe = useCallback(
+    (_onStoreChange: () => void) => {
+      if (!enabled || !activityId) return () => undefined;
+      cancelPendingLeave(activityId);
+      const onPageHide = () => {
+        cancelPendingLeave(activityId);
+        sendLeave(activityId);
+      };
+      window.addEventListener("pagehide", onPageHide);
+      return () => {
+        window.removeEventListener("pagehide", onPageHide);
+        scheduleLeave(activityId);
+      };
+    },
+    [activityId, enabled]
+  );
+
+  useSyncExternalStore(subscribe, () => true, () => true);
+}
+
+const subscribeFullscreen = (onStoreChange: () => void) => {
+  document.addEventListener("fullscreenchange", onStoreChange);
+  document.addEventListener("webkitfullscreenchange", onStoreChange);
+  return () => {
+    document.removeEventListener("fullscreenchange", onStoreChange);
+    document.removeEventListener("webkitfullscreenchange", onStoreChange);
+  };
+};
+
+const getIsFullscreen = () => {
+  if (typeof document === "undefined") return false;
+  const doc = document as FullscreenDocument;
+  return Boolean(doc.fullscreenElement || doc.webkitFullscreenElement);
+};
+
+const requestFullscreen = (node: HTMLElement) => {
+  const target = node as FullscreenNode;
+  const request = target.requestFullscreen ?? target.webkitRequestFullscreen;
+  if (!request) return;
+  void request.call(target);
+};
+
+const exitFullscreen = () => {
+  const doc = document as FullscreenDocument;
+  const exit = doc.exitFullscreen ?? doc.webkitExitFullscreen;
+  if (!exit) return;
+  void exit.call(doc);
+};
+
+export function useMeetingFullscreen() {
+  const [node, setNode] = useState<HTMLElement | null>(null);
+  const active = useSyncExternalStore(subscribeFullscreen, getIsFullscreen, () => false);
+
+  const toggle = useCallback(() => {
+    if (getIsFullscreen()) {
+      exitFullscreen();
+      return;
+    }
+    if (node) requestFullscreen(node);
+  }, [node]);
+
+  return { setNode, active, toggle };
+}
+
 export function useMeetingRoomEmbed(input: {
   activityId: string;
   displayName?: string;
+  email?: string;
   subject: string;
+  enabled: boolean;
 }) {
   const { showToast, toasts, removeToast } = useToast();
   const { confirm, confirmDialog } = useConfirmDialog();
   const [retry, setRetry] = useState(0);
   const [parentNode, setParentNode] = useState<HTMLDivElement | null>(null);
   const [startedAt, setStartedAt] = useState(Date.now());
+  const [mediaArmed, setMediaArmed] = useState(input.enabled);
+  if (mediaArmed !== input.enabled) {
+    setMediaArmed(input.enabled);
+    if (input.enabled) setStartedAt(Date.now());
+  }
 
+  const subscribeScript = input.enabled ? subscribeJitsiScript : noopSubscribe;
   const scriptStatus = useSyncExternalStore(
-    subscribeJitsiScript,
-    getJitsiScriptStatus,
+    subscribeScript,
+    input.enabled ? getJitsiScriptStatus : () => "idle" as const,
     () => "idle" as const
   );
 
   const roomName = getJitsiRoomName(input.activityId);
   const displayName = input.displayName?.trim() || MEETING_LABELS.guestName;
+  const email = input.email?.trim() || "";
   const conferenceKey =
-    parentNode && scriptStatus === "ready" ? `${roomName}:${retry}:${displayName}` : "";
+    input.enabled && parentNode && scriptStatus === "ready"
+      ? `${roomName}:${retry}:${displayName}:${email}`
+      : "";
 
   const callbacks = useMemo(
     () => ({
@@ -134,6 +258,7 @@ export function useMeetingRoomEmbed(input: {
         {
           roomName,
           displayName,
+          email: email || undefined,
           subject: input.subject,
           parentNode,
           callbacks
@@ -141,7 +266,7 @@ export function useMeetingRoomEmbed(input: {
         onStoreChange
       );
     },
-    [parentNode, conferenceKey, scriptStatus, roomName, displayName, input.subject, callbacks]
+    [parentNode, conferenceKey, scriptStatus, roomName, displayName, email, input.subject, callbacks]
   );
 
   const getConferenceSnapshot = useCallback(
@@ -155,10 +280,9 @@ export function useMeetingRoomEmbed(input: {
     getIdleJitsiSnapshot
   );
 
-  const waiting = snapshot.status === "boot" && scriptStatus !== "error";
+  const waiting = input.enabled && snapshot.status === "boot" && scriptStatus !== "error";
   const now = useNow(waiting);
-  const timedOut =
-    waiting && now > 0 && now - startedAt >= getMeetingEmbedTimeoutMs();
+  const timedOut = waiting && now > 0 && now - startedAt >= getMeetingEmbedTimeoutMs();
   const status: MeetingEmbedStatus =
     scriptStatus === "error" || timedOut ? "failed" : snapshot.status;
 
@@ -170,21 +294,22 @@ export function useMeetingRoomEmbed(input: {
 
   const requestLeave = useCallback(
     async (onLeave: () => void) => {
-      if (status !== "joined") {
-        onLeave();
-        return;
+      if (status === "joined") {
+        const ok = await confirm({
+          title: MEETING_LABELS.leaveTitle,
+          message: MEETING_LABELS.leaveMessage,
+          confirmText: MEETING_LABELS.leaveConfirm,
+          cancelText: MEETING_LABELS.leaveCancel,
+          variant: "danger",
+          warning: MEETING_LABELS.leaveWarning
+        });
+        if (!ok) return;
       }
-      const ok = await confirm({
-        title: MEETING_LABELS.leaveTitle,
-        message: MEETING_LABELS.leaveMessage,
-        confirmText: MEETING_LABELS.leaveConfirm,
-        cancelText: MEETING_LABELS.leaveCancel,
-        variant: "danger",
-        warning: MEETING_LABELS.leaveWarning
-      });
-      if (ok) onLeave();
+      cancelPendingLeave(input.activityId);
+      void meetingsApi.leaveSession(input.activityId);
+      onLeave();
     },
-    [confirm, status]
+    [confirm, status, input.activityId]
   );
 
   return {
@@ -193,8 +318,47 @@ export function useMeetingRoomEmbed(input: {
     setParentNode,
     retryLoad,
     requestLeave,
+    showToast,
     toasts,
     removeToast,
     confirmDialog
+  };
+}
+
+export function useMeetingRoom(input: {
+  activityId: string;
+  displayName: string;
+  email: string;
+  subject: string;
+}) {
+  const gate = useMeetingSession(input.activityId);
+  const identityName = gate.session?.identity.fullName || input.displayName;
+  const identityEmail = gate.session?.identity.email || input.email;
+  const canEnterMedia = gate.session?.canEnterMedia === true;
+
+  useMeetingPresence(input.activityId, Boolean(gate.session));
+
+  const embed = useMeetingRoomEmbed({
+    activityId: input.activityId,
+    displayName: identityName,
+    email: identityEmail,
+    subject: input.subject,
+    enabled: canEnterMedia
+  });
+
+  const fullscreen = useMeetingFullscreen();
+
+  return {
+    ...embed,
+    session: gate.session,
+    sessionLoading: gate.loading,
+    sessionError: gate.error,
+    identityName,
+    identityEmail,
+    canEnterMedia,
+    admit: gate.admit,
+    admitting: gate.admitting,
+    refreshSession: gate.refresh,
+    fullscreen
   };
 }

@@ -76,6 +76,31 @@ export type GetMeetingLaunchUrlResponse = Result<{
 }>;
 export type EnqueueMeetingSyncResponse = Result<{ operationId: string }>;
 
+export type MeetingGateRoleDto = "host" | "guest";
+export type MeetingGateStageDto = "waiting_host" | "waiting_admit" | "admitted" | "denied";
+
+export interface MeetingGateIdentityDto {
+  userId: string;
+  fullName: string;
+  email: string;
+}
+
+export interface MeetingWaitingGuestDto extends MeetingGateIdentityDto {
+  requestedAt: number;
+}
+
+export interface MeetingSessionDto {
+  role: MeetingGateRoleDto;
+  stage: MeetingGateStageDto;
+  identity: MeetingGateIdentityDto;
+  hostPresent: boolean;
+  canEnterMedia: boolean;
+  waiting: MeetingWaitingGuestDto[];
+}
+
+export type GetMeetingSessionResponse = Result<MeetingSessionDto>;
+export type LeaveMeetingSessionResponse = Result<{ left: boolean }>;
+
 export interface MeetingReportAttendeeDto {
   id: string;
   displayName: string;

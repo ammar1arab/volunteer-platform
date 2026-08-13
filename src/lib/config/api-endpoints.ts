@@ -106,6 +106,7 @@ export const API_ENDPOINTS = {
       `/api/meetings?filter=${filter}`,
     RETRY: (activityId: string) => `/api/meetings/${activityId}/retry`,
     LAUNCH: (activityId: string) => `/api/meetings/${activityId}/launch`,
+    SESSION: (activityId: string) => `/api/meetings/${activityId}/session`,
     REPORT: (activityId: string) => `/api/meetings/${activityId}/report`,
     IMPORT_REPORT: (activityId: string) => `/api/meetings/${activityId}/import-report`,
     MATCH_ATTENDEE: (activityId: string, attendeeId: string) =>

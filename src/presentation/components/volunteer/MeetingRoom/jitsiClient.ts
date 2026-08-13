@@ -43,7 +43,7 @@ type JitsiApiConstructor = new (
     lang: string;
     width: number;
     height: number;
-    userInfo: { displayName: string };
+    userInfo: { displayName: string; email?: string };
     configOverwrite: typeof JITSI_CONFIG_OVERWRITE;
     interfaceConfigOverwrite: typeof JITSI_INTERFACE_OVERWRITE;
     onload?: () => void;
@@ -152,6 +152,7 @@ export const connectJitsiConference = (
   options: {
     roomName: string;
     displayName: string;
+    email?: string;
     subject: string;
     parentNode: HTMLElement;
     callbacks: JitsiConferenceCallbacks;
@@ -203,7 +204,10 @@ export const connectJitsiConference = (
     lang: JITSI_LANGUAGE,
     width,
     height,
-    userInfo: { displayName: options.displayName },
+    userInfo: {
+      displayName: options.displayName,
+      ...(options.email ? { email: options.email } : {})
+    },
     configOverwrite: JITSI_CONFIG_OVERWRITE,
     interfaceConfigOverwrite: JITSI_INTERFACE_OVERWRITE,
     onload: () => {
