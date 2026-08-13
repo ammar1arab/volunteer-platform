@@ -54,10 +54,13 @@ const getRoom = (activityId: string): Room => {
   return created;
 };
 
-const prune = (activityId: string, room: Room, now: number) => {
+const prune = (room: Room, now: number) => {
   for (const [userId, seat] of room.seats) {
     if (now - seat.lastSeenAt > PARTICIPANT_TTL_MS) room.seats.delete(userId);
   }
+};
+
+const dropIfEmpty = (activityId: string, room: Room) => {
   if (room.seats.size === 0) rooms.delete(activityId);
 };
 
@@ -107,7 +110,7 @@ export const touchMeetingGate = (input: {
 }): MeetingGateSnapshot => {
   const now = Date.now();
   const room = getRoom(input.activityId);
-  prune(input.activityId, room, now);
+  prune(room, now);
 
   const existing = room.seats.get(input.identity.userId);
   const seat: Seat = existing
@@ -140,7 +143,8 @@ export const leaveMeetingGate = (activityId: string, userId: string): boolean =>
   const room = rooms.get(activityId);
   if (!room) return false;
   const existed = room.seats.delete(userId);
-  prune(activityId, room, Date.now());
+  prune(room, Date.now());
+  dropIfEmpty(activityId, room);
   return existed;
 };
 
@@ -153,7 +157,7 @@ export const admitMeetingGuest = (input: {
   const now = Date.now();
   const room = rooms.get(input.activityId);
   if (!room) return "not_waiting";
-  prune(input.activityId, room, now);
+  prune(room, now);
 
   const host = room.seats.get(input.hostUserId);
   if (!host || host.role !== "host") return "not_host";

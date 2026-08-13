@@ -154,16 +154,14 @@
   direction: ltr;
   unicode-bidi: isolate;
 
-  :global(> div) {
+  :global(div),
+  :global(iframe) {
     width: 100% !important;
     height: 100% !important;
     min-height: 100% !important;
   }
 
   :global(iframe) {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 100% !important;
     border: 0 !important;
     display: block;
   }
