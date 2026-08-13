@@ -9,7 +9,10 @@ class MeetingIntegration extends BaseEntity {
     super(props.id, props.createdAt, props.updatedAt, props.isActive ?? true);
 
     if (!props.organizerEmail?.trim()) throw new Error("Organizer email is required");
-    if (!props.encryptedRefreshToken?.trim()) throw new Error("Refresh token is required");
+    const disconnected = props.status === MeetingIntegrationStatus.DISCONNECTED;
+    if (!disconnected && !props.encryptedRefreshToken?.trim()) {
+      throw new Error("Refresh token is required");
+    }
 
     this.props = {
       ...props,

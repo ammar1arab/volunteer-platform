@@ -41,7 +41,8 @@ export interface IMeetingProvider {
   exchangeCode(
     code: string,
     redirectUri?: string
-  ): Promise<{ refreshToken: string; email: string; scopes: string[] }>;
+  ): Promise<{ refreshToken: string | null; email: string; scopes: string[] }>;
+  revokeToken(refreshToken: string): Promise<void>;
   refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresAt: Date }>;
   createMeeting(
     refreshToken: string,

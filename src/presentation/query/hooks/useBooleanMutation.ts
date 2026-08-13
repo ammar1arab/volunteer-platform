@@ -5,10 +5,6 @@ import { type QueryKey } from "@tanstack/react-query";
 import { useApiMutation } from "./useApiMutation";
 import { getErrorMessage } from "../utils/errors";
 
-
-
-
-
 export function useBooleanMutation<
   TVariables,
   TData extends object | void | boolean | string | number | null = object | void | boolean | string | number | null
@@ -16,6 +12,8 @@ export function useBooleanMutation<
   request: (variables: TVariables) => Promise<TData>;
   invalidateQueries?: QueryKey | QueryKey[];
   fallbackError?: string;
+  onMutate?: (variables: TVariables) => unknown | Promise<unknown>;
+  onError?: (error: Error, variables: TVariables, context: unknown) => void;
 }) {
   const [error, setError] = useState("");
   const requestRef = useRef(params.request);
@@ -30,7 +28,9 @@ export function useBooleanMutation<
 
   const mutation = useApiMutation<TData, TVariables>({
     request: stableRequest,
-    invalidateQueries: params.invalidateQueries
+    invalidateQueries: params.invalidateQueries,
+    onMutate: params.onMutate,
+    onError: params.onError
   });
 
   const { mutateAsync, reset: resetMutation, isPending } = mutation;

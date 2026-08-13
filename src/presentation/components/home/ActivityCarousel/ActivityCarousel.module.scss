@@ -64,6 +64,7 @@
 
 .carouselTrack {
   display: flex;
+  align-items: stretch;
   margin: 0;
   padding: $sp-xs 0;
   list-style: none;
@@ -72,16 +73,26 @@
 }
 
 .carouselItem {
-  flex: 0 0 33.333333%; 
+  flex: 0 0 100%;
   min-width: 0;
+  min-height: 0;
   padding: 0 $sp-sm;
+  display: flex;
+  align-items: stretch;
 
-  @include md {
+  > * {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+  }
+
+  @media (min-width: $bp-sm) {
     flex: 0 0 50%;
   }
 
-  @include sm {
-    flex: 0 0 100%; 
+  @media (min-width: $bp-md) {
+    flex: 0 0 33.333333%;
   }
 }
 

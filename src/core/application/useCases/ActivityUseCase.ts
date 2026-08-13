@@ -92,14 +92,35 @@ class ActivityUseCase {
         dedupeKey: `${activityId}:${type}`,
         payload: { activityId, type }
       });
-      try {
-        await inngest.send({ name: "meeting/sync.requested", data: { operationId: operation.id } });
-      } catch (error) {
-        logger.warn(ActivityUseCase.SCOPE, "enqueueMeetingSync", String(error));
+      let processed = false;
+      if (
+        type === MeetingSyncOperationType.CREATE ||
+        type === MeetingSyncOperationType.UPDATE
+      ) {
+        try {
+          const { providers } = await import("@/lib/providers");
+          const result = await providers.meeting().processSyncOperation(operation.id);
+          processed = Boolean(result?.success);
+        } catch (error) {
+          logger.warn(ActivityUseCase.SCOPE, "processMeetingSyncNow", String(error));
+        }
+      }
+      if (!processed) {
+        try {
+          await inngest.send({ name: "meeting/sync.requested", data: { operationId: operation.id } });
+        } catch (error) {
+          logger.warn(ActivityUseCase.SCOPE, "enqueueMeetingSync", String(error));
+        }
       }
     } catch (error) {
       logger.warn(ActivityUseCase.SCOPE, "enqueueMeetingSync", String(error));
     }
+  }
+
+  private async toEnrichedDto(activityId: string, fallback: Activity) {
+    const fresh = await this.activityRepository.findById(activityId);
+    const [enriched] = await this.attachPrimaryPresenters([toActivityDto(fresh ?? fallback)]);
+    return enriched;
   }
 
   /**
@@ -309,9 +330,8 @@ class ActivityUseCase {
         await this.enqueueMeetingSync(updated.id, MeetingSyncOperationType.UPDATE);
       }
 
-      const [enriched] = await this.attachPrimaryPresenters([toActivityDto(updated)]);
       logger.info(ActivityUseCase.SCOPE, "update", `Activity updated: ${id}`);
-      return ok({ activity: enriched });
+      return ok({ activity: await this.toEnrichedDto(updated.id, updated) });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "update", error, "حدث خطأ أثناء تحديث الفرصة");
     }
@@ -390,7 +410,7 @@ class ActivityUseCase {
       }
 
       logger.info(ActivityUseCase.SCOPE, "publish", `Activity published: ${id}`);
-      return ok({ activity: toActivityDto(updated) });
+      return ok({ activity: await this.toEnrichedDto(updated.id, updated) });
     } catch (error) {
       return serviceError(ActivityUseCase.SCOPE, "publish", error, "حدث خطأ أثناء نشر الفرصة");
     }

@@ -42,7 +42,7 @@ export default function IntroPage({ onDone }: { onDone: () => void }) {
         <svg viewBox="0 0 200 270" className={styles.svg}>
           <g transform="translate(4, 39) scale(8)" className={styles.fingerprintGroup}>
             {FP_PATHS.map((d, i) => (
-              <path key={i} d={d} style={{ animationDelay: `${i * 0.06}s` }} />
+              <path key={i} d={d} style={{ animationDelay: `${i * 0.04}s` }} />
             ))}
           </g>
 
@@ -52,7 +52,7 @@ export default function IntroPage({ onDone }: { onDone: () => void }) {
             <g
               key={i}
               className={styles.city}
-              style={{ animationDelay: `${0.5 + i * 0.07}s` }}
+              style={{ animationDelay: `${0.38 + i * 0.05}s` }}
             >
               <circle cx={city.x} cy={city.y} r="2" className={styles.dot} />
               <text x={city.x + 5} y={city.y + 3} className={styles.cityName}>

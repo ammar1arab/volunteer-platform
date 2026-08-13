@@ -104,7 +104,7 @@ export const meetingsApi = {
     apiClient.get<GetGoogleConnectResponse>(API_ENDPOINTS.INTEGRATIONS.GOOGLE.CONNECT),
 
   disconnectGoogle: () =>
-    apiClient.post<DisconnectGoogleResponse>(API_ENDPOINTS.INTEGRATIONS.GOOGLE.DISCONNECT),
+    apiClient.post<DisconnectGoogleResponse>(API_ENDPOINTS.INTEGRATIONS.GOOGLE.DISCONNECT, {}),
 
   getMeetings: (filter: MeetingsFilter = "upcoming") =>
     apiClient.get<GetMeetingsResponse>(API_ENDPOINTS.MEETINGS.LIST(filter)),

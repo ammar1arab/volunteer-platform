@@ -145,7 +145,11 @@ const AdminActivityCard = ({ activity, meta, actions }: AdminActivityCardProps) 
                   <span>
                     {activity.meetingSyncStatus === MeetingSyncStatus.FAILED
                       ? "تعذر إنشاء الرابط"
-                      : "الرابط قيد الإنشاء"}
+                      : activity.meetingSyncStatus === MeetingSyncStatus.PENDING
+                        ? "الرابط قيد الإنشاء"
+                        : activity.status === ActivityStatus.DRAFT
+                          ? "يُنشأ الرابط عند النشر"
+                          : "الرابط قيد الإنشاء"}
                   </span>
                 </div>
                 {meetStatus}

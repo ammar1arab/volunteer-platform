@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { MeetingSyncStatus } from "@/core/domain/enums";
+import { MeetingIntegrationStatus, MeetingSyncStatus } from "@/core/domain/enums";
 import {
   meetingsApi,
   type MeetingsFilter,
@@ -17,8 +17,18 @@ import {
   unwrapResult,
   useBooleanMutation,
   useApiMutation,
+  useCacheUpdater,
   useFetchData
 } from "@/presentation/query";
+
+const DISCONNECTED_STATUS: GoogleIntegrationStatusDto = {
+  connected: false,
+  status: MeetingIntegrationStatus.DISCONNECTED,
+  organizerEmail: "",
+  scopes: [],
+  lastError: null,
+  lastCheckedAt: null
+};
 
 export const useGoogleIntegrationStatus = (opts?: { enabled?: boolean }) => {
   const query = useFetchData<GoogleIntegrationStatusDto>({
@@ -26,7 +36,8 @@ export const useGoogleIntegrationStatus = (opts?: { enabled?: boolean }) => {
     request: async () => unwrapResult(await meetingsApi.getGoogleStatus()).integration,
     options: {
       enabled: opts?.enabled ?? true,
-      staleTime: 30_000
+      staleTime: 10_000,
+      refetchOnMount: "always"
     }
   });
 
@@ -36,14 +47,15 @@ export const useGoogleIntegrationStatus = (opts?: { enabled?: boolean }) => {
     () => ({
       status: query.data ?? null,
       loading: query.isLoading,
+      fetching: query.isFetching,
       error: query.error ? getErrorMessage(query.error, "فشل في جلب حالة الاتصال") : "",
       refresh: () => refetch()
     }),
-    [query.data, query.isLoading, query.error, refetch]
+    [query.data, query.isLoading, query.isFetching, query.error, refetch]
   );
 };
 
-export const useMeetings = (opts?: { filter?: MeetingsFilter; enabled?: boolean }) => {
+export const useMeetingsQuery = (opts?: { filter?: MeetingsFilter; enabled?: boolean }) => {
   const filter = opts?.filter ?? "upcoming";
 
   const query = useFetchData<MeetingListItemDto[]>({
@@ -52,7 +64,7 @@ export const useMeetings = (opts?: { filter?: MeetingsFilter; enabled?: boolean 
     options: {
       enabled: opts?.enabled ?? true,
       staleTime: 20_000,
-      keepPrevious: true,
+      keepPrevious: false,
       refetchInterval: (query) => {
         const rows = query.state.data;
         if (!Array.isArray(rows)) return false;
@@ -61,9 +73,27 @@ export const useMeetings = (opts?: { filter?: MeetingsFilter; enabled?: boolean 
     }
   });
 
+  const refetch = query.refetch;
+  const list = (query.data ?? EMPTY_ARRAY) as MeetingListItemDto[];
+
+  return useMemo(
+    () => ({
+      list,
+      loading: query.isLoading,
+      fetching: query.isFetching,
+      error: query.error ? getErrorMessage(query.error, "فشل في جلب الاجتماعات") : "",
+      refresh: () => refetch()
+    }),
+    [list, query.isLoading, query.isFetching, query.error, refetch]
+  );
+};
+
+export const useMeetingActions = () => {
+  const statusCache = useCacheUpdater<GoogleIntegrationStatusDto>(queryKeys.meetings.googleStatus());
+
   const retryMutation = useBooleanMutation<string>({
     request: async (activityId) => unwrapResult(await meetingsApi.retrySync(activityId)),
-    invalidateQueries: queryKeys.meetings.all,
+    invalidateQueries: [queryKeys.meetings.all, queryKeys.activities.all],
     fallbackError: "فشل إعادة المزامنة"
   });
 
@@ -84,18 +114,22 @@ export const useMeetings = (opts?: { filter?: MeetingsFilter; enabled?: boolean 
 
   const disconnectMutation = useBooleanMutation<void>({
     request: async () => unwrapResult(await meetingsApi.disconnectGoogle()),
-    invalidateQueries: [queryKeys.meetings.all, queryKeys.meetings.googleStatus()],
-    fallbackError: "فشل قطع الاتصال"
+    invalidateQueries: [queryKeys.meetings.googleStatus(), queryKeys.meetings.all],
+    fallbackError: "فشل قطع الاتصال",
+    onMutate: () => {
+      const prev = statusCache.getData();
+      statusCache.updateData({
+        ...DISCONNECTED_STATUS,
+        organizerEmail: prev?.organizerEmail ?? ""
+      });
+      return prev;
+    },
+    onError: (_error, _variables, prev) => {
+      if (prev && typeof prev === "object") {
+        statusCache.updateData(prev as GoogleIntegrationStatusDto);
+      }
+    }
   });
-
-  const list = (query.data ?? EMPTY_ARRAY) as MeetingListItemDto[];
-  const queryError = query.error ? getErrorMessage(query.error, "فشل في جلب الاجتماعات") : "";
-  const mutationError =
-    retryMutation.error ||
-    importReportMutation.error ||
-    connectMutation.error ||
-    disconnectMutation.error;
-  const refetch = query.refetch;
 
   const retry = useCallback((activityId: string) => retryMutation.run(activityId), [retryMutation.run]);
   const importReport = useCallback(
@@ -104,7 +138,6 @@ export const useMeetings = (opts?: { filter?: MeetingsFilter; enabled?: boolean 
   );
   const connect = useCallback(() => connectMutation.run(), [connectMutation.run]);
   const disconnect = useCallback(() => disconnectMutation.run(), [disconnectMutation.run]);
-  const refresh = useCallback(() => refetch(), [refetch]);
 
   const launch = useCallback(async (activityId: string): Promise<string | null> => {
     try {
@@ -117,15 +150,16 @@ export const useMeetings = (opts?: { filter?: MeetingsFilter; enabled?: boolean 
 
   return useMemo(
     () => ({
-      list,
-      loading: query.isLoading,
       submitting:
         retryMutation.submitting ||
         importReportMutation.submitting ||
         connectMutation.submitting ||
         disconnectMutation.submitting,
-      error: queryError || mutationError,
-      refresh,
+      error:
+        retryMutation.error ||
+        importReportMutation.error ||
+        connectMutation.error ||
+        disconnectMutation.error,
       retry,
       importReport,
       connect,
@@ -133,15 +167,14 @@ export const useMeetings = (opts?: { filter?: MeetingsFilter; enabled?: boolean 
       launch
     }),
     [
-      list,
-      query.isLoading,
       retryMutation.submitting,
       importReportMutation.submitting,
       connectMutation.submitting,
       disconnectMutation.submitting,
-      queryError,
-      mutationError,
-      refresh,
+      retryMutation.error,
+      importReportMutation.error,
+      connectMutation.error,
+      disconnectMutation.error,
       retry,
       importReport,
       connect,
@@ -223,4 +256,3 @@ export const useMatchAttendee = (activityId: string) => {
     [match, mutation.isPending, mutation.error]
   );
 };
-

@@ -37,6 +37,7 @@ import {
   MeetingLinkSource,
   MeetingReportStatus,
   MeetingSyncOperationType,
+  MeetingSyncOperationStatus,
   MeetingSyncStatus,
   ParticipationStatus,
   UserRole
@@ -299,9 +300,20 @@ class MeetingUseCase {
       guard(connectedById, "معرّف المستخدم مطلوب");
 
       const exchanged = await this.meetingProvider.exchangeCode(code, redirectUri);
-      const encryptedRefreshToken = encrypt(exchanged.refreshToken);
-
       const existing = await this.integrationRepository.findByProvider(MeetingUseCase.PROVIDER);
+      const refreshToken =
+        exchanged.refreshToken ||
+        (existing?.encryptedRefreshToken?.trim() ? decrypt(existing.encryptedRefreshToken) : null);
+
+      if (!refreshToken) {
+        return fail(
+          "OAUTH_REFRESH_TOKEN",
+          "Google لم يُرجع refresh token. أزل صلاحية التطبيق من حساب Google ثم اربط مرة أخرى واضغط Allow."
+        );
+      }
+
+      const encryptedRefreshToken = encrypt(refreshToken);
+
       if (existing) {
         existing.markConnected({
           organizerEmail: exchanged.email,
@@ -336,6 +348,20 @@ class MeetingUseCase {
     try {
       const integration = await this.integrationRepository.findByProvider(MeetingUseCase.PROVIDER);
       if (!integration) return ok({ disconnected: true });
+
+      const encrypted = integration.encryptedRefreshToken?.trim();
+      if (encrypted) {
+        try {
+          await this.meetingProvider.revokeToken(decrypt(encrypted));
+        } catch (error) {
+          logger.warn(
+            MeetingUseCase.SCOPE,
+            "disconnect.revoke",
+            error instanceof Error ? error.message : String(error)
+          );
+        }
+      }
+
       integration.markDisconnected();
       await this.integrationRepository.update(integration);
       return ok({ disconnected: true });
@@ -379,6 +405,9 @@ class MeetingUseCase {
       guard(operationId, "معرّف العملية مطلوب");
       const operation = await this.syncOperationRepository.findById(operationId);
       if (!operation) return { success: false, message: "Operation not found" };
+      if (operation.status === MeetingSyncOperationStatus.COMPLETED) {
+        return { success: true, message: "Already completed" };
+      }
 
       await this.syncOperationRepository.markProcessing(operationId);
 

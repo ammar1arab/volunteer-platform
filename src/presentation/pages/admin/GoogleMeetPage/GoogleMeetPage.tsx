@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import styles from "./GoogleMeetPage.module.scss";
 import { useGoogleMeetPage } from "./GoogleMeetPage.logic";
 import {
@@ -24,7 +23,6 @@ import type { GoogleMeetView } from "./GoogleMeetPage.logic";
 
 const GoogleMeetPage = () => {
   const router = useRouter();
-  const lastMeetView = useRef<Exclude<GoogleMeetView, "settings">>("upcoming");
   const {
     status,
     activeView,
@@ -40,9 +38,11 @@ const GoogleMeetPage = () => {
     setSyncFilter,
     syncFilterItems,
     viewItems,
+    listView,
     filtered,
     paginated,
     meetingsLoading,
+    failedLoading,
     integrationLoading,
     submitting,
     integration,
@@ -67,15 +67,11 @@ const GoogleMeetPage = () => {
     confirmDialog
   } = useGoogleMeetPage();
 
-  if (activeView === "upcoming" || activeView === "finished") {
-    lastMeetView.current = activeView;
-  }
-
   if (status === "loading") return <LoadingState />;
 
   const showMeetings = activeView === "upcoming" || activeView === "finished";
-  const loadingMeetings = showMeetings && (meetingsLoading || integrationLoading);
-  const loadingSettings = activeView === "settings" && (integrationLoading || meetingsLoading);
+  const loadingMeetings = showMeetings && meetingsLoading;
+  const loadingSettings = activeView === "settings" && integrationLoading;
 
   return (
     <div className={styles.page}>
@@ -117,7 +113,7 @@ const GoogleMeetPage = () => {
               aria-label="الإعدادات"
               aria-pressed={activeView === "settings"}
               onClick={() =>
-                setActiveView(activeView === "settings" ? lastMeetView.current : "settings")
+                setActiveView(activeView === "settings" ? listView : "settings")
               }
             >
               <Settings2 size={16} />
@@ -217,7 +213,9 @@ const GoogleMeetPage = () => {
                 <span className={styles.count}>{failedMeetings.length}</span>
               </div>
 
-              {failedMeetings.length === 0 ? (
+              {failedLoading ? (
+                <LoadingState />
+              ) : failedMeetings.length === 0 ? (
                 <p className={styles.muted}>لا توجد مزامنات فاشلة حالياً</p>
               ) : (
                 <div className={styles.list}>

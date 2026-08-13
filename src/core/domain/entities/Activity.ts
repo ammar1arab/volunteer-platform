@@ -144,7 +144,7 @@ class Activity extends BaseEntity {
       throw new Error("Automatic meetings are only available for online activities");
     this.props.meetingLinkSource = MeetingLinkSource.GOOGLE_MEET_AUTO;
     this.props.meetingPlatform = MeetingPlatform.GOOGLE_MEET;
-    this.props.meetingSyncStatus = MeetingSyncStatus.PENDING;
+    this.props.meetingSyncStatus = MeetingSyncStatus.NONE;
     this.props.meetingSyncError = null;
     this.touch();
   }

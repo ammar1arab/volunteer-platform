@@ -17,31 +17,36 @@
   border: 1px solid $border;
   overflow: hidden;
   cursor: pointer;
+  width: 100%;
+  height: 100%;
   min-width: 0;
+  min-height: 0;
   transition:
     transform $transition,
     border-color $transition,
     box-shadow $transition;
 
-  &:hover {
-    transform: translateY(-3px);
-    border-color: $green;
-    box-shadow:
-      0 0 0 1px $green,
-      $shadow;
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-3px);
+      border-color: $green;
+      box-shadow:
+        0 0 0 1px $green,
+        $shadow;
 
-    .imageInner img {
-      transform: scale(1.05);
-    }
-    .title {
-      color: $green;
-    }
-    .metaIcon {
-      background: $green;
-      color: $white;
-    }
-    .mapsBtn svg {
-      animation: float-pin 1.8s ease infinite;
+      .imageInner img {
+        transform: scale(1.05);
+      }
+      .title {
+        color: $green;
+      }
+      .metaIcon {
+        background: $green;
+        color: $white;
+      }
+      .mapsBtn svg {
+        animation: float-pin 1.8s ease infinite;
+      }
     }
   }
 
@@ -53,6 +58,7 @@
 .imageCol {
   width: 220px;
   flex-shrink: 0;
+  align-self: stretch;
   padding: $sp-sm;
   background: $white;
   border-left: 1px solid $border;
@@ -140,6 +146,7 @@
   padding: $sp-md;
   flex: 1;
   min-width: 0;
+  min-height: 0;
 }
 
 .header {

@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
+import { MeetingSyncStatus } from "@/core/domain/enums";
 import { activityApi, uploadApi } from "@/presentation/services";
 import {
   EMPTY_ARRAY,
@@ -27,49 +28,64 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter; enabled?: bool
     options: {
       enabled: opts?.enabled ?? true,
       staleTime: filter === "published" ? 60_000 : 30_000,
-      keepPrevious: true
+      keepPrevious: true,
+      refetchInterval: (query) => {
+        const rows = query.state.data;
+        if (!Array.isArray(rows)) return false;
+        return rows.some(
+          (row) =>
+            row &&
+            typeof row === "object" &&
+            "meetingSyncStatus" in row &&
+            (row as ActivityDto).meetingSyncStatus === MeetingSyncStatus.PENDING
+        )
+          ? 5000
+          : false;
+      }
     }
   });
 
+  const ACTIVITY_AND_MEETINGS = [queryKeys.activities.all, queryKeys.meetings.all];
+
   const createMutation = useBooleanMutation<CreateActivityRequest>({
     request: async (payload) => unwrapResult(await activityApi.create(payload)),
-    invalidateQueries: queryKeys.activities.all,
+    invalidateQueries: ACTIVITY_AND_MEETINGS,
     fallbackError: "فشل في الإنشاء"
   });
 
   const updateMutation = useBooleanMutation<{ id: string; payload: UpdateActivityRequest }>({
     request: async ({ id, payload }) => unwrapResult(await activityApi.update(id, payload)),
-    invalidateQueries: queryKeys.activities.all,
+    invalidateQueries: ACTIVITY_AND_MEETINGS,
     fallbackError: "فشل في التحديث"
   });
 
   const removeMutation = useBooleanMutation<string>({
     request: async (id) => unwrapResult(await activityApi.delete(id)),
-    invalidateQueries: queryKeys.activities.all,
+    invalidateQueries: ACTIVITY_AND_MEETINGS,
     fallbackError: "فشل في الحذف"
   });
 
   const publishMutation = useBooleanMutation<string>({
     request: async (id) => unwrapResult(await activityApi.publish(id)),
-    invalidateQueries: queryKeys.activities.all,
+    invalidateQueries: ACTIVITY_AND_MEETINGS,
     fallbackError: "فشل في النشر"
   });
 
   const cancelMutation = useBooleanMutation<string>({
     request: async (id) => unwrapResult(await activityApi.cancel(id)),
-    invalidateQueries: queryKeys.activities.all,
+    invalidateQueries: ACTIVITY_AND_MEETINGS,
     fallbackError: "فشل في الإلغاء"
   });
 
   const restoreMutation = useBooleanMutation<string>({
     request: async (id) => unwrapResult(await activityApi.restore(id)),
-    invalidateQueries: queryKeys.activities.all,
+    invalidateQueries: ACTIVITY_AND_MEETINGS,
     fallbackError: "فشل في الاستعادة"
   });
 
   const completeMutation = useBooleanMutation<string>({
     request: async (id) => unwrapResult(await activityApi.complete(id)),
-    invalidateQueries: queryKeys.activities.all,
+    invalidateQueries: ACTIVITY_AND_MEETINGS,
     fallbackError: "فشل في إكمال النشاط"
   });
 

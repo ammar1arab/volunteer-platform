@@ -75,10 +75,20 @@ class GoogleMeetingProvider implements IMeetingProvider {
     });
   }
 
+  async revokeToken(refreshToken: string): Promise<void> {
+    if (!refreshToken.trim()) return;
+    const client = this.createOAuthClient();
+    try {
+      await client.revokeToken(refreshToken);
+    } catch (error) {
+      logger.warn(SCOPE, "revokeToken", describeGoogleError(error));
+    }
+  }
+
   async exchangeCode(
     code: string,
     redirectUri?: string
-  ): Promise<{ refreshToken: string; email: string; scopes: string[] }> {
+  ): Promise<{ refreshToken: string | null; email: string; scopes: string[] }> {
     const resolved = this.resolveRedirectUri(redirectUri);
     const clientId = process.env.GOOGLE_CLIENT_ID ?? "";
     logger.info(SCOPE, "exchangeCode.start", {
@@ -104,8 +114,8 @@ class GoogleMeetingProvider implements IMeetingProvider {
       scope: tokens.scope ?? null
     });
 
-    if (!tokens.refresh_token) {
-      throw new Error("Google did not return a refresh token. Reconnect with consent prompt.");
+    if (!tokens.access_token && !tokens.refresh_token) {
+      throw new Error("Google did not return access or refresh tokens.");
     }
 
     client.setCredentials(tokens);
@@ -120,8 +130,12 @@ class GoogleMeetingProvider implements IMeetingProvider {
           ? tokens.scope.split(" ").filter(Boolean)
           : SCOPES;
 
-      logger.info(SCOPE, "exchangeCode.success", { email, scopes });
-      return { refreshToken: tokens.refresh_token, email, scopes };
+      logger.info(SCOPE, "exchangeCode.success", {
+        email,
+        scopes,
+        hasRefreshToken: Boolean(tokens.refresh_token)
+      });
+      return { refreshToken: tokens.refresh_token ?? null, email, scopes };
     } catch (error) {
       const detail = describeGoogleError(error);
       logger.error(SCOPE, "exchangeCode.userinfo", detail);

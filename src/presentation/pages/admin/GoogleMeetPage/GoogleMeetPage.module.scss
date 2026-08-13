@@ -26,12 +26,12 @@
 .actionsEnd {
   @include flex(row, center, flex-end, $sp-sm);
   flex-shrink: 0;
-  height: 36px;
+  flex-wrap: wrap;
+  min-height: 36px;
+  height: auto;
 
   @include sm {
     width: 100%;
-    height: auto;
-    flex-wrap: wrap;
   }
 }
 
@@ -56,6 +56,10 @@
 
 .btnConnect {
   @include create-btn;
+
+  @include sm {
+    flex: 1 1 auto;
+  }
 }
 
 .btnDisconnect {
@@ -65,6 +69,10 @@
   &:hover {
     background: $red;
     box-shadow: 0 4px 12px rgba($red, 0.3);
+  }
+
+  @include sm {
+    flex: 1 1 auto;
   }
 }
 

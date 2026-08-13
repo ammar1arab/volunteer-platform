@@ -6,13 +6,14 @@ import { UserRole, MeetingSyncStatus } from "@/core/domain/enums";
 import {
   useAuth,
   useToast,
-  useMeetings,
+  useMeetingsQuery,
+  useMeetingActions,
   useGoogleIntegrationStatus,
   useConfirmDialog,
   usePageReset
 } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
-import type { MeetingsFilter, MeetingListItemDto } from "@/presentation/services/meetings.service";
+import type { MeetingListItemDto } from "@/presentation/services/meetings.service";
 import { activityApi } from "@/presentation/services";
 import {
   getMeetingSyncStatusLabel
@@ -43,8 +44,8 @@ function oauthMessage(connected: string | null, oauthError: string | null, reaso
     ? "تم رفض الوصول. تأكد أن الحساب مضاف كـ Test user في Google Cloud وأن التطبيق في وضع Testing."
     : /redirect_uri_mismatch|redirect uri/i.test(haystack)
       ? "رابط الإرجاع غير مطابق. أضف رابط الـ callback في Google Cloud Credentials."
-      : /refresh token/i.test(haystack)
-        ? "Google لم يُرجع refresh token. اقطع الاتصال إن وُجد ثم اربط مرة أخرى واضغط Allow."
+      : /refresh token|OAUTH_REFRESH_TOKEN/i.test(haystack)
+        ? "Google لم يُرجع refresh token. أزل صلاحية التطبيق من https://myaccount.google.com/permissions ثم اربط مرة أخرى واضغط Allow."
         : detail
           ? `فشل الربط: ${decoded} — ${detail}`
           : `فشل الربط: ${decoded}`;
@@ -80,30 +81,43 @@ export const useGoogleMeetPage = () => {
     "filters.admin.googleMeet.syncFilter",
     "ALL"
   );
-  const setActiveView = usePageReset(setActiveViewState, setCurrentPage);
+  const [listView, setListView] = useSessionStorageState<"upcoming" | "finished">(
+    "filters.admin.googleMeet.listView",
+    "upcoming"
+  );
+
+  const setActiveView = useCallback((view: GoogleMeetView) => {
+    if (view === "upcoming" || view === "finished") setListView(view);
+    setActiveViewState(view);
+    setCurrentPage(1);
+  }, [setListView, setActiveViewState, setCurrentPage]);
   const setAppliedSearch = usePageReset(setAppliedSearchState, setCurrentPage);
   const setSyncFilter = usePageReset(setSyncFilterState, setCurrentPage);
 
   const [reportMeeting, setReportMeeting] = useState<MeetingListItemDto | null>(null);
   const [volunteersMeeting, setVolunteersMeeting] = useState<MeetingListItemDto | null>(null);
 
-  const meetingsFilter: MeetingsFilter =
-    activeView === "settings" ? "failed" : (activeView as MeetingsFilter);
+  const currentListView: "upcoming" | "finished" =
+    activeView === "upcoming" || activeView === "finished" ? activeView : listView;
 
   const {
     list,
     loading: meetingsLoading,
-    submitting,
-    refresh: refreshMeetings,
-    retry,
-    importReport,
-    connect,
-    disconnect,
-    launch
-  } = useMeetings({
-    filter: meetingsFilter,
+    refresh: refreshMeetings
+  } = useMeetingsQuery({
+    filter: currentListView,
     enabled: true
   });
+
+  const {
+    list: failedMeetings,
+    loading: failedLoading
+  } = useMeetingsQuery({
+    filter: "failed",
+    enabled: activeView === "settings"
+  });
+
+  const { submitting, retry, importReport, connect, disconnect, launch } = useMeetingActions();
 
   const {
     status: integration,
@@ -188,7 +202,10 @@ export const useGoogleMeetPage = () => {
     if (!ok) return;
     if (await disconnect()) {
       showToast("تم قطع الاتصال", "success");
-      refreshIntegration();
+      void refreshIntegration();
+    } else {
+      showToast("فشل قطع الاتصال", "error");
+      void refreshIntegration();
     }
   }, [confirm, disconnect, organizerEmail, refreshIntegration, showToast]);
 
@@ -249,8 +266,6 @@ export const useGoogleMeetPage = () => {
     setVolunteersMeeting(meeting);
   }, []);
 
-  const failedMeetings = list;
-
   return {
     status,
     activeView,
@@ -266,9 +281,11 @@ export const useGoogleMeetPage = () => {
     setSyncFilter,
     syncFilterItems: SYNC_FILTER_ITEMS,
     viewItems: VIEW_ITEMS,
+    listView: currentListView,
     filtered,
     paginated,
     meetingsLoading,
+    failedLoading,
     integrationLoading,
     submitting,
     integration,
