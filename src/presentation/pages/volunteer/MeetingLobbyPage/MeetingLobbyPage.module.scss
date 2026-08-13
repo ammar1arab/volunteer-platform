@@ -9,6 +9,8 @@
 .live {
   display: flex;
   flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .container {
@@ -19,8 +21,16 @@
 }
 
 .containerLive {
+  max-width: none;
+  width: 100%;
   flex: 1;
   min-height: 0;
-  gap: $sp-sm;
+  gap: 0;
   padding: $sp-sm $sp-md $sp-md;
+}
+
+@include sm {
+  .containerLive {
+    padding: $sp-xs $sp-sm $sp-sm;
+  }
 }

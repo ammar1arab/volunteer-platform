@@ -41,8 +41,8 @@ type JitsiApiConstructor = new (
     roomName: string;
     parentNode: HTMLElement;
     lang: string;
-    width: string;
-    height: string;
+    width: number;
+    height: number;
     userInfo: { displayName: string };
     configOverwrite: typeof JITSI_CONFIG_OVERWRITE;
     interfaceConfigOverwrite: typeof JITSI_INTERFACE_OVERWRITE;
@@ -130,6 +130,23 @@ const readParticipantCount = (api: JitsiMeetExternalApi | null) => {
   }
 };
 
+const fillEmbedFrame = (root: HTMLElement) => {
+  const frame = root.querySelector("iframe");
+  const holder = frame?.parentElement ?? root.firstElementChild;
+  if (holder instanceof HTMLElement) {
+    holder.style.width = "100%";
+    holder.style.height = "100%";
+    holder.style.minHeight = "100%";
+  }
+  if (frame instanceof HTMLIFrameElement) {
+    frame.style.width = "100%";
+    frame.style.height = "100%";
+    frame.style.minHeight = "100%";
+    frame.style.border = "0";
+    frame.style.display = "block";
+  }
+};
+
 export const connectJitsiConference = (
   key: string,
   options: {
@@ -173,18 +190,24 @@ export const connectJitsiConference = (
     };
   }
 
+  options.parentNode.dir = "ltr";
   options.parentNode.replaceChildren();
+
+  const host = options.parentNode.parentElement;
+  const width = Math.max(options.parentNode.clientWidth, host?.clientWidth ?? 0, 1);
+  const height = Math.max(options.parentNode.clientHeight, host?.clientHeight ?? 0, 1);
 
   const api = new Ctor(getJitsiHost(), {
     roomName: options.roomName,
     parentNode: options.parentNode,
     lang: JITSI_LANGUAGE,
-    width: "100%",
-    height: "100%",
+    width,
+    height,
     userInfo: { displayName: options.displayName },
     configOverwrite: JITSI_CONFIG_OVERWRITE,
     interfaceConfigOverwrite: JITSI_INTERFACE_OVERWRITE,
     onload: () => {
+      fillEmbedFrame(options.parentNode);
       if (!session.api) return;
       session.snapshot = {
         status: session.joined ? "joined" : "ready",
@@ -193,6 +216,8 @@ export const connectJitsiConference = (
       emitConference(session);
     }
   });
+
+  fillEmbedFrame(options.parentNode);
 
   const refreshParticipants = () => {
     if (!session.api) return;

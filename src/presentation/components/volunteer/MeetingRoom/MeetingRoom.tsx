@@ -95,7 +95,7 @@ const MeetingRoom = ({ activityId, displayName, launch, onLeave }: Props) => {
       </div>
 
       <div className={styles.stage}>
-        {showStage && <div className={styles.mount} ref={setParentNode} />}
+        {showStage && <div className={styles.mount} dir="ltr" ref={setParentNode} />}
         {status === "boot" && (
           <div className={styles.overlay}>
             <LoadingState compact />

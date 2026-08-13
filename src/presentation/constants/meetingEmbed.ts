@@ -94,6 +94,7 @@ export const JITSI_CONFIG_OVERWRITE = {
   enableWelcomePage: false,
   enableClosePage: false,
   welcomePageEnabled: false,
+  hideConferenceName: true,
   analytics: { disabled: true },
   hideConferenceSubject: false,
   toolbarButtons: [...JITSI_TOOLBAR_BUTTONS]
