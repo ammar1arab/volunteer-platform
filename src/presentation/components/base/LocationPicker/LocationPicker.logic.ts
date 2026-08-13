@@ -1,5 +1,6 @@
 "use client";
-import { useReducer, useEffect, useCallback } from "react";
+import { useReducer, useState, useCallback } from "react";
+import { useIsClient } from "@/presentation/query";
 
 export type LatLng = { lat: number; lng: number };
 export type SearchResult = { label: string; lat: number; lng: number };
@@ -16,11 +17,9 @@ interface State {
   mapOpen:       boolean;
   markerPos:     LatLng;
   mapCenter:     LatLng;
-  isMounted:     boolean;
 }
 
 type Action =
-  | { type: "MOUNTED" }
   | { type: "SET_QUERY";    payload: string }
   | { type: "SET_RESULTS";  payload: SearchResult[] }
   | { type: "START_SEARCH" }
@@ -39,12 +38,10 @@ const init = (lat: number, lng: number): State => ({
   mapOpen: false,
   markerPos:  { lat: lat || 31.9539, lng: lng || 35.9106 },
   mapCenter:  { lat: lat || 31.9539, lng: lng || 35.9106 },
-  isMounted: false,
 });
 
 function reducer(s: State, a: Action): State {
   switch (a.type) {
-    case "MOUNTED":      return { ...s, isMounted: true };
     case "SET_QUERY":    return { ...s, searchQuery: a.payload, searchError: "" };
     case "START_SEARCH": return { ...s, searching: true, searchError: "", searchResults: [] };
     case "SET_RESULTS":  return { ...s, searching: false, searchResults: a.payload };
@@ -63,14 +60,18 @@ function reducer(s: State, a: Action): State {
 type Props = { latitude: number; longitude: number; onChange: (lat: number, lng: number) => void };
 
 export const useLocationPicker = ({ latitude, longitude, onChange }: Props) => {
+  const isClient = useIsClient();
   const [state, dispatch] = useReducer(reducer, init(latitude, longitude));
+  const [prevLat, setPrevLat] = useState(latitude);
+  const [prevLng, setPrevLng] = useState(longitude);
 
-  useEffect(() => { dispatch({ type: "MOUNTED" }); }, []);
-
-  useEffect(() => {
-    if (latitude && longitude)
+  if (latitude !== prevLat || longitude !== prevLng) {
+    setPrevLat(latitude);
+    setPrevLng(longitude);
+    if (latitude && longitude) {
       dispatch({ type: "SET_COORDS", payload: { lat: latitude, lng: longitude } });
-  }, [latitude, longitude]);
+    }
+  }
 
   const searchByAddress = useCallback(async () => {
     if (!state.searchQuery.trim()) return;
@@ -142,5 +143,5 @@ export const useLocationPicker = ({ latitude, longitude, onChange }: Props) => {
     dispatch({ type: "LINK_ERR", payload: "لم يتم التعرف على الرابط" });
   }, [onChange]);
 
-  return { state, dispatch, searchByAddress, selectResult, detectLocation, parseMapsLink };
+  return { state, dispatch, searchByAddress, selectResult, detectLocation, parseMapsLink, isClient };
 };

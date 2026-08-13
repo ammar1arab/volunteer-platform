@@ -1,19 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { UserRole } from "@/core/domain/enums";
-import { useMonthlyMagazines, useToast, useAuth } from "@/presentation/hooks";
+import { useMonthlyMagazines, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { MonthlyMagazineDto } from "@/core/application/dtos";
 import { processPdfForUpload } from "@/lib/utils";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
-
-type ConfirmOptions = {
-  title?: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "danger" | "primary";
-};
 
 interface FormState {
   id: string;
@@ -43,7 +35,7 @@ export const useMagazinesPage = () => {
   const { toasts, showToast, removeToast } = useToast();
   const ITEMS_PER_PAGE = 20;
 
-  const { list, loading, submitting, uploading, error, uploadPdf, create, update, remove } = useMonthlyMagazines();
+  const { list, loading, submitting, uploading, uploadPdf, create, update, remove } = useMonthlyMagazines();
 
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -52,21 +44,21 @@ export const useMagazinesPage = () => {
     "filters.admin.magazines.currentPage",
     1
   );
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
-  const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
   const [searchQuery, setSearchQuery] = useSessionStorageState(
     "filters.admin.magazines.searchQuery",
     ""
   );
-  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+  const [appliedSearch, setAppliedSearchState] = useSessionStorageState(
     "filters.admin.magazines.appliedSearch",
     ""
   );
-  const [activeYear, setActiveYear] = useSessionStorageState(
+  const [activeYear, setActiveYearState] = useSessionStorageState(
     "filters.admin.magazines.activeYear",
     "all"
   );
+  const { confirm, confirmDialog } = useConfirmDialog();
+  const setAppliedSearch = usePageReset(setAppliedSearchState, setCurrentPage);
+  const setActiveYear = usePageReset(setActiveYearState, setCurrentPage);
 
   const filteredList = useMemo(() => {
     if (!appliedSearch.trim()) return list;
@@ -89,34 +81,6 @@ export const useMagazinesPage = () => {
     if (!Array.isArray(filteredByYear)) return [];
     return filteredByYear.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
   }, [filteredByYear, currentPage]);
-
-  useEffect(() => {
-    if (error && error.trim()) showToast(error, "error");
-  }, [error, showToast]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [appliedSearch, activeYear]);
-
-  const confirm = useCallback((opts: ConfirmOptions) => {
-    setConfirmOptions(opts);
-    setIsConfirmOpen(true);
-    return new Promise<boolean>((resolve) => {
-      setConfirmResolver(() => resolve);
-    });
-  }, []);
-
-  const handleConfirmDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(true);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const handleCancelDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(false);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
 
   const resetForm = useCallback(() => {
     setMode("create");
@@ -203,7 +167,7 @@ export const useMagazinesPage = () => {
     status, isLoading: loading, isSubmitting: submitting, isUploading: uploading,
     mode, form, showModal, list, paginatedList, filteredByYear, currentPage,
     itemsPerPage: ITEMS_PER_PAGE, toasts, removeToast,
-    confirmDialog: { isOpen: isConfirmOpen, options: confirmOptions, handleConfirm: handleConfirmDialog, handleCancel: handleCancelDialog },
+    confirmDialog,
     activeYear, setActiveYear, yearFilterOptions,
     setForm, setCurrentPage, resetForm, openCreate, openEdit,
     handlePdfUpload, handleSubmit, handleToggle, handleDelete,

@@ -1,8 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { UserRole, MeetingSyncStatus } from "@/core/domain/enums";
-import { useAuth, useToast, useMeetings, useGoogleIntegrationStatus } from "@/presentation/hooks";
+import {
+  useAuth,
+  useToast,
+  useMeetings,
+  useGoogleIntegrationStatus,
+  useConfirmDialog,
+  usePageReset
+} from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { MeetingsFilter, MeetingListItemDto } from "@/presentation/services/meetings.service";
 import { activityApi } from "@/presentation/services";
@@ -10,7 +18,8 @@ import {
   getMeetingSyncStatusLabel,
   MEETING_SYNC_STATUS_FILTER_OPTIONS
 } from "@/presentation/constants/labels";
-import { unwrapResult } from "@/presentation/query";
+import { queryKeys, unwrapResult, useFetchData } from "@/presentation/query";
+import type { ActivityVolunteerDto } from "@/core/application/dtos";
 
 export type GoogleMeetView = "upcoming" | "finished" | "settings";
 
@@ -22,20 +31,28 @@ export const VIEW_ITEMS = [
 
 export const SYNC_FILTER_ITEMS = MEETING_SYNC_STATUS_FILTER_OPTIONS;
 
-type ConfirmOptions = {
-  title?: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "danger" | "primary";
-};
+function oauthMessage(connected: string | null, oauthError: string | null) {
+  if (connected === "1") return { type: "success" as const, message: "تم ربط حساب Google بنجاح" };
+  if (!oauthError) return null;
+  const decoded = decodeURIComponent(oauthError);
+  const message = /access_denied/i.test(decoded)
+    ? "تم رفض الوصول. تأكد أن الحساب مضاف كـ Test user في Google Cloud وأن التطبيق في وضع Testing."
+    : /redirect_uri_mismatch/i.test(decoded)
+      ? "رابط الإرجاع غير مطابق. أضف رابط الـ callback في Google Cloud Credentials."
+      : `فشل الربط: ${decoded}`;
+  return { type: "error" as const, message };
+}
 
 export const useGoogleMeetPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const ITEMS_PER_PAGE = 20;
+  const { confirm, confirmDialog } = useConfirmDialog();
 
-  const [activeView, setActiveView] = useSessionStorageState<GoogleMeetView>(
+  const [activeView, setActiveViewState] = useSessionStorageState<GoogleMeetView>(
     "filters.admin.googleMeet.activeTab",
     "upcoming"
   );
@@ -47,18 +64,20 @@ export const useGoogleMeetPage = () => {
     "filters.admin.googleMeet.searchQuery",
     ""
   );
-  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+  const [appliedSearch, setAppliedSearchState] = useSessionStorageState(
     "filters.admin.googleMeet.appliedSearch",
     ""
   );
-  const [syncFilter, setSyncFilter] = useSessionStorageState(
+  const [syncFilter, setSyncFilterState] = useSessionStorageState(
     "filters.admin.googleMeet.syncFilter",
     "ALL"
   );
+  const setActiveView = usePageReset(setActiveViewState, setCurrentPage);
+  const setAppliedSearch = usePageReset(setAppliedSearchState, setCurrentPage);
+  const setSyncFilter = usePageReset(setSyncFilterState, setCurrentPage);
 
   const [reportMeeting, setReportMeeting] = useState<MeetingListItemDto | null>(null);
   const [volunteersMeeting, setVolunteersMeeting] = useState<MeetingListItemDto | null>(null);
-  const [matchOptions, setMatchOptions] = useState<{ value: string; label: string }[]>([]);
 
   const meetingsFilter: MeetingsFilter =
     activeView === "settings" ? "all" : (activeView as MeetingsFilter);
@@ -67,7 +86,6 @@ export const useGoogleMeetPage = () => {
     list,
     loading: meetingsLoading,
     submitting,
-    error: meetingsError,
     refresh: refreshMeetings,
     retry,
     importReport,
@@ -82,79 +100,46 @@ export const useGoogleMeetPage = () => {
   const {
     status: integration,
     loading: integrationLoading,
-    error: integrationError,
     refresh: refreshIntegration
   } = useGoogleIntegrationStatus({ enabled: true });
 
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
-  const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
-
-  useEffect(() => {
-    if (meetingsError?.trim()) showToast(meetingsError, "error");
-  }, [meetingsError, showToast]);
-
-  useEffect(() => {
-    if (integrationError?.trim()) showToast(integrationError, "error");
-  }, [integrationError, showToast]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const connectedFlag = params.get("connected");
-    const oauthError = params.get("error");
-    if (!connectedFlag && !oauthError) return;
-
-    if (connectedFlag === "1") {
-      showToast("تم ربط حساب Google بنجاح", "success");
-      refreshIntegration();
-      refreshMeetings();
-    } else if (oauthError) {
-      const decoded = decodeURIComponent(oauthError);
-      const message =
-        /access_denied/i.test(decoded)
-          ? "تم رفض الوصول. تأكد أن الحساب مضاف كـ Test user في Google Cloud وأن التطبيق في وضع Testing."
-          : /redirect_uri_mismatch/i.test(decoded)
-            ? "رابط الإرجاع غير مطابق. أضف رابط الـ callback في Google Cloud Credentials."
-            : `فشل الربط: ${decoded}`;
-      showToast(message, "error");
+  const volunteersQuery = useFetchData<ActivityVolunteerDto[]>({
+    queryKey: queryKeys.activities.volunteers(reportMeeting?.activityId ?? ""),
+    request: async () =>
+      unwrapResult(await activityApi.getVolunteers(reportMeeting!.activityId)).volunteers,
+    options: {
+      enabled: Boolean(reportMeeting?.activityId),
+      staleTime: 15_000,
+      keepPrevious: true
     }
+  });
 
-    const url = new URL(window.location.href);
-    url.searchParams.delete("connected");
-    url.searchParams.delete("error");
-    window.history.replaceState({}, "", url.pathname + url.search);
-  }, [showToast, refreshIntegration, refreshMeetings]);
+  const matchOptions = useMemo(
+    () =>
+      (volunteersQuery.data ?? []).map((v) => ({
+        value: v.id,
+        label: `${v.fullName}${v.email ? ` · ${v.email}` : ""}`
+      })),
+    [volunteersQuery.data]
+  );
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeView, appliedSearch, syncFilter, setCurrentPage]);
+  const connectedFlag = searchParams.get("connected");
+  const oauthError = searchParams.get("error");
+  const oauthFlash = oauthMessage(connectedFlag, oauthError);
+  const displayedToasts = oauthFlash
+    ? [...toasts, { id: "oauth-flash", message: oauthFlash.message, type: oauthFlash.type }]
+    : toasts;
 
-  useEffect(() => {
-    if (!reportMeeting) {
-      setMatchOptions([]);
-      return;
-    }
-    let cancelled = false;
-    activityApi
-      .getVolunteers(reportMeeting.activityId)
-      .then((res) => {
-        if (cancelled) return;
-        const volunteers = unwrapResult(res).volunteers;
-        setMatchOptions(
-          volunteers.map((v) => ({
-            value: v.id,
-            label: `${v.fullName}${v.email ? ` · ${v.email}` : ""}`
-          }))
-        );
-      })
-      .catch(() => {
-        if (!cancelled) setMatchOptions([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [reportMeeting]);
+  const dismissToast = useCallback(
+    (id: string) => {
+      if (id === "oauth-flash") {
+        router.replace(pathname);
+        return;
+      }
+      removeToast(id);
+    },
+    [pathname, removeToast, router]
+  );
 
   const filtered = useMemo(() => {
     const q = appliedSearch.trim().toLowerCase();
@@ -174,26 +159,6 @@ export const useGoogleMeetPage = () => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, currentPage]);
-
-  const confirm = useCallback((opts: ConfirmOptions) => {
-    setConfirmOptions(opts);
-    setIsConfirmOpen(true);
-    return new Promise<boolean>((resolve) => {
-      setConfirmResolver(() => resolve);
-    });
-  }, []);
-
-  const handleConfirmDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(true);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const handleCancelDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(false);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
 
   const organizerEmail = integration?.organizerEmail || "—";
   const connected = Boolean(integration?.connected);
@@ -280,13 +245,6 @@ export const useGoogleMeetPage = () => {
     [list]
   );
 
-  const sectionTitle =
-    activeView === "upcoming"
-      ? "الاجتماعات القادمة"
-      : activeView === "finished"
-        ? "الاجتماعات المنتهية"
-        : "إعدادات التكامل";
-
   return {
     status,
     activeView,
@@ -304,7 +262,6 @@ export const useGoogleMeetPage = () => {
     viewItems: VIEW_ITEMS,
     filtered,
     paginated,
-    sectionTitle,
     meetingsLoading,
     integrationLoading,
     submitting,
@@ -312,8 +269,8 @@ export const useGoogleMeetPage = () => {
     organizerEmail,
     connected,
     failedMeetings,
-    toasts,
-    removeToast,
+    toasts: displayedToasts,
+    removeToast: dismissToast,
     handleConnect,
     handleDisconnect,
     handleRetry,
@@ -328,11 +285,6 @@ export const useGoogleMeetPage = () => {
     setVolunteersMeeting,
     refreshMeetings,
     refreshIntegration,
-    confirmDialog: {
-      isOpen: isConfirmOpen,
-      options: confirmOptions,
-      handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog
-    }
+    confirmDialog
   };
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import styles from "./EmailPreviewPane.module.scss";
 import { buildBulkEmail, applyVariables } from "@/lib/templates/emails/bulkEmail";
 
@@ -18,22 +18,11 @@ const SAMPLE = {
 };
 const EmailPreviewPane = ({ subject, body, fromAlias }: Props) => {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const resolvedSubject = applyVariables(subject || "موضوع الإيميل", SAMPLE);
   const resolvedBody = applyVariables(body || "", SAMPLE);
   const html = buildBulkEmail({ subject: resolvedSubject, body: resolvedBody, fromAlias });
   const isEmpty = !subject.trim() && !body.trim();
-
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe || isEmpty) return;
-    const doc = iframe.contentDocument;
-    if (!doc) return;
-    doc.open();
-    doc.write(html);
-    doc.close();
-  }, [html, isEmpty]);
 
   return (
     <div className={styles.pane}>
@@ -93,10 +82,10 @@ const EmailPreviewPane = ({ subject, body, fromAlias }: Props) => {
             </div>
           ) : (
             <iframe
-              ref={iframeRef}
               className={styles.iframe}
               title="email-preview"
               sandbox="allow-same-origin"
+              srcDoc={html}
             />
           )}
         </div>

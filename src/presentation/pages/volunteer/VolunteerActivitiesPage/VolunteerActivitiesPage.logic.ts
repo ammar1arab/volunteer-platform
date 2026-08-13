@@ -1,25 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAuth, useToast, useActivityParticipations } from "@/presentation/hooks";
-import { participationApi } from "@/presentation/services";
+import { useCallback, useMemo, useState } from "react";
+import { useAuth, useToast, useActivityParticipations, useConfirmDialog } from "@/presentation/hooks";
 import { JordanianCity, UserRole, ParticipationStatus } from "@/core/domain/enums";
 import { getCityLabel } from "@/presentation/constants";
-import { getErrorMessage, unwrapResult } from "@/presentation/query";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 const ITEMS_PER_PAGE = 10;
 const ACTIVE_FILTER_STORAGE_KEY = "filters.volunteer.activities.activeFilter";
 
 type SortOrder = "newest" | "oldest" | "nearest";
-
-type ConfirmOptions = {
-  title: string;
-  message: string;
-  confirmText: string;
-  cancelText: string;
-  variant: "danger" | "primary";
-};
 
 export const SORT_OPTIONS = [
   { key: "newest", label: "الأحدث" },
@@ -32,17 +22,16 @@ export const SORT_OPTIONS = [
 export const useVolunteerActivitiesPage = () => {
   const { status } = useAuth({ requireRole: UserRole.VOLUNTEER });
   const { toasts, showToast, removeToast } = useToast();
-  const { requests: participations, loading, refresh } = useActivityParticipations({
+  const { requests: participations, loading, createRequest, cancelRequest: cancelParticipation } = useActivityParticipations({
     autoFetch: true,
     type: "my-requests"
   });
 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [defaultApplied, setDefaultApplied] = useState(false);
 
-  const [activeFilter, setActiveFilterState] = useSessionStorageState<string>(
+  const [storedFilter, setActiveFilterState] = useSessionStorageState<string | null>(
     ACTIVE_FILTER_STORAGE_KEY,
-    "all"
+    null
   );
   const [activeType, setActiveTypeState] = useSessionStorageState<"all" | "ONLINE" | "IN_PERSON">(
     "filters.volunteer.activities.activeType",
@@ -69,37 +58,10 @@ export const useVolunteerActivitiesPage = () => {
     "filters.volunteer.activities.currentPage",
     1
   );
+  const { confirm, confirmDialog } = useConfirmDialog();
 
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
-    title: "",
-    message: "",
-    confirmText: "",
-    cancelText: "",
-    variant: "danger"
-  });
-  const [confirmResolver, setConfirmResolver] = useState<((v: boolean) => void) | null>(null);
-
-  const confirm = useCallback((opts: ConfirmOptions) => {
-    setConfirmOptions(opts);
-    setIsConfirmOpen(true);
-    return new Promise<boolean>((resolve) => setConfirmResolver(() => resolve));
-  }, []);
-
-  const handleConfirmDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(true);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const handleCancelDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(false);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const setActiveFilter: typeof setActiveFilterState = useCallback((value) => {
-    setActiveFilterState(value);
+  const setStoredFilter = useCallback((value: string | ((prev: string | null) => string | null)) => {
+    setActiveFilterState(value as string | null);
     setCurrentPage(1);
   }, [setActiveFilterState, setCurrentPage]);
 
@@ -135,29 +97,18 @@ export const useVolunteerActivitiesPage = () => {
     [participations]
   );
 
-  useEffect(() => {
-    if (defaultApplied || loading || participations.length === 0) return;
+  const activeFilter = storedFilter ?? (
+    stats.pending > 0
+      ? ParticipationStatus.PENDING
+      : stats.approved > 0
+        ? ParticipationStatus.APPROVED
+        : "all"
+  );
 
-    try {
-      if (window.sessionStorage.getItem(ACTIVE_FILTER_STORAGE_KEY) !== null) {
-        setDefaultApplied(true);
-        return;
-      }
-    } catch {
-
-    }
-
-    if (stats.pending > 0) setActiveFilterState(ParticipationStatus.PENDING);
-    else if (stats.approved > 0) setActiveFilterState(ParticipationStatus.APPROVED);
-    setDefaultApplied(true);
-  }, [
-    loading,
-    participations.length,
-    stats.pending,
-    stats.approved,
-    defaultApplied,
-    setActiveFilterState
-  ]);
+  const setActiveFilter = useCallback((value: string | ((prev: string) => string)) => {
+    const next = typeof value === "function" ? value(activeFilter) : value;
+    setStoredFilter(next);
+  }, [activeFilter, setStoredFilter]);
 
   const filtered = useMemo(() => {
     let result = participations;
@@ -225,17 +176,12 @@ export const useVolunteerActivitiesPage = () => {
   const reapply = useCallback(
     async (activityId: string) => {
       setActionLoading(activityId);
-      try {
-        unwrapResult(await participationApi.create(activityId));
-        showToast("تم إرسال طلب الانضمام مجدداً", "success");
-        await refresh();
-      } catch (err) {
-        showToast(getErrorMessage(err, "فشل إرسال الطلب"), "error");
-      } finally {
-        setActionLoading(null);
-      }
+      const ok = await createRequest(activityId);
+      if (ok) showToast("تم إرسال طلب الانضمام مجدداً", "success");
+      else showToast("فشل إرسال الطلب", "error");
+      setActionLoading(null);
     },
-    [refresh, showToast]
+    [createRequest, showToast]
   );
 
   const cancelRequest = useCallback(
@@ -251,23 +197,12 @@ export const useVolunteerActivitiesPage = () => {
       if (!ok) return;
 
       setActionLoading(participationId);
-      try {
-        unwrapResult(await participationApi.cancel(participationId));
-        showToast("تم إلغاء الطلب", "success");
-        await refresh();
-      } catch (err) {
-        const msg = getErrorMessage(err);
-        showToast(
-          msg.includes("24") || msg.includes("INVALID_STATE")
-            ? "لا يمكن الإلغاء — تبقى أقل من 24 ساعة على موعد النشاط"
-            : "لا يمكن إلغاء الطلب في الوقت الحالي",
-          "error"
-        );
-      } finally {
-        setActionLoading(null);
-      }
+      const success = await cancelParticipation(participationId);
+      if (success) showToast("تم إلغاء الطلب", "success");
+      else showToast("لا يمكن إلغاء الطلب في الوقت الحالي", "error");
+      setActionLoading(null);
     },
-    [confirm, refresh, showToast]
+    [confirm, cancelParticipation, showToast]
   );
 
   return {
@@ -297,11 +232,6 @@ export const useVolunteerActivitiesPage = () => {
     toasts,
     handleSortChange,
     removeToast,
-    confirmDialog: {
-      isOpen: isConfirmOpen,
-      options: confirmOptions,
-      handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog
-    }
+    confirmDialog
   };
 };

@@ -6,6 +6,7 @@ import {
   useInfiniteQuery,
   type UseInfiniteQueryResult
 } from "@tanstack/react-query";
+import { useRef } from "react";
 
 export interface InfiniteFetchDataOptions {
   enabled?: boolean;
@@ -36,16 +37,23 @@ export function useInfiniteFetchData<TPage>({
   callback,
   errorCallback
 }: UseInfiniteFetchDataParams<TPage>): UseInfiniteQueryResult<InfiniteData<TPage>, Error> {
+  const requestRef = useRef(request);
+  requestRef.current = request;
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+  const errorCallbackRef = useRef(errorCallback);
+  errorCallbackRef.current = errorCallback;
+
   return useInfiniteQuery<TPage, Error, InfiniteData<TPage>, QueryKey, number>({
     queryKey,
     queryFn: async ({ pageParam }) => {
       try {
-        const data = await request(pageParam);
-        callback?.(data);
+        const data = await requestRef.current(pageParam);
+        callbackRef.current?.(data);
         return data;
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
-        errorCallback?.(err);
+        errorCallbackRef.current?.(err);
         throw err;
       }
     },

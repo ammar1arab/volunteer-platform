@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { SelectInput } from "@/presentation/components";
 import styles from "./BirthDateInput.module.scss";
 
@@ -29,6 +29,12 @@ const MONTHS = [
   { value: "12", label: "ديسمبر" },
 ];
 
+const parse = (value: string) => {
+  if (!value) return { year: "", month: "", day: "" };
+  const [year, month, day] = value.split("-");
+  return { year: year ?? "", month: month ?? "", day: day ?? "" };
+};
+
 const BirthDateInput = ({
   label,
   value,
@@ -40,43 +46,36 @@ const BirthDateInput = ({
   allowFuture = false,
 }: BirthDateInputProps) => {
   const currentYear = new Date().getFullYear();
-  
+
   const range = useMemo(() => {
     if (allowFuture) {
-      return {
-        min: currentYear,
-        max: currentYear + 10 
-      };
+      return { min: currentYear, max: currentYear + 10 };
     }
-    return {
-      min: currentYear - maxAge,
-      max: currentYear - minAge
-    };
+    return { min: currentYear - maxAge, max: currentYear - minAge };
   }, [currentYear, minAge, maxAge, allowFuture]);
 
-  const [year, setYear] = useState("");
-  const [month, setMonth] = useState("");
-  const [day, setDay] = useState("");
+  const parsed = parse(value);
+  const [year, setYear] = useState(parsed.year);
+  const [month, setMonth] = useState(parsed.month);
+  const [day, setDay] = useState(parsed.day);
+  const [prevValue, setPrevValue] = useState(value);
 
-  useEffect(() => {
-    if (!value) {
-      setYear("");
-      setMonth("");
-      setDay("");
-      return;
-    }
-    const [y, m, d] = value.split("-");
-    setYear(y ?? "");
-    setMonth(m ?? "");
-    setDay(d ?? "");
-  }, [value]);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    const next = parse(value);
+    setYear(next.year);
+    setMonth(next.month);
+    setDay(next.day);
+  }
 
-  const years = useMemo(() =>
-    Array.from({ length: range.max - range.min + 1 }, (_, i) => {
-      const y = allowFuture ? range.min + i : range.max - i;
-      return { value: String(y), label: String(y) };
-    }),
-  [range, allowFuture]);
+  const years = useMemo(
+    () =>
+      Array.from({ length: range.max - range.min + 1 }, (_, i) => {
+        const y = allowFuture ? range.min + i : range.max - i;
+        return { value: String(y), label: String(y) };
+      }),
+    [range, allowFuture]
+  );
 
   const days = useMemo(() => {
     if (!year || !month) return [];
@@ -88,9 +87,7 @@ const BirthDateInput = ({
   }, [year, month]);
 
   const emit = (y: string, m: string, d: string) => {
-    if (y && m && d) {
-      onChange(`${y}-${m}-${d}`);
-    }
+    if (y && m && d) onChange(`${y}-${m}-${d}`);
   };
 
   const handleYearChange = (y: string) => {

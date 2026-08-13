@@ -2,7 +2,6 @@
 import {
   useState,
   useRef,
-  useEffect,
   useCallback,
   KeyboardEvent,
 } from "react";
@@ -70,7 +69,6 @@ export default function Chatbot() {
   const [input,       setInput]       = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [hasUnread,   setHasUnread]   = useState(false);
-  const [isVisible,   setIsVisible]   = useState(false);
   const [particles,   setParticles]   = useState<{ id: number; x: number; y: number }[]>([]);
 
   const bottomRef    = useRef<HTMLDivElement>(null);
@@ -78,19 +76,9 @@ export default function Chatbot() {
   const abortRef     = useRef<AbortController | null>(null);
   const particleRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      setHasUnread(false);
-      requestAnimationFrame(() => setIsVisible(true));
-      setTimeout(() => inputRef.current?.focus(), 350);
-    } else {
-      setIsVisible(false);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isOpen]);
+  const scrollToBottom = () => {
+    queueMicrotask(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }));
+  };
 
   const spawnParticles = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -118,6 +106,7 @@ export default function Chatbot() {
       setMessages((prev) => [...prev, userMsg, botMsg]);
       setInput("");
       setIsStreaming(true);
+      scrollToBottom();
 
       const apiHistory = [...messages, userMsg]
         .filter((m) => m.id !== "welcome" && m.content.trim())
@@ -148,6 +137,7 @@ export default function Chatbot() {
           setMessages((prev) =>
             prev.map((m) => (m.id === botId ? { ...m, content: snap } : m))
           );
+          scrollToBottom();
         }
 
         if (!isOpen) setHasUnread(true);
@@ -200,7 +190,7 @@ export default function Chatbot() {
 
         {isOpen && (
           <div
-            className={`${styles.window} ${isVisible ? styles.windowVisible : ""}`}
+            className={styles.window}
             role="dialog"
             aria-label="مساعد بصمات الذكي"
             aria-modal="true"
@@ -307,6 +297,7 @@ export default function Chatbot() {
                   dir="auto"
                   autoComplete="off"
                   maxLength={500}
+                  autoFocus
                   aria-label="رسالتك"
                 />
                 {isStreaming && (
@@ -336,7 +327,10 @@ export default function Chatbot() {
         <button
           className={`${styles.fab} ${isOpen ? styles.fabOpen : ""}`}
           onClick={(e) => {
-            if (!isOpen) spawnParticles(e);
+            if (!isOpen) {
+              spawnParticles(e);
+              setHasUnread(false);
+            }
             setIsOpen((p) => !p);
           }}
           aria-label={isOpen ? "إغلاق المساعد" : "فتح المساعد الذكي"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import type { ActivityVolunteerDto } from "@/core/application/dtos";
 import { activityApi, participationApi, meetingsApi } from "@/presentation/services";
 import { AttendanceStatus, Gender, MeetingAttendeeMatchStatus } from "@/core/domain/enums";
@@ -100,14 +100,6 @@ export const useVolunteersModal = (
       retry: false
     }
   });
-
-  useEffect(() => {
-    if (!isOpen || !activityId) return;
-    setConfirmStep(0);
-    setAttendanceWarning(false);
-    setRejectedIds(new Set());
-    prefetchRef.current = null;
-  }, [isOpen, activityId]);
 
   const serverList = (query.data ?? EMPTY_ARRAY) as ActivityVolunteerDto[];
 

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession, useSession } from "next-auth/react";
 import * as Sentry from "@sentry/nextjs";
@@ -26,18 +26,13 @@ export const useVerifyEmail = () => {
   const [isResending, setIsResending] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [resendSent, setResendSent] = useState(false);
+  const verifyingRef = useRef(false);
 
   const { cooldown, total, start } = useOtpTimer();
 
-  useEffect(() => {
-    if (!email) router.replace("/signin");
-  }, [email, router]);
-
-  useEffect(() => {
-    const full = code.join("");
-    if (full.length !== 6) return;
-    submitCode(full);
-  }, [code]);
+  if (!email && typeof window !== "undefined") {
+    window.location.replace("/signin");
+  }
 
   const uploadPendingPicture = async (): Promise<boolean> => {
     const profileFile = signupDraft.getProfileFile();
@@ -78,6 +73,8 @@ export const useVerifyEmail = () => {
   };
 
   const submitCode = async (codeStr: string) => {
+    if (verifyingRef.current) return;
+    verifyingRef.current = true;
     setError("");
     setWarning("");
     setLoading(true);
@@ -129,6 +126,7 @@ export const useVerifyEmail = () => {
       Sentry.captureException(err instanceof Error ? err : new Error("Verify email network error"));
       setError(NETWORK_ERROR);
     } finally {
+      verifyingRef.current = false;
       setLoading(false);
     }
   };
@@ -176,6 +174,7 @@ export const useVerifyEmail = () => {
     handleSubmit,
     handleResend,
     email,
-    isResending
+    isResending,
+    handleOtpComplete: submitCode
   };
 };

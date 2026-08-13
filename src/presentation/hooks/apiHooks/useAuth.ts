@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { UserRole } from "@/core/domain/enums";
 import { ROUTES, redirectByRole } from "@/presentation/constants";
 
@@ -14,33 +12,35 @@ interface UseAuthOptions {
 
 export const useAuth = (options: UseAuthOptions = {}) => {
   const { data: session, status } = useSession();
-  const router = useRouter();
-
   const {
     requireAuth = true,
     requireRole,
-    redirectTo = ROUTES.LOGIN,
+    redirectTo = ROUTES.LOGIN
   } = options;
 
-  useEffect(() => {
-    if (status === "loading") return;
+  const role = session?.user?.role;
+  const isLoading = status === "loading";
+  const isAuthenticated = status === "authenticated";
 
+  let href: string | null = null;
+  if (!isLoading) {
     if (requireAuth && status === "unauthenticated") {
-      router.replace(redirectTo);
-      return;
+      href = redirectTo;
+    } else if (requireRole && role && role !== requireRole) {
+      href = redirectByRole(role);
     }
+  }
 
-    if (requireRole && session?.user?.role && session.user.role !== requireRole) {
-      router.replace(redirectByRole(session.user.role));
-    }
-  }, [status, session, requireAuth, requireRole, redirectTo, router]);
+  if (href && typeof window !== "undefined") {
+    window.location.replace(href);
+  }
 
   return {
     session,
-    status,
-    isLoading: status === "loading",
-    isAuthenticated: status === "authenticated",
+    status: href ? ("loading" as const) : status,
+    isLoading: isLoading || Boolean(href),
+    isAuthenticated,
     user: session?.user,
-    role: session?.user?.role,
+    role
   };
 };

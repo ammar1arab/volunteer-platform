@@ -32,7 +32,7 @@ export const useActivityParticipations = (options: UseActivityParticipationsOpti
       const res = type === "pending" ? await participationApi.getPending() : await participationApi.getMyRequests();
       return unwrapResult(res).requests;
     },
-    options: { enabled, staleTime: 20_000 }
+    options: { enabled, staleTime: 20_000, keepPrevious: true }
   });
 
   const createMutation = useBooleanMutation<string>({

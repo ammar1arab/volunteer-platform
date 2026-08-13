@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, Check } from "lucide-react";
+import { useIsClient } from "@/presentation/query";
 import styles from "./Dropdown.module.scss";
 
 type DropdownItem = {
@@ -28,17 +29,12 @@ type MenuCoords = {
 
 const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compact = false }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [coords, setCoords] = useState<MenuCoords | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const mounted = useIsClient();
 
   const activeItem = items.find((item) => item.key === active);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const updateCoords = useCallback(() => {
     const trigger = triggerRef.current;
@@ -71,82 +67,62 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
     });
   }, [compact]);
 
-  useLayoutEffect(() => {
-    if (!isOpen) return;
-    updateCoords();
-    const onReposition = () => updateCoords();
-    window.addEventListener("resize", onReposition);
-    window.addEventListener("scroll", onReposition, true);
-    return () => {
-      window.removeEventListener("resize", onReposition);
-      window.removeEventListener("scroll", onReposition, true);
-    };
-  }, [isOpen, updateCoords, items]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handlePointer = (event: MouseEvent | TouchEvent) => {
-      const target = event.target as Node;
-      if (dropdownRef.current?.contains(target)) return;
-      if (menuRef.current?.contains(target)) return;
-      setIsOpen(false);
-    };
-
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsOpen(false);
-    };
-
-    document.addEventListener("mousedown", handlePointer);
-    document.addEventListener("touchstart", handlePointer);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handlePointer);
-      document.removeEventListener("touchstart", handlePointer);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [isOpen]);
+  const close = () => setIsOpen(false);
 
   const handleSelect = (key: string) => {
     onChange(key);
-    setIsOpen(false);
+    close();
   };
 
   const menu =
     isOpen && mounted && coords
       ? createPortal(
-          <div
-            ref={menuRef}
-            className={`${styles.menu} ${compact ? styles.compactMenu : ""} no-scrollbar`}
-            style={{
-              position: "fixed",
-              top: coords.top,
-              left: coords.left,
-              width: coords.width,
-              maxHeight: coords.maxHeight,
-              zIndex: 4000
-            }}
-            role="listbox"
-          >
-            {items.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                role="option"
-                aria-selected={item.key === active}
-                className={`${styles.item} ${item.key === active ? styles.selected : ""}`}
-                onClick={() => handleSelect(item.key)}
-              >
-                <span className={styles.itemLabel}>
-                  {item.label}
-                  {item.count !== undefined && (
-                    <span className={styles.itemCount}>{item.count}</span>
-                  )}
-                </span>
-                {item.key === active && <Check size={16} className={styles.check} />}
-              </button>
-            ))}
-          </div>,
+          <>
+            <button
+              type="button"
+              aria-label="إغلاق القائمة"
+              onClick={close}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") close();
+              }}
+              style={{ position: "fixed", inset: 0, zIndex: 3999, background: "transparent", border: 0 }}
+            />
+            <div
+              className={`${styles.menu} ${compact ? styles.compactMenu : ""} no-scrollbar`}
+              style={{
+                position: "fixed",
+                top: coords.top,
+                left: coords.left,
+                width: coords.width,
+                maxHeight: coords.maxHeight,
+                zIndex: 4000
+              }}
+              role="listbox"
+              tabIndex={-1}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") close();
+              }}
+            >
+              {items.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  role="option"
+                  aria-selected={item.key === active}
+                  className={`${styles.item} ${item.key === active ? styles.selected : ""}`}
+                  onClick={() => handleSelect(item.key)}
+                >
+                  <span className={styles.itemLabel}>
+                    {item.label}
+                    {item.count !== undefined && (
+                      <span className={styles.itemCount}>{item.count}</span>
+                    )}
+                  </span>
+                  {item.key === active && <Check size={16} className={styles.check} />}
+                </button>
+              ))}
+            </div>
+          </>,
           document.body
         )
       : null;
@@ -157,7 +133,14 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
         ref={triggerRef}
         type="button"
         className={`${styles.trigger} ${isOpen ? styles.open : ""} ${compact ? styles.compact : ""}`}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          if (isOpen) {
+            close();
+            return;
+          }
+          updateCoords();
+          setIsOpen(true);
+        }}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >

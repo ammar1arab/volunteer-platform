@@ -2,7 +2,7 @@
 
 import "leaflet/dist/leaflet.css";
 import dynamic from "next/dynamic";
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
 import { Search, MapPinned, Link, X, ChevronDown, Check, Loader2, Navigation } from "lucide-react";
 import { useLocationPicker, LatLng, SearchResult } from "./LocationPicker.logic";
 import styles from "./LocationPicker.module.scss";
@@ -14,8 +14,15 @@ const Marker = dynamic(() => import("react-leaflet").then((m) => m.Marker), { ss
 const MapFixer = () => {
     const { useMap } = require("react-leaflet");
     const map = useMap();
-    useEffect(() => { setTimeout(() => map.invalidateSize(), 200); }, [map]);
-    return null;
+    return (
+        <span
+            hidden
+            ref={() => {
+                const t = setTimeout(() => map.invalidateSize(), 200);
+                return () => clearTimeout(t);
+            }}
+        />
+    );
 };
 
 const MapEvents = ({ onClick }: { onClick: (p: LatLng) => void }) => {
@@ -35,6 +42,18 @@ const DraggableMarker = ({ position, icon, onDragEnd }: { position: LatLng; icon
     return <Marker position={[position.lat, position.lng]} icon={icon} draggable ref={markerRef} eventHandlers={handlers} />;
 };
 
+let markerIcon: any = null;
+function getMarkerIcon() {
+    if (markerIcon) return markerIcon;
+    const L = require("leaflet");
+    markerIcon = new L.Icon({
+        iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+        iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41],
+    });
+    return markerIcon;
+}
+
 type Props = {
     latitude: number;
     longitude: number;
@@ -43,21 +62,12 @@ type Props = {
 };
 
 const LocationPicker = ({ latitude, longitude, onChange, label = "موقع الفعالية" }: Props) => {
-    const { state, dispatch, searchByAddress, selectResult, detectLocation, parseMapsLink } =
+    const { state, dispatch, searchByAddress, selectResult, detectLocation, parseMapsLink, isClient } =
         useLocationPicker({ latitude, longitude, onChange });
 
-    const [icon, setIcon] = useState<any>(null);
+    if (!isClient) return null;
 
-    useEffect(() => {
-        const L = require("leaflet");
-        setIcon(new L.Icon({
-            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
-            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41],
-        }));
-    }, []);
-
-    if (!state.isMounted) return null;
+    const icon = getMarkerIcon();
 
     const hasLocation = latitude !== 0 || longitude !== 0;
     const previewSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.012}%2C${latitude - 0.012}%2C${longitude + 0.012}%2C${latitude + 0.012}&layer=mapnik&marker=${latitude}%2C${longitude}`;
@@ -164,7 +174,7 @@ const LocationPicker = ({ latitude, longitude, onChange, label = "موقع ال�
 
 
             {state.mapOpen && (
-                <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && dispatch({ type: "TOGGLE_MAP", payload: false })}>
+                <div className={styles.overlay} data-modal-open="" onClick={(e) => e.target === e.currentTarget && dispatch({ type: "TOGGLE_MAP", payload: false })}>
                     <div className={styles.modal}>
 
                         <div className={styles.modalHeader}>

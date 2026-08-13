@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./MeetingReportModal.module.scss";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Modal,
   LoadingState,
@@ -9,9 +9,8 @@ import {
   Button,
   SelectInput
 } from "@/presentation/components";
-import { meetingsApi, type MeetingReportDto } from "@/presentation/services/meetings.service";
+import { useMeetingReport, useMatchAttendee } from "@/presentation/hooks";
 import { MeetingAttendeeMatchStatus } from "@/core/domain/enums";
-import { getErrorMessage, unwrapResult } from "@/presentation/query";
 import { Clock3, Mail, UserRound, Users } from "lucide-react";
 
 type MatchOption = { value: string; label: string };
@@ -38,39 +37,20 @@ const MeetingReportModal = ({
   matchOptions = [],
   onMatched
 }: Props) => {
-  const [report, setReport] = useState<MeetingReportDto | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { report, loading, error } = useMeetingReport(activityId, { enabled: isOpen });
+  const { match, submitting } = useMatchAttendee(activityId);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [draftMatches, setDraftMatches] = useState<Record<string, string>>({});
+  const [draftsFor, setDraftsFor] = useState("");
 
-  useEffect(() => {
-    if (!isOpen || !activityId) return;
-    let cancelled = false;
-    setLoading(true);
-    setError("");
-    meetingsApi
-      .getReport(activityId)
-      .then((res) => {
-        if (cancelled) return;
-        const data = unwrapResult(res).report;
-        setReport(data);
-        const drafts: Record<string, string> = {};
-        for (const a of data?.attendees ?? []) {
-          if (a.matchedUserId) drafts[a.id] = a.matchedUserId;
-        }
-        setDraftMatches(drafts);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(getErrorMessage(err, "تعذر جلب تقرير الحضور"));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [isOpen, activityId]);
+  if (activityId !== draftsFor && report) {
+    const next: Record<string, string> = {};
+    for (const attendee of report.attendees) {
+      if (attendee.matchedUserId) next[attendee.id] = attendee.matchedUserId;
+    }
+    setDraftMatches(next);
+    setDraftsFor(activityId);
+  }
 
   const unmatched = useMemo(
     () =>
@@ -85,11 +65,8 @@ const MeetingReportModal = ({
     if (!userId) return;
     setSavingId(attendeeId);
     try {
-      const data = unwrapResult(await meetingsApi.matchAttendee(activityId, attendeeId, userId));
-      setReport(data.report);
+      await match(attendeeId, userId);
       onMatched?.();
-    } catch (err) {
-      setError(getErrorMessage(err, "تعذر حفظ المطابقة"));
     } finally {
       setSavingId(null);
     }
@@ -98,16 +75,13 @@ const MeetingReportModal = ({
   const handleClearMatch = async (attendeeId: string) => {
     setSavingId(attendeeId);
     try {
-      const data = unwrapResult(await meetingsApi.matchAttendee(activityId, attendeeId, null));
-      setReport(data.report);
+      await match(attendeeId, null);
       setDraftMatches((prev) => {
         const next = { ...prev };
         delete next[attendeeId];
         return next;
       });
       onMatched?.();
-    } catch (err) {
-      setError(getErrorMessage(err, "تعذر إلغاء المطابقة"));
     } finally {
       setSavingId(null);
     }
@@ -192,7 +166,7 @@ const MeetingReportModal = ({
                         <Button
                           variant="primary"
                           size="sm"
-                          loading={savingId === attendee.id}
+                          loading={savingId === attendee.id || submitting}
                           disabled={!draftMatches[attendee.id]}
                           onClick={() => handleSaveMatch(attendee.id)}
                         >
@@ -203,7 +177,7 @@ const MeetingReportModal = ({
                       <button
                         type="button"
                         className={styles.clearBtn}
-                        disabled={savingId === attendee.id}
+                        disabled={savingId === attendee.id || submitting}
                         onClick={() => handleClearMatch(attendee.id)}
                       >
                         إلغاء المطابقة

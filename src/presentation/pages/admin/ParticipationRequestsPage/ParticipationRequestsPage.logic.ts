@@ -1,19 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { JordanianCity, UserRole } from "@/core/domain/enums";
-import { useActivityParticipations, useToast, useAuth } from "@/presentation/hooks";
+import { useActivityParticipations, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { getCityLabel } from "@/presentation/constants";
-
-type ConfirmOptions = {
-  title?: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "danger" | "primary";
-  warning?: string;
-};
 
 export const useParticipationRequestsPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
@@ -24,7 +15,7 @@ export const useParticipationRequestsPage = () => {
   });
 
   const ITEMS_PER_PAGE = 20;
-  const [filter, setFilter] = useSessionStorageState<string>(
+  const [filter, setFilterState] = useSessionStorageState<string>(
     "filters.admin.participationRequests.filter",
     "all"
   );
@@ -32,7 +23,7 @@ export const useParticipationRequestsPage = () => {
     "filters.admin.participationRequests.searchQuery",
     ""
   );
-  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+  const [appliedSearch, setAppliedSearchState] = useSessionStorageState(
     "filters.admin.participationRequests.appliedSearch",
     ""
   );
@@ -40,29 +31,9 @@ export const useParticipationRequestsPage = () => {
     "filters.admin.participationRequests.currentPage",
     1
   );
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
-  const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
-
-  const confirm = useCallback((opts: ConfirmOptions) => {
-    setConfirmOptions(opts);
-    setIsConfirmOpen(true);
-    return new Promise<boolean>((resolve) => {
-      setConfirmResolver(() => resolve);
-    });
-  }, []);
-
-  const handleConfirmDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(true);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const handleCancelDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(false);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
+  const { confirm, confirmDialog } = useConfirmDialog();
+  const setFilter = usePageReset(setFilterState, setCurrentPage);
+  const setAppliedSearch = usePageReset(setAppliedSearchState, setCurrentPage);
 
   const filteredRequests = useMemo(() => {
     let result = filter === "all" ? requests : requests.filter((r) => r.activityId === filter);
@@ -94,10 +65,6 @@ export const useParticipationRequestsPage = () => {
     });
     return [{ key: "all", label: "الكل", count: requests.length }, ...activities];
   }, [requests]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filter, appliedSearch]);
 
   const handleApprove = useCallback(
     async (id: string, volunteerName: string, volunteerCity?: string, activityCity?: string) => {
@@ -185,12 +152,7 @@ export const useParticipationRequestsPage = () => {
     currentPage,
     setCurrentPage,
     itemsPerPage: ITEMS_PER_PAGE,
-    confirmDialog: {
-      isOpen: isConfirmOpen,
-      options: confirmOptions,
-      handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog
-    },
+    confirmDialog,
     setFilter,
     handleApprove,
     handleReject,

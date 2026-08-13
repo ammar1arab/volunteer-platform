@@ -1,20 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { JordanianCity, UserRole } from "@/core/domain/enums";
-import { useVolunteerSpotlight, useToast, useAuth } from "@/presentation/hooks";
+import { useVolunteerSpotlight, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { VolunteerSpotlightDto } from "@/core/application/dtos";
 import { normalizeWhitespace, processImageForUpload, revokeImagePreview } from "@/lib/utils";
 import { CITY_OPTIONS } from "@/presentation/constants/labels";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
-
-type ConfirmOptions = {
-  title?: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "danger" | "primary";
-};
 
 interface FormState {
   id: string;
@@ -43,7 +35,7 @@ export const useVolunteerSpotlightPage = () => {
   const { toasts, showToast, removeToast } = useToast();
   const ITEMS_PER_PAGE = 20;
 
-  const { list, loading, submitting, uploading, error, uploadImage, create, update, remove } = useVolunteerSpotlight();
+  const { list, loading, submitting, uploading, uploadImage, create, update, remove } = useVolunteerSpotlight();
 
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -53,23 +45,21 @@ export const useVolunteerSpotlightPage = () => {
     "filters.admin.volunteerSpotlight.currentPage",
     1
   );
-  const [activeCity, setActiveCity] = useSessionStorageState(
+  const [activeCity, setActiveCityState] = useSessionStorageState(
     "filters.admin.volunteerSpotlight.activeCity",
     "all"
   );
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
-    message: ""
-  });
-  const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
+  const { confirm, confirmDialog } = useConfirmDialog();
   const [searchQuery, setSearchQuery] = useSessionStorageState(
     "filters.admin.volunteerSpotlight.searchQuery",
     ""
   );
-  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+  const [appliedSearch, setAppliedSearchState] = useSessionStorageState(
     "filters.admin.volunteerSpotlight.appliedSearch",
     ""
   );
+  const setActiveCity = usePageReset(setActiveCityState, setCurrentPage);
+  const setAppliedSearch = usePageReset(setAppliedSearchState, setCurrentPage);
 
   const filteredList = useMemo(() => {
     let result = activeCity === "all" ? list : list.filter((s) => s.city === activeCity);
@@ -84,42 +74,6 @@ export const useVolunteerSpotlightPage = () => {
     if (!Array.isArray(filteredList)) return [];
     return filteredList.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
   }, [filteredList, currentPage]);
-
-  useEffect(() => {
-    if (error && error.trim()) {
-      showToast(error, "error");
-    }
-  }, [error, showToast]);
-
-  useEffect(() => {
-    return () => {
-      if (preview) revokeImagePreview(preview);
-    };
-  }, [preview]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeCity, appliedSearch]);
-
-  const confirm = useCallback((opts: ConfirmOptions) => {
-    setConfirmOptions(opts);
-    setIsConfirmOpen(true);
-    return new Promise<boolean>((resolve) => {
-      setConfirmResolver(() => resolve);
-    });
-  }, []);
-
-  const handleConfirmDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(true);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const handleCancelDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(false);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
 
   const resetForm = useCallback(() => {
     setMode("create");
@@ -264,12 +218,7 @@ export const useVolunteerSpotlightPage = () => {
     cityOptions: CITY_OPTIONS,
     toasts,
     removeToast,
-    confirmDialog: {
-      isOpen: isConfirmOpen,
-      options: confirmOptions,
-      handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog
-    },
+    confirmDialog,
     setForm,
     setCurrentPage,
     resetForm,

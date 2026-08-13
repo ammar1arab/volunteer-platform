@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export type SharePayload = {
   title: string;
@@ -14,17 +14,6 @@ export const useShare = () => {
     setIsOpen(true);
   };
   const close = () => setIsOpen(false);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
 
   const getLinks = (p: SharePayload) => {
     const encodedText = encodeURIComponent(p.text);

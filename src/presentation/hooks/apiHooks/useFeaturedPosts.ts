@@ -29,7 +29,7 @@ export const useFeaturedPosts = (
       const posts = unwrapResult(await featuredPostApi.getAll()).posts;
       return activeOnly ? posts.filter((x) => x.isActive !== false) : posts;
     },
-    options: { enabled, staleTime: activeOnly ? 60_000 : 30_000 }
+    options: { enabled, staleTime: activeOnly ? 60_000 : 30_000, keepPrevious: true }
   });
 
   const createMutation = useBooleanMutation<CreateFeaturedPostRequest>({

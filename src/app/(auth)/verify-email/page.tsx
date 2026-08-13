@@ -11,7 +11,7 @@ const VerifyEmailContent = () => {
     code, setCode, error, warning, loading,
     cooldown, total,
     showSuccess, resendSent,
-    handleSubmit, handleResend, email, isResending,
+    handleSubmit, handleResend, email, isResending, handleOtpComplete,
   } = useVerifyEmail();
 
   return (
@@ -31,7 +31,7 @@ const VerifyEmailContent = () => {
         {warning && <div className={styles.warning} role="status">{warning}</div>}
 
         <form onSubmit={handleSubmit} noValidate>
-          <OtpInput value={code} onChange={setCode} disabled={loading} />
+          <OtpInput value={code} onChange={setCode} onComplete={handleOtpComplete} disabled={loading} />
           <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6}>
             {loading ? "جارٍ التحقق..." : "تفعيل الحساب"}
           </Button>

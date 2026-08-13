@@ -1,21 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { DomainFeaturedPostCategory, UserRole } from "@/core/domain/enums";
 
-import { useFeaturedPosts, useToast, useAuth } from "@/presentation/hooks";
+import { useFeaturedPosts, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { FeaturedPostDto } from "@/core/application/dtos";
 import { normalizeWhitespace, processImageForUpload, revokeImagePreview } from "@/lib/utils";
 import { CATEGORY_OPTIONS, MONTH_LABELS } from "@/presentation/constants";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
-
-type ConfirmOptions = {
-  title?: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "danger" | "primary";
-};
 
 interface FormState {
   id: string;
@@ -47,7 +39,7 @@ export const useFeaturedPostsPage = () => {
   const { toasts, showToast, removeToast } = useToast();
   const ITEMS_PER_PAGE = 20;
 
-  const { list, loading, submitting, uploading, error, uploadImage, create, update, remove } = useFeaturedPosts();
+  const { list, loading, submitting, uploading, uploadImage, create, update, remove } = useFeaturedPosts();
 
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -57,23 +49,21 @@ export const useFeaturedPostsPage = () => {
     "filters.admin.featuredPosts.currentPage",
     1
   );
-  const [activeCategory, setActiveCategory] = useSessionStorageState(
+  const [activeCategory, setActiveCategoryState] = useSessionStorageState(
     "filters.admin.featuredPosts.activeCategory",
     "all"
   );
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({
-    message: ""
-  });
-  const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
+  const { confirm, confirmDialog } = useConfirmDialog();
   const [searchQuery, setSearchQuery] = useSessionStorageState(
     "filters.admin.featuredPosts.searchQuery",
     ""
   );
-  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+  const [appliedSearch, setAppliedSearchState] = useSessionStorageState(
     "filters.admin.featuredPosts.appliedSearch",
     ""
   );
+  const setActiveCategory = usePageReset(setActiveCategoryState, setCurrentPage);
+  const setAppliedSearch = usePageReset(setAppliedSearchState, setCurrentPage);
 
   const filteredList = useMemo(() => {
     let result =
@@ -105,42 +95,6 @@ export const useFeaturedPostsPage = () => {
       }))
       .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
   }, [filteredList, currentPage]);
-
-  useEffect(() => {
-    if (error && error.trim()) {
-      showToast(error, "error");
-    }
-  }, [error, showToast]);
-
-  useEffect(() => {
-    return () => {
-      if (preview) revokeImagePreview(preview);
-    };
-  }, [preview]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeCategory, appliedSearch]);
-
-  const confirm = useCallback((opts: ConfirmOptions) => {
-    setConfirmOptions(opts);
-    setIsConfirmOpen(true);
-    return new Promise<boolean>((resolve) => {
-      setConfirmResolver(() => resolve);
-    });
-  }, []);
-
-  const handleConfirmDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(true);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const handleCancelDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(false);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
 
   const resetForm = useCallback(() => {
     setMode("create");
@@ -289,12 +243,7 @@ export const useFeaturedPostsPage = () => {
     categoryOptions: CATEGORY_OPTIONS,
     toasts,
     removeToast,
-    confirmDialog: {
-      isOpen: isConfirmOpen,
-      options: confirmOptions,
-      handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog
-    },
+    confirmDialog,
     setForm,
     setCurrentPage,
     resetForm,

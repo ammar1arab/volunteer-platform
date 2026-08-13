@@ -26,7 +26,8 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter; enabled?: bool
     },
     options: {
       enabled: opts?.enabled ?? true,
-      staleTime: filter === "published" ? 60_000 : 30_000
+      staleTime: filter === "published" ? 60_000 : 30_000,
+      keepPrevious: true
     }
   });
 

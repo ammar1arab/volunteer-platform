@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ActivityStatus, ActivityType, DayOfWeek, MeetingLinkSource, MeetingPlatform, UserRole } from "@/core/domain/enums";
-import { useActivities, useToast, useAuth } from "@/presentation/hooks";
+import { useActivities, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
 import { processImageForUpload } from "@/lib/utils";
@@ -34,14 +34,6 @@ const VALIDATION_RULES = [
   { field: "activityType", message: "نوع النشاط مطلوب" }
 ];
 
-type ConfirmOptions = {
-  title?: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "danger" | "primary";
-};
-
 export const useActivitiesPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
@@ -50,7 +42,7 @@ export const useActivitiesPage = () => {
   const { list, loading, submitting, uploadImage, create, update, remove, publish, cancel, restore, complete } =
     useActivities({ filter: "all" });
 
-  const [activeFilter, setActiveFilter] = useSessionStorageState<string>(
+  const [activeFilter, setActiveFilterState] = useSessionStorageState<string>(
     "filters.admin.activities.activeFilter",
     ActivityStatus.PUBLISHED
   );
@@ -64,17 +56,18 @@ export const useActivitiesPage = () => {
   const [selectedActivity, setSelectedActivity] = useState<ActivityDto | null>(null);
   const [editData, setEditData] = useState<any>(null);
 
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [confirmOptions, setConfirmOptions] = useState<ConfirmOptions>({ message: "" });
-  const [confirmResolver, setConfirmResolver] = useState<((value: boolean) => void) | null>(null);
   const [searchQuery, setSearchQuery] = useSessionStorageState(
     "filters.admin.activities.searchQuery",
     ""
   );
-  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+  const [appliedSearch, setAppliedSearchState] = useSessionStorageState(
     "filters.admin.activities.appliedSearch",
     ""
   );
+
+  const { confirm, confirmDialog } = useConfirmDialog();
+  const setActiveFilter = usePageReset(setActiveFilterState, setCurrentPage);
+  const setAppliedSearch = usePageReset(setAppliedSearchState, setCurrentPage);
 
   const filtered = useMemo(() => {
     let result = activeFilter === "all" ? list : list.filter((a) => a.status === activeFilter);
@@ -94,30 +87,6 @@ export const useActivitiesPage = () => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, currentPage]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeFilter, appliedSearch]);
-
-  const confirm = useCallback((opts: ConfirmOptions) => {
-    setConfirmOptions(opts);
-    setIsConfirmOpen(true);
-    return new Promise<boolean>((resolve) => {
-      setConfirmResolver(() => resolve);
-    });
-  }, []);
-
-  const handleConfirmDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(true);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const handleCancelDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(false);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
 
   const openCreateModal = useCallback(() => {
     setMode("create");
@@ -357,12 +326,7 @@ export const useActivitiesPage = () => {
     paginatedActivities,
     toasts,
     removeToast,
-    confirmDialog: {
-      isOpen: isConfirmOpen,
-      options: confirmOptions,
-      handleConfirm: handleConfirmDialog,
-      handleCancel: handleCancelDialog
-    },
+    confirmDialog,
     setActiveFilter,
     setCurrentPage,
     setShowModal,

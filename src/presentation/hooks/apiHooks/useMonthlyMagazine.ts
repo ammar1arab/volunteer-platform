@@ -33,7 +33,7 @@ export const useMonthlyMagazines = (
       const magazines = unwrapResult(await monthlyMagazineApi.getAll()).magazines;
       return activeOnly ? magazines.filter((x) => x.isActive !== false) : magazines;
     },
-    options: { enabled, staleTime: activeOnly ? 60_000 : 30_000 }
+    options: { enabled, staleTime: activeOnly ? 60_000 : 30_000, keepPrevious: true }
   });
 
   const createMutation = useBooleanMutation<CreateMonthlyMagazineRequest>({

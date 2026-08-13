@@ -1,9 +1,27 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import styles from "./layout.module.scss";
 import { AdminSidebar, AdminTopbar } from "@/presentation/components";
 
 const COLLAPSE_KEY = "admin.sidebar.collapsed";
+const listeners = new Set<() => void>();
+
+const subscribeCollapse = (listener: () => void) => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
+
+const emitCollapse = () => listeners.forEach((listener) => listener());
+
+const getCollapsed = () => {
+  try {
+    return localStorage.getItem(COLLAPSE_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
 
 interface Props {
   children: React.ReactNode;
@@ -12,27 +30,23 @@ interface Props {
 }
 
 export default function AdminLayoutClient({ children, isSuperAdmin, permissions }: Props) {
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [prevPath, setPrevPath] = useState(pathname);
+  const collapsed = useSyncExternalStore(subscribeCollapse, getCollapsed, () => false);
 
-  useEffect(() => {
-    try {
-      if (localStorage.getItem(COLLAPSE_KEY) === "1") setCollapsed(true);
-    } catch {
-
-    }
-  }, []);
+  if (pathname !== prevPath) {
+    setPrevPath(pathname);
+    if (sidebarOpen) setSidebarOpen(false);
+  }
 
   const toggleCollapse = useCallback(() => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(COLLAPSE_KEY, next ? "1" : "0");
-      } catch {
-
-      }
-      return next;
-    });
+    try {
+      localStorage.setItem(COLLAPSE_KEY, getCollapsed() ? "0" : "1");
+    } catch {
+      /* ignore */
+    }
+    emitCollapse();
   }, []);
 
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 
 export interface SelectOption {
   value: string;
@@ -26,17 +26,7 @@ export const useMultiSelect = ({
   const canAddMore = !maxSelections || values.length < maxSelections;
   const selectedOptions = options.filter((o) => values.includes(o.value));
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      )
-        setIsOpen(false);
-    };
-    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
+  const close = useCallback(() => setIsOpen(false), []);
 
   const toggleDropdown = useCallback(
     () => !disabled && setIsOpen((prev) => !prev),
@@ -61,13 +51,14 @@ export const useMultiSelect = ({
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         toggleDropdown();
-      } else if (e.key === "Escape") setIsOpen(false);
+      } else if (e.key === "Escape") close();
     },
-    [toggleDropdown],
+    [toggleDropdown, close],
   );
 
   return {
     isOpen,
+    close,
     containerRef,
     selectedOptions,
     canAddMore,

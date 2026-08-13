@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown } from "lucide-react";
 import styles from "./SelectInput.module.scss";
@@ -57,48 +57,33 @@ const SelectInput = ({
     });
   }, []);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    calcPosition();
-
-    const onScroll = () => calcPosition();
-    const onResize = () => calcPosition();
-    const onDown = (e: MouseEvent) => {
-      if (
-        triggerRef.current?.contains(e.target as Node) ||
-        menuRef.current?.contains(e.target as Node)
-      ) return;
-      setIsOpen(false);
-    };
-
-    window.addEventListener("scroll", onScroll, true);
-    window.addEventListener("resize", onResize);
-    document.addEventListener("mousedown", onDown);
-    return () => {
-      window.removeEventListener("scroll", onScroll, true);
-      window.removeEventListener("resize", onResize);
-      document.removeEventListener("mousedown", onDown);
-    };
-  }, [isOpen, calcPosition]);
+  const close = () => setIsOpen(false);
 
   const handleSelect = (v: string) => {
     onChange(v);
-    setIsOpen(false);
+    close();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setIsOpen((p) => !p); }
-    if (e.key === "Escape") setIsOpen(false);
+    if (e.key === "Escape") close();
   };
 
   const menu = isOpen && typeof document !== "undefined"
     ? createPortal(
-      <ul
-        ref={menuRef}
-        className={styles.menu}
-        style={menuStyle}
-        role="listbox"
-      >
+      <>
+        <button
+          type="button"
+          aria-label="إغلاق القائمة"
+          onClick={close}
+          style={{ position: "fixed", inset: 0, zIndex: 99998, background: "transparent", border: 0 }}
+        />
+        <ul
+          ref={menuRef}
+          className={styles.menu}
+          style={menuStyle}
+          role="listbox"
+        >
         {options.map((o) => (
           <li
             key={o.value}
@@ -110,7 +95,8 @@ const SelectInput = ({
             {o.label}
           </li>
         ))}
-      </ul>,
+        </ul>
+      </>,
       document.body
     )
     : null;

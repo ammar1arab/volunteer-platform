@@ -29,7 +29,7 @@ export const useVolunteerSpotlight = (
       const spotlights = unwrapResult(await volunteerSpotlightApi.getAll()).volunteerSpotlights;
       return activeOnly ? spotlights.filter((x) => x.isActive !== false) : spotlights;
     },
-    options: { enabled, staleTime: activeOnly ? 60_000 : 30_000 }
+    options: { enabled, staleTime: activeOnly ? 60_000 : 30_000, keepPrevious: true }
   });
 
   const createMutation = useBooleanMutation<CreateVolunteerSpotlightRequest>({

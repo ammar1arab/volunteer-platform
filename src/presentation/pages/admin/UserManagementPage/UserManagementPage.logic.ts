@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import { UserRole } from "@/core/domain/enums";
-import { useUsers, useToast, useAuth } from "@/presentation/hooks";
+import { useUsers, useToast, useAuth, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 import { getCityLabel, getEducationLevelLabel } from "@/presentation/constants";
@@ -50,9 +50,9 @@ const sortUsers = (users: UserAnalyticsDto[], sortBy: SortOption): UserAnalytics
 
 export const useUserManagementPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
-  const { toasts, showToast, removeToast } = useToast();
-  const { users, loading, error } = useUsers();
-  const [sortBy, setSortBy] = useSessionStorageState<SortOption>(
+  const { toasts, removeToast } = useToast();
+  const { users, loading } = useUsers();
+  const [sortBy, setSortByState] = useSessionStorageState<SortOption>(
     "filters.admin.userManagement.sortBy",
     "newest"
   );
@@ -64,22 +64,19 @@ export const useUserManagementPage = () => {
     "filters.admin.userManagement.searchQuery",
     ""
   );
-  const [appliedSearch, setAppliedSearch] = useSessionStorageState(
+  const [appliedSearch, setAppliedSearchState] = useSessionStorageState(
     "filters.admin.userManagement.appliedSearch",
     ""
   );
-  const [activeCity, setActiveCity] = useSessionStorageState(
+  const [activeCity, setActiveCityState] = useSessionStorageState(
     "filters.admin.userManagement.activeCity",
     "all"
   );
+  const setSortBy = usePageReset(setSortByState, setCurrentPage);
+  const setAppliedSearch = usePageReset(setAppliedSearchState, setCurrentPage);
+  const setActiveCity = usePageReset(setActiveCityState, setCurrentPage);
 
   const ITEMS_PER_PAGE = 32;
-
-  useEffect(() => {
-    if (error && error.trim()) {
-      showToast(error, "error");
-    }
-  }, [error, showToast]);
 
   const volunteers = useMemo(() => {
     let result = users.filter((u) => u.role === "VOLUNTEER");
@@ -138,10 +135,6 @@ export const useUserManagementPage = () => {
     return volunteers.slice(start, start + ITEMS_PER_PAGE);
   }, [volunteers, currentPage]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [sortBy, appliedSearch, activeCity]);
-
   const exportData = useMemo(
     () =>
       volunteers.map((user) => ({
@@ -170,7 +163,7 @@ export const useUserManagementPage = () => {
 
   const handleSortChange = useCallback((key: string) => {
     setSortBy(key as SortOption);
-  }, []);
+  }, [setSortBy]);
 
   return {
     status,

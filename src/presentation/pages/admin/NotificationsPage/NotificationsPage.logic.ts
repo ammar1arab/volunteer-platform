@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { UserRole } from "@/core/domain/enums";
-import { useAuth, useToast } from "@/presentation/hooks";
+import { useAuth, useToast, usePageReset } from "@/presentation/hooks";
 import type {
   BroadcastDto,
   BroadcastRecipientDto,
@@ -98,10 +98,12 @@ export function useNotificationsPageLogic() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [volunteerSearch, setVolunteerSearch] = useSessionStorageState(
+  const [volunteerSearch, setVolunteerSearchState] = useSessionStorageState(
     "filters.admin.notifications.volunteerSearch",
     ""
   );
+  const [volunteersPage, setVolunteersPage] = useState(1);
+  const setVolunteerSearch = usePageReset(setVolunteerSearchState, setVolunteersPage);
   const [directSelectedIds, setDirectSelectedIds] = useState<Set<string>>(new Set());
   const [recipientsState, setRecipientsState] = useState<RecipientsState>(INITIAL_RECIPIENTS);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -329,20 +331,20 @@ export function useNotificationsPageLogic() {
     }
   }, [clearBroadcastsMutation, showToast]);
 
-  const openRecipientsModal = useCallback(
-    async (broadcastId: string, title: string) => {
-      setRecipientsState({ open: true, broadcastId, title, recipients: [], loading: true });
-      try {
-        const recipients = unwrapResult(await notificationApi.getBroadcastRecipients(broadcastId))
-          .recipients;
-        setRecipientsState((prev) => ({ ...prev, recipients, loading: false }));
-      } catch (err) {
-        setRecipientsState((prev) => ({ ...prev, loading: false }));
-        showToast(getErrorMessage(err, "حدث خطأ أثناء جلب المستقبلين"), "error");
-      }
-    },
-    [showToast]
-  );
+  const recipientsQuery = useFetchData<BroadcastRecipientDto[]>({
+    queryKey: queryKeys.notifications.broadcastRecipients(recipientsState.broadcastId ?? ""),
+    request: async () =>
+      unwrapResult(await notificationApi.getBroadcastRecipients(recipientsState.broadcastId!))
+        .recipients,
+    options: {
+      enabled: recipientsState.open && Boolean(recipientsState.broadcastId),
+      staleTime: 15_000
+    }
+  });
+
+  const openRecipientsModal = useCallback((broadcastId: string, title: string) => {
+    setRecipientsState({ open: true, broadcastId, title, recipients: [], loading: true });
+  }, []);
 
   const closeRecipientsModal = useCallback(() => setRecipientsState(INITIAL_RECIPIENTS), []);
 
@@ -416,10 +418,16 @@ export function useNotificationsPageLogic() {
     loadingVolunteers: volunteersQuery.isLoading,
     volunteerSearch,
     setVolunteerSearch,
+    volunteersPage,
+    setVolunteersPage,
     directSelectedIds,
     toggleDirectUser,
     toggleAllDirect,
-    recipientsState,
+    recipientsState: {
+      ...recipientsState,
+      recipients: recipientsQuery.data ?? recipientsState.recipients,
+      loading: recipientsState.open && recipientsQuery.isLoading
+    },
     openRecipientsModal,
     closeRecipientsModal,
     pendingDeleteId,

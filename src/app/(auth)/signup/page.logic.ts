@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { Gender, JordanianCity } from "@/core/domain/enums";
 import { authApi } from "@/presentation/services";
+import { queryKeys, useFetchData } from "@/presentation/query";
 import { signupDraft } from "../signupDraft";
 
 interface FormData {
@@ -89,34 +90,24 @@ export const useSignup = () => {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [emailStatus, setEmailStatus] = useState<"idle" | "checking" | "taken" | "ok">("idle");
+  const [emailToCheck, setEmailToCheck] = useState("");
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
 
-  useEffect(
-    () => () => {
-      if (timer.current) clearTimeout(timer.current);
-      if (profilePreview) URL.revokeObjectURL(profilePreview);
-    },
-    [profilePreview]
-  );
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailToCheck);
+  const { data: emailTaken, isFetching: emailChecking } = useFetchData({
+    queryKey: queryKeys.auth.checkEmail(emailToCheck),
+    request: () => authApi.checkEmail(emailToCheck),
+    options: { enabled: emailValid, staleTime: 30_000 }
+  });
 
-  const checkEmail = async (email: string) => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
-    setEmailStatus("checking");
-    try {
-      const res = await fetch("/api/auth/check-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      });
-      const data = await res.json();
-      setEmailStatus(data.taken ? "taken" : "ok");
-      if (data.taken) setErrors((p) => ({ ...p, email: "البريد مستخدم مسبقاً" }));
-    } catch {
-      setEmailStatus("idle");
-    }
-  };
+  const emailStatus: "idle" | "checking" | "taken" | "ok" = !emailToCheck
+    ? "idle"
+    : emailChecking
+      ? "checking"
+      : emailTaken
+        ? "taken"
+        : "ok";
 
   const handleChange = (field: keyof FormData, value: string) => {
     setForm((prev) => {
@@ -133,16 +124,15 @@ export const useSignup = () => {
     setServerError("");
     if (errors[field]) setErrors((p) => ({ ...p, [field]: "" }));
     if (field === "email") {
-      setEmailStatus("idle");
       if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => checkEmail(value), 400);
+      timer.current = setTimeout(() => setEmailToCheck(value.trim()), 400);
     }
   };
 
   const handleBlur = (field: keyof FormData) => {
     const msg = validate(field, form[field], form);
     setErrors((p) => ({ ...p, [field]: msg }));
-    if (field === "email" && !msg) checkEmail(form.email);
+    if (field === "email" && !msg) setEmailToCheck(form.email.trim());
   };
 
   const handleProfileFileChange = (file: File | null) => {
@@ -229,7 +219,7 @@ export const useSignup = () => {
   return {
     step,
     form,
-    errors,
+    errors: emailStatus === "taken" ? { ...errors, email: "البريد مستخدم مسبقاً" } : errors,
     serverError,
     loading,
     emailStatus,

@@ -16,7 +16,7 @@ interface MultiSelectInputProps {
 }
 
 const MultiSelectInput = ({ label, values, options, onChange, error, placeholder = "اختر...", required = false, disabled = false, maxSelections }: MultiSelectInputProps) => {
-    const { isOpen, containerRef, selectedOptions, canAddMore, toggleDropdown, handleToggle, handleRemove, handleKeyDown } =
+    const { isOpen, close, containerRef, selectedOptions, canAddMore, toggleDropdown, handleToggle, handleRemove, handleKeyDown } =
         useMultiSelect({ values, options, onChange, disabled, maxSelections });
 
     return (
@@ -24,6 +24,14 @@ const MultiSelectInput = ({ label, values, options, onChange, error, placeholder
             {label && <label className={styles.label}>{label}{required && <span className={styles.required}>*</span>}</label>}
 
             <div ref={containerRef} className={`${styles.container} ${isOpen ? styles.open : ""} ${error ? styles.error : ""} ${disabled ? styles.disabled : ""}`}>
+                {isOpen && (
+                    <button
+                        type="button"
+                        aria-label="إغلاق القائمة"
+                        onClick={close}
+                        style={{ position: "fixed", inset: 0, zIndex: 999, background: "transparent", border: 0 }}
+                    />
+                )}
                 <button type="button" className={styles.trigger} onClick={toggleDropdown} onKeyDown={handleKeyDown} disabled={disabled}>
                     <div className={styles.content}>
                         {selectedOptions.length === 0 ? <span className={styles.placeholder}>{placeholder}</span> :

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useSyncExternalStore } from "react";
 import type { NotificationDto, NotificationsDto } from "@/core/application/dtos";
 import { notificationApi } from "@/presentation/services";
 import {
@@ -97,12 +97,31 @@ function bootstrapAudio(): () => void {
   return () => EVENTS.forEach((e) => document.removeEventListener(e, unlock, true));
 }
 
+let audioSubs = 0;
+let stopAudio: (() => void) | null = null;
+
+function subscribeAudio() {
+  if (typeof document === "undefined") return () => {};
+  if (audioSubs === 0) stopAudio = bootstrapAudio();
+  audioSubs += 1;
+  return () => {
+    audioSubs -= 1;
+    if (audioSubs === 0) {
+      stopAudio?.();
+      stopAudio = null;
+    }
+  };
+}
+
+function useNotificationAudio() {
+  useSyncExternalStore(subscribeAudio, () => 0, () => 0);
+}
+
 export const useNotifications = () => {
   const pendingReads = useRef<Set<string>>(new Set());
   const prevCountRef = useRef<number | null>(null);
   const { updateData } = useCacheUpdater<NotificationsDto>(NOTIFICATIONS_KEY);
-
-  useEffect(() => bootstrapAudio(), []);
+  useNotificationAudio();
 
   const query = useFetchData<NotificationsDto>({
     queryKey: NOTIFICATIONS_KEY,
@@ -117,6 +136,12 @@ export const useNotifications = () => {
       });
       return { notifications: list, unreadCount: data.unreadCount };
     },
+    callback: (data) => {
+      if (prevCountRef.current !== null && data.unreadCount > prevCountRef.current) {
+        playNotificationSound();
+      }
+      prevCountRef.current = data.unreadCount;
+    },
     options: {
       staleTime: 5_000,
       refetchInterval: POLL_INTERVAL,
@@ -124,15 +149,6 @@ export const useNotifications = () => {
       refetchOnWindowFocus: true
     }
   });
-
-
-  const unreadCount = query.data?.unreadCount ?? 0;
-  useEffect(() => {
-    if (prevCountRef.current !== null && unreadCount > prevCountRef.current) {
-      playNotificationSound();
-    }
-    prevCountRef.current = unreadCount;
-  }, [unreadCount]);
 
   const markReadMutation = useApiMutation<{ success: boolean }, string>({
     request: async (id) => unwrapResult(await notificationApi.markAsRead(id))
@@ -211,6 +227,7 @@ export const useNotifications = () => {
   }, [clearAsync, refetch, updateData]);
 
   const list = (query.data?.notifications ?? EMPTY_ARRAY) as NotificationDto[];
+  const unreadCount = query.data?.unreadCount ?? 0;
   const error = query.error ? getErrorMessage(query.error, "فشل في جلب الإشعارات") : "";
 
   return useMemo(

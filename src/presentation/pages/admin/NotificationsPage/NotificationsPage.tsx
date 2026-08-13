@@ -1,6 +1,6 @@
 "use client";
 import styles from "./NotificationsPage.module.scss";
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import {
   Send, Bell, Users, MapPin, User2, Clock, UserCheck,
   Eye, Trash2, Search, CheckSquare, Hourglass, BadgeCheck,
@@ -53,16 +53,13 @@ const NotificationsPage = () => {
     showClearConfirm, setShowClearConfirm, handleClearBroadcasts,
     filteredVolunteers, loadingVolunteers,
     volunteerSearch, setVolunteerSearch,
+    volunteersPage, setVolunteersPage,
     directSelectedIds, toggleDirectUser, toggleAllDirect,
     recipientsState, openRecipientsModal, closeRecipientsModal,
     showDeleteConfirm, deletingId,
     requestDeleteBroadcast, cancelDeleteBroadcast, confirmDeleteBroadcast,
     activityOptions, activityTitleMap, loadingActivities,
   } = useNotificationsPageLogic();
-
-  const [volunteersPage, setVolunteersPage] = useState(1);
-
-  useEffect(() => { setVolunteersPage(1); }, [volunteerSearch, form.target]);
 
   const paginatedVolunteers = useMemo(
     () => filteredVolunteers.slice(

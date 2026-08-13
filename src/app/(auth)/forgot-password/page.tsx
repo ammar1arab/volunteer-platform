@@ -13,7 +13,7 @@ const ForgotPasswordPage = () => {
     confirmPassword, handleConfirmChange,
     passwordError, confirmError,
     error, loading, cooldown, total, isResending, resendSent, showSuccess,
-    handleSendOtp, handleVerifyOtp, handleResetPassword, handleResend,
+    handleSendOtp, handleVerifyOtp, handleResetPassword, handleResend, handleOtpComplete,
   } = useForgotPassword();
 
   return (
@@ -56,7 +56,7 @@ const ForgotPasswordPage = () => {
             </header>
             {error && <div className={styles.error} role="alert">{error}</div>}
             <form onSubmit={handleVerifyOtp} noValidate>
-              <OtpInput value={code} onChange={setCode} disabled={loading} />
+              <OtpInput value={code} onChange={setCode} onComplete={handleOtpComplete} disabled={loading} />
               <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6}>
                 {loading ? "جارٍ التحقق..." : "تحقق"}
               </Button>

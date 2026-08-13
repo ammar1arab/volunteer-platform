@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import * as Sentry from "@sentry/nextjs";
 import { OtpType } from "@prisma/client";
@@ -33,19 +33,13 @@ export const useForgotPassword = () => {
   const [isResending, setIsResending] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [resendSent, setResendSent] = useState(false);
-
+  const verifyingRef = useRef(false);
 
   const { cooldown, total, start } = useOtpTimer();
 
-
-  useEffect(() => {
-    if (step !== "otp") return;
-    const full = code.join("");
-    if (full.length !== 6) return;
-    verifyCode(full);
-  }, [code, step]);
-
   const verifyCode = async (codeStr: string) => {
+    if (verifyingRef.current) return;
+    verifyingRef.current = true;
     setLoading(true);
     setError("");
     try {
@@ -72,6 +66,7 @@ export const useForgotPassword = () => {
       Sentry.captureException(err instanceof Error ? err : new Error("Verify OTP network error"));
       setError(NETWORK_ERROR);
     } finally {
+      verifyingRef.current = false;
       setLoading(false);
     }
   };
@@ -107,13 +102,8 @@ export const useForgotPassword = () => {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/check-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() })
-      });
-      const check = await res.json();
-      if (!check.taken) {
+      const taken = await authApi.checkEmail(email.trim());
+      if (!taken) {
         setEmailError("البريد الإلكتروني غير مسجل");
         return;
       }
@@ -207,6 +197,7 @@ export const useForgotPassword = () => {
     handleSendOtp,
     handleVerifyOtp,
     handleResetPassword,
-    handleResend
+    handleResend,
+    handleOtpComplete: verifyCode
   };
 };

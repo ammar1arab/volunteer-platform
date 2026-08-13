@@ -12,6 +12,8 @@ export {
   type InfiniteFetchDataOptions
 } from "./hooks/useInfiniteFetchData";
 export { useBooleanMutation } from "./hooks/useBooleanMutation";
+export { useIsClient } from "./hooks/useIsClient";
+export { useNow } from "./hooks/useNow";
 
 export { ApiError, getErrorMessage, isNotFoundError, type ErrorDetails } from "./utils/errors";
 export { isResult, unwrapResult, unwrapRequest } from "./utils/result";

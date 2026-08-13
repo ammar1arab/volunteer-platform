@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useUserDetails, useToast, useAuth } from "@/presentation/hooks";
+import { useUserDetails, useToast, useAuth, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { ParticipationStatus, UserRole } from "@/core/domain/enums";
-import { userApi, volunteerProfileApi } from "@/presentation/services";
 import { ROUTES } from "@/presentation/constants";
 
 interface EditingField {
@@ -13,7 +12,6 @@ interface EditingField {
 }
 
 const ITEMS_PER_PAGE = 5;
-const USER_FIELDS = ["email", "phone", "fullName"];
 
 export const useAdminUserDetailsPage = () => {
   const params = useParams();
@@ -21,9 +19,20 @@ export const useAdminUserDetailsPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
   const { toasts, showToast, removeToast } = useToast();
   const userId = params.id as string;
-  const { user, activities, loadingUser, loadingActivities, error, refresh } = useUserDetails(userId);
+  const {
+    user,
+    activities,
+    loadingUser,
+    loadingActivities,
+    saveField: persistField,
+    toggleActive,
+    deleteUser: persistDelete,
+    saving,
+    toggling,
+    deleting
+  } = useUserDetails(userId);
 
-  const [activeFilter, setActiveFilter] = useSessionStorageState(
+  const [activeFilter, setActiveFilterState] = useSessionStorageState(
     "filters.admin.userDetails.activeFilter",
     "all"
   );
@@ -31,104 +40,47 @@ export const useAdminUserDetailsPage = () => {
     "filters.admin.userDetails.currentPage",
     1
   );
+  const setActiveFilter = usePageReset(setActiveFilterState, setCurrentPage);
   const [editingField, setEditingField] = useState<EditingField | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isTogglingActive, setIsTogglingActive] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
-
-  useEffect(() => {
-    if (error?.trim()) showToast(error, "error");
-  }, [error, showToast]);
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeFilter]);
 
   const startEditing = useCallback((field: string, value: unknown) => setEditingField({ field, value }), []);
   const cancelEditing = useCallback(() => setEditingField(null), []);
   const updateFieldValue = useCallback((value: unknown) => setEditingField((p) => (p ? { ...p, value } : null)), []);
 
-  const VP_FIELDS = [
-    "city",
-    "dateOfBirth",
-    "gender",
-    "membershipNumber",
-    "educationLevel",
-    "occupation",
-    "hasVolunteerExperience"
-  ];
-
   const saveField = useCallback(async () => {
     if (!editingField) return;
-    setIsSaving(true);
-    try {
-      const isVpField = VP_FIELDS.includes(editingField.field);
-      let value: unknown = editingField.value;
-      if (editingField.field === "hasVolunteerExperience") {
-        value = value === true || value === "true";
-      }
-      if (
-        (editingField.field === "educationLevel" ||
-          editingField.field === "occupation" ||
-          editingField.field === "membershipNumber") &&
-        (value === "" || value == null)
-      ) {
-        value = null;
-      }
-      const result = isVpField
-        ? await userApi.updateVolunteerProfile(userId, { [editingField.field]: value })
-        : await userApi.updateUserById(userId, { [editingField.field]: editingField.value });
-      if (!result.success) {
-        showToast(result.error.message, "error");
-        return;
-      }
+    const ok = await persistField(editingField.field, editingField.value);
+    if (ok) {
       showToast("تم الحفظ بنجاح", "success");
       setEditingField(null);
-      refresh();
-    } catch {
+    } else {
       showToast("حدث خطأ أثناء الحفظ", "error");
-    } finally {
-      setIsSaving(false);
     }
-  }, [editingField, userId, refresh, showToast]);
+  }, [editingField, persistField, showToast]);
 
   const confirmToggleActive = useCallback(async () => {
     if (!user) return;
-    setIsTogglingActive(true);
     setShowToggleConfirm(false);
-    try {
-      const result = await userApi.toggleActive(userId, !user.isActive);
-      if (!result.success) {
-        showToast(result.error.message, "error");
-        return;
-      }
-      showToast(result.data.isActive ? "تم تفعيل الحساب ✓" : "تم تعطيل الحساب ✓", "success");
-      refresh();
-    } catch {
+    const ok = await toggleActive(!user.isActive);
+    if (ok) {
+      showToast(user.isActive ? "تم تعطيل الحساب ✓" : "تم تفعيل الحساب ✓", "success");
+    } else {
       showToast("حدث خطأ أثناء تغيير الحالة", "error");
-    } finally {
-      setIsTogglingActive(false);
     }
-  }, [user, userId, refresh, showToast]);
+  }, [user, toggleActive, showToast]);
 
   const deleteUser = useCallback(async () => {
-    setIsDeleting(true);
-    try {
-      const result = await userApi.deleteAdmin(userId);
-      if (!result.success) {
-        showToast(result.error.message, "error");
-        return;
-      }
+    const ok = await persistDelete();
+    if (ok) {
       showToast("تم حذف المستخدم بنجاح", "success");
       router.push(ROUTES.ADMIN.USERS);
-    } catch {
+    } else {
       showToast("حدث خطأ أثناء الحذف", "error");
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
     }
-  }, [userId, router, showToast]);
+    setShowDeleteConfirm(false);
+  }, [persistDelete, router, showToast]);
 
   const filteredActivities = useMemo(() => {
     const base =
@@ -148,7 +100,7 @@ export const useAdminUserDetailsPage = () => {
       Math.round(
         activities
           .filter((a) => a.status === ParticipationStatus.APPROVED)
-          .reduce((sum, a) => sum + ((a as any).volunteerHours ?? 0), 0) * 100
+          .reduce((sum, a) => sum + ((a as { volunteerHours?: number }).volunteerHours ?? 0), 0) * 100
       ) / 100,
     [activities]
   );
@@ -198,17 +150,17 @@ export const useAdminUserDetailsPage = () => {
     exportData,
     totalHours,
     editingField,
-    isSaving,
+    isSaving: saving,
     startEditing,
     cancelEditing,
     updateFieldValue,
     saveField,
     confirmToggleActive,
-    isTogglingActive,
+    isTogglingActive: toggling,
     showToggleConfirm,
     setShowToggleConfirm,
     deleteUser,
-    isDeleting,
+    isDeleting: deleting,
     showDeleteConfirm,
     setShowDeleteConfirm
   };

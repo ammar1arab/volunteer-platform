@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Clock } from "lucide-react";
 import styles from "./TimePickerInput.module.scss";
 
@@ -41,16 +41,10 @@ const TimePickerInput = ({ label, value, onChange, required }: TimePickerInputPr
     const [period, setPeriod] = useState(parsed.p);
     const ref = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (ref.current && !ref.current.contains(e.target as Node)) {
-                setOpen(false);
-                setMode("hour");
-            }
-        };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
-    }, []);
+    const close = () => {
+        setOpen(false);
+        setMode("hour");
+    };
 
     const selectHour = (h: number) => {
         setHour(h);
@@ -106,6 +100,13 @@ const TimePickerInput = ({ label, value, onChange, required }: TimePickerInputPr
             </button>
 
             {open && (
+                <>
+                <button
+                    type="button"
+                    aria-label="إغلاق منتقي الوقت"
+                    onClick={close}
+                    style={{ position: "fixed", inset: 0, zIndex: 90, background: "transparent", border: 0 }}
+                />
                 <div className={styles.dropdown}>
                     <div className={styles.header}>
                         <div className={styles.timeDisplay}>
@@ -162,6 +163,7 @@ const TimePickerInput = ({ label, value, onChange, required }: TimePickerInputPr
                         ))}
                     </div>
                 </div>
+                </>
             )}
         </div>
     );

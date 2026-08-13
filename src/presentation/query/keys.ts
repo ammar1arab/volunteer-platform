@@ -44,6 +44,9 @@ export const queryKeys = {
   profile: {
     me: () => ["profile", "me"] as const
   },
+  auth: {
+    checkEmail: (email: string) => ["auth", "check-email", email.toLowerCase()] as const
+  },
   meetings: {
     all: ["meetings"] as const,
     list: (filter: "upcoming" | "finished" | "all") => ["meetings", "list", filter] as const,

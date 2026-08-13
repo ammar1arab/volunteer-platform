@@ -1,6 +1,6 @@
 "use client";
 import styles from "./PushBanner.module.scss";
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useSession } from "next-auth/react";
 import { BellRing, ShieldCheck, Zap, X, Smartphone, Share, Plus, Check } from "lucide-react";
 import { usePushNotifications } from "@/presentation/hooks";
@@ -9,31 +9,42 @@ const SNOOZE_KEY = "push_banner_snoozed_until";
 const VISITS_KEY = "push_banner_visits";
 const SNOOZE_DAYS = 7;
 
+let visitBootstrapped = false;
+
+function subscribeBanner(onStoreChange: () => void) {
+  if (typeof window !== "undefined" && !visitBootstrapped) {
+    visitBootstrapped = true;
+    const visits = parseInt(localStorage.getItem(VISITS_KEY) ?? "0", 10) + 1;
+    localStorage.setItem(VISITS_KEY, String(visits));
+    onStoreChange();
+  }
+  return () => {};
+}
+
+function getBannerVisible() {
+  if (typeof window === "undefined") return false;
+  const snoozedUntil = parseInt(localStorage.getItem(SNOOZE_KEY) ?? "0", 10);
+  if (Date.now() < snoozedUntil) return false;
+  const visits = parseInt(localStorage.getItem(VISITS_KEY) ?? "0", 10);
+  return visits >= 2;
+}
+
 const PushBanner = () => {
   const { data: session } = useSession();
   const { state, subscribe, isIOS, isStandalone, isSupported } = usePushNotifications();
   const [collapsed, setCollapsed] = useState(false);
-  const [visible, setVisible]     = useState(false);
-
-  useEffect(() => {
-    const snoozedUntil = parseInt(localStorage.getItem(SNOOZE_KEY) ?? "0", 10);
-    if (Date.now() < snoozedUntil) return;
-
-    const visits = parseInt(localStorage.getItem(VISITS_KEY) ?? "0", 10) + 1;
-    localStorage.setItem(VISITS_KEY, String(visits));
-
-    if (visits >= 2) setVisible(true);
-  }, []);
+  const [hidden, setHidden] = useState(false);
+  const eligible = useSyncExternalStore(subscribeBanner, getBannerVisible, () => false);
 
   const snooze = () => {
     const until = Date.now() + SNOOZE_DAYS * 24 * 60 * 60 * 1000;
     localStorage.setItem(SNOOZE_KEY, String(until));
-    setVisible(false);
+    setHidden(true);
   };
 
-  if (!session?.user)                            return null;
-  if (!visible)                                  return null;
-  if (!isSupported)                              return null;
+  if (!session?.user) return null;
+  if (!eligible || hidden) return null;
+  if (!isSupported) return null;
   if (state === "granted" || state === "denied") return null;
 
   if (isIOS && !isStandalone) {

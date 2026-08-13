@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import { ROUTES } from "@/presentation/constants";
 import type { AdminPermission } from "@/core/domain/enums";
 import { ConfirmDialog } from "@/presentation/components";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   FileText,
   Activity,
@@ -71,29 +71,6 @@ const AdminSidebar = ({
     if (item.superAdminOnly) return isSuperAdmin;
     return isSuperAdmin || (item.permission ? permissions.includes(item.permission) : false);
   });
-
-  useEffect(() => {
-    onClose();
-  }, [pathname, onClose]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, onClose]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(max-width: 1024px)").matches) {
-      document.body.style.overflow = isOpen ? "hidden" : "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
 
   return (
     <>
@@ -170,7 +147,14 @@ const AdminSidebar = ({
       </aside>
 
       {isOpen && (
-        <button type="button" className={styles.overlay} onClick={onClose} aria-label="إغلاق القائمة" />
+        <button
+          type="button"
+          className={styles.overlay}
+          data-lock-scroll=""
+          onClick={onClose}
+          onKeyDown={(e) => e.key === "Escape" && onClose()}
+          aria-label="إغلاق القائمة"
+        />
       )}
 
       <ConfirmDialog

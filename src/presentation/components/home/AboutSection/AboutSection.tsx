@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useRef } from "react";
 import styles from "./AboutSection.module.scss";
 import { Container, Button } from "@/presentation/components";
 import { ROUTES } from "@/presentation/constants";
@@ -8,26 +7,25 @@ import { useRouter } from "next/navigation";
 
 const AboutSection = () => {
   const router = useRouter();
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add(styles.visible);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   return (
-    <section ref={sectionRef} className={styles.wrapper}>
+    <section
+      className={styles.wrapper}
+      ref={(el) => {
+        if (!el) return;
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              el.classList.add(styles.visible);
+              observer.disconnect();
+            }
+          },
+          { threshold: 0.15 }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+      }}
+    >
       <Container>
         <div className={styles.inner}>
           <div className={styles.header}>
@@ -40,9 +38,6 @@ const AboutSection = () => {
               <br />
               يخلد في <span className={styles.redText}>بصمة الأردن</span>
             </h2>
-
-
-
           </div>
 
           <div className={styles.visual}>

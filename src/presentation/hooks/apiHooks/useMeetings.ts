@@ -15,6 +15,7 @@ import {
   queryKeys,
   unwrapResult,
   useBooleanMutation,
+  useApiMutation,
   useFetchData
 } from "@/presentation/query";
 
@@ -49,7 +50,8 @@ export const useMeetings = (opts?: { filter?: MeetingsFilter; enabled?: boolean 
     request: async () => unwrapResult(await meetingsApi.getMeetings(filter)).meetings,
     options: {
       enabled: opts?.enabled ?? true,
-      staleTime: 20_000
+      staleTime: 20_000,
+      keepPrevious: true
     }
   });
 
@@ -190,3 +192,29 @@ export const useMeetingLaunch = (activityId: string, opts?: { enabled?: boolean 
     [query.data, query.isLoading, query.error, query.isNotFound, refetch]
   );
 };
+
+export const useMatchAttendee = (activityId: string) => {
+  const mutation = useApiMutation<
+    MeetingReportDto,
+    { attendeeId: string; userId: string | null }
+  >({
+    request: async ({ attendeeId, userId }) =>
+      unwrapResult(await meetingsApi.matchAttendee(activityId, attendeeId, userId)).report,
+    invalidateQueries: [queryKeys.meetings.report(activityId), queryKeys.meetings.all]
+  });
+
+  const match = useCallback(
+    (attendeeId: string, userId: string | null) => mutation.mutateAsync({ attendeeId, userId }),
+    [mutation.mutateAsync]
+  );
+
+  return useMemo(
+    () => ({
+      match,
+      submitting: mutation.isPending,
+      error: mutation.error ? getErrorMessage(mutation.error, "تعذر حفظ المطابقة") : ""
+    }),
+    [match, mutation.isPending, mutation.error]
+  );
+};
+

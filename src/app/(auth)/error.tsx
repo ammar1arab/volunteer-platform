@@ -1,7 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
-import { useEffect } from "react";
+import { captureOnce } from "@/lib/utils/captureOnce";
 import Link from "next/link";
 
 export default function AuthError({
@@ -11,9 +10,7 @@ export default function AuthError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
+  captureOnce(error);
 
   return (
     <div

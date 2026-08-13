@@ -2,7 +2,8 @@
 
 import * as Sentry from "@sentry/nextjs";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useFetchData } from "@/presentation/query";
 
 class SentryExampleFrontendError extends Error {
   constructor(message: string | undefined) {
@@ -13,16 +14,14 @@ class SentryExampleFrontendError extends Error {
 
 export default function Page() {
   const [hasSentError, setHasSentError] = useState(false);
-  const [isConnected, setIsConnected] = useState(true);
-
-  useEffect(() => {
-    Sentry.logger.info("Sentry example page loaded");
-    async function checkConnectivity() {
+  const { data: isConnected = true } = useFetchData({
+    queryKey: ["sentry", "connectivity"],
+    request: async () => {
+      Sentry.logger.info("Sentry example page loaded");
       const result = await Sentry.diagnoseSdkConnectivity();
-      setIsConnected(result !== "sentry-unreachable");
+      return result !== "sentry-unreachable";
     }
-    checkConnectivity();
-  }, []);
+  });
 
   return (
     <div>

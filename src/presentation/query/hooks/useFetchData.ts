@@ -1,6 +1,11 @@
 "use client";
 
-import { type QueryKey, useQuery, type UseQueryResult } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  type QueryKey,
+  useQuery,
+  type UseQueryResult
+} from "@tanstack/react-query";
 import { useRef } from "react";
 import { isNotFoundError } from "../utils/errors";
 
@@ -14,8 +19,8 @@ export interface UseFetchDataOptions {
   refetchOnReconnect?: boolean;
   refetchInterval?: number | false;
   refetchIntervalInBackground?: boolean;
-
   cacheEnabled?: boolean;
+  keepPrevious?: boolean;
 }
 
 export interface UseFetchDataParams<TData> {
@@ -45,7 +50,8 @@ export function useFetchData<TData>({
   errorCallbackRef.current = errorCallback;
 
   const {
-    cacheEnabled: _cacheEnabled,
+    cacheEnabled = true,
+    keepPrevious = false,
     refetchIntervalInBackground = false,
     retry = false,
     refetchOnWindowFocus = false,
@@ -68,7 +74,9 @@ export function useFetchData<TData>({
     retry,
     refetchOnWindowFocus,
     refetchIntervalInBackground,
-    ...rest
+    placeholderData: keepPrevious ? keepPreviousData : undefined,
+    ...rest,
+    gcTime: cacheEnabled ? rest.gcTime : 0
   });
 
   return {

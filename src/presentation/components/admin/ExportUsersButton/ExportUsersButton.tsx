@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useIsClient } from "@/presentation/query";
 import { FileDown, Download } from "lucide-react";
 import { Modal } from "@/presentation/components";
 import { useExportUsersButton } from "./ExportUsersButton.logic";
@@ -23,7 +23,7 @@ const ExportUsersButton = ({
   columns,
   buttonText = "تصدير Excel",
 }: ExportUsersButtonProps) => {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const {
     isModalOpen,
     selectedColumns,
@@ -34,8 +34,6 @@ const ExportUsersButton = ({
     deselectAll,
     exportToExcel,
   } = useExportUsersButton(data, columns);
-
-  useEffect(() => setMounted(true), []);
 
   const modal = (
     <Modal isOpen={isModalOpen} onClose={closeModal} title="اختر الحقول للتصدير" size="md">

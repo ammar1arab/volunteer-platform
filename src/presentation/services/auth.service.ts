@@ -20,5 +20,14 @@ export const authApi = {
   forgotPassword: (data: ForgotPasswordRequest) =>
     apiClient.post<ForgotPasswordResponse>(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data),
   resetPassword: (body: { resetToken: string; newPassword: string }) =>
-    apiClient.post<ResetPasswordResponse>(API_ENDPOINTS.AUTH.RESET_PASSWORD, body)
+    apiClient.post<ResetPasswordResponse>(API_ENDPOINTS.AUTH.RESET_PASSWORD, body),
+  checkEmail: async (email: string): Promise<boolean> => {
+    const res = await fetch("/api/auth/check-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.toLowerCase() })
+    });
+    const data = (await res.json()) as { taken?: boolean };
+    return Boolean(data.taken);
+  }
 };

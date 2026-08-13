@@ -1,7 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
-import { useEffect } from "react";
+import { captureOnce } from "@/lib/utils/captureOnce";
 
 export default function PublicError({
   error,
@@ -10,9 +9,7 @@ export default function PublicError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
+  captureOnce(error);
 
   return (
     <div

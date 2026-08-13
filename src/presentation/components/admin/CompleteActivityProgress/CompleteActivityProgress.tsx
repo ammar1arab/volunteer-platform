@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import styles from './CompleteActivityProgress.module.scss';
 import { CheckCircle2, Loader2, Clock, Cpu, Upload, Database, Mail, PartyPopper } from 'lucide-react';
 
@@ -23,14 +22,7 @@ interface Props {
 }
 
 const CompleteActivityProgress = ({ steps, isDone, issuedCount, activityTitle, onClose }: Props) => {
-  const [showCelebration, setShowCelebration] = useState(false);
-
-  useEffect(() => {
-    if (isDone) {
-      const t = setTimeout(() => setShowCelebration(true), 200);
-      return () => clearTimeout(t);
-    }
-  }, [isDone]);
+  const showCelebration = isDone;
 
   const doneCount = steps.filter(s => s.status === 'done').length;
   const progress = (doneCount / steps.length) * 100;

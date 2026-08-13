@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   ActivityType,
   DayOfWeek,
@@ -69,35 +69,35 @@ export const MEETING_LINK_SOURCE_OPTIONS = [
   }
 ];
 
-export const useActivityModal = ({ initialData, onSubmit, onImageUpload, onClose }: any) => {
-  const [form, setForm] = useState<ActivityFormData>(EMPTY_FORM);
+function toForm(initialData: ActivityFormData | null | undefined): ActivityFormData {
+  if (!initialData) return EMPTY_FORM;
+  const formattedDate = initialData.date.toString().split("T")[0];
+  const isOnline = initialData.activityType === ActivityType.ONLINE;
+  const source =
+    initialData.meetingLinkSource ||
+    (isOnline ? MeetingLinkSource.MANUAL : "");
+  return {
+    ...EMPTY_FORM,
+    ...initialData,
+    date: formattedDate,
+    meetingLink: initialData.meetingLink ?? "",
+    meetingPlatform: initialData.meetingPlatform ?? "",
+    meetingLinkSource: source,
+    placeName: initialData.placeName ?? "",
+    city: initialData.city ?? "",
+    primaryPresenterId: initialData.primaryPresenterId ?? ""
+  };
+}
+
+export const useActivityModal = ({ initialData, onSubmit, onImageUpload }: {
+  initialData?: ActivityFormData | null;
+  onSubmit: (form: ActivityFormData) => Promise<void>;
+  onImageUpload: (file: File) => Promise<string | null>;
+  onClose?: () => void;
+}) => {
+  const [form, setForm] = useState<ActivityFormData>(() => toForm(initialData));
   const [preview, setPreview] = useState("");
   const [uploading, setUploading] = useState(false);
-
-  useEffect(() => {
-    if (initialData) {
-      const formattedDate = initialData.date.toString().split("T")[0];
-      const isOnline = initialData.activityType === ActivityType.ONLINE;
-      const source =
-        initialData.meetingLinkSource ||
-        (isOnline ? MeetingLinkSource.MANUAL : "");
-
-      setForm({
-        ...EMPTY_FORM,
-        ...initialData,
-        date: formattedDate,
-        meetingLink: initialData.meetingLink ?? "",
-        meetingPlatform: initialData.meetingPlatform ?? "",
-        meetingLinkSource: source,
-        placeName: initialData.placeName ?? "",
-        city: initialData.city ?? "",
-        primaryPresenterId: initialData.primaryPresenterId ?? ""
-      });
-    } else {
-      setForm(EMPTY_FORM);
-      setPreview("");
-    }
-  }, [initialData]);
 
   const handleImage = useCallback(
     async (file: File | null) => {

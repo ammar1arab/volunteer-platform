@@ -34,8 +34,25 @@ const Share = ({ trigger }: ShareProps) => {
     <>
       {trigger(open)}
       {isOpen && payload && createPortal(
-        <div className={styles.overlay} onClick={close}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={styles.overlay}
+          data-modal-open=""
+          onClick={close}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") close();
+          }}
+        >
+          <div
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            tabIndex={-1}
+            autoFocus
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") close();
+            }}
+          >
             <div className={styles.header}>
               <h3 className={styles.title}>مشاركة</h3>
               <button className={styles.closeBtn} onClick={close}><X size={16} /></button>

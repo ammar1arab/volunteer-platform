@@ -3,7 +3,7 @@ import styles from './Header.module.scss';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { ROUTES } from '@/presentation/constants';
 import Button from '@/presentation/components/base/Button/Button';
@@ -102,29 +102,21 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<OpenMenu>(null);
   const [showLogout, setShowLogout] = useState(false);
-
+  const [prevPath, setPrevPath] = useState(pathname);
   const desktopRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
+
+  if (pathname !== prevPath) {
+    setPrevPath(pathname);
+    if (menuOpen) setMenuOpen(false);
+    if (openMenu) setOpenMenu(null);
+  }
 
   const isLoading = status === 'loading';
   const isVolunteer = status === 'authenticated' && session?.user?.role === 'VOLUNTEER';
   const userName = session?.user?.name ?? '';
   const userInitial = userName.charAt(0).toUpperCase() || 'أ';
   const avatarUrl = (session?.user as any)?.profilePictureUrl ?? null;
-
-  useEffect(() => { setMenuOpen(false); setOpenMenu(null); }, [pathname]);
-
-  useEffect(() => {
-    if (!openMenu) return;
-    const handler = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (!desktopRef.current?.contains(t) && !mobileRef.current?.contains(t)) {
-        setOpenMenu(null);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [openMenu]);
 
   const toggle = (menu: OpenMenu) => {
     setMenuOpen(false);
@@ -151,6 +143,14 @@ const Header = () => {
 
   return (
     <>
+      {openMenu && (
+        <button
+          type="button"
+          aria-label="إغلاق القائمة"
+          onClick={() => setOpenMenu(null)}
+          style={{ position: "fixed", inset: 0, zIndex: 900, background: "transparent", border: 0 }}
+        />
+      )}
       <header className={styles.header}>
         <div className="container">
           <nav className={styles.nav}>

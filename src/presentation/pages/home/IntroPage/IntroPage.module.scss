@@ -8,6 +8,12 @@
   background: #000;
   @include flex-center;
   direction: rtl;
+  animation: introExit 3.15s ease forwards;
+}
+
+@keyframes introExit {
+  0%, 82.5% { opacity: 1; transform: scale(1); filter: none; }
+  100% { opacity: 0; transform: scale(1.05); filter: blur(12px); }
 }
 
 .container {

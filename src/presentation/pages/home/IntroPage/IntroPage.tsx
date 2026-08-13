@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 import styles from "./IntroPage.module.scss";
 
 const CITIES = [
@@ -32,18 +31,13 @@ const FP_PATHS = [
 ];
 
 export default function IntroPage({ onDone }: { onDone: () => void }) {
-  const [active, setActive] = useState(false);
-  const [exit, setExit]     = useState(false);
-
-  useEffect(() => {
-    const t1 = setTimeout(() => setActive(true), 100);
-    const t2 = setTimeout(() => setExit(true), 2600);
-    const t3 = setTimeout(onDone, 3150);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [onDone]);
-
   return (
-    <div className={`${styles.wrapper} ${exit ? styles.fadeOut : ""}`}>
+    <div
+      className={styles.wrapper}
+      onAnimationEnd={(e) => {
+        if (e.target === e.currentTarget) onDone();
+      }}
+    >
       <div className={styles.container}>
         <svg viewBox="0 0 200 270" className={styles.svg}>
           <g transform="translate(4, 39) scale(8)" className={styles.fingerprintGroup}>
@@ -52,9 +46,9 @@ export default function IntroPage({ onDone }: { onDone: () => void }) {
             ))}
           </g>
 
-          {active && <path d={CONNECT_LINE} className={styles.trace} />}
+          <path d={CONNECT_LINE} className={styles.trace} />
 
-          {active && CITIES.map((city, i) => (
+          {CITIES.map((city, i) => (
             <g
               key={i}
               className={styles.city}

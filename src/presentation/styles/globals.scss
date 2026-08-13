@@ -28,6 +28,11 @@ body {
   overscroll-behavior: none;
 }
 
+html:has([data-modal-open]),
+html:has([data-lock-scroll]) {
+  overflow: hidden;
+}
+
 header,
 footer,
 section {

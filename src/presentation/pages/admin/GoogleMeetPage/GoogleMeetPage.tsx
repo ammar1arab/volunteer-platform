@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import styles from "./GoogleMeetPage.module.scss";
 import { useGoogleMeetPage } from "./GoogleMeetPage.logic";
 import {
@@ -9,30 +10,35 @@ import {
   ConfirmDialog,
   Search,
   Pagination,
-  Button,
   Dropdown,
   MeetingReportModal,
   VolunteersModal,
   MeetingListItem,
-  InfoCard
+  Badge
 } from "@/presentation/components";
 import { ROUTES } from "@/presentation/constants";
 import { ActivityType, ActivityStatus } from "@/core/domain/enums";
 import { useRouter } from "next/navigation";
 import {
   Video,
-  AlertTriangle,
-  CheckCircle2,
   PlugZap,
   Unplug,
-  Mail,
-  Shield,
-  Clock3,
   Settings2
 } from "lucide-react";
+import type { GoogleMeetView } from "./GoogleMeetPage.logic";
+
+const SCOPE_LABELS: Record<string, string> = {
+  "https://www.googleapis.com/auth/calendar.events": "أحداث التقويم",
+  "https://www.googleapis.com/auth/meetings.space.created": "إنشاء اجتماعات Meet",
+  "https://www.googleapis.com/auth/meetings.space.readonly": "قراءة اجتماعات Meet"
+};
+
+const scopeLabel = (scope: string) =>
+  SCOPE_LABELS[scope] ?? scope.split("/").pop() ?? scope;
 
 const GoogleMeetPage = () => {
   const router = useRouter();
+  const lastMeetView = useRef<Exclude<GoogleMeetView, "settings">>("upcoming");
   const {
     status,
     activeView,
@@ -50,7 +56,6 @@ const GoogleMeetPage = () => {
     viewItems,
     filtered,
     paginated,
-    sectionTitle,
     meetingsLoading,
     integrationLoading,
     submitting,
@@ -76,129 +81,82 @@ const GoogleMeetPage = () => {
     confirmDialog
   } = useGoogleMeetPage();
 
+  if (activeView === "upcoming" || activeView === "finished") {
+    lastMeetView.current = activeView;
+  }
+
   if (status === "loading") return <LoadingState />;
 
   const showMeetings = activeView === "upcoming" || activeView === "finished";
   const loadingMeetings = showMeetings && (meetingsLoading || integrationLoading);
   const loadingSettings = activeView === "settings" && (integrationLoading || meetingsLoading);
+  const lastChecked = integration?.lastCheckedAt
+    ? new Date(integration.lastCheckedAt).toLocaleString("ar-JO")
+    : "—";
+  const scopes = integration?.scopes ?? [];
 
   return (
     <div className={styles.page}>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
-      <section className={`${styles.integrationCard} ${connected ? styles.connectedCard : styles.disconnectedCard}`}>
-        <div className={styles.integrationMain}>
-          <div className={styles.providerMark} aria-hidden>
-            <Video size={20} />
-          </div>
-          <div className={styles.integrationCopy}>
-            <div className={styles.integrationTitleRow}>
-              <h2 className={styles.integrationTitle}>Google Meet</h2>
-              <span className={`${styles.connectionBadge} ${connected ? styles.connected : styles.disconnected}`}>
-                {connected ? "متصل" : "غير متصل"}
-              </span>
-            </div>
-            <p className={styles.integrationMeta} dir="ltr">
-              {organizerEmail}
-            </p>
-            {integration?.lastCheckedAt && (
-              <p className={styles.integrationChecked}>
-                آخر فحص: {new Date(integration.lastCheckedAt).toLocaleString("ar-JO")}
-              </p>
-            )}
-            {integration?.lastError && (
-              <p className={styles.integrationError}>
-                <AlertTriangle size={13} />
-                {integration.lastError}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className={styles.integrationActions}>
-          {connected ? (
-            <Button
-              variant="danger"
-              icon={<Unplug size={16} />}
-              onClick={handleDisconnect}
-              loading={submitting}
-            >
-              قطع الاتصال
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              icon={<PlugZap size={16} />}
-              onClick={handleConnect}
-              loading={submitting}
-            >
-              ربط Google
-            </Button>
-          )}
-          <button
-            type="button"
-            className={styles.settingsBtn}
-            title="الإعدادات"
-            onClick={() => setActiveView("settings")}
-          >
-            <Settings2 size={16} />
-          </button>
-        </div>
-      </section>
-
       {!connected && (
-        <div className={styles.warnBanner}>
-          <AlertTriangle size={16} />
-          <span>
-            اربط حساب Google حقيقي (Gmail) مضاف كـ Test user في Google Cloud. البريد{" "}
-            <span dir="ltr">contact@youthprints.online</span> ليس حساب Google.
-            {" "}
-            <button type="button" onClick={handleConnect}>
-              ربط الآن
-            </button>
-          </span>
+        <div className={styles.warn}>
+          اربط حساب Google حقيقي (Gmail) مضاف كـ Test user في Google Cloud. البريد{" "}
+          <span dir="ltr">contact@youthprints.online</span> ليس حساب Google.
+          {integration?.lastError ? ` ${integration.lastError}` : ""}
         </div>
       )}
 
       <header className={styles.header}>
-        <div className={styles.sectionHead}>
-          <div className={styles.titleGroup}>
-            <h2 className={styles.sectionTitle}>{sectionTitle}</h2>
-            {showMeetings && <span className={styles.count}>{filtered.length}</span>}
-            {activeView === "settings" && failedMeetings.length > 0 && (
-              <span className={styles.countWarn}>{failedMeetings.length} فشل</span>
-            )}
-          </div>
-        </div>
-
         <div className={styles.actions}>
           {showMeetings && (
-            <div className={styles.searchWrap}>
-              <Search
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onSearch={setAppliedSearch}
-                placeholder="ابحث..."
-              />
-            </div>
-          )}
-          <div className={`${styles.actionsEnd} ${!showMeetings ? styles.actionsEndSolo : ""}`}>
-            <Dropdown
-              items={viewItems}
-              active={activeView}
-              onChange={(key) => setActiveView(key as typeof activeView)}
-              placeholder="العرض"
-              compact
+            <Search
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onSearch={setAppliedSearch}
+              placeholder="ابحث..."
             />
+          )}
+          <div className={styles.actionsEnd}>
             {showMeetings && (
-              <Dropdown
-                items={syncFilterItems}
-                active={syncFilter}
-                onChange={setSyncFilter}
-                placeholder="المزامنة"
-                compact
-              />
+              <>
+                <Dropdown
+                  items={viewItems}
+                  active={activeView}
+                  onChange={(key) => setActiveView(key as GoogleMeetView)}
+                  placeholder="العرض"
+                  compact
+                />
+                <Dropdown
+                  items={syncFilterItems}
+                  active={syncFilter}
+                  onChange={setSyncFilter}
+                  placeholder="المزامنة"
+                  compact
+                />
+              </>
             )}
+            <button
+              type="button"
+              className={`${styles.btnSettings} ${activeView === "settings" ? styles.btnSettingsActive : ""}`}
+              title="الإعدادات"
+              aria-label="الإعدادات"
+              aria-pressed={activeView === "settings"}
+              onClick={() =>
+                setActiveView(activeView === "settings" ? lastMeetView.current : "settings")
+              }
+            >
+              <Settings2 size={16} />
+            </button>
+            <button
+              type="button"
+              className={connected ? styles.btnDisconnect : styles.btnConnect}
+              onClick={connected ? handleDisconnect : handleConnect}
+              disabled={submitting}
+            >
+              {connected ? <Unplug size={16} /> : <PlugZap size={16} />}
+              {connected ? "قطع الاتصال" : "ربط Google"}
+            </button>
           </div>
         </div>
       </header>
@@ -258,28 +216,37 @@ const GoogleMeetPage = () => {
           <LoadingState />
         ) : (
           <div className={styles.settings}>
-            <div className={styles.infoGrid}>
-              <InfoCard icon={Mail} label="البريد التنظيمي" value={organizerEmail} />
-              <InfoCard
-                icon={PlugZap}
-                label="حالة الاتصال"
-                value={connected ? "متصل" : "غير متصل"}
-              />
-              <InfoCard
-                icon={Clock3}
-                label="آخر فحص"
-                value={
-                  integration?.lastCheckedAt
-                    ? new Date(integration.lastCheckedAt).toLocaleString("ar-JO")
-                    : "—"
-                }
-              />
-              <InfoCard
-                icon={Shield}
-                label="الصلاحيات"
-                value={integration?.scopes?.length ? integration.scopes.join(", ") : "—"}
-              />
-            </div>
+            <section className={styles.panel}>
+              <div className={styles.panelTop}>
+                <div className={styles.identity}>
+                  <span className={`${styles.dot} ${connected ? styles.dotOn : styles.dotOff}`} />
+                  <div className={styles.identityCopy}>
+                    <div className={styles.panelTitleRow}>
+                      <h3 className={styles.panelTitle}>حساب Google</h3>
+                      <Badge variant={connected ? "success" : "danger"}>
+                        {connected ? "متصل" : "غير متصل"}
+                      </Badge>
+                    </div>
+                    <p className={styles.email} dir="ltr">{organizerEmail}</p>
+                    <p className={styles.checked}>آخر فحص: {lastChecked}</p>
+                  </div>
+                </div>
+              </div>
+
+              {integration?.lastError && (
+                <p className={styles.error}>{integration.lastError}</p>
+              )}
+
+              <div className={styles.scopes}>
+                {scopes.length > 0 ? (
+                  scopes.map((scope) => (
+                    <span key={scope} className={styles.chip}>{scopeLabel(scope)}</span>
+                  ))
+                ) : (
+                  <span className={styles.muted}>لا توجد صلاحيات مرتبطة</span>
+                )}
+              </div>
+            </section>
 
             <section className={styles.failedSection}>
               <div className={styles.titleGroup}>
@@ -288,7 +255,7 @@ const GoogleMeetPage = () => {
               </div>
 
               {failedMeetings.length === 0 ? (
-                <EmptyState icon={CheckCircle2} message="لا توجد مزامنات فاشلة حالياً" />
+                <p className={styles.muted}>لا توجد مزامنات فاشلة حالياً</p>
               ) : (
                 <div className={styles.list}>
                   {failedMeetings.map((meeting) => (

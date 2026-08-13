@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useToastTimer, ICONS, type ToastType } from "./Toast.logic";
+import { ICONS, type ToastType } from "./Toast.logic";
 import styles from "./Toast.module.scss";
 
 interface ToastProps {
@@ -13,8 +13,6 @@ interface ToastProps {
 
 export const Toast = ({ message, type, onClose, duration = 5000 }: ToastProps) => {
   const Icon = ICONS[type];
-  
-  useToastTimer(onClose, duration);
 
   return (
     <div className={styles.toast} data-type={type}>
@@ -27,7 +25,11 @@ export const Toast = ({ message, type, onClose, duration = 5000 }: ToastProps) =
       <button className={styles.closeBtn} onClick={onClose}>
         <X size={16} />
       </button>
-      <div className={styles.progress} />
+      <div
+        className={styles.progress}
+        style={{ animationDuration: `${duration}ms` }}
+        onAnimationEnd={onClose}
+      />
     </div>
   );
 };

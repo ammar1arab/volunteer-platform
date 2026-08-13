@@ -1,21 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { UserRole } from "@/core/domain/enums";
-import { useAuth, useToast, useUsers } from "@/presentation/hooks";
+import { useAuth, useToast, useUsers, useConfirmDialog } from "@/presentation/hooks";
 import { useSession } from "next-auth/react";
-import { userApi, type UpdateAdminInfoRequest } from "@/presentation/services";
+import { authApi, type UpdateAdminInfoRequest } from "@/presentation/services";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 import type { AdminPermission } from "@/core/domain/enums";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
-
-type ConfirmOptions = {
-  title?: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "danger" | "primary";
-};
+import { queryKeys, useFetchData } from "@/presentation/query";
 
 interface CreateForm {
   fullName: string;
@@ -33,20 +26,21 @@ interface EditForm {
 }
 
 const EMPTY_CREATE: CreateForm = { fullName: "", email: "", phone: "", password: "", permissions: [] };
-const EMPTY_EDIT:   EditForm   = { fullName: "", email: "", phone: "", password: "" };
+const EMPTY_EDIT: EditForm = { fullName: "", email: "", phone: "", password: "" };
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const usePermissionsPage = () => {
-  const { status }                      = useAuth({ requireRole: UserRole.ADMIN });
-  const { data: session }               = useSession();
+  const { status } = useAuth({ requireRole: UserRole.ADMIN });
+  const { data: session } = useSession();
   const { toasts, showToast, removeToast } = useToast();
-  const { users, loading, error, refresh } = useUsers();
+  const { users, loading, submitting, createAdmin, updateUser, deleteAdmin } = useUsers();
+  const { confirm, confirmDialog } = useConfirmDialog();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal,   setShowEditModal]   = useState(false);
-  const [editTarget,      setEditTarget]      = useState<UserAnalyticsDto | null>(null);
-  const [createForm,      setCreateForm]      = useState<CreateForm>(EMPTY_CREATE);
-  const [editForm,        setEditForm]        = useState<EditForm>(EMPTY_EDIT);
-  const [submitting,      setSubmitting]      = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editTarget, setEditTarget] = useState<UserAnalyticsDto | null>(null);
+  const [createForm, setCreateForm] = useState<CreateForm>(EMPTY_CREATE);
+  const [editForm, setEditForm] = useState<EditForm>(EMPTY_EDIT);
   const [searchQuery, setSearchQuery] = useSessionStorageState(
     "filters.admin.permissions.searchQuery",
     ""
@@ -55,16 +49,21 @@ export const usePermissionsPage = () => {
     "filters.admin.permissions.appliedSearch",
     ""
   );
+  const [emailToCheck, setEmailToCheck] = useState("");
 
-  const [emailStatus, setEmailStatus] = useState<"idle" | "checking" | "taken" | "available">("idle");
+  const emailQuery = useFetchData<boolean>({
+    queryKey: queryKeys.auth.checkEmail(emailToCheck),
+    request: () => authApi.checkEmail(emailToCheck),
+    options: { enabled: EMAIL_RE.test(emailToCheck), staleTime: 30_000 }
+  });
 
-  const [isConfirmOpen,    setIsConfirmOpen]    = useState(false);
-  const [confirmOptions,   setConfirmOptions]   = useState<ConfirmOptions>({ message: "" });
-  const [confirmResolver,  setConfirmResolver]  = useState<((v: boolean) => void) | null>(null);
-
-  useEffect(() => {
-    if (error?.trim()) showToast(error, "error");
-  }, [error, showToast]);
+  const emailStatus: "idle" | "checking" | "taken" | "available" = !emailToCheck
+    ? "idle"
+    : emailQuery.isFetching
+      ? "checking"
+      : emailQuery.data
+        ? "taken"
+        : "available";
 
   const currentUserId = session?.user?.id;
 
@@ -79,46 +78,14 @@ export const usePermissionsPage = () => {
     return result;
   }, [users, appliedSearch, currentUserId]);
 
-  const confirm = useCallback((opts: ConfirmOptions) => {
-    setConfirmOptions(opts);
-    setIsConfirmOpen(true);
-    return new Promise<boolean>((resolve) => setConfirmResolver(() => resolve));
-  }, []);
-
-  const handleConfirmDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(true);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const handleCancelDialog = useCallback(() => {
-    setIsConfirmOpen(false);
-    confirmResolver?.(false);
-    setConfirmResolver(null);
-  }, [confirmResolver]);
-
-  const checkEmail = useCallback(async (email: string) => {
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailStatus("idle");
-      return;
-    }
-    setEmailStatus("checking");
-    try {
-      const res  = await fetch("/api/auth/check-email", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ email: email.toLowerCase() }),
-      });
-      const data = await res.json();
-      setEmailStatus(data.taken ? "taken" : "available");
-    } catch {
-      setEmailStatus("idle");
-    }
+  const checkEmail = useCallback((email: string) => {
+    const next = email.trim().toLowerCase();
+    setEmailToCheck(EMAIL_RE.test(next) ? next : "");
   }, []);
 
   const resetCreateForm = useCallback(() => {
     setCreateForm(EMPTY_CREATE);
-    setEmailStatus("idle");
+    setEmailToCheck("");
     setShowCreateModal(false);
   }, []);
 
@@ -139,7 +106,7 @@ export const usePermissionsPage = () => {
       ...prev,
       permissions: prev.permissions.includes(permission)
         ? prev.permissions.filter((p) => p !== permission)
-        : [...prev.permissions, permission],
+        : [...prev.permissions, permission]
     }));
   }, []);
 
@@ -152,22 +119,14 @@ export const usePermissionsPage = () => {
       showToast("البريد الإلكتروني مستخدم مسبقاً", "error");
       return;
     }
-    setSubmitting(true);
-    try {
-      const res = await userApi.createAdmin(createForm);
-      if (res.success) {
-        showToast("تم إنشاء الأدمن بنجاح", "success");
-        resetCreateForm();
-        refresh();
-      } else {
-        showToast(res.error?.message ?? "حدث خطأ", "error");
-      }
-    } catch {
+    const ok = await createAdmin(createForm);
+    if (ok) {
+      showToast("تم إنشاء الأدمن بنجاح", "success");
+      resetCreateForm();
+    } else {
       showToast("حدث خطأ أثناء الإنشاء", "error");
-    } finally {
-      setSubmitting(false);
     }
-  }, [createForm, emailStatus, resetCreateForm, refresh, showToast]);
+  }, [createForm, emailStatus, createAdmin, resetCreateForm, showToast]);
 
   const handleEdit = useCallback(async () => {
     if (!editTarget) return;
@@ -175,52 +134,38 @@ export const usePermissionsPage = () => {
       showToast("يرجى ملء الحقول المطلوبة", "error");
       return;
     }
-    setSubmitting(true);
-    try {
-      const payload: UpdateAdminInfoRequest = {
-        fullName: editForm.fullName,
-        email:    editForm.email,
-        phone:    editForm.phone,
-        ...(editForm.password.trim() ? { password: editForm.password } : {}),
-      };
-      const res = await userApi.updateUserById(editTarget.id, payload);
-      if (res.success) {
-        showToast("تم تحديث البيانات", "success");
-        resetEditForm();
-        refresh();
-      } else {
-        showToast(res.error?.message ?? "حدث خطأ", "error");
-      }
-    } catch {
+    const payload: UpdateAdminInfoRequest = {
+      fullName: editForm.fullName,
+      email: editForm.email,
+      phone: editForm.phone,
+      ...(editForm.password.trim() ? { password: editForm.password } : {})
+    };
+    const ok = await updateUser(editTarget.id, payload);
+    if (ok) {
+      showToast("تم تحديث البيانات", "success");
+      resetEditForm();
+    } else {
       showToast("حدث خطأ أثناء التحديث", "error");
-    } finally {
-      setSubmitting(false);
     }
-  }, [editTarget, editForm, resetEditForm, refresh, showToast]);
+  }, [editTarget, editForm, updateUser, resetEditForm, showToast]);
 
   const handleDelete = useCallback(
     async (admin: UserAnalyticsDto) => {
       const ok = await confirm({
-        title:       "حذف الأدمن",
-        message:     `هل تريد حذف "${admin.fullName}"؟ سيتم إزالة جميع صلاحياته نهائياً.`,
+        title: "حذف الأدمن",
+        message: `هل تريد حذف "${admin.fullName}"؟ سيتم إزالة جميع صلاحياته نهائياً.`,
         confirmText: "حذف",
-        cancelText:  "إلغاء",
-        variant:     "danger",
+        cancelText: "إلغاء",
+        variant: "danger"
       });
       if (!ok) return;
-      try {
-        const res = await userApi.deleteAdmin(admin.id);
-        if (res.success) {
-          showToast("تم حذف الأدمن", "success");
-          refresh();
-        } else {
-          showToast(res.error?.message ?? "حدث خطأ", "error");
-        }
-      } catch {
+      if (await deleteAdmin(admin.id)) {
+        showToast("تم حذف الأدمن", "success");
+      } else {
         showToast("حدث خطأ أثناء الحذف", "error");
       }
     },
-    [confirm, refresh, showToast]
+    [confirm, deleteAdmin, showToast]
   );
 
   return {
@@ -251,11 +196,6 @@ export const usePermissionsPage = () => {
     toasts,
     removeToast,
     showToast,
-    confirmDialog: {
-      isOpen:        isConfirmOpen,
-      options:       confirmOptions,
-      handleConfirm: handleConfirmDialog,
-      handleCancel:  handleCancelDialog,
-    },
+    confirmDialog
   };
 };

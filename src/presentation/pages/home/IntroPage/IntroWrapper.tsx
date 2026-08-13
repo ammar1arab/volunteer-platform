@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 
@@ -7,14 +7,15 @@ const IntroPage = dynamic(() => import("./IntroPage"), { ssr: false });
 
 export default function IntroWrapper() {
   const pathname = usePathname();
-  const [active, setActive] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [prevPath, setPrevPath] = useState(pathname);
 
-  useEffect(() => {
+  if (pathname !== prevPath) {
+    setPrevPath(pathname);
+    setDismissed(pathname !== "/");
+  }
 
-    if (pathname === "/") setActive(true);
-  }, [pathname]);
+  if (pathname !== "/" || dismissed) return null;
 
-  if (!active) return null;
-
-  return <IntroPage onDone={() => setActive(false)} />;
+  return <IntroPage onDone={() => setDismissed(true)} />;
 }
