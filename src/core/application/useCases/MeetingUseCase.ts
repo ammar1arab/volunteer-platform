@@ -48,6 +48,7 @@ import {
   MeetingSyncOperationStatus,
   MeetingSyncStatus,
   ParticipationStatus,
+  PresenterRole,
   UserRole
 } from "@/core/domain/enums";
 import type { IMeetingProvider, ProvisionMeetingInput } from "@/core/domain/interfaces";
@@ -700,8 +701,29 @@ class MeetingUseCase {
     const link = props.meetingLink;
     if (!link) return fail("INVALID_STATE", "رابط الاجتماع غير متوفر بعد");
 
-    const presenter = await this.presenterRepository.findByActivityAndPresenter(activityId, user.id);
-    const isHost = user.role === UserRole.ADMIN || Boolean(presenter?.isActive);
+    const activePresenters = await this.presenterRepository.findByActivity(activityId);
+    const presenterIds = [...new Set(activePresenters.map((row) => row.presenterId))];
+    const presenterUsers = presenterIds.length
+      ? await prisma.user.findMany({
+          where: { id: { in: presenterIds } },
+          select: { id: true, email: true, fullName: true }
+        })
+      : [];
+    const isPresenter = presenterUsers.some(
+      (row) => row.id === user.id || this.emailsMatch(row.email, accountEmail)
+    );
+    const isHost = user.role === UserRole.ADMIN || isPresenter;
+    const primary = activePresenters.find((row) => row.role === PresenterRole.PRIMARY) ?? activePresenters[0];
+    const presenterName =
+      presenterUsers.find((row) => row.id === primary?.presenterId)?.fullName.trim() ||
+      presenterUsers[0]?.fullName.trim() ||
+      null;
+
+    logger.info(
+      MeetingUseCase.SCOPE,
+      "resolveMeetingActor",
+      `activity=${activityId} user=${user.id} role=${user.role} isHost=${isHost} isPresenter=${isPresenter}`
+    );
 
     if (!isHost) {
       const participation = await this.participationRepository.findByActivityAndVolunteer(
@@ -715,6 +737,7 @@ class MeetingUseCase {
 
     return ok({
       isHost,
+      presenterName,
       identity: {
         userId: user.id,
         fullName: user.fullName.trim() || accountEmail,
@@ -735,6 +758,7 @@ class MeetingUseCase {
     activityId: string,
     actor: {
       isHost: boolean;
+      presenterName?: string | null;
       identity: { userId: string; fullName: string; email: string };
       payload: {
         title: string;
@@ -755,7 +779,8 @@ class MeetingUseCase {
       date: actor.payload.date,
       startTime: actor.payload.startTime,
       endTime: actor.payload.endTime,
-      timeZone: actor.payload.timeZone
+      timeZone: actor.payload.timeZone,
+      presenterName: actor.presenterName ?? null
     };
   }
 
@@ -846,7 +871,8 @@ class MeetingUseCase {
         date: actor.data.payload.date,
         startTime: actor.data.payload.startTime,
         endTime: actor.data.payload.endTime,
-        timeZone: actor.data.payload.timeZone
+        timeZone: actor.data.payload.timeZone,
+        presenterName: actor.data.presenterName ?? null
       });
     } catch (error) {
       return serviceError(MeetingUseCase.SCOPE, "admitMeetingGuest", error, "تعذر تحديث طلب الدخول");

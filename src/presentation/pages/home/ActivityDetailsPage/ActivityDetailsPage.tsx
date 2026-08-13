@@ -9,8 +9,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LoadingState, Button, Share, Modal, ActivityPresenterBadge } from "@/presentation/components";
 import { useActivityDetails, useActivityParticipations, useToast } from "@/presentation/hooks";
-import { getMonthLabel, getCityLabel, getActivityTypeLabel, canOpenMeetingLobby, ROUTES, ACTIVITY_PRESENTER_LABEL } from "@/presentation/constants";
-import { ActivityType } from "@/core/domain/enums";
+import { getMonthLabel, getCityLabel, getActivityTypeLabel, canOpenMeetingLobby, ROUTES, ACTIVITY_PRESENTER_LABEL, MEETING_LABELS } from "@/presentation/constants";
+import { ActivityStatus, ActivityType } from "@/core/domain/enums";
 import { ArrowRight, MapPin, Calendar, Clock, Users, Share2, CheckCircle2, XCircle, Wifi, MapPinned, Timer } from "lucide-react";
 
 const ActivityDetailsPage = () => {
@@ -34,6 +34,23 @@ const ActivityDetailsPage = () => {
   const getActionButton = () => {
     if (!activity) return null;
     if (!session)  return <Button variant="primary" size="md" onClick={() => router.push(ROUTES.LOGIN)}>تسجيل الدخول للانضمام</Button>;
+    const isPresenter = Boolean(session.user?.id && activity.primaryPresenterId === session.user.id);
+    if (
+      isPresenter &&
+      activity.activityType === ActivityType.ONLINE &&
+      activity.status === ActivityStatus.PUBLISHED
+    ) {
+      return (
+        <Button
+          variant="primary"
+          size="md"
+          icon={<Wifi size={16} />}
+          onClick={() => router.push(ROUTES.VOLUNTEER.MEETING_LOBBY(activity.id))}
+        >
+          {MEETING_LABELS.enterAsHost}
+        </Button>
+      );
+    }
     const request = getRequestForActivity(activity.id);
     if (request?.status === "APPROVED") {
       if (canOpenMeetingLobby({

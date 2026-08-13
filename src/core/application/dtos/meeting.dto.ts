@@ -110,6 +110,7 @@ export interface MeetingSessionDto extends MeetingGateSnapshotDto {
   startTime: string;
   endTime: string;
   timeZone: string;
+  presenterName?: string | null;
 }
 
 export type GetMeetingSessionResponse = Result<MeetingSessionDto>;

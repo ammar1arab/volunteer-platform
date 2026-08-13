@@ -109,11 +109,21 @@ export async function requireAuth(req: Request, role?: UserRole): Promise<AuthRe
   const session = (await getServerSession(authOptions)) as AuthSession | null;
 
   if (session?.user?.id) {
-    if (role && session.user.role !== role) {
-      logger.warn("Auth", "requireAuth", `Role mismatch: expected=${role} got=${session.user.role}`);
+    const dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { email: true, role: true }
+    });
+    if (!dbUser?.email) {
+      logger.warn("Auth", "requireAuth", "Session user missing in database");
+      return { error: unauthorized() } as const;
+    }
+    if (role && dbUser.role !== role) {
+      logger.warn("Auth", "requireAuth", `Role mismatch: expected=${role} got=${dbUser.role}`);
       return { error: forbidden() } as const;
     }
-    Sentry.setUser({ id: session.user.id, email: session.user.email });
+    session.user.email = dbUser.email;
+    session.user.role = dbUser.role;
+    Sentry.setUser({ id: session.user.id, email: dbUser.email });
     return { session } as const;
   }
 
@@ -123,27 +133,29 @@ export async function requireAuth(req: Request, role?: UserRole): Promise<AuthRe
     try {
       const { payload } = await jwtVerify(token, secret);
       const userId = payload.sub as string;
-      const userRole = payload.role as string;
-
-      if (role && userRole !== role) {
-        logger.warn("Auth", "requireAuth", `Role mismatch: expected=${role} got=${userRole}`);
-        return { error: forbidden() } as const;
-      }
 
       const dbUser = await prisma.user.findUnique({
         where: { id: userId },
-        select: { isSuperAdmin: true, permissions: true, email: true }
+        select: { isSuperAdmin: true, permissions: true, email: true, role: true }
       });
+      if (!dbUser?.email) {
+        logger.warn("Auth", "requireAuth", "Bearer user missing in database");
+        return { error: unauthorized() } as const;
+      }
+      if (role && dbUser.role !== role) {
+        logger.warn("Auth", "requireAuth", `Role mismatch: expected=${role} got=${dbUser.role}`);
+        return { error: forbidden() } as const;
+      }
 
-      Sentry.setUser({ id: userId, email: dbUser?.email });
+      Sentry.setUser({ id: userId, email: dbUser.email });
       return {
         session: {
           user: {
             id: userId,
-            role: userRole,
-            email: dbUser?.email ?? "",
-            isSuperAdmin: dbUser?.isSuperAdmin ?? false,
-            permissions: dbUser?.permissions ?? []
+            role: dbUser.role,
+            email: dbUser.email,
+            isSuperAdmin: dbUser.isSuperAdmin ?? false,
+            permissions: dbUser.permissions ?? []
           }
         }
       } as const;

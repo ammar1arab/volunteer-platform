@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from "@/lib/config";
 import { useNow } from "@/presentation/query";
 import { useConfirmDialog, useMeetingSession, useToast } from "@/presentation/hooks";
 import { meetingsApi } from "@/presentation/services/meetings.service";
+import { getMonthLabel } from "@/presentation/constants/labels";
 import {
   DEFAULT_ACTIVITY_TIME_ZONE,
   getJitsiRoomName,
@@ -39,19 +40,11 @@ const pendingLeaves = new Map<string, ReturnType<typeof setTimeout>>();
 
 const noopSubscribe = () => () => undefined;
 
-export const formatMeetingDate = (date?: string, timeZone = DEFAULT_ACTIVITY_TIME_ZONE) => {
+export const formatMeetingDate = (date?: string) => {
   if (!date) return null;
-  try {
-    return new Date(date).toLocaleDateString("ar-JO", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone
-    });
-  } catch {
-    return date;
-  }
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return `${parsed.getDate()} ${getMonthLabel(parsed.getMonth() + 1)} ${parsed.getFullYear()}`;
 };
 
 const parseClock = (value: string) => {
@@ -178,13 +171,6 @@ const getIsFullscreen = () => {
   return Boolean(doc.fullscreenElement || doc.webkitFullscreenElement);
 };
 
-const requestFullscreen = (node: HTMLElement) => {
-  const target = node as FullscreenNode;
-  const request = target.requestFullscreen ?? target.webkitRequestFullscreen;
-  if (!request) return;
-  void request.call(target);
-};
-
 const exitFullscreen = () => {
   const doc = document as FullscreenDocument;
   const exit = doc.exitFullscreen ?? doc.webkitExitFullscreen;
@@ -194,17 +180,40 @@ const exitFullscreen = () => {
 
 export function useMeetingFullscreen() {
   const [node, setNode] = useState<HTMLElement | null>(null);
-  const active = useSyncExternalStore(subscribeFullscreen, getIsFullscreen, () => false);
+  const [cssExpanded, setCssExpanded] = useState(false);
+  const native = useSyncExternalStore(subscribeFullscreen, getIsFullscreen, () => false);
+  if (native && cssExpanded) setCssExpanded(false);
 
   const toggle = useCallback(() => {
+    if (cssExpanded) {
+      setCssExpanded(false);
+      return;
+    }
     if (getIsFullscreen()) {
       exitFullscreen();
       return;
     }
-    if (node) requestFullscreen(node);
-  }, [node]);
+    if (!node) {
+      setCssExpanded(true);
+      return;
+    }
+    const target = node as FullscreenNode;
+    const request = target.requestFullscreen ?? target.webkitRequestFullscreen;
+    if (!request) {
+      setCssExpanded(true);
+      return;
+    }
+    try {
+      const result = request.call(target);
+      if (result && typeof result.catch === "function") {
+        void result.catch(() => setCssExpanded(true));
+      }
+    } catch {
+      setCssExpanded(true);
+    }
+  }, [node, cssExpanded]);
 
-  return { setNode, active, toggle };
+  return { setNode, active: native || cssExpanded, toggle };
 }
 
 export function useMeetingRoomEmbed(input: {

@@ -21,6 +21,7 @@ import ConfirmDialog from "@/presentation/components/base/ConfirmDialog/ConfirmD
 import EmptyState from "@/presentation/components/state/EmptyState/EmptyState";
 import LoadingState from "@/presentation/components/state/LoadingState/LoadingState";
 import { ToastContainer } from "@/presentation/components/state/Toast/Toast";
+import ActivityPresenterBadge from "@/presentation/components/activity/ActivityPresenterBadge/ActivityPresenterBadge";
 import { useNow } from "@/presentation/query";
 import { MEETING_GATE_COPY, MEETING_LABELS, MEETING_TOASTS } from "@/presentation/constants/meetingEmbed";
 import {
@@ -50,6 +51,9 @@ const WaitingDock = ({
       <span>{session.waiting.length}</span>
     </div>
     <ul className={styles.dockList}>
+      {session.waiting.length === 0 && (
+        <li className={styles.dockEmpty}>{MEETING_LABELS.emptyWaiting}</li>
+      )}
       {session.waiting.map((guest) => (
         <li key={guest.userId} className={styles.dockItem}>
           <div className={styles.dockIdentity}>
@@ -115,7 +119,7 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
     now || Date.now(),
     session?.timeZone
   );
-  const dateLabel = formatMeetingDate(session?.date, session?.timeZone);
+  const dateLabel = formatMeetingDate(session?.date);
   const timeLabel =
     session?.startTime && session?.endTime ? `${session.startTime} – ${session.endTime}` : null;
   const showStage = canEnterMedia && (status === "boot" || status === "ready" || status === "joined");
@@ -133,7 +137,7 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
   };
 
   return (
-    <section ref={fullscreen.setNode} className={styles.room}>
+    <section ref={fullscreen.setNode} className={`${styles.room} ${fullscreen.active ? styles.expanded : ""}`}>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       <div className={styles.topBar}>
         <div className={styles.heading}>
@@ -146,26 +150,22 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
           </div>
           <div className={styles.meta}>
             {dateLabel && (
-              <span>
+              <span className={styles.metaChip}>
                 <CalendarDays size={14} />
+                <em>{MEETING_LABELS.dateLabel}</em>
                 {dateLabel}
               </span>
             )}
             {timeLabel && (
-              <span>
+              <span className={styles.metaChip}>
                 <Clock3 size={14} />
+                <em>{MEETING_LABELS.timeLabel}</em>
                 {timeLabel}
               </span>
             )}
-            {identityEmail && (
-              <span className={styles.identityMeta} title={identityEmail}>
-                <UserRound size={14} />
-                {identityName}
-                <em>{identityEmail}</em>
-              </span>
-            )}
+            <ActivityPresenterBadge name={session?.presenterName} />
             {status === "joined" && (
-              <span>
+              <span className={styles.metaChip}>
                 <Users size={14} />
                 {participantCount} {MEETING_LABELS.participants}
               </span>
@@ -178,25 +178,23 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
             variant="ghost"
             size="sm"
             className={styles.iconBtn}
-            icon={fullscreen.active ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+            icon={fullscreen.active ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
             aria-label={fullscreen.active ? MEETING_LABELS.exitFullscreen : MEETING_LABELS.fullscreen}
             onClick={fullscreen.toggle}
           >
-            <span className={styles.btnLabel}>
-              {fullscreen.active ? MEETING_LABELS.exitFullscreen : MEETING_LABELS.fullscreen}
-            </span>
+            {fullscreen.active ? MEETING_LABELS.exitFullscreen : MEETING_LABELS.fullscreen}
           </Button>
           <Button
             type="button"
             variant="ghost"
             size="sm"
             className={styles.leaveBtn}
-            icon={<ArrowRight size={14} />}
+            icon={<ArrowRight size={16} />}
             onClick={() => {
               void requestLeave(onLeave);
             }}
           >
-            <span className={styles.btnLabel}>{MEETING_LABELS.leave}</span>
+            {MEETING_LABELS.back}
           </Button>
         </div>
       </div>
@@ -255,7 +253,7 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
             </div>
           )}
         </div>
-        {session?.role === "host" && session.waiting.length > 0 && (
+        {session?.role === "host" && (
           <WaitingDock session={session} admitting={admitting} onAdmit={handleAdmit} />
         )}
       </div>
