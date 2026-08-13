@@ -4,33 +4,32 @@ import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import { UserRole } from "@/core/domain/enums";
 import { ROUTES } from "@/presentation/constants";
-import { useAuth, useMeetingLaunch } from "@/presentation/hooks";
+import { useAuth, useMeetingSession } from "@/presentation/hooks";
 
 export type MeetingLobbyView = "loading" | "notFound" | "empty" | "forbidden" | "error" | "ready";
 
 export const useMeetingLobbyPage = () => {
   const params = useParams<{ id: string }>();
   const activityId = typeof params?.id === "string" ? params.id : "";
-  const { status, user, role } = useAuth({ requireAuth: true });
-  const { launch, loading, error, errorCode, isNotFound, refresh } = useMeetingLaunch(activityId);
+  const { status, role } = useAuth({ requireAuth: true });
+  const { session, loading, error, errorCode, isNotFound, refresh } = useMeetingSession(activityId, {
+    enabled: status === "authenticated"
+  });
 
   const view: MeetingLobbyView = useMemo(() => {
     if (!activityId) return "notFound";
     if (status === "loading" || loading) return "loading";
     if (errorCode === "FORBIDDEN") return "forbidden";
-    if (errorCode === "INVALID_STATE" || (launch && !launch.url)) return "empty";
+    if (errorCode === "INVALID_STATE") return "empty";
     if (isNotFound) return "notFound";
-    if (error || !launch?.url) return "error";
+    if (error || !session) return "error";
     return "ready";
-  }, [activityId, status, loading, errorCode, isNotFound, error, launch]);
+  }, [activityId, status, loading, errorCode, isNotFound, error, session]);
 
   return {
     view,
-    launch,
     error,
     activityId,
-    displayName: user?.name ?? "",
-    email: user?.email ?? "",
     refresh,
     leaveHref: role === UserRole.ADMIN ? ROUTES.ADMIN.GOOGLE_MEET : ROUTES.VOLUNTEER.ACTIVITIES
   };

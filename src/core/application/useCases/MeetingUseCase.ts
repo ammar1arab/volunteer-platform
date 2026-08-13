@@ -10,7 +10,7 @@ import {
   admitMeetingGuest as admitGuestInGate,
   leaveMeetingGate,
   touchMeetingGate
-} from "@/infrastructure/meetings/meetingGateStore";
+} from "@/core/application/meetings/meetingGateStore";
 import { GoogleMeetingProvider } from "@/infrastructure/external";
 import { encrypt, decrypt } from "@/infrastructure/security";
 import { MeetingIntegration } from "@/core/domain/entities";
@@ -731,6 +731,34 @@ class MeetingUseCase {
     });
   }
 
+  private toSession(
+    activityId: string,
+    actor: {
+      isHost: boolean;
+      identity: { userId: string; fullName: string; email: string };
+      payload: {
+        title: string;
+        date: string;
+        startTime: string;
+        endTime: string;
+        timeZone: string;
+      };
+    }
+  ) {
+    return {
+      ...touchMeetingGate({
+        activityId,
+        identity: actor.identity,
+        role: actor.isHost ? "host" : "guest"
+      }),
+      title: actor.payload.title,
+      date: actor.payload.date,
+      startTime: actor.payload.startTime,
+      endTime: actor.payload.endTime,
+      timeZone: actor.payload.timeZone
+    };
+  }
+
   async getMeetingLaunchUrl(
     activityId: string,
     userId: string,
@@ -756,13 +784,7 @@ class MeetingUseCase {
       const actor = await this.resolveMeetingActor(activityId, userId, role, sessionEmail);
       if (!actor.success) return actor;
 
-      return ok(
-        touchMeetingGate({
-          activityId,
-          identity: actor.data.identity,
-          role: actor.data.isHost ? "host" : "guest"
-        })
-      );
+      return ok(this.toSession(activityId, actor.data));
     } catch (error) {
       return serviceError(MeetingUseCase.SCOPE, "touchMeetingSession", error, "تعذر تحديث جلسة الاجتماع");
     }
@@ -798,12 +820,11 @@ class MeetingUseCase {
       if (!actor.data.isHost) {
         return fail("FORBIDDEN", "فقط المضيف يمكنه قبول المشاركين");
       }
+      if (guestUserId.trim() === hostUserId) {
+        return fail("FORBIDDEN", "لا يمكن قبول المضيف");
+      }
 
-      touchMeetingGate({
-        activityId,
-        identity: actor.data.identity,
-        role: "host"
-      });
+      this.toSession(activityId, actor.data);
 
       const result = admitGuestInGate({
         activityId,
@@ -819,7 +840,14 @@ class MeetingUseCase {
         return fail("NOT_FOUND", "المشارك غير موجود في قائمة الانتظار");
       }
 
-      return ok(result);
+      return ok({
+        ...result,
+        title: actor.data.payload.title,
+        date: actor.data.payload.date,
+        startTime: actor.data.payload.startTime,
+        endTime: actor.data.payload.endTime,
+        timeZone: actor.data.payload.timeZone
+      });
     } catch (error) {
       return serviceError(MeetingUseCase.SCOPE, "admitMeetingGuest", error, "تعذر تحديث طلب الدخول");
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./MeetingRoom.module.scss";
-import type { MeetingLaunchDto, MeetingSessionDto } from "@/presentation/services/meetings.service";
+import type { MeetingSessionDto } from "@/core/application/dtos";
 import {
   ArrowRight,
   CalendarDays,
@@ -22,7 +22,7 @@ import EmptyState from "@/presentation/components/state/EmptyState/EmptyState";
 import LoadingState from "@/presentation/components/state/LoadingState/LoadingState";
 import { ToastContainer } from "@/presentation/components/state/Toast/Toast";
 import { useNow } from "@/presentation/query";
-import { MEETING_LABELS, MEETING_TOASTS } from "@/presentation/constants/meetingEmbed";
+import { MEETING_GATE_COPY, MEETING_LABELS, MEETING_TOASTS } from "@/presentation/constants/meetingEmbed";
 import {
   formatMeetingDate,
   getMeetingPhase,
@@ -32,9 +32,6 @@ import {
 
 type Props = {
   activityId: string;
-  displayName?: string;
-  email?: string;
-  launch: MeetingLaunchDto;
   onLeave: () => void;
 };
 
@@ -46,57 +43,48 @@ const WaitingDock = ({
   session: MeetingSessionDto;
   admitting: boolean;
   onAdmit: (userId: string, allow: boolean) => void;
-}) => {
-  if (session.role !== "host") return null;
+}) => (
+  <aside className={styles.dock} aria-label={MEETING_LABELS.dockTitle}>
+    <div className={styles.dockHead}>
+      <h2>{MEETING_LABELS.dockTitle}</h2>
+      <span>{session.waiting.length}</span>
+    </div>
+    <ul className={styles.dockList}>
+      {session.waiting.map((guest) => (
+        <li key={guest.userId} className={styles.dockItem}>
+          <div className={styles.dockIdentity}>
+            <strong>{guest.fullName}</strong>
+            <span>{guest.email}</span>
+          </div>
+          <div className={styles.dockActions}>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              disabled={admitting}
+              icon={<Check size={14} />}
+              onClick={() => onAdmit(guest.userId, true)}
+            >
+              {MEETING_LABELS.admit}
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              size="sm"
+              disabled={admitting}
+              icon={<X size={14} />}
+              onClick={() => onAdmit(guest.userId, false)}
+            >
+              {MEETING_LABELS.deny}
+            </Button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </aside>
+);
 
-  return (
-    <aside className={styles.dock} aria-label={MEETING_LABELS.dockTitle}>
-      <div className={styles.dockHead}>
-        <h2>{MEETING_LABELS.dockTitle}</h2>
-        <span>{session.waiting.length}</span>
-      </div>
-      {session.waiting.length === 0 ? (
-        <p className={styles.dockEmpty}>{MEETING_LABELS.emptyWaiting}</p>
-      ) : (
-        <ul className={styles.dockList}>
-          {session.waiting.map((guest) => (
-            <li key={guest.userId} className={styles.dockItem}>
-              <div className={styles.dockIdentity}>
-                <strong>{guest.fullName}</strong>
-                <span>{guest.email}</span>
-              </div>
-              <div className={styles.dockActions}>
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  disabled={admitting}
-                  icon={<Check size={14} />}
-                  onClick={() => onAdmit(guest.userId, true)}
-                >
-                  {MEETING_LABELS.admit}
-                </Button>
-                <Button
-                  type="button"
-                  variant="danger"
-                  size="sm"
-                  disabled={admitting}
-                  icon={<X size={14} />}
-                  onClick={() => onAdmit(guest.userId, false)}
-                >
-                  {MEETING_LABELS.deny}
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </aside>
-  );
-};
-
-const MeetingRoom = ({ activityId, displayName, email, launch, onLeave }: Props) => {
-  const subject = launch.title?.trim() || MEETING_LABELS.roomTitle;
+const MeetingRoom = ({ activityId, onLeave }: Props) => {
   const {
     status,
     participantCount,
@@ -117,25 +105,26 @@ const MeetingRoom = ({ activityId, displayName, email, launch, onLeave }: Props)
     admitting,
     refreshSession,
     fullscreen
-  } = useMeetingRoom({
-    activityId,
-    displayName: displayName ?? "",
-    email: email ?? "",
-    subject
-  });
+  } = useMeetingRoom(activityId);
   const now = useNow(true);
+  const subject = session?.title?.trim() || MEETING_LABELS.roomTitle;
   const phase = getMeetingPhase(
-    launch.date,
-    launch.startTime,
-    launch.endTime,
+    session?.date,
+    session?.startTime,
+    session?.endTime,
     now || Date.now(),
-    launch.timeZone
+    session?.timeZone
   );
-  const dateLabel = formatMeetingDate(launch.date, launch.timeZone);
+  const dateLabel = formatMeetingDate(session?.date, session?.timeZone);
   const timeLabel =
-    launch.startTime && launch.endTime ? `${launch.startTime} – ${launch.endTime}` : null;
+    session?.startTime && session?.endTime ? `${session.startTime} – ${session.endTime}` : null;
   const showStage = canEnterMedia && (status === "boot" || status === "ready" || status === "joined");
   const gateStage = session?.stage;
+  const gateCopy =
+    gateStage === "waiting_host" || gateStage === "waiting_admit" || gateStage === "denied"
+      ? MEETING_GATE_COPY[gateStage]
+      : null;
+  const GateIcon = gateStage === "denied" ? ShieldOff : gateStage === "waiting_admit" ? Users : UserRound;
 
   const handleAdmit = (userId: string, allow: boolean) => {
     void admit(userId, allow)
@@ -215,12 +204,7 @@ const MeetingRoom = ({ activityId, displayName, email, launch, onLeave }: Props)
       <div className={styles.workspace}>
         <div className={styles.stage}>
           {showStage && <div className={styles.mount} dir="ltr" ref={setParentNode} />}
-          {sessionLoading && (
-            <div className={styles.overlay}>
-              <LoadingState compact />
-            </div>
-          )}
-          {showStage && status === "boot" && (
+          {(sessionLoading || (showStage && status === "boot")) && (
             <div className={styles.overlay}>
               <LoadingState compact />
             </div>
@@ -235,34 +219,19 @@ const MeetingRoom = ({ activityId, displayName, email, launch, onLeave }: Props)
               />
             </div>
           )}
-          {!sessionLoading && !sessionError && gateStage === "waiting_host" && (
+          {!sessionLoading && !sessionError && gateCopy && (
             <div className={styles.gate}>
-              <UserRound size={40} strokeWidth={1.5} />
-              <h2>{MEETING_LABELS.waitingHostTitle}</h2>
-              <p>{MEETING_LABELS.waitingHostMessage}</p>
+              <GateIcon size={40} strokeWidth={1.5} />
+              <h2>{gateCopy.title}</h2>
+              <p>{gateCopy.message}</p>
               <span>
                 {MEETING_LABELS.identityVia}: {identityName} · {identityEmail}
               </span>
-            </div>
-          )}
-          {!sessionLoading && !sessionError && gateStage === "waiting_admit" && (
-            <div className={styles.gate}>
-              <Users size={40} strokeWidth={1.5} />
-              <h2>{MEETING_LABELS.waitingAdmitTitle}</h2>
-              <p>{MEETING_LABELS.waitingAdmitMessage}</p>
-              <span>
-                {MEETING_LABELS.identityVia}: {identityName} · {identityEmail}
-              </span>
-            </div>
-          )}
-          {!sessionLoading && !sessionError && gateStage === "denied" && (
-            <div className={styles.gate}>
-              <ShieldOff size={40} strokeWidth={1.5} />
-              <h2>{MEETING_LABELS.deniedTitle}</h2>
-              <p>{MEETING_LABELS.deniedMessage}</p>
-              <Button type="button" variant="secondary" size="sm" onClick={onLeave}>
-                {MEETING_LABELS.back}
-              </Button>
+              {gateStage === "denied" && (
+                <Button type="button" variant="secondary" size="sm" onClick={onLeave}>
+                  {MEETING_LABELS.back}
+                </Button>
+              )}
             </div>
           )}
           {canEnterMedia && status === "failed" && (

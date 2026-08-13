@@ -66,18 +66,24 @@ export interface OnlineMeetingListItemDto {
 
 export type ListOnlineMeetingsResponse = Result<{ meetings: OnlineMeetingListItemDto[] }>;
 export type RetryMeetingSyncResponse = Result<{ operationId: string; activityId: string }>;
-export type GetMeetingLaunchUrlResponse = Result<{
+
+export interface MeetingLaunchDto {
   url: string;
   title?: string;
   date?: string;
   startTime?: string;
   endTime?: string;
   timeZone?: string;
-}>;
+}
+
+export type GetMeetingLaunchUrlResponse = Result<MeetingLaunchDto>;
 export type EnqueueMeetingSyncResponse = Result<{ operationId: string }>;
 
-export type MeetingGateRoleDto = "host" | "guest";
-export type MeetingGateStageDto = "waiting_host" | "waiting_admit" | "admitted" | "denied";
+export const MEETING_GATE_ROLES = ["host", "guest"] as const;
+export type MeetingGateRoleDto = (typeof MEETING_GATE_ROLES)[number];
+
+export const MEETING_GATE_STAGES = ["waiting_host", "waiting_admit", "admitted", "denied"] as const;
+export type MeetingGateStageDto = (typeof MEETING_GATE_STAGES)[number];
 
 export interface MeetingGateIdentityDto {
   userId: string;
@@ -89,13 +95,21 @@ export interface MeetingWaitingGuestDto extends MeetingGateIdentityDto {
   requestedAt: number;
 }
 
-export interface MeetingSessionDto {
+export interface MeetingGateSnapshotDto {
   role: MeetingGateRoleDto;
   stage: MeetingGateStageDto;
   identity: MeetingGateIdentityDto;
   hostPresent: boolean;
   canEnterMedia: boolean;
   waiting: MeetingWaitingGuestDto[];
+}
+
+export interface MeetingSessionDto extends MeetingGateSnapshotDto {
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  timeZone: string;
 }
 
 export type GetMeetingSessionResponse = Result<MeetingSessionDto>;

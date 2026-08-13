@@ -3,16 +3,15 @@
 
 .container {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  gap: $sp-sm $sp-md;
-  width: 100%;
-  min-width: 0;
-  margin-top: $sp-md;
+  justify-content: space-between;
+  border-radius: $radius-full;
+  gap: $sp-sm;
+  margin-top: $sp-lg;
 
-  @media (min-width: $bp-md) {
-    justify-content: space-between;
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: $sp-xs;
   }
 
   &.compact {
@@ -20,6 +19,7 @@
     justify-content: center;
     gap: $sp-xs;
     margin-top: $sp-sm;
+    border-radius: 0;
   }
 
   &.sticky {
@@ -31,19 +31,18 @@
     border-top: 1px solid rgba($border, 0.5);
     box-shadow: 0 -1px 4px rgba($black, 0.04);
     margin-top: 0;
+    border-radius: 0;
   }
 }
 
 .info {
-  margin: 0;
   font-size: $font-xs;
   color: $text-muted;
-  text-align: center;
-  min-width: 0;
+}
 
-  @media (min-width: $bp-md) {
-    text-align: start;
-  }
+.highlight {
+  color: $green;
+  font-weight: 600;
 }
 
 .compact .info {

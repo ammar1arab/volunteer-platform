@@ -10,7 +10,7 @@ import { useMeetingLobbyPage } from "./MeetingLobbyPage.logic";
 
 const MeetingLobbyPage = () => {
   const router = useRouter();
-  const { view, launch, error, activityId, displayName, email, refresh, leaveHref } = useMeetingLobbyPage();
+  const { view, error, activityId, refresh, leaveHref } = useMeetingLobbyPage();
   const goBack = () => router.push(leaveHref);
   const live = view === "ready";
 
@@ -41,7 +41,7 @@ const MeetingLobbyPage = () => {
         action={{ label: MEETING_LABELS.back, onClick: goBack }}
       />
     );
-  } else if (view === "error" || !launch) {
+  } else if (view === "error") {
     body = (
       <EmptyState
         icon={VideoOff}
@@ -50,15 +50,7 @@ const MeetingLobbyPage = () => {
       />
     );
   } else {
-    body = (
-      <MeetingRoom
-        activityId={activityId}
-        displayName={displayName}
-        email={email}
-        launch={launch}
-        onLeave={goBack}
-      />
-    );
+    body = <MeetingRoom activityId={activityId} onLeave={goBack} />;
   }
 
   return (

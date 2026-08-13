@@ -58,7 +58,6 @@ export const MEETING_LABELS = {
   leaveCancel: "البقاء",
   leaveWarning: "سيتم إغلاق الكاميرا والميكروفون.",
   hostBadge: "مضيف",
-  guestBadge: "مشارك",
   identityVia: "الدخول عبر",
   fullscreen: "ملء الشاشة",
   exitFullscreen: "إنهاء ملء الشاشة",
@@ -72,6 +71,21 @@ export const MEETING_LABELS = {
   admit: "قبول",
   deny: "رفض",
   emptyWaiting: "لا يوجد منتظرون"
+} as const;
+
+export const MEETING_GATE_COPY = {
+  waiting_host: {
+    title: MEETING_LABELS.waitingHostTitle,
+    message: MEETING_LABELS.waitingHostMessage
+  },
+  waiting_admit: {
+    title: MEETING_LABELS.waitingAdmitTitle,
+    message: MEETING_LABELS.waitingAdmitMessage
+  },
+  denied: {
+    title: MEETING_LABELS.deniedTitle,
+    message: MEETING_LABELS.deniedMessage
+  }
 } as const;
 
 export const MEETING_TOASTS = {

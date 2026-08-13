@@ -19,8 +19,8 @@ const Pagination = ({
   totalItems,
   itemsPerPage,
   onPageChange,
-  sticky = false,
-  compact = false
+  compact = false,
+  sticky = !compact
 }: Props) => {
   const {
     pageItems,
@@ -44,7 +44,11 @@ const Pagination = ({
       className={`${styles.container} ${compact ? styles.compact : ""} ${sticky ? styles.sticky : ""}`}
       aria-label={PAGINATION_LABELS.pageOf(safePage, totalPages)}
     >
-      <p className={styles.info}>{PAGINATION_LABELS.showing(startIndex, endIndex, totalItems)}</p>
+      <p className={styles.info}>
+        عرض <span className={styles.highlight}>{startIndex}</span> -{" "}
+        <span className={styles.highlight}>{endIndex}</span> من{" "}
+        <span className={styles.highlight}>{totalItems}</span>
+      </p>
 
       <div className={styles.pagination}>
         <button

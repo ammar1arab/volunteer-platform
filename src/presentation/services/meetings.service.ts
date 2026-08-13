@@ -1,6 +1,13 @@
 import { apiClient } from "./client.service";
 import { API_ENDPOINTS } from "@/lib/config";
-import type { Result } from "@/core/application/dtos";
+import type {
+  Result,
+  MeetingLaunchDto,
+  MeetingSessionDto,
+  GetMeetingLaunchUrlResponse,
+  GetMeetingSessionResponse,
+  LeaveMeetingSessionResponse
+} from "@/core/application/dtos";
 import type {
   MeetingIntegrationStatus,
   MeetingLinkSource,
@@ -50,36 +57,7 @@ export type MeetingListItemDto = {
   reportSummary?: MeetingReportSummaryDto | null;
 };
 
-export type MeetingLaunchDto = {
-  url: string;
-  title?: string;
-  date?: string;
-  startTime?: string;
-  endTime?: string;
-  timeZone?: string;
-};
-
-export type MeetingSessionDto = {
-  role: "host" | "guest";
-  stage: "waiting_host" | "waiting_admit" | "admitted" | "denied";
-  identity: {
-    userId: string;
-    fullName: string;
-    email: string;
-  };
-  hostPresent: boolean;
-  canEnterMedia: boolean;
-  waiting: Array<{
-    userId: string;
-    fullName: string;
-    email: string;
-    requestedAt: number;
-  }>;
-};
-
-export type LaunchMeetingResponse = Result<MeetingLaunchDto>;
-export type GetMeetingSessionResponse = Result<MeetingSessionDto>;
-export type LeaveMeetingSessionResponse = Result<{ left: boolean }>;
+export type { MeetingLaunchDto, MeetingSessionDto };
 
 export type MeetingReportAttendeeDto = {
   id: string;
@@ -135,7 +113,7 @@ export const meetingsApi = {
     apiClient.post<RetryMeetingSyncResponse>(API_ENDPOINTS.MEETINGS.RETRY(activityId)),
 
   getLaunchUrl: (activityId: string) =>
-    apiClient.get<LaunchMeetingResponse>(API_ENDPOINTS.MEETINGS.LAUNCH(activityId)),
+    apiClient.get<GetMeetingLaunchUrlResponse>(API_ENDPOINTS.MEETINGS.LAUNCH(activityId)),
 
   getSession: (activityId: string) =>
     apiClient.get<GetMeetingSessionResponse>(API_ENDPOINTS.MEETINGS.SESSION(activityId)),

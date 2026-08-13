@@ -8,7 +8,6 @@ import {
   type MeetingsFilter,
   type MeetingListItemDto,
   type GoogleIntegrationStatusDto,
-  type MeetingLaunchDto,
   type MeetingSessionDto,
   type MeetingReportDto
 } from "@/presentation/services/meetings.service";
@@ -142,15 +141,6 @@ export const useMeetingActions = () => {
   const connect = useCallback(() => connectMutation.run(), [connectMutation.run]);
   const disconnect = useCallback(() => disconnectMutation.run(), [disconnectMutation.run]);
 
-  const launch = useCallback(async (activityId: string): Promise<string | null> => {
-    try {
-      const data = unwrapResult(await meetingsApi.getLaunchUrl(activityId));
-      return data.url || null;
-    } catch {
-      return null;
-    }
-  }, []);
-
   return useMemo(
     () => ({
       submitting:
@@ -166,8 +156,7 @@ export const useMeetingActions = () => {
       retry,
       importReport,
       connect,
-      disconnect,
-      launch
+      disconnect
     }),
     [
       retryMutation.submitting,
@@ -181,8 +170,7 @@ export const useMeetingActions = () => {
       retry,
       importReport,
       connect,
-      disconnect,
-      launch
+      disconnect
     ]
   );
 };
@@ -207,32 +195,6 @@ export const useMeetingReport = (activityId: string, opts?: { enabled?: boolean 
       refresh: () => refetch()
     }),
     [query.data, query.isLoading, query.error, refetch]
-  );
-};
-
-export const useMeetingLaunch = (activityId: string, opts?: { enabled?: boolean }) => {
-  const query = useFetchData<MeetingLaunchDto>({
-    queryKey: queryKeys.meetings.launch(activityId),
-    request: async () => unwrapResult(await meetingsApi.getLaunchUrl(activityId)),
-    options: {
-      enabled: (opts?.enabled ?? true) && Boolean(activityId),
-      staleTime: 15_000,
-      retry: false
-    }
-  });
-
-  const refetch = query.refetch;
-
-  return useMemo(
-    () => ({
-      launch: query.data ?? null,
-      loading: query.isLoading,
-      error: query.error ? getErrorMessage(query.error, "تعذر تحميل رابط الاجتماع") : "",
-      errorCode: query.error instanceof ApiError ? query.error.code : "",
-      isNotFound: query.isNotFound,
-      refresh: () => refetch()
-    }),
-    [query.data, query.isLoading, query.error, query.isNotFound, refetch]
   );
 };
 
@@ -268,6 +230,7 @@ export const useMeetingSession = (activityId: string, opts?: { enabled?: boolean
       loading: query.isLoading && !query.data,
       error: query.error && !query.data ? getErrorMessage(query.error, "تعذر تحديث جلسة الاجتماع") : "",
       errorCode: query.error instanceof ApiError ? query.error.code : "",
+      isNotFound: query.isNotFound,
       refresh: () => refetch(),
       admit,
       admitting: admitMutation.isPending
@@ -276,6 +239,7 @@ export const useMeetingSession = (activityId: string, opts?: { enabled?: boolean
       query.data,
       query.isLoading,
       query.error,
+      query.isNotFound,
       refetch,
       admit,
       admitMutation.isPending

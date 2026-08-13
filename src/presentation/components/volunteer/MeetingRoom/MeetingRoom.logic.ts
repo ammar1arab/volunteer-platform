@@ -325,24 +325,19 @@ export function useMeetingRoomEmbed(input: {
   };
 }
 
-export function useMeetingRoom(input: {
-  activityId: string;
-  displayName: string;
-  email: string;
-  subject: string;
-}) {
-  const gate = useMeetingSession(input.activityId);
-  const identityName = gate.session?.identity.fullName || input.displayName;
-  const identityEmail = gate.session?.identity.email || input.email;
-  const canEnterMedia = gate.session?.canEnterMedia === true;
+export function useMeetingRoom(activityId: string) {
+  const gate = useMeetingSession(activityId);
+  const identityName = gate.session?.identity.fullName || MEETING_LABELS.guestName;
+  const identityEmail = gate.session?.identity.email || "";
+  const canEnterMedia = gate.session?.stage === "admitted" && Boolean(gate.session.identity.email);
 
-  useMeetingPresence(input.activityId, Boolean(gate.session));
+  useMeetingPresence(activityId, Boolean(gate.session));
 
   const embed = useMeetingRoomEmbed({
-    activityId: input.activityId,
+    activityId,
     displayName: identityName,
     email: identityEmail,
-    subject: input.subject,
+    subject: gate.session?.title?.trim() || MEETING_LABELS.roomTitle,
     enabled: canEnterMedia
   });
 
