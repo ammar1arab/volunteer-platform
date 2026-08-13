@@ -6,7 +6,10 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { ROUTES } from '@/presentation/constants';
-import { Button, ConfirmDialog, NotificationBell, UserMenuDropdown } from '@/presentation/components';
+import Button from '@/presentation/components/base/Button/Button';
+import ConfirmDialog from '@/presentation/components/base/ConfirmDialog/ConfirmDialog';
+import NotificationBell from '@/presentation/components/volunteer/NotificationBell/NotificationBell';
+import UserMenuDropdown from '@/presentation/components/volunteer/UserMenuDropdown/UserMenuDropdown.tsx';
 import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
 
 const NAV_LINKS = [

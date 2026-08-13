@@ -4,6 +4,7 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["puppeteer-core", "@sparticuz/chromium"],
+  allowedDevOrigins: ["127.0.0.1", "192.168.8.126"],
   sassOptions: {
     includePaths: [path.join(__dirname, "src", "presentation", "styles")],
   },

@@ -1,5 +1,6 @@
 import "@/presentation/styles/globals.scss";
-import { Footer, Header } from "@/presentation/components";
+import Header from "@/presentation/components/base/Header/Header";
+import Footer from "@/presentation/components/base/Footer/Footer";
 import { NotificationsProvider } from "@/presentation/context";
 import PushBannerWrapper from "@/presentation/components/volunteer/PushBanner/PushBannerWrapper";
 import IntroWrapper from "@/presentation/pages/home/IntroPage/IntroWrapper";

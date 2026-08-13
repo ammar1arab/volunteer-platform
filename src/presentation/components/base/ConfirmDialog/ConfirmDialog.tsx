@@ -2,7 +2,7 @@
 
 import { AlertTriangle, CheckCircle } from "lucide-react";
 import styles from "./ConfirmDialog.module.scss";
-import { Modal } from "@/presentation/components";
+import Modal from "@/presentation/components/state/Modal/Modal";
 
 type Props = {
   isOpen: boolean;
