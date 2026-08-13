@@ -103,14 +103,14 @@ const ActivitiesPage = () => {
       )}
 
       <ActivityModal
-        key={showModal ? (editData?.id ?? "create") : "closed"}
+        key={showModal ? (editData?.id ?? "create") : "activity-closed"}
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         mode={mode} initialData={editData} onSubmit={handleModalSubmit}
         onImageUpload={handleImageUpload} isSubmitting={submitting} />
 
       <VolunteersModal
-        key={showVolunteersModal ? selectedActivity?.id ?? "none" : "closed"}
+        key={showVolunteersModal ? selectedActivity?.id ?? "none" : "volunteers-closed"}
         activityId={selectedActivity?.id || ""}
         activityTitle={selectedActivity?.title || ""}
         activityStatus={selectedActivity?.status || ""}

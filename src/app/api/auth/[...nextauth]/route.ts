@@ -12,9 +12,12 @@ function bindDevAuthUrl(req: NextRequest) {
   process.env.NEXTAUTH_URL = `${proto}://${host}`;
 }
 
-function handler(req: NextRequest, ctx: { params: { nextauth: string[] } }) {
+type AuthRouteContext = { params: Promise<{ nextauth: string[] }> };
+
+async function handler(req: NextRequest, context: AuthRouteContext) {
   bindDevAuthUrl(req);
-  return nextAuthHandler(req, ctx);
+  const params = await context.params;
+  return nextAuthHandler(req, { params });
 }
 
 export { handler as GET, handler as POST };
