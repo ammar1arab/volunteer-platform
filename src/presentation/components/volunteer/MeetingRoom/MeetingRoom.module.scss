@@ -10,8 +10,8 @@
 
 .topBar {
   @include flex(row, center, space-between, $sp-sm);
-  flex-wrap: wrap;
   width: 100%;
+  min-width: 0;
 }
 
 .heading {
@@ -42,22 +42,35 @@
 }
 
 .leaveBtn {
+  @include flex(row, center, center, 6px);
   flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: $text-muted;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 8px;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text;
+  }
 }
 
 .stage {
   position: relative;
   width: 100%;
   min-width: 0;
-  height: calc(100vh - 220px);
-  min-height: 520px;
+  height: calc(100vh - 200px);
+  min-height: 560px;
   border: 1px solid $border;
   border-radius: $radius-lg;
   overflow: hidden;
   background: #111827;
 
   @include sm {
-    height: calc(100vh - 180px);
+    height: calc(100vh - 160px);
     min-height: 420px;
     border-radius: $radius-md;
   }

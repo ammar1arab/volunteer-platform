@@ -1,25 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import styles from "./MeetingRoom.module.scss";
-import Button from "@/presentation/components/base/Button/Button";
-import LoadingState from "@/presentation/components/state/LoadingState/LoadingState";
 import type { MeetingLaunchDto } from "@/presentation/services/meetings.service";
 import { ArrowRight, CalendarDays, Clock3 } from "lucide-react";
-import { formatMeetingDate, useMeetingRoomEmbed } from "./MeetingRoom.logic";
+import LoadingState from "@/presentation/components/state/LoadingState/LoadingState";
+import { formatMeetingDate, getInAppMeetingSrc } from "./MeetingRoom.logic";
 
 type Props = {
+  activityId: string;
+  displayName?: string;
   launch: MeetingLaunchDto;
   onLeave: () => void;
 };
 
-const IFRAME_ALLOW =
-  "camera; microphone; display-capture; autoplay; clipboard-write; clipboard-read; encrypted-media; fullscreen; picture-in-picture; geolocation";
-
-const MeetingRoom = ({ launch, onLeave }: Props) => {
+const MeetingRoom = ({ activityId, displayName, launch, onLeave }: Props) => {
+  const src = getInAppMeetingSrc(activityId, displayName);
+  const [loadedSrc, setLoadedSrc] = useState("");
+  const loaded = loadedSrc === src;
   const dateLabel = formatMeetingDate(launch.date);
   const timeLabel =
     launch.startTime && launch.endTime ? `${launch.startTime} – ${launch.endTime}` : null;
-  const { status, handleLoad } = useMeetingRoomEmbed(launch.url);
 
   return (
     <section className={styles.room}>
@@ -43,31 +44,25 @@ const MeetingRoom = ({ launch, onLeave }: Props) => {
             </div>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={styles.leaveBtn}
-          icon={<ArrowRight size={14} />}
-          onClick={onLeave}
-        >
+        <button type="button" className={styles.leaveBtn} onClick={onLeave}>
+          <ArrowRight size={14} />
           مغادرة القاعة
-        </Button>
+        </button>
       </div>
 
       <div className={styles.stage}>
-        {status === "loading" && (
+        {!loaded && (
           <div className={styles.overlay}>
             <LoadingState compact />
           </div>
         )}
         <iframe
           className={styles.frame}
-          src={launch.url}
-          title={launch.title || "Google Meet"}
-          allow={IFRAME_ALLOW}
+          src={src}
+          title={launch.title || "قاعة الاجتماع"}
+          allow="camera; microphone; display-capture; autoplay; clipboard-write; fullscreen; speaker-selection"
           allowFullScreen
-          referrerPolicy="origin-when-cross-origin"
-          onLoad={handleLoad}
+          onLoad={() => setLoadedSrc(src)}
         />
       </div>
     </section>

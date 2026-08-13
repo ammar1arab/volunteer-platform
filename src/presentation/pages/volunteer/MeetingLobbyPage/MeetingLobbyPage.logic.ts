@@ -9,7 +9,7 @@ export type MeetingLobbyView = "loading" | "notFound" | "empty" | "error" | "rea
 export const useMeetingLobbyPage = () => {
   const params = useParams<{ id: string }>();
   const activityId = params?.id ?? "";
-  const { status } = useAuth({ requireAuth: true });
+  const { status, user } = useAuth({ requireAuth: true });
   const { launch, loading, error, errorCode, isNotFound } = useMeetingLaunch(activityId);
 
   const view: MeetingLobbyView = useMemo(() => {
@@ -23,6 +23,8 @@ export const useMeetingLobbyPage = () => {
   return {
     view,
     launch,
-    error
+    error,
+    activityId,
+    displayName: user?.name ?? ""
   };
 };

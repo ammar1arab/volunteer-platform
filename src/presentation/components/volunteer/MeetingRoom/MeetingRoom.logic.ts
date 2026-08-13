@@ -1,12 +1,3 @@
-"use client";
-
-import { useCallback, useState } from "react";
-import { useNow } from "@/presentation/query";
-
-export type MeetingRoomEmbedStatus = "loading" | "ready";
-
-const EMBED_READY_MS = 4000;
-
 export const formatMeetingDate = (date?: string) => {
   if (!date) return null;
   try {
@@ -21,20 +12,18 @@ export const formatMeetingDate = (date?: string) => {
   }
 };
 
-export const useMeetingRoomEmbed = (url: string) => {
-  const [session, setSession] = useState({ url, startedAt: Date.now(), loaded: false });
+export const getInAppMeetingSrc = (activityId: string, displayName?: string) => {
+  const room = `YouthPrints${activityId.replace(/-/g, "")}`;
+  const hash = [
+    "config.prejoinConfig.enabled=true",
+    "config.disableDeepLinking=true",
+    "config.startWithAudioMuted=true",
+    "interfaceConfig.SHOW_JITSI_WATERMARK=false",
+    "interfaceConfig.SHOW_BRAND_WATERMARK=false",
+    displayName ? `userInfo.displayName="${encodeURIComponent(displayName)}"` : ""
+  ]
+    .filter(Boolean)
+    .join("&");
 
-  if (session.url !== url) {
-    setSession({ url, startedAt: Date.now(), loaded: false });
-  }
-
-  const now = useNow(!session.loaded);
-  const status: MeetingRoomEmbedStatus =
-    session.loaded || now - session.startedAt >= EMBED_READY_MS ? "ready" : "loading";
-
-  const handleLoad = useCallback(() => {
-    setSession((current) => (current.url === url ? { ...current, loaded: true } : current));
-  }, [url]);
-
-  return { status, handleLoad };
+  return `https://meet.jit.si/${encodeURIComponent(room)}#${hash}`;
 };

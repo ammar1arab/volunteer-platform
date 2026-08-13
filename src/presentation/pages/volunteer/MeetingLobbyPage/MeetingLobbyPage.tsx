@@ -9,7 +9,7 @@ import { useMeetingLobbyPage } from "./MeetingLobbyPage.logic";
 
 const MeetingLobbyPage = () => {
   const router = useRouter();
-  const { view, launch, error } = useMeetingLobbyPage();
+  const { view, launch, error, activityId, displayName } = useMeetingLobbyPage();
 
   const backToActivities = () => router.push(ROUTES.VOLUNTEER.ACTIVITIES);
 
@@ -68,7 +68,12 @@ const MeetingLobbyPage = () => {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <MeetingRoom launch={launch} onLeave={backToActivities} />
+        <MeetingRoom
+          activityId={activityId}
+          displayName={displayName}
+          launch={launch}
+          onLeave={backToActivities}
+        />
       </div>
     </div>
   );
