@@ -49,6 +49,8 @@ export interface ActivityDto {
   timeZone?: string;
   /** Primary presenter volunteer user id (online activities). */
   primaryPresenterId?: string | null;
+  /** Public-safe display name of the primary presenter (online activities). */
+  primaryPresenterName?: string | null;
 }
 
 export interface CreateActivityRequest {

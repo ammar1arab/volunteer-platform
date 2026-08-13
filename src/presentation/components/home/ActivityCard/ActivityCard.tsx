@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { ActivityDto } from "@/core/application/dtos";
 import { ActivityType } from "@/core/domain/enums";
 import { getMonthLabel, getActivityTypeLabel, getCityLabel, ROUTES } from "@/presentation/constants";
-import { Share, Modal } from "@/presentation/components";
+import { Share, Modal, ActivityPresenterBadge } from "@/presentation/components";
 import { MapPin, Clock, Users, Share2, Wifi, MapPinned, Timer, Calendar } from "lucide-react";
 
 type Props = { activity: ActivityDto; actionButton?: React.ReactNode };
@@ -57,6 +57,11 @@ const ActivityCard = ({ activity, actionButton }: Props) => {
         <div className={styles.body}>
           <div className={styles.header}>
             <h3 className={styles.title}>{activity.title}</h3>
+            {activity.primaryPresenterName && (
+              <div className={styles.presenter}>
+                <ActivityPresenterBadge name={activity.primaryPresenterName} />
+              </div>
+            )}
             <p className={styles.description}>{activity.description}</p>
           </div>
 

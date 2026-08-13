@@ -164,6 +164,23 @@
   }
 }
 
+.heading {
+  @include flex-col;
+  gap: $sp-sm;
+}
+
+.presenterRow {
+  @include flex(row, center, flex-start, $sp-sm);
+  flex-wrap: wrap;
+}
+
+.presenterLabel {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+  letter-spacing: 0.02em;
+}
+
 
 
 .chipsGrid {

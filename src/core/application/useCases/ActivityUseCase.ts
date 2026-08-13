@@ -176,13 +176,36 @@ class ActivityUseCase {
 
   private async attachPrimaryPresenters(dtos: ActivityDto[]): Promise<ActivityDto[]> {
     const onlineIds = dtos.filter((d) => d.activityType === ActivityType.ONLINE).map((d) => d.id);
-    if (!onlineIds.length) return dtos.map((d) => ({ ...d, primaryPresenterId: d.primaryPresenterId ?? null }));
+    if (!onlineIds.length) {
+      return dtos.map((d) => ({
+        ...d,
+        primaryPresenterId: d.primaryPresenterId ?? null,
+        primaryPresenterName: d.primaryPresenterName ?? null
+      }));
+    }
 
     const map = await this.presenterRepository.findActivePrimaryByActivities(onlineIds);
-    return dtos.map((d) => ({
-      ...d,
-      primaryPresenterId: map.get(d.id)?.presenterId ?? null
-    }));
+    const presenterIds = [...new Set([...map.values()].map((p) => p.presenterId))];
+    const namesById = new Map<string, string>();
+    if (presenterIds.length) {
+      const users = await prisma.user.findMany({
+        where: { id: { in: presenterIds } },
+        select: { id: true, fullName: true }
+      });
+      for (const user of users) {
+        const name = user.fullName.trim();
+        if (name) namesById.set(user.id, name);
+      }
+    }
+
+    return dtos.map((d) => {
+      const presenterId = map.get(d.id)?.presenterId ?? null;
+      return {
+        ...d,
+        primaryPresenterId: presenterId,
+        primaryPresenterName: presenterId ? namesById.get(presenterId) ?? null : null
+      };
+    });
   }
 
   async create(dto: CreateActivityRequest, userId: string): Promise<CreateActivityResponse> {

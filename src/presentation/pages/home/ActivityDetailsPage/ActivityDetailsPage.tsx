@@ -7,9 +7,9 @@ import remarkBreaks from "remark-breaks";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LoadingState, Button, Share, Modal } from "@/presentation/components";
+import { LoadingState, Button, Share, Modal, ActivityPresenterBadge } from "@/presentation/components";
 import { useActivityDetails, useActivityParticipations, useToast } from "@/presentation/hooks";
-import { getMonthLabel, getCityLabel, getActivityTypeLabel, canOpenMeetingLobby, ROUTES } from "@/presentation/constants";
+import { getMonthLabel, getCityLabel, getActivityTypeLabel, canOpenMeetingLobby, ROUTES, ACTIVITY_PRESENTER_LABEL } from "@/presentation/constants";
 import { ActivityType } from "@/core/domain/enums";
 import { ArrowRight, MapPin, Calendar, Clock, Users, Share2, CheckCircle2, XCircle, Wifi, MapPinned, Timer } from "lucide-react";
 
@@ -119,7 +119,15 @@ const ActivityDetailsPage = () => {
 
 
           <div className={styles.content}>
-            <h1 className={styles.title}>{activity.title}</h1>
+            <div className={styles.heading}>
+              <h1 className={styles.title}>{activity.title}</h1>
+              {activity.primaryPresenterName && (
+                <div className={styles.presenterRow}>
+                  <span className={styles.presenterLabel}>{ACTIVITY_PRESENTER_LABEL}</span>
+                  <ActivityPresenterBadge name={activity.primaryPresenterName} />
+                </div>
+              )}
+            </div>
 
 
             <div className={styles.chipsGrid}>

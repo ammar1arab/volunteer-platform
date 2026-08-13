@@ -78,7 +78,8 @@ export const useActivitiesPage = () => {
         (a) =>
           a.title.toLowerCase().includes(q) ||
           a.description.toLowerCase().includes(q) ||
-          (a.placeName?.toLowerCase().includes(q) ?? false)
+          (a.placeName?.toLowerCase().includes(q) ?? false) ||
+          (a.primaryPresenterName?.toLowerCase().includes(q) ?? false)
       );
     }
     return result;

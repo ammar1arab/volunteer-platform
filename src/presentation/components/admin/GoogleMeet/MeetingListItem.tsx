@@ -1,7 +1,6 @@
 "use client";
 
-import MeetingStatusBadge from "./MeetingStatusBadge";
-import { getMeetingLinkSourceLabel } from "@/presentation/constants/labels";
+import { LoadingState, Button, Share, Modal, ActivityPresenterBadge, MeetingStatusBadge } from "@/presentation/components";
 import { MeetingSyncStatus } from "@/core/domain/enums";
 import { ROUTES } from "@/presentation/constants";
 import Link from "next/link";

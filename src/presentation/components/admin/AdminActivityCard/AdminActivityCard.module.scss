@@ -164,6 +164,11 @@
   gap: $sp-xs;
 }
 
+.presenter {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .title {
   margin: 0;
   font-size: $font-sm;

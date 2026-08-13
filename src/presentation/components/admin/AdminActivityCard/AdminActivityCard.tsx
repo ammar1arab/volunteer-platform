@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ActivityDto } from "@/core/application/dtos";
 import { ActivityStatus, ActivityType } from "@/core/domain/enums";
 import { getDayLabel, getActivityTypeLabel, getCityLabel, getMonthLabel } from "@/presentation/constants/labels";
-import { Share, Modal, MeetingStatusBadge } from "@/presentation/components";
+import { Share, Modal, MeetingStatusBadge, ActivityPresenterBadge } from "@/presentation/components";
 import { Calendar, Clock, MapPin, Users, Share2, ExternalLink, Wifi, MapPinned, Timer } from "lucide-react";
 import { MeetingLinkSource, MeetingSyncStatus } from "@/core/domain/enums";
 import { ROUTES } from "@/presentation/constants";
@@ -82,6 +82,11 @@ const AdminActivityCard = ({ activity, meta, actions }: AdminActivityCardProps) 
         <div className={styles.body}>
           <div className={styles.header}>
             <h3 className={styles.title}>{activity.title}</h3>
+            {activity.primaryPresenterName && (
+              <div className={styles.presenter}>
+                <ActivityPresenterBadge name={activity.primaryPresenterName} />
+              </div>
+            )}
             <p className={styles.description}>{activity.description}</p>
           </div>
 
