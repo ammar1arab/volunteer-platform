@@ -31,15 +31,21 @@ export const VIEW_ITEMS = [
 
 export const SYNC_FILTER_ITEMS = MEETING_SYNC_STATUS_FILTER_OPTIONS;
 
-function oauthMessage(connected: string | null, oauthError: string | null) {
+function oauthMessage(connected: string | null, oauthError: string | null, reason: string | null) {
   if (connected === "1") return { type: "success" as const, message: "تم ربط حساب Google بنجاح" };
   if (!oauthError) return null;
   const decoded = decodeURIComponent(oauthError);
-  const message = /access_denied/i.test(decoded)
+  const detail = reason ? decodeURIComponent(reason) : "";
+  const haystack = `${decoded} ${detail}`;
+  const message = /access_denied/i.test(haystack)
     ? "تم رفض الوصول. تأكد أن الحساب مضاف كـ Test user في Google Cloud وأن التطبيق في وضع Testing."
-    : /redirect_uri_mismatch/i.test(decoded)
+    : /redirect_uri_mismatch|redirect uri/i.test(haystack)
       ? "رابط الإرجاع غير مطابق. أضف رابط الـ callback في Google Cloud Credentials."
-      : `فشل الربط: ${decoded}`;
+      : /refresh token/i.test(haystack)
+        ? "Google لم يُرجع refresh token. اقطع الاتصال إن وُجد ثم اربط مرة أخرى واضغط Allow."
+        : detail
+          ? `فشل الربط: ${decoded} — ${detail}`
+          : `فشل الربط: ${decoded}`;
   return { type: "error" as const, message };
 }
 
@@ -125,7 +131,8 @@ export const useGoogleMeetPage = () => {
 
   const connectedFlag = searchParams.get("connected");
   const oauthError = searchParams.get("error");
-  const oauthFlash = oauthMessage(connectedFlag, oauthError);
+  const oauthReason = searchParams.get("reason");
+  const oauthFlash = oauthMessage(connectedFlag, oauthError, oauthReason);
   const displayedToasts = oauthFlash
     ? [...toasts, { id: "oauth-flash", message: oauthFlash.message, type: oauthFlash.type }]
     : toasts;

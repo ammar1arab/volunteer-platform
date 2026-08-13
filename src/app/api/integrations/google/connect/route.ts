@@ -20,11 +20,12 @@ export async function GET(req: Request) {
 
     const origin = resolveRequestOrigin(req);
     const redirectUri = `${origin}/api/integrations/google/callback`;
-    logger.info(
-      "API",
-      "GET /integrations/google/connect",
-      `userId=${auth.session.user.id} redirectUri=${redirectUri}`
-    );
+    logger.info("API", "GET /integrations/google/connect", {
+      userId: auth.session.user.id,
+      origin,
+      redirectUri,
+      clientIdSuffix: (process.env.GOOGLE_CLIENT_ID ?? "").slice(-12) || "missing"
+    });
     return toResponse(await providers.meeting().getConnectUrl(auth.session.user.id, redirectUri));
   } catch (error) {
     return apiError("API", "GET /integrations/google/connect", error);

@@ -54,17 +54,30 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL(`${redirectBase}?error=invalid_state`, origin));
     }
 
-    logger.info(
-      "API",
-      "GET /integrations/google/callback",
-      `userId=${connectedById} redirectUri=${redirectUri}`
-    );
+    logger.info("API", "GET /integrations/google/callback", {
+      userId: connectedById,
+      redirectUri,
+      origin,
+      hasCode: Boolean(code),
+      hasState: Boolean(state)
+    });
     const result = await providers.meeting().handleOAuthCallback(code, connectedById, redirectUri);
 
     if (!result.success) {
-      return NextResponse.redirect(
-        new URL(`${redirectBase}?error=${encodeURIComponent(result.error.message)}`, origin)
-      );
+      const details = result.error.details;
+      const reason =
+        details && typeof details === "object" && !Array.isArray(details) && typeof details.message === "string"
+          ? details.message
+          : result.error.message;
+      logger.error("API", "GET /integrations/google/callback", {
+        code: result.error.code,
+        message: result.error.message,
+        reason
+      });
+      const failUrl = new URL(redirectBase, origin);
+      failUrl.searchParams.set("error", result.error.message);
+      failUrl.searchParams.set("reason", reason.slice(0, 300));
+      return NextResponse.redirect(failUrl);
     }
 
     return NextResponse.redirect(new URL(`${redirectBase}?connected=1`, origin));

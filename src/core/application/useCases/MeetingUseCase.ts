@@ -323,6 +323,11 @@ class MeetingUseCase {
       logger.info(MeetingUseCase.SCOPE, "handleOAuthCallback", `Connected ${exchanged.email}`);
       return ok({ connected: true, email: exchanged.email });
     } catch (error) {
+      logger.error(
+        MeetingUseCase.SCOPE,
+        "handleOAuthCallback",
+        error instanceof Error ? error : String(error)
+      );
       return serviceError(MeetingUseCase.SCOPE, "handleOAuthCallback", error, "فشل ربط حساب Google");
     }
   }

@@ -11,10 +11,28 @@ import { logger } from "@/lib/utils";
 const SCOPE = "GoogleMeetingProvider";
 
 const SCOPES = [
+  "https://www.googleapis.com/auth/userinfo.email",
   "https://www.googleapis.com/auth/calendar.events",
   "https://www.googleapis.com/auth/meetings.space.created",
   "https://www.googleapis.com/auth/meetings.space.readonly"
 ];
+
+function describeGoogleError(error: unknown): string {
+  if (!error || typeof error !== "object") return String(error);
+  const err = error as {
+    message?: string;
+    response?: { status?: number; data?: { error?: string; error_description?: string } };
+  };
+  const data = err.response?.data;
+  return [
+    err.message,
+    data?.error && `google=${data.error}`,
+    data?.error_description,
+    err.response?.status != null && `status=${err.response.status}`
+  ]
+    .filter(Boolean)
+    .join(" | ");
+}
 
 class GoogleMeetingProvider implements IMeetingProvider {
   private resolveRedirectUri(explicit?: string): string {
@@ -41,6 +59,13 @@ class GoogleMeetingProvider implements IMeetingProvider {
   }
 
   getAuthUrl(state: string, redirectUri?: string): string {
+    const resolved = this.resolveRedirectUri(redirectUri);
+    const clientId = process.env.GOOGLE_CLIENT_ID ?? "";
+    logger.info(SCOPE, "getAuthUrl", {
+      redirectUri: resolved,
+      clientIdSuffix: clientId.slice(-12) || "missing",
+      hasSecret: Boolean(process.env.GOOGLE_CLIENT_SECRET)
+    });
     const client = this.createOAuthClient(redirectUri);
     return client.generateAuthUrl({
       access_type: "offline",
@@ -54,24 +79,54 @@ class GoogleMeetingProvider implements IMeetingProvider {
     code: string,
     redirectUri?: string
   ): Promise<{ refreshToken: string; email: string; scopes: string[] }> {
+    const resolved = this.resolveRedirectUri(redirectUri);
+    const clientId = process.env.GOOGLE_CLIENT_ID ?? "";
+    logger.info(SCOPE, "exchangeCode.start", {
+      redirectUri: resolved,
+      clientIdSuffix: clientId.slice(-12) || "missing",
+      hasCode: Boolean(code)
+    });
+
     const client = this.createOAuthClient(redirectUri);
-    const { tokens } = await client.getToken(code);
+    let tokens;
+    try {
+      ({ tokens } = await client.getToken(code));
+    } catch (error) {
+      const detail = describeGoogleError(error);
+      logger.error(SCOPE, "exchangeCode.getToken", detail);
+      throw new Error(`Google token exchange failed: ${detail}`);
+    }
+
+    logger.info(SCOPE, "exchangeCode.tokens", {
+      hasRefreshToken: Boolean(tokens.refresh_token),
+      hasAccessToken: Boolean(tokens.access_token),
+      tokenKeys: Object.keys(tokens),
+      scope: tokens.scope ?? null
+    });
+
     if (!tokens.refresh_token) {
       throw new Error("Google did not return a refresh token. Reconnect with consent prompt.");
     }
 
     client.setCredentials(tokens);
-    const oauth2 = google.oauth2({ version: "v2", auth: client });
-    const me = await oauth2.userinfo.get();
-    const email = me.data.email;
-    if (!email) throw new Error("Unable to resolve Google account email");
+    try {
+      const oauth2 = google.oauth2({ version: "v2", auth: client });
+      const me = await oauth2.userinfo.get();
+      const email = me.data.email;
+      if (!email) throw new Error("Unable to resolve Google account email");
 
-    const scopes =
-      typeof tokens.scope === "string"
-        ? tokens.scope.split(" ").filter(Boolean)
-        : SCOPES;
+      const scopes =
+        typeof tokens.scope === "string"
+          ? tokens.scope.split(" ").filter(Boolean)
+          : SCOPES;
 
-    return { refreshToken: tokens.refresh_token, email, scopes };
+      logger.info(SCOPE, "exchangeCode.success", { email, scopes });
+      return { refreshToken: tokens.refresh_token, email, scopes };
+    } catch (error) {
+      const detail = describeGoogleError(error);
+      logger.error(SCOPE, "exchangeCode.userinfo", detail);
+      throw new Error(`Google userinfo failed: ${detail}`);
+    }
   }
 
   async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresAt: Date }> {

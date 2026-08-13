@@ -28,6 +28,7 @@ import {
 import type { GoogleMeetView } from "./GoogleMeetPage.logic";
 
 const SCOPE_LABELS: Record<string, string> = {
+  "https://www.googleapis.com/auth/userinfo.email": "البريد الإلكتروني",
   "https://www.googleapis.com/auth/calendar.events": "أحداث التقويم",
   "https://www.googleapis.com/auth/meetings.space.created": "إنشاء اجتماعات Meet",
   "https://www.googleapis.com/auth/meetings.space.readonly": "قراءة اجتماعات Meet"
