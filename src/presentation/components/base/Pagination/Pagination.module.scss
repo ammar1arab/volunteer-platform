@@ -3,15 +3,23 @@
 
 .container {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  border-radius: $radius-full;
-  gap: $sp-sm;
-  margin-top: $sp-lg;
-  
-  @media (max-width: 640px) {
+  justify-content: center;
+  gap: $sp-sm $sp-md;
+  width: 100%;
+  min-width: 0;
+  margin-top: $sp-md;
+
+  @media (min-width: $bp-md) {
+    justify-content: space-between;
+  }
+
+  &.compact {
     flex-direction: column;
+    justify-content: center;
     gap: $sp-xs;
+    margin-top: $sp-sm;
   }
 
   &.sticky {
@@ -27,26 +35,34 @@
 }
 
 .info {
+  margin: 0;
   font-size: $font-xs;
   color: $text-muted;
+  text-align: center;
+  min-width: 0;
+
+  @media (min-width: $bp-md) {
+    text-align: start;
+  }
 }
 
-.highlight {
-  color: $green;
-  font-weight: 600;
+.compact .info {
+  text-align: center;
 }
 
 .pagination {
   display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.navBtn {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.navBtn,
+.pageBtn {
+  @include flex-center;
+  flex-shrink: 0;
   height: 32px;
   border: 1px solid $border;
   border-radius: $radius;
@@ -54,6 +70,10 @@
   background-color: $white;
   cursor: pointer;
   transition: $transition;
+}
+
+.navBtn {
+  width: 32px;
 
   &:hover:not(:disabled) {
     border-color: $green;
@@ -67,21 +87,10 @@
 }
 
 .pageBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   min-width: 32px;
-  height: 32px;
   padding: 0 6px;
-  border: 1px solid $border;
-  border-radius: $radius;
-  color: $text;
   font-size: $font-xs;
   font-weight: 600;
-  cursor: pointer;
-  transition: $transition;
-    background-color: $white;
-
 
   &:hover:not(.active) {
     border-color: $green;
@@ -95,12 +104,19 @@
   }
 }
 
+.pageStatus {
+  font-size: $font-xs;
+  font-weight: 700;
+  color: $text;
+  padding: 0 $sp-sm;
+  white-space: nowrap;
+}
+
 .ellipsis {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
+  @include flex-center;
+  min-width: 20px;
   height: 32px;
   color: $text-muted;
   font-size: $font-xs;
+  flex-shrink: 0;
 }

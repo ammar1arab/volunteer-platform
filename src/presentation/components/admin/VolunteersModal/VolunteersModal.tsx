@@ -294,6 +294,7 @@ const VolunteersModal = ({
             totalItems={filteredCount}
             itemsPerPage={volunteersPerPage}
             onPageChange={setCurrentPage}
+            compact
           />
 
           <div className={styles.stickyFooter}>

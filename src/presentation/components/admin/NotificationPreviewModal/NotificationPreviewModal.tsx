@@ -106,6 +106,7 @@ const NotificationPreviewModal = ({
             totalItems={users.length}
             itemsPerPage={ITEMS_PER_PAGE}
             onPageChange={setCurrentPage}
+            compact
           />
 
           <div className={styles.footer}>

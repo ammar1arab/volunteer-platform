@@ -13,8 +13,10 @@ export const useToast = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const showToast = useCallback((message: string, type: ToastType = "info") => {
-    const id = `${Date.now()}-${Math.random()}`;
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => {
+      const next = prev.filter((toast) => toast.message !== message || toast.type !== type);
+      return [...next, { id: `${Date.now()}-${Math.random()}`, message, type }];
+    });
   }, []);
 
   const removeToast = useCallback((id: string) => {

@@ -2,6 +2,16 @@
 
 import { useMemo } from "react";
 
+const SIMPLE_PAGE_LIMIT = 7;
+const SIBLING_COUNT = 1;
+
+export type PaginationItem =
+  | { kind: "page"; value: number }
+  | { kind: "gap"; id: string };
+
+const range = (from: number, to: number) =>
+  Array.from({ length: Math.max(0, to - from + 1) }, (_, index) => from + index);
+
 export const usePaginationLogic = (
   currentPage: number,
   totalItems: number,
@@ -12,28 +22,32 @@ export const usePaginationLogic = (
     [totalItems, itemsPerPage]
   );
 
-  const pageNumbers = useMemo(() => {
-    const pages: (number | string)[] = [];
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (currentPage <= 3) {
-        pages.push(1, 2, 3, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, "...", currentPage, "...", totalPages);
-      }
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const pageItems = useMemo((): PaginationItem[] => {
+    if (totalPages <= SIMPLE_PAGE_LIMIT) {
+      return range(1, totalPages).map((value) => ({ kind: "page" as const, value }));
     }
-    return pages;
-  }, [currentPage, totalPages]);
+
+    const items: PaginationItem[] = [{ kind: "page", value: 1 }];
+    const left = Math.max(2, safePage - SIBLING_COUNT);
+    const right = Math.min(totalPages - 1, safePage + SIBLING_COUNT);
+
+    if (left > 2) items.push({ kind: "gap", id: "start" });
+    range(left, right).forEach((value) => items.push({ kind: "page", value }));
+    if (right < totalPages - 1) items.push({ kind: "gap", id: "end" });
+    items.push({ kind: "page", value: totalPages });
+
+    return items;
+  }, [safePage, totalPages]);
 
   return {
     totalPages,
-    pageNumbers,
-    canGoPrevious: currentPage > 1,
-    canGoNext: currentPage < totalPages,
-    startIndex: totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1,
-    endIndex: Math.min(currentPage * itemsPerPage, totalItems),
+    pageItems,
+    canGoPrevious: safePage > 1,
+    canGoNext: safePage < totalPages,
+    startIndex: totalItems === 0 ? 0 : (safePage - 1) * itemsPerPage + 1,
+    endIndex: Math.min(safePage * itemsPerPage, totalItems),
+    safePage
   };
 };

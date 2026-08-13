@@ -108,6 +108,7 @@ const PresenterPicker = ({ volunteers, value, onChange, loading = false }: Props
             totalItems={filtered.length}
             itemsPerPage={PRESENTER_PAGE_SIZE}
             onPageChange={setPage}
+            compact
           />
         </>
       )}

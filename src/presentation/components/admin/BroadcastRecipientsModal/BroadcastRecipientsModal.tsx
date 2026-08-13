@@ -106,6 +106,7 @@ const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients,
           totalItems={filtered.length}
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={setCurrentPage}
+          compact
         />
 
       </div>
