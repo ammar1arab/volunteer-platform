@@ -2,10 +2,10 @@ import { fail } from "@/core/application/dtos";
 import { logger } from "@/lib/utils/logger";
 import { GuardError } from "./validation";
 
-export const serviceError = (
+export const serviceError = <T>(
   scope: string,
   action: string,
-  error: Error | string,
+  error: T,
   userMessage: string,
 ) => {
   if (error instanceof GuardError) return error.result;
@@ -15,9 +15,9 @@ export const serviceError = (
   }
 
   const normalized =
-    typeof error === "string"
-      ? { message: error }
-      : { name: error.name, message: error.message, stack: error.stack ?? null };
+    error instanceof Error
+      ? { name: error.name, message: error.message, stack: error.stack ?? null }
+      : { message: typeof error === "string" ? error : String(error) };
 
   logger.error(scope, action, normalized);
   return fail("INTERNAL_ERROR", userMessage, normalized);

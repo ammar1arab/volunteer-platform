@@ -20,7 +20,7 @@ import {
   Result
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
-import { ParticipationStatus, ADMIN_PERMISSIONS, UserRole } from "@/core/domain/enums";
+import { ParticipationStatus, ADMIN_PERMISSIONS, UserRole, isJordanianCity } from "@/core/domain/enums";
 import { User } from "@/core/domain/entities";
 
 const USER_WITH_ANALYTICS_INCLUDE = {
@@ -70,7 +70,7 @@ function mapVolunteerProfile(
   return {
     profilePictureUrl: vp.profilePictureUrl ?? undefined,
     membershipNumber: vp.membershipNumber ?? undefined,
-    city: vp.city ?? undefined,
+    city: vp.city && isJordanianCity(vp.city) ? vp.city : undefined,
     dateOfBirth: vp.dateOfBirth?.toISOString(),
     gender: vp.gender ?? undefined,
     bio: vp.bio ?? undefined,

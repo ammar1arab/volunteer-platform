@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession, useSession } from "next-auth/react";
 import * as Sentry from "@sentry/nextjs";
@@ -30,9 +30,9 @@ export const useVerifyEmail = () => {
 
   const { cooldown, total, start } = useOtpTimer();
 
-  if (!email && typeof window !== "undefined") {
-    window.location.replace("/signin");
-  }
+  useEffect(() => {
+    if (!email) window.location.replace("/signin");
+  }, [email]);
 
   const uploadPendingPicture = async (): Promise<boolean> => {
     const profileFile = signupDraft.getProfileFile();

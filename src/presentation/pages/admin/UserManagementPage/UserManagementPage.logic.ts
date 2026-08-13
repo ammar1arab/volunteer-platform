@@ -136,8 +136,8 @@ export const useUserManagementPage = () => {
     return volunteers.slice(start, start + ITEMS_PER_PAGE);
   }, [volunteers, currentPage]);
 
-  const exportData = useMemo((): ExcelExportRow[] =>
-    () =>
+  const exportData = useMemo(
+    (): ExcelExportRow[] =>
       volunteers.map((user) => ({
         fullName: user.fullName,
         age: calculateAge(user.volunteerProfile?.dateOfBirth),

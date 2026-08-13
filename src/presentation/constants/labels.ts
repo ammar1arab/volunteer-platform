@@ -198,10 +198,7 @@ export const getEducationLevelLabel = (level: EducationLevel | string) => {
 };
 export const getCityLabel = (city: JordanianCity) => CITY_LABELS[city] || city;
 
-const JORDANIAN_CITY_VALUES = new Set<string>(Object.values(JordanianCity));
-export function isJordanianCity(value: string): value is JordanianCity {
-  return JORDANIAN_CITY_VALUES.has(value);
-}
+export { isJordanianCity } from "@/core/domain/enums";
 
 const FEATURED_CATEGORY_VALUES = new Set<string>(Object.values(DomainFeaturedPostCategory));
 export function isFeaturedPostCategory(value: string): value is DomainFeaturedPostCategory {

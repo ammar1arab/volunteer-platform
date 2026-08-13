@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { UserRole } from "@/core/domain/enums";
 import { useActivityParticipations, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
-import { getCityLabel } from "@/presentation/constants";
+import { getCityLabel, isJordanianCity } from "@/presentation/constants";
 
 export const useParticipationRequestsPage = () => {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
@@ -76,7 +76,7 @@ export const useParticipationRequestsPage = () => {
         cancelText: "إلغاء",
         variant: "primary",
         warning: cityMismatch
-          ? `تنبيه: المتطوع من ${getCityLabel(volunteerCity as JordanianCity)} والنشاط في ${getCityLabel(activityCity as JordanianCity)}`
+          ? `تنبيه: المتطوع من ${isJordanianCity(volunteerCity) ? getCityLabel(volunteerCity) : volunteerCity} والنشاط في ${isJordanianCity(activityCity) ? getCityLabel(activityCity) : activityCity}`
           : undefined
       });
       if (!ok) return;

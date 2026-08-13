@@ -14,3 +14,9 @@ export enum JordanianCity {
   RAMTHA = "RAMTHA",
   OUTOFJORDAN = "OUTOFJORDAN",
 }
+
+const JORDANIAN_CITY_VALUES = new Set<string>(Object.values(JordanianCity));
+
+export function isJordanianCity(value: string): value is JordanianCity {
+  return JORDANIAN_CITY_VALUES.has(value);
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { ActivityStatus, ActivityType, DayOfWeek, MeetingLinkSource, MeetingPlatform, UserRole } from "@/core/domain/enums";
+import { ActivityStatus, ActivityType, MeetingLinkSource, MeetingPlatform, UserRole } from "@/core/domain/enums";
 import { useActivities, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
@@ -198,21 +198,21 @@ export const useActivitiesPage = () => {
         categories: formData.categories ?? [],
         maxVolunteers: formData.maxVolunteers,
 
-        placeName: formData.activityType === ActivityType.IN_PERSON ? formData.placeName?.trim() || null : null,
+        placeName: formData.activityType === ActivityType.IN_PERSON ? formData.placeName?.trim() || undefined : undefined,
         city: formData.activityType === ActivityType.IN_PERSON && formData.city !== "" ? formData.city : null,
-        latitude: formData.activityType === ActivityType.IN_PERSON ? (formData.latitude ?? null) : null,
-        longitude: formData.activityType === ActivityType.IN_PERSON ? (formData.longitude ?? null) : null,
+        latitude: formData.activityType === ActivityType.IN_PERSON ? formData.latitude : undefined,
+        longitude: formData.activityType === ActivityType.IN_PERSON ? formData.longitude : undefined,
         meetingLink:
           formData.activityType === ActivityType.ONLINE &&
           formData.meetingLinkSource === MeetingLinkSource.MANUAL
-            ? formData.meetingLink?.trim() || null
-            : null,
+            ? formData.meetingLink?.trim() || undefined
+            : undefined,
         meetingPlatform:
           formData.activityType === ActivityType.ONLINE
             ? formData.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO
               ? MeetingPlatform.GOOGLE_MEET
-              : formData.meetingPlatform === "" ? null : formData.meetingPlatform
-            : null,
+              : formData.meetingPlatform === "" ? undefined : formData.meetingPlatform
+            : undefined,
         meetingLinkSource:
           formData.activityType === ActivityType.ONLINE
             ? formData.meetingLinkSource || MeetingLinkSource.MANUAL

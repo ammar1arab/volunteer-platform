@@ -38,7 +38,7 @@ const log = (level: LogLevel, scope: string, action: string, meta?: LogMeta): vo
     const err =
       meta instanceof Error
         ? meta
-        : new Error(`[${scope}.${action}] ${typeof meta === "string" ? meta : stringify(meta)}`);
+        : new Error(`[${scope}.${action}] ${typeof meta === "string" ? meta : stringify(meta ?? "")}`);
     Sentry.withScope((sentryScope) => {
       sentryScope.setTag("scope", scope);
       sentryScope.setTag("action", action);

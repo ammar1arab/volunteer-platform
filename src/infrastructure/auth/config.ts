@@ -1,5 +1,4 @@
 import type { NextAuthOptions } from "next-auth";
-import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { providers } from "@/lib/providers";
 import { ROUTES } from "@/presentation/constants/routes";

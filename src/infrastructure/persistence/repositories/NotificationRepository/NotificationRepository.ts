@@ -32,7 +32,20 @@ function parseNotificationMetadata(value: Prisma.JsonValue | null): Notification
   return metadata;
 }
 
-const KEEP_PER_USER = 50;
+function toPrismaMetadata(meta: NotificationMetadata): Prisma.InputJsonValue {
+  const json: Record<string, string | number | boolean | null> = {};
+  if (meta.activityId !== undefined) json.activityId = meta.activityId;
+  if (meta.activityType !== undefined) json.activityType = meta.activityType;
+  if (meta.link !== undefined && meta.link !== null) json.link = meta.link;
+  if (meta.certificateId !== undefined) json.certificateId = meta.certificateId;
+  if (meta.hours !== undefined) json.hours = meta.hours;
+  if (meta.icon !== undefined) json.icon = meta.icon;
+  if (meta.broadcastId !== undefined) json.broadcastId = meta.broadcastId;
+  if (meta.totalRecipients !== undefined) json.totalRecipients = meta.totalRecipients;
+  if (meta.target !== undefined) json.target = meta.target;
+  if (meta.targetValue !== undefined) json.targetValue = meta.targetValue;
+  return json;
+}
 
 class NotificationRepository implements INotificationRepository {
   private mapToEntity(data: PrismaNotification): Notification {
@@ -51,7 +64,7 @@ class NotificationRepository implements INotificationRepository {
         type: item.type as PrismaNotificationType,
         title: item.title,
         message: item.message,
-        metadata: item.metadata ?? undefined
+        metadata: item.metadata ? toPrismaMetadata(item.metadata) : undefined
       }))
     });
     const uniqueUserIds = [...new Set(data.map((d) => d.userId))];

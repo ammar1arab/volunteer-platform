@@ -1,27 +1,26 @@
 "use client";
 
 import { SessionProvider, useSession } from "next-auth/react";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { QueryProvider } from "@/presentation/query";
 
-let lastSentryUser: string | null | undefined;
-
 function SentryUserSync() {
   const { data: session } = useSession();
-  const nextId = session?.user?.id ?? null;
-  if (lastSentryUser !== nextId) {
-    lastSentryUser = nextId;
-    if (nextId) {
+  const user = session?.user;
+
+  useEffect(() => {
+    if (user?.id) {
       Sentry.setUser({
-        id: session!.user.id,
-        email: session!.user.email ?? undefined,
-        username: session!.user.name ?? undefined
+        id: user.id,
+        email: user.email ?? undefined,
+        username: user.name ?? undefined
       });
-    } else {
-      Sentry.setUser(null);
+      return;
     }
-  }
+    Sentry.setUser(null);
+  }, [user?.id, user?.email, user?.name]);
+
   return null;
 }
 

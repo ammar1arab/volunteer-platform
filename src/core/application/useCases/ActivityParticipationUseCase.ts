@@ -9,7 +9,7 @@ import type { Prisma } from "@prisma/client";
 import { Activity, ActivityParticipation } from "@/core/domain/entities";
 import { serviceError, guard } from "@/core/application/common";
 import { toParticipationDto, toUserSummaryDto, toActivitySummaryDto } from "@/core/application/mappers";
-import { ActivityStatus, MeetingSyncOperationType, ParticipationStatus, NotificationType } from "@/core/domain/enums";
+import { ActivityStatus, MeetingSyncOperationType, ParticipationStatus, NotificationType, isJordanianCity } from "@/core/domain/enums";
 import {
   ok,
   fail,
@@ -80,7 +80,13 @@ class ActivityParticipationUseCase {
     ]);
     return toParticipationDto(entity, {
       volunteer: volunteerUser
-        ? { ...toUserSummaryDto(volunteerUser), city: volunteerProfile?.city ?? undefined }
+        ? {
+            ...toUserSummaryDto(volunteerUser),
+            city:
+              volunteerProfile?.city && isJordanianCity(volunteerProfile.city)
+                ? volunteerProfile.city
+                : undefined
+          }
         : undefined,
       activity: activity ? toActivitySummaryDto(activity) : undefined
     });

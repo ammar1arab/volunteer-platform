@@ -1,6 +1,6 @@
 "use client";
 
-import { captureOnce } from "@/lib/utils/captureOnce";
+import { useCaptureOnce } from "@/lib/utils/captureOnce";
 
 export default function PublicError({
   error,
@@ -9,7 +9,7 @@ export default function PublicError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  captureOnce(error);
+  useCaptureOnce(error);
 
   return (
     <div

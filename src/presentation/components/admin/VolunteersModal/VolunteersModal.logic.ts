@@ -217,7 +217,7 @@ export const useVolunteersModal = (
         setRejectedIds((prev) => new Set(prev).add(participationId));
         showToast(`تم إزالة ${volunteerName} من النشاط`, "success");
       } catch (err) {
-        showToast(getErrorMessage(err, "حدث خطأ أثناء إزالة المتطوع"), "error");
+        showToast(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ أثناء إزالة المتطوع"), "error");
       } finally {
         setRejecting(null);
       }
@@ -266,7 +266,7 @@ export const useVolunteersModal = (
           onClose();
         } else showToast("حدث خطأ أثناء إكمال النشاط", "error");
       } catch (err) {
-        showToast(getErrorMessage(err, "حدث خطأ غير متوقع"), "error");
+        showToast(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ غير متوقع"), "error");
       } finally {
         setCompleting(false);
         setConfirmStep(0);

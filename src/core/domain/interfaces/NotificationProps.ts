@@ -4,7 +4,7 @@ import { NotificationType } from "@/core/domain/enums";
 export interface NotificationMetadata {
   activityId?: string;
   activityType?: string;
-  link?: string;
+  link?: string | null;
   certificateId?: string;
   hours?: number;
   icon?: string;

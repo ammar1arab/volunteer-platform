@@ -95,8 +95,10 @@ export function badRequest(message = "Invalid request") {
   return NextResponse.json({ success: false, error: { code: "BAD_REQUEST", message } }, { status: 400 });
 }
 
-export function apiError(scope: string, action: string, error: Error | string) {
-  logger.error(scope, action, typeof error === "string" ? error : error);
+export function apiError<T>(scope: string, action: string, error: T) {
+  const normalized: Error | string =
+    error instanceof Error ? error : typeof error === "string" ? error : new Error(String(error));
+  logger.error(scope, action, normalized);
   return NextResponse.json(
     { success: false, error: { code: "INTERNAL_ERROR", message: "Internal server error" } },
     { status: 500 }

@@ -14,9 +14,10 @@ export class ApiError extends Error {
   }
 }
 
-export function getErrorMessage(err: Error | string, fallback = "حدث خطأ غير متوقع"): string {
-  if (typeof err === "string") return err.trim() || fallback;
-  return err.message || fallback;
+export function getErrorMessage<T>(err: T, fallback = "حدث خطأ غير متوقع"): string {
+  if (err instanceof Error) return err.message || fallback;
+  if (typeof err === "string" && err.trim()) return err;
+  return fallback;
 }
 
 export function isNotFoundError(err: Error | null | undefined): boolean {

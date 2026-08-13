@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
     });
 
     if (result.error) {
-      logger.error("contact", "POST", result.error);
-      return apiError("contact", "POST", result.error);
+      logger.error("contact", "POST", result.error.message);
+      return apiError("contact", "POST", result.error.message);
     }
 
     logger.info("contact", "POST", { sent: true, id: result.data?.id });

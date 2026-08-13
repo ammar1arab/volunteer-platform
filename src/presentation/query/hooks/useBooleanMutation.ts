@@ -9,7 +9,10 @@ import { getErrorMessage } from "../utils/errors";
 
 
 
-export function useBooleanMutation<TVariables, TData = void>(params: {
+export function useBooleanMutation<
+  TVariables,
+  TData extends object | void | boolean | string | number | null = object | void | boolean | string | number | null
+>(params: {
   request: (variables: TVariables) => Promise<TData>;
   invalidateQueries?: QueryKey | QueryKey[];
   fallbackError?: string;

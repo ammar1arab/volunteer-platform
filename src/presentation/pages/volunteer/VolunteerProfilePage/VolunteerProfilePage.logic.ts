@@ -62,7 +62,7 @@ export function useProfilePage() {
         certCount: certs.certificates?.length ?? 0
       };
     },
-    errorCallback: (err) => setError(getErrorMessage(err, "حدث خطأ غير متوقع"))
+    errorCallback: (err) => setError(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ غير متوقع"))
   });
 
   const saveMutation = useApiMutation<void, EditingField>({
@@ -116,7 +116,7 @@ export function useProfilePage() {
       showSuccess("تم الحفظ بنجاح");
       setEditingField(null);
     } catch (err) {
-      setError(getErrorMessage(err, "حدث خطأ أثناء الحفظ"));
+      setError(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ أثناء الحفظ"));
     }
   }, [editingField, saveMutation, showSuccess]);
 
@@ -128,7 +128,7 @@ export function useProfilePage() {
         await updateSession({ profilePictureUrl: newUrl });
         showSuccess("تم رفع الصورة بنجاح ✓");
       } catch (err) {
-        setError(getErrorMessage(err, "حدث خطأ أثناء رفع الصورة"));
+        setError(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ أثناء رفع الصورة"));
       }
     },
     [showSuccess, updateSession, uploadMutation]

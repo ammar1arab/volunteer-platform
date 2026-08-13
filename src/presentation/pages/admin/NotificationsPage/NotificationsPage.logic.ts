@@ -264,7 +264,7 @@ export function useNotificationsPageLogic() {
         setSelectedIds(new Set(users.map((u) => u.id)));
         setShowPreview(true);
       } catch (err) {
-        showToast(getErrorMessage(err, "حدث خطأ أثناء جلب البيانات"), "error");
+        showToast(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ أثناء جلب البيانات"), "error");
       } finally {
         setLoadingPreview(false);
       }
@@ -307,7 +307,7 @@ export function useNotificationsPageLogic() {
       setSelectedIds(new Set());
       setBroadcastsPage(1);
     } catch (err) {
-      showToast(getErrorMessage(err, "حدث خطأ أثناء الإرسال"), "error");
+      showToast(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ أثناء الإرسال"), "error");
     } finally {
       setSubmitStatus("idle");
     }
@@ -325,7 +325,7 @@ export function useNotificationsPageLogic() {
       setBroadcastsPage(1);
       showToast("تم مسح السجل بنجاح", "success");
     } catch (err) {
-      showToast(getErrorMessage(err, "حدث خطأ أثناء المسح"), "error");
+      showToast(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ أثناء المسح"), "error");
     } finally {
       setShowClearConfirm(false);
     }
@@ -368,7 +368,7 @@ export function useNotificationsPageLogic() {
       if (recipientsState.broadcastId === pendingDeleteId) closeRecipientsModal();
       showToast("تم حذف الإشعار بنجاح", "success");
     } catch (err) {
-      showToast(getErrorMessage(err, "حدث خطأ أثناء الحذف"), "error");
+      showToast(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ أثناء الحذف"), "error");
     } finally {
       setDeletingId(null);
       setPendingDeleteId(null);
