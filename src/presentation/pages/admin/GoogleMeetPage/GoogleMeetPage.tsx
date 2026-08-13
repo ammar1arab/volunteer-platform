@@ -19,23 +19,8 @@ import {
 import { ROUTES } from "@/presentation/constants";
 import { ActivityType, ActivityStatus } from "@/core/domain/enums";
 import { useRouter } from "next/navigation";
-import {
-  Video,
-  PlugZap,
-  Unplug,
-  Settings2
-} from "lucide-react";
+import { Video, PlugZap, Unplug, Settings2 } from "lucide-react";
 import type { GoogleMeetView } from "./GoogleMeetPage.logic";
-
-const SCOPE_LABELS: Record<string, string> = {
-  "https://www.googleapis.com/auth/userinfo.email": "البريد الإلكتروني",
-  "https://www.googleapis.com/auth/calendar.events": "أحداث التقويم",
-  "https://www.googleapis.com/auth/meetings.space.created": "إنشاء اجتماعات Meet",
-  "https://www.googleapis.com/auth/meetings.space.readonly": "قراءة اجتماعات Meet"
-};
-
-const scopeLabel = (scope: string) =>
-  SCOPE_LABELS[scope] ?? scope.split("/").pop() ?? scope;
 
 const GoogleMeetPage = () => {
   const router = useRouter();
@@ -91,22 +76,10 @@ const GoogleMeetPage = () => {
   const showMeetings = activeView === "upcoming" || activeView === "finished";
   const loadingMeetings = showMeetings && (meetingsLoading || integrationLoading);
   const loadingSettings = activeView === "settings" && (integrationLoading || meetingsLoading);
-  const lastChecked = integration?.lastCheckedAt
-    ? new Date(integration.lastCheckedAt).toLocaleString("ar-JO")
-    : "—";
-  const scopes = integration?.scopes ?? [];
 
   return (
     <div className={styles.page}>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      {!connected && (
-        <div className={styles.warn}>
-          اربط حساب Google حقيقي (Gmail) مضاف كـ Test user في Google Cloud. البريد{" "}
-          <span dir="ltr">contact@youthprints.online</span> ليس حساب Google.
-          {integration?.lastError ? ` ${integration.lastError}` : ""}
-        </div>
-      )}
 
       <header className={styles.header}>
         <div className={styles.actions}>
@@ -229,7 +202,6 @@ const GoogleMeetPage = () => {
                       </Badge>
                     </div>
                     <p className={styles.email} dir="ltr">{organizerEmail}</p>
-                    <p className={styles.checked}>آخر فحص: {lastChecked}</p>
                   </div>
                 </div>
               </div>
@@ -237,16 +209,6 @@ const GoogleMeetPage = () => {
               {integration?.lastError && (
                 <p className={styles.error}>{integration.lastError}</p>
               )}
-
-              <div className={styles.scopes}>
-                {scopes.length > 0 ? (
-                  scopes.map((scope) => (
-                    <span key={scope} className={styles.chip}>{scopeLabel(scope)}</span>
-                  ))
-                ) : (
-                  <span className={styles.muted}>لا توجد صلاحيات مرتبطة</span>
-                )}
-              </div>
             </section>
 
             <section className={styles.failedSection}>

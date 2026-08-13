@@ -6,9 +6,11 @@ import { Modal, Share } from "@/presentation/components";
 import {
   getMonthLabel, getParticipationStatusLabel,
   getActivityTypeLabel, getMeetingPlatformLabel,
-  getAttendanceStatusLabel, getCityLabel
+  getAttendanceStatusLabel, getCityLabel,
+  getOnlineMeetingJoinState, ROUTES
 } from "@/presentation/constants";
 import { ActivityType, AttendanceStatus, JordanianCity, MeetingPlatform, ParticipationStatus } from "@/core/domain/enums";
+import Link from "next/link";
 
 type Props = {
   title: string;
@@ -20,6 +22,7 @@ type Props = {
   requestedAt: string;
   activityType?: ActivityType;
   activityStatus?: string;
+  activityId?: string;
   placeName?: string | null;
   city?: JordanianCity | null;
   latitude?: number | null;
@@ -57,7 +60,7 @@ const canCancel = (status: ParticipationStatus, activityStatus?: string) =>
 
 const ActivityItem = ({
   title, description, date, startTime, endTime,
-  status, activityStatus, requestedAt, respondedAt, markedAt,
+  status, activityStatus, activityId, requestedAt, respondedAt, markedAt,
   activityType, placeName, city, latitude, longitude,
   meetingLink, meetingPlatform, volunteerHours,
   attendanceStatus, actionLoading, onReapply, onCancel,
@@ -67,7 +70,12 @@ const ActivityItem = ({
   const isOnline = activityType === ActivityType.ONLINE;
   const hasMap = !isOnline && latitude && longitude;
   const mapUrl = hasMap ? `https://www.google.com/maps?q=${latitude},${longitude}` : null;
-  const meetingUrl = meetingLink?.startsWith("http") ? meetingLink : meetingLink ? `https://${meetingLink}` : null;
+  const joinState = getOnlineMeetingJoinState({
+    activityType,
+    activityStatus,
+    participationStatus: status,
+    meetingLink
+  });
   const platformLabel = meetingPlatform ? getMeetingPlatformLabel(meetingPlatform) : "رابط الاجتماع";
   const attended = attendanceStatus === AttendanceStatus.ATTENDED;
   const absent = attendanceStatus === AttendanceStatus.ABSENT;
@@ -143,12 +151,15 @@ const ActivityItem = ({
           <div className={styles.actionsRow}>
 
             <div className={styles.links}>
-              {isOnline && meetingUrl && (
-                <a href={meetingUrl} target="_blank" rel="noopener noreferrer" className={styles.linkBtn}>
+              {joinState === "join" && activityId && (
+                <Link href={ROUTES.VOLUNTEER.MEETING_LOBBY(activityId)} className={styles.linkBtn}>
                   <Wifi size={12} />
-                  {platformLabel}
+                  انضم للاجتماع
                   <ExternalLink size={11} />
-                </a>
+                </Link>
+              )}
+              {joinState === "pending" && (
+                <span className={styles.linkPending}>الرابط قيد الإنشاء</span>
               )}
               {hasMap && mapUrl && (
                 <button type="button" className={styles.mapBtn} onClick={() => setLocationModalOpen(true)}>

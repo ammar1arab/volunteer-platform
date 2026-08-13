@@ -6,7 +6,7 @@ import type { OnlineMeetingFilter } from "@/core/application/dtos";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const FILTERS = new Set<OnlineMeetingFilter>(["upcoming", "finished", "all"]);
+const FILTERS = new Set<OnlineMeetingFilter>(["upcoming", "finished", "all", "failed"]);
 
 export async function GET(req: Request) {
   try {

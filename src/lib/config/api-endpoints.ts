@@ -102,7 +102,7 @@ export const API_ENDPOINTS = {
     }
   },
   MEETINGS: {
-    LIST: (filter: "upcoming" | "finished" | "all" = "upcoming") =>
+    LIST: (filter: "upcoming" | "finished" | "all" | "failed" = "upcoming") =>
       `/api/meetings?filter=${filter}`,
     RETRY: (activityId: string) => `/api/meetings/${activityId}/retry`,
     LAUNCH: (activityId: string) => `/api/meetings/${activityId}/launch`,

@@ -8,7 +8,7 @@ import type {
   MeetingSyncStatus
 } from "@/core/domain/enums";
 
-export type MeetingsFilter = "upcoming" | "finished" | "all";
+export type MeetingsFilter = "upcoming" | "finished" | "all" | "failed";
 
 export type GoogleIntegrationStatusDto = {
   connected: boolean;

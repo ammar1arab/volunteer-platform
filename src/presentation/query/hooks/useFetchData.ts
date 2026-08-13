@@ -17,7 +17,7 @@ export interface UseFetchDataOptions {
   refetchOnWindowFocus?: boolean;
   refetchOnMount?: boolean | "always";
   refetchOnReconnect?: boolean;
-  refetchInterval?: number | false;
+  refetchInterval?: number | false | ((query: { state: { data: unknown } }) => number | false);
   refetchIntervalInBackground?: boolean;
   cacheEnabled?: boolean;
   keepPrevious?: boolean;

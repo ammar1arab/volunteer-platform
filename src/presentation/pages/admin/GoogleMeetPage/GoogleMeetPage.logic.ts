@@ -15,8 +15,7 @@ import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageSt
 import type { MeetingsFilter, MeetingListItemDto } from "@/presentation/services/meetings.service";
 import { activityApi } from "@/presentation/services";
 import {
-  getMeetingSyncStatusLabel,
-  MEETING_SYNC_STATUS_FILTER_OPTIONS
+  getMeetingSyncStatusLabel
 } from "@/presentation/constants/labels";
 import { queryKeys, unwrapResult, useFetchData } from "@/presentation/query";
 import type { ActivityVolunteerDto } from "@/core/application/dtos";
@@ -25,11 +24,14 @@ export type GoogleMeetView = "upcoming" | "finished" | "settings";
 
 export const VIEW_ITEMS = [
   { key: "upcoming", label: "قادمة / مباشرة" },
-  { key: "finished", label: "منتهية / مراجعة" },
-  { key: "settings", label: "الإعدادات" }
+  { key: "finished", label: "منتهية / مراجعة" }
 ];
 
-export const SYNC_FILTER_ITEMS = MEETING_SYNC_STATUS_FILTER_OPTIONS;
+export const SYNC_FILTER_ITEMS = [
+  { key: "ALL", label: "كل الحالات" },
+  { key: MeetingSyncStatus.PENDING, label: getMeetingSyncStatusLabel(MeetingSyncStatus.PENDING) },
+  { key: MeetingSyncStatus.FAILED, label: getMeetingSyncStatusLabel(MeetingSyncStatus.FAILED) }
+];
 
 function oauthMessage(connected: string | null, oauthError: string | null, reason: string | null) {
   if (connected === "1") return { type: "success" as const, message: "تم ربط حساب Google بنجاح" };
@@ -86,7 +88,7 @@ export const useGoogleMeetPage = () => {
   const [volunteersMeeting, setVolunteersMeeting] = useState<MeetingListItemDto | null>(null);
 
   const meetingsFilter: MeetingsFilter =
-    activeView === "settings" ? "all" : (activeView as MeetingsFilter);
+    activeView === "settings" ? "failed" : (activeView as MeetingsFilter);
 
   const {
     list,
@@ -247,10 +249,7 @@ export const useGoogleMeetPage = () => {
     setVolunteersMeeting(meeting);
   }, []);
 
-  const failedMeetings = useMemo(
-    () => list.filter((m) => m.meetingSyncStatus === MeetingSyncStatus.FAILED),
-    [list]
-  );
+  const failedMeetings = list;
 
   return {
     status,

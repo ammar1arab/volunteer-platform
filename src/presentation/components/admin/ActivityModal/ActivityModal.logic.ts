@@ -10,6 +10,7 @@ import {
   MeetingSyncStatus
 } from "@/core/domain/enums";
 import { MEETING_LINK_SOURCE_CREATE_LABELS } from "@/presentation/constants/labels";
+import { dayOfWeekFromDate } from "@/lib/utils";
 
 export type MeetingLinkSourceForm = "" | MeetingLinkSource;
 
@@ -73,7 +74,9 @@ export const MEETING_LINK_SOURCE_OPTIONS = [
 ];
 
 function toForm(initialData: ActivityFormData | null | undefined): ActivityFormData {
-  if (!initialData) return EMPTY_FORM;
+  if (!initialData) {
+    return { ...EMPTY_FORM, dayOfWeek: dayOfWeekFromDate(EMPTY_FORM.date) };
+  }
   const formattedDate = initialData.date.toString().split("T")[0];
   const isOnline = initialData.activityType === ActivityType.ONLINE;
   const source =
@@ -83,6 +86,7 @@ function toForm(initialData: ActivityFormData | null | undefined): ActivityFormD
     ...EMPTY_FORM,
     ...initialData,
     date: formattedDate,
+    dayOfWeek: dayOfWeekFromDate(formattedDate),
     meetingLink: initialData.meetingLink ?? "",
     meetingPlatform: initialData.meetingPlatform ?? "",
     meetingLinkSource: source,

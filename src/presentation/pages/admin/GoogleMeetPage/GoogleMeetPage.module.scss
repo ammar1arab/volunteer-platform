@@ -9,17 +9,6 @@
   min-width: 0;
 }
 
-.warn {
-  @include alert-warning;
-  animation: none;
-  text-align: start;
-  margin: 0;
-  padding: $sp-sm $sp-md;
-  font-size: $font-xs;
-  font-weight: 600;
-  line-height: 1.6;
-}
-
 .header {
   margin-bottom: 0;
 }
@@ -155,29 +144,11 @@
   word-break: break-all;
 }
 
-.checked {
-  margin: 0;
-  font-size: $font-xs;
-  color: $text-muted;
-}
-
 .error {
   margin: 0;
   font-size: $font-xs;
   color: $red;
   line-height: 1.5;
-}
-
-.scopes {
-  @include flex(row, center, flex-start, 6px);
-  flex-wrap: wrap;
-}
-
-.chip {
-  @include status-badge;
-  background: rgba($green, 0.08);
-  color: $green;
-  border: 1px solid rgba($green, 0.22);
 }
 
 .muted {

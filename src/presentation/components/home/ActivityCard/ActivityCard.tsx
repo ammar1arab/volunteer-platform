@@ -7,7 +7,7 @@ import type { ActivityDto } from "@/core/application/dtos";
 import { ActivityType } from "@/core/domain/enums";
 import { getMonthLabel, getActivityTypeLabel, getCityLabel, ROUTES } from "@/presentation/constants";
 import { Share, Modal } from "@/presentation/components";
-import { MapPin, Clock, Users, Share2, ExternalLink, Wifi, MapPinned, Timer, Calendar } from "lucide-react";
+import { MapPin, Clock, Users, Share2, Wifi, MapPinned, Timer, Calendar } from "lucide-react";
 
 type Props = { activity: ActivityDto; actionButton?: React.ReactNode };
 
@@ -101,13 +101,8 @@ const ActivityCard = ({ activity, actionButton }: Props) => {
                 <MapPin size={11} />
                 <span>{activity.placeName ?? "—"}{activity.city ? ` · ${getCityLabel(activity.city)}` : ""}</span>
               </div>
-            ) : activity.meetingLink ? (
-              <a href={activity.meetingLink} target="_blank" rel="noopener noreferrer"
-                className={styles.meetingLink} onClick={(e) => e.stopPropagation()}>
-                <ExternalLink size={11} /><span>رابط الاجتماع</span>
-              </a>
             ) : (
-              <div className={styles.locationInfo}><Wifi size={11} /><span>إلكتروني</span></div>
+              <div className={styles.locationInfo}><Wifi size={11} /><span>نشاط إلكتروني</span></div>
             )}
             {isInPerson && mapsUrl && (
               <button type="button" className={styles.mapsBtn}

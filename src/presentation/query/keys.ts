@@ -49,7 +49,7 @@ export const queryKeys = {
   },
   meetings: {
     all: ["meetings"] as const,
-    list: (filter: "upcoming" | "finished" | "all") => ["meetings", "list", filter] as const,
+    list: (filter: "upcoming" | "finished" | "all" | "failed") => ["meetings", "list", filter] as const,
     launch: (activityId: string) => ["meetings", "launch", activityId] as const,
     report: (activityId: string) => ["meetings", "report", activityId] as const,
     googleStatus: () => ["meetings", "google-status"] as const

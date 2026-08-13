@@ -20,6 +20,7 @@ import {
   NotificationType,
   PresenterRole
 } from "@/core/domain/enums";
+import { dayOfWeekFromDate } from "@/lib/utils";
 import {
   ok,
   fail,
@@ -183,8 +184,8 @@ class ActivityUseCase {
         title: sanitized.title!,
         description: sanitized.description!,
         imageUrl: dto.imageUrl,
-        dayOfWeek: dto.dayOfWeek,
         date: new Date(dto.date),
+        dayOfWeek: dayOfWeekFromDate(dto.date),
         startTime: dto.startTime,
         endTime: dto.endTime,
         durationHours: dto.durationHours,
@@ -245,8 +246,13 @@ class ActivityUseCase {
         ...(sanitized.description !== undefined && { description: sanitized.description }),
         ...(sanitized.placeName !== undefined && { placeName: sanitized.placeName }),
         ...(dto.imageUrl !== undefined && { imageUrl: dto.imageUrl }),
-        ...(dto.dayOfWeek !== undefined && { dayOfWeek: dto.dayOfWeek }),
-        ...(dto.date !== undefined && { date: new Date(dto.date) }),
+        ...(dto.date !== undefined && {
+          date: new Date(dto.date),
+          dayOfWeek: dayOfWeekFromDate(dto.date)
+        }),
+        ...(dto.date === undefined && dto.dayOfWeek !== undefined && {
+          dayOfWeek: dayOfWeekFromDate(before.date)
+        }),
         ...(dto.startTime !== undefined && { startTime: dto.startTime }),
         ...(dto.endTime !== undefined && { endTime: dto.endTime }),
         ...(dto.durationHours !== undefined && { durationHours: dto.durationHours }),

@@ -31,6 +31,22 @@ const AdminActivityCard = ({ activity, meta, actions }: AdminActivityCardProps) 
 
   const isInPerson = activity.activityType === ActivityType.IN_PERSON;
   const isCompleted = activity.status === ActivityStatus.COMPLETED;
+  const isAutoMeet = activity.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO;
+  const meetStatus = (
+    <>
+      {isAutoMeet && <MeetingStatusBadge status={activity.meetingSyncStatus} />}
+      {activity.meetingSyncStatus === MeetingSyncStatus.FAILED && (
+        <Link
+          href={ROUTES.ADMIN.GOOGLE_MEET}
+          className={styles.meetManageLink}
+          onClick={(e) => e.stopPropagation()}
+          title="إدارة الاجتماعات"
+        >
+          إدارة الاجتماع
+        </Link>
+      )}
+    </>
+  );
 
   return (
     <>
@@ -120,19 +136,19 @@ const AdminActivityCard = ({ activity, meta, actions }: AdminActivityCardProps) 
                   <ExternalLink size={11} />
                   <span>رابط الاجتماع</span>
                 </a>
-                {activity.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO && (
-                  <MeetingStatusBadge status={activity.meetingSyncStatus} />
-                )}
-                {activity.meetingSyncStatus === MeetingSyncStatus.FAILED && (
-                  <Link
-                    href={ROUTES.ADMIN.GOOGLE_MEET}
-                    className={styles.meetManageLink}
-                    onClick={(e) => e.stopPropagation()}
-                    title="إدارة الاجتماعات"
-                  >
-                    إدارة الاجتماع
-                  </Link>
-                )}
+                {meetStatus}
+              </div>
+            ) : isAutoMeet ? (
+              <div className={styles.onlineMeta}>
+                <div className={styles.locationInfo}>
+                  <Wifi size={11} />
+                  <span>
+                    {activity.meetingSyncStatus === MeetingSyncStatus.FAILED
+                      ? "تعذر إنشاء الرابط"
+                      : "الرابط قيد الإنشاء"}
+                  </span>
+                </div>
+                {meetStatus}
               </div>
             ) : (
               <div className={styles.locationInfo}>

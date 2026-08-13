@@ -145,17 +145,7 @@ export const processDueMeetingReports = inngest.createFunction(
           meetingSyncStatus: MeetingSyncStatus.SYNCED,
           OR: [
             { meetingReport: null },
-            {
-              meetingReport: {
-                status: {
-                  in: [
-                    MeetingReportStatus.PENDING,
-                    MeetingReportStatus.FAILED,
-                    MeetingReportStatus.UNAVAILABLE
-                  ]
-                }
-              }
-            }
+            { meetingReport: { status: MeetingReportStatus.PENDING } }
           ]
         },
         select: {

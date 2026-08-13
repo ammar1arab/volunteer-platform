@@ -27,6 +27,7 @@ import {
 import { useUsers, useGoogleIntegrationStatus } from "@/presentation/hooks";
 import { useMemo } from "react";
 import { ROUTES } from "@/presentation/constants";
+import { dayOfWeekFromDate } from "@/lib/utils";
 import Link from "next/link";
 
 type Props = {
@@ -116,12 +117,16 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
 
         <div className={styles.row}>
           <div className={styles.field}>
-            <SelectInput label="اليوم" value={form.dayOfWeek} options={DAY_OPTIONS} required
+            <SelectInput label="اليوم" value={form.dayOfWeek} options={DAY_OPTIONS} required disabled
               onChange={(value) => setForm((p) => ({ ...p, dayOfWeek: value as DayOfWeek }))} />
           </div>
           <div className={styles.field}>
             <BirthDateInput label="التاريخ" value={form.date} required allowFuture
-              onChange={(value) => setForm((p) => ({ ...p, date: value }))} />
+              onChange={(value) => setForm((p) => ({
+                ...p,
+                date: value,
+                dayOfWeek: dayOfWeekFromDate(value)
+              }))} />
           </div>
         </div>
 
@@ -217,9 +222,8 @@ const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUp
                 {googleIntegration && !googleIntegration.connected && (
                   <p className={styles.meetWarn}>
                     <AlertTriangle size={14} />
-                    Google غير متصل حالياً.{" "}
-                    <Link href={ROUTES.ADMIN.GOOGLE_MEET}>اربط الحساب من إدارة الاجتماعات</Link>
-                    {" "}قبل النشر التلقائي.
+                    Google غير متصل حالياً. يمكنك النشر الآن، وسيُنشأ الرابط بعد{" "}
+                    <Link href={ROUTES.ADMIN.GOOGLE_MEET}>ربط الحساب من إدارة الاجتماعات</Link>.
                   </p>
                 )}
                 {mode === "edit" && initialData?.meetingSyncStatus && (

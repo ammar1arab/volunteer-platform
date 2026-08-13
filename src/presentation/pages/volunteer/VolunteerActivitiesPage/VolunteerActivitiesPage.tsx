@@ -85,6 +85,7 @@ const VolunteerActivitiesPage = () => {
               {paginated.map(p => (
                 <ActivityItem
                   key={p.id}
+                  activityId={p.activityId}
                   title={p.activity?.title ?? "فرصة تطوعية"}
                   description={p.activity?.description ?? ""}
                   date={p.activity?.date ?? ""}

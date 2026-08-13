@@ -9,9 +9,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LoadingState, Button, Share, Modal } from "@/presentation/components";
 import { useActivityDetails, useActivityParticipations, useToast } from "@/presentation/hooks";
-import { getMonthLabel, getCityLabel, getActivityTypeLabel, ROUTES } from "@/presentation/constants";
+import { getMonthLabel, getCityLabel, getActivityTypeLabel, canOpenMeetingLobby, ROUTES } from "@/presentation/constants";
 import { ActivityType } from "@/core/domain/enums";
-import { ArrowRight, MapPin, Calendar, Clock, Users, Share2, CheckCircle2, XCircle, Wifi, MapPinned, Timer, ExternalLink } from "lucide-react";
+import { ArrowRight, MapPin, Calendar, Clock, Users, Share2, CheckCircle2, XCircle, Wifi, MapPinned, Timer } from "lucide-react";
 
 const ActivityDetailsPage = () => {
   const params  = useParams();
@@ -35,9 +35,27 @@ const ActivityDetailsPage = () => {
     if (!activity) return null;
     if (!session)  return <Button variant="primary" size="md" onClick={() => router.push(ROUTES.LOGIN)}>تسجيل الدخول للانضمام</Button>;
     const request = getRequestForActivity(activity.id);
-    if (activity.isFull)                    return <Button variant="ghost" size="md" disabled>اكتمل العدد</Button>;
+    if (request?.status === "APPROVED") {
+      if (canOpenMeetingLobby({
+        activityType: activity.activityType,
+        activityStatus: activity.status,
+        participationStatus: request.status
+      })) {
+        return (
+          <Button
+            variant="primary"
+            size="md"
+            icon={<Wifi size={16} />}
+            onClick={() => router.push(ROUTES.VOLUNTEER.MEETING_LOBBY(activity.id))}
+          >
+            انضم للاجتماع
+          </Button>
+        );
+      }
+      return <Button variant="ghost" size="md" disabled>أنت مشارك</Button>;
+    }
     if (request?.status === "PENDING")      return <Button variant="ghost" size="md" disabled>قيد المراجعة</Button>;
-    if (request?.status === "APPROVED")     return <Button variant="ghost" size="md" disabled>أنت مشارك</Button>;
+    if (activity.isFull)                    return <Button variant="ghost" size="md" disabled>اكتمل العدد</Button>;
     return <Button variant="primary" size="md" loading={submitting} onClick={handleJoin}>انضم الآن</Button>;
   };
 
@@ -152,12 +170,6 @@ const ActivityDetailsPage = () => {
                   <div className={`${styles.locationIconWrap} ${styles.onlineIcon}`}><Wifi size={16} /></div>
                   <div className={styles.locationText}>
                     <span className={styles.placeName}>نشاط إلكتروني</span>
-                    {activity.meetingLink && (
-                      <a href={activity.meetingLink} target="_blank" rel="noopener noreferrer"
-                        className={styles.meetingLinkText}>
-                        {activity.meetingLink}
-                      </a>
-                    )}
                   </div>
                 </div>
               )}
@@ -167,12 +179,6 @@ const ActivityDetailsPage = () => {
                 <button className={styles.mapsBtn} onClick={() => setLocationModalOpen(true)}>
                   <MapPin size={12} /> افتح الخريطة
                 </button>
-              )}
-              {!isInPerson && activity.meetingLink && (
-                <a href={activity.meetingLink} target="_blank" rel="noopener noreferrer"
-                  className={styles.meetingBtn}>
-                  <ExternalLink size={12} /> انضم اونلاين
-                </a>
               )}
             </div>
 

@@ -26,7 +26,7 @@ export type GetGoogleConnectUrlResponse = Result<{ url: string; state: string }>
 export type DisconnectGoogleMeetResponse = Result<{ disconnected: boolean }>;
 export type HandleGoogleOAuthCallbackResponse = Result<{ connected: boolean; email: string }>;
 
-export type OnlineMeetingFilter = "upcoming" | "finished" | "all";
+export type OnlineMeetingFilter = "upcoming" | "finished" | "all" | "failed";
 
 export interface MeetingReportSummaryDto {
   status: MeetingReportStatus | string;

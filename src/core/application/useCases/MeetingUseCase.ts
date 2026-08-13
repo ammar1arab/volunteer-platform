@@ -535,6 +535,7 @@ class MeetingUseCase {
         where: {
           deletedAt: null,
           activityType: ActivityType.ONLINE,
+          ...(filter === "failed" ? { meetingSyncStatus: MeetingSyncStatus.FAILED } : {}),
           OR: [
             { meetingLink: { not: null } },
             { meetingLinkSource: MeetingLinkSource.GOOGLE_MEET_AUTO }
@@ -566,7 +567,7 @@ class MeetingUseCase {
 
       const meetings: OnlineMeetingListItemDto[] = rows
         .filter((row) => {
-          if (filter === "all") return true;
+          if (filter === "all" || filter === "failed") return true;
           const end = this.buildComparableDateTime(row.date, row.endTime);
           if (filter === "upcoming") return end >= now;
           return end < now;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { MeetingSyncStatus } from "@/core/domain/enums";
 import {
   meetingsApi,
   type MeetingsFilter,
@@ -51,7 +52,12 @@ export const useMeetings = (opts?: { filter?: MeetingsFilter; enabled?: boolean 
     options: {
       enabled: opts?.enabled ?? true,
       staleTime: 20_000,
-      keepPrevious: true
+      keepPrevious: true,
+      refetchInterval: (query) => {
+        const rows = query.state.data;
+        if (!Array.isArray(rows)) return false;
+        return rows.some((row) => row.meetingSyncStatus === MeetingSyncStatus.PENDING) ? 5000 : false;
+      }
     }
   });
 

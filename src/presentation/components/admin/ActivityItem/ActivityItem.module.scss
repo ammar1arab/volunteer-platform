@@ -228,6 +228,15 @@
   }
 }
 
+.linkPending {
+  padding: 4px 12px;
+  border-radius: $radius;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+  background: rgba($border, 0.4);
+}
+
 .mapBtn {
   @include flex(row, center, center, 5px);
   padding: 4px 12px;

@@ -1,3 +1,22 @@
+import { DayOfWeek } from "@/core/domain/enums";
+
+const DAYS_BY_UTC_INDEX: DayOfWeek[] = [
+  DayOfWeek.SUNDAY,
+  DayOfWeek.MONDAY,
+  DayOfWeek.TUESDAY,
+  DayOfWeek.WEDNESDAY,
+  DayOfWeek.THURSDAY,
+  DayOfWeek.FRIDAY,
+  DayOfWeek.SATURDAY
+];
+
+/** Calendar day from a date-only value (YYYY-MM-DD or ISO), independent of local TZ. */
+export const dayOfWeekFromDate = (input: Date | string): DayOfWeek => {
+  const iso = (typeof input === "string" ? input : input.toISOString()).slice(0, 10);
+  const [year, month, day] = iso.split("-").map(Number);
+  return DAYS_BY_UTC_INDEX[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
+};
+
 export const formatDateForInput = (date: Date | string): string => {
   const d = typeof date === "string" ? new Date(date) : date;
   const year = d.getFullYear();
