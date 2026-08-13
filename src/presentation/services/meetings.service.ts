@@ -56,6 +56,7 @@ export type MeetingLaunchDto = {
   date?: string;
   startTime?: string;
   endTime?: string;
+  timeZone?: string;
 };
 
 export type MeetingReportAttendeeDto = {

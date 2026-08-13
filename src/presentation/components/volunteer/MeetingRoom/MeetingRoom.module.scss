@@ -3,9 +3,11 @@
 
 .room {
   @include flex-col;
-  gap: $sp-md;
+  gap: $sp-sm;
   width: 100%;
   min-width: 0;
+  flex: 1;
+  min-height: 0;
 }
 
 .topBar {
@@ -21,12 +23,43 @@
   flex: 1;
 }
 
+.titleRow {
+  @include flex(row, center, flex-start, $sp-sm);
+  min-width: 0;
+}
+
 .title {
   margin: 0;
   font-size: $font-lg;
   font-weight: 800;
   color: $text;
   line-height: 1.4;
+  @include truncate;
+}
+
+.phase {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 5px 8px;
+  border-radius: $radius-full;
+  letter-spacing: 0.02em;
+}
+
+.live {
+  background: rgba($green, 0.12);
+  color: $green;
+}
+
+.upcoming {
+  background: rgba($blue, 0.1);
+  color: $blue;
+}
+
+.ended {
+  background: rgba($text-muted, 0.12);
+  color: $text-muted;
 }
 
 .meta {
@@ -62,16 +95,17 @@
   position: relative;
   width: 100%;
   min-width: 0;
-  height: calc(100vh - 200px);
-  min-height: 560px;
+  flex: 1;
+  height: calc(100dvh - 148px);
+  min-height: 420px;
   border: 1px solid $border;
   border-radius: $radius-lg;
   overflow: hidden;
   background: #111827;
 
   @include sm {
-    height: calc(100vh - 160px);
-    min-height: 420px;
+    height: calc(100dvh - 132px);
+    min-height: 320px;
     border-radius: $radius-md;
   }
 }
@@ -90,4 +124,25 @@
   @include flex-center;
   background: #111827;
   z-index: 1;
+}
+
+.failed {
+  @include flex-col;
+  align-items: center;
+  gap: $sp-md;
+  color: #e5e7eb;
+  text-align: center;
+  padding: $sp-lg;
+
+  p {
+    margin: 0;
+    font-size: $font-sm;
+    font-weight: 700;
+  }
+}
+
+.retryBtn {
+  @include btn-primary;
+  @include flex(row, center, center, 6px);
+  padding: $sp-sm $sp-lg;
 }

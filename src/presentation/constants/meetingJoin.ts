@@ -22,3 +22,6 @@ export const getOnlineMeetingJoinState = (input: MeetingJoinInput): OnlineMeetin
   if (!canOpenMeetingLobby(input)) return "hidden";
   return input.meetingLink?.trim() ? "join" : "pending";
 };
+
+export const isVolunteerMeetingPath = (pathname: string | null | undefined) =>
+  Boolean(pathname && /\/volunteer\/activities\/[^/]+\/meeting\/?$/.test(pathname));

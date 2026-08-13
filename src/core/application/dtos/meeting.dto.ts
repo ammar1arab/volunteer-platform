@@ -72,6 +72,7 @@ export type GetMeetingLaunchUrlResponse = Result<{
   date?: string;
   startTime?: string;
   endTime?: string;
+  timeZone?: string;
 }>;
 export type EnqueueMeetingSyncResponse = Result<{ operationId: string }>;
 

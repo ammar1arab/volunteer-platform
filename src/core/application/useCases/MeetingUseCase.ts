@@ -651,6 +651,19 @@ class MeetingUseCase {
       if (!activity) return fail("NOT_FOUND", "النشاط غير موجود");
 
       const props = activity.toObject();
+      if (props.activityType !== ActivityType.ONLINE) {
+        return fail("INVALID_STATE", "هذا النشاط ليس اجتماعاً إلكترونياً");
+      }
+      if (props.status === ActivityStatus.CANCELLED) {
+        return fail("INVALID_STATE", "تم إلغاء هذا النشاط");
+      }
+      if (role !== UserRole.ADMIN && props.status !== ActivityStatus.PUBLISHED) {
+        return fail(
+          "INVALID_STATE",
+          props.status === ActivityStatus.COMPLETED ? "انتهى هذا الاجتماع" : "الاجتماع غير متاح حالياً"
+        );
+      }
+
       const link = props.meetingLink;
       if (!link) return fail("INVALID_STATE", "رابط الاجتماع غير متوفر بعد");
 
@@ -659,7 +672,8 @@ class MeetingUseCase {
         title: props.title,
         date: props.date instanceof Date ? props.date.toISOString() : String(props.date),
         startTime: props.startTime,
-        endTime: props.endTime
+        endTime: props.endTime,
+        timeZone: props.timeZone
       };
 
       if (role === UserRole.ADMIN) {

@@ -1,80 +1,67 @@
 "use client";
 
+import type { ReactNode } from "react";
 import styles from "./MeetingLobbyPage.module.scss";
 import { useRouter } from "next/navigation";
 import { LoadingState, EmptyState, MeetingRoom } from "@/presentation/components";
-import { ROUTES } from "@/presentation/constants";
 import { VideoOff, ShieldOff, CalendarClock } from "lucide-react";
 import { useMeetingLobbyPage } from "./MeetingLobbyPage.logic";
 
 const MeetingLobbyPage = () => {
   const router = useRouter();
-  const { view, launch, error, activityId, displayName } = useMeetingLobbyPage();
+  const { view, launch, error, activityId, displayName, refresh, leaveHref } = useMeetingLobbyPage();
+  const goBack = () => router.push(leaveHref);
+  const live = view === "ready";
 
-  const backToActivities = () => router.push(ROUTES.VOLUNTEER.ACTIVITIES);
-
+  let body: ReactNode;
   if (view === "loading") {
-    return (
-      <div className={styles.page}>
-        <div className={styles.container}>
-          <LoadingState />
-        </div>
-      </div>
+    body = <LoadingState />;
+  } else if (view === "notFound") {
+    body = (
+      <EmptyState
+        icon={VideoOff}
+        message="النشاط غير موجود"
+        action={{ label: "العودة", onClick: goBack }}
+      />
     );
-  }
-
-  if (view === "notFound") {
-    return (
-      <div className={styles.page}>
-        <div className={styles.container}>
-          <EmptyState
-            icon={VideoOff}
-            message="النشاط غير موجود"
-            action={{ label: "العودة للفرص", onClick: backToActivities }}
-          />
-        </div>
-      </div>
+  } else if (view === "empty") {
+    body = (
+      <EmptyState
+        icon={CalendarClock}
+        message={error || "رابط الاجتماع غير متوفر بعد"}
+        action={{ label: "العودة", onClick: goBack }}
+      />
     );
-  }
-
-  if (view === "empty") {
-    return (
-      <div className={styles.page}>
-        <div className={styles.container}>
-          <EmptyState
-            icon={CalendarClock}
-            message="رابط الاجتماع غير متوفر بعد"
-            action={{ label: "العودة للفرص", onClick: backToActivities }}
-          />
-        </div>
-      </div>
+  } else if (view === "forbidden") {
+    body = (
+      <EmptyState
+        icon={ShieldOff}
+        message={error || "ليس لديك صلاحية للانضمام إلى هذا الاجتماع"}
+        action={{ label: "العودة", onClick: goBack }}
+      />
     );
-  }
-
-  if (view === "error" || !launch) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.container}>
-          <EmptyState
-            icon={error?.includes("صلاحية") ? ShieldOff : VideoOff}
-            message={error || "تعذر فتح هذا الاجتماع حالياً"}
-            action={{ label: "العودة للفرص", onClick: backToActivities }}
-          />
-        </div>
-      </div>
+  } else if (view === "error" || !launch) {
+    body = (
+      <EmptyState
+        icon={VideoOff}
+        message={error || "تعذر فتح هذا الاجتماع حالياً"}
+        action={{ label: "إعادة المحاولة", onClick: refresh }}
+      />
+    );
+  } else {
+    body = (
+      <MeetingRoom
+        activityId={activityId}
+        displayName={displayName}
+        launch={launch}
+        onLeave={goBack}
+      />
     );
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <MeetingRoom
-          activityId={activityId}
-          displayName={displayName}
-          launch={launch}
-          onLeave={backToActivities}
-        />
-      </div>
+    <div className={`${styles.page} ${live ? styles.live : ""}`}>
+      <div className={`${styles.container} ${live ? styles.containerLive : ""}`}>{body}</div>
     </div>
   );
 };
