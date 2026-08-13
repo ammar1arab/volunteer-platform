@@ -7,7 +7,30 @@ import type { Notification as PrismaNotification, NotificationType as PrismaNoti
 import { prisma } from "@/infrastructure/persistence/prisma";
 import { Notification } from "@/core/domain/entities";
 import { NotificationType } from "@/core/domain/enums";
+import type { NotificationMetadata } from "@/core/domain/interfaces";
 import { JordanianCity, Gender } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
+
+const KEEP_PER_USER = 50;
+
+function parseNotificationMetadata(value: Prisma.JsonValue | null): NotificationMetadata | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value;
+  const metadata: NotificationMetadata = {};
+  if (typeof record.activityId === "string") metadata.activityId = record.activityId;
+  if (typeof record.activityType === "string") metadata.activityType = record.activityType;
+  if (typeof record.link === "string") metadata.link = record.link;
+  if (typeof record.certificateId === "string") metadata.certificateId = record.certificateId;
+  if (typeof record.hours === "number") metadata.hours = record.hours;
+  if (typeof record.icon === "string") metadata.icon = record.icon;
+  if (typeof record.broadcastId === "string") metadata.broadcastId = record.broadcastId;
+  if (typeof record.totalRecipients === "number") metadata.totalRecipients = record.totalRecipients;
+  if (typeof record.target === "string") metadata.target = record.target;
+  if (typeof record.targetValue === "string" || record.targetValue === null) {
+    metadata.targetValue = record.targetValue;
+  }
+  return metadata;
+}
 
 const KEEP_PER_USER = 50;
 
@@ -16,7 +39,7 @@ class NotificationRepository implements INotificationRepository {
     return new Notification({
       ...data,
       type: data.type as NotificationType,
-      metadata: (data.metadata as Record<string, unknown>) ?? null
+      metadata: parseNotificationMetadata(data.metadata)
     });
   }
 
@@ -28,7 +51,7 @@ class NotificationRepository implements INotificationRepository {
         type: item.type as PrismaNotificationType,
         title: item.title,
         message: item.message,
-        metadata: item.metadata ? JSON.parse(JSON.stringify(item.metadata)) : undefined
+        metadata: item.metadata ?? undefined
       }))
     });
     const uniqueUserIds = [...new Set(data.map((d) => d.userId))];

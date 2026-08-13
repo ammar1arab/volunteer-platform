@@ -9,8 +9,8 @@ import { getErrorMessage } from "../utils/errors";
 
 
 
-export function useBooleanMutation<TVariables>(params: {
-  request: (variables: TVariables) => Promise<unknown>;
+export function useBooleanMutation<TVariables, TData = void>(params: {
+  request: (variables: TVariables) => Promise<TData>;
   invalidateQueries?: QueryKey | QueryKey[];
   fallbackError?: string;
 }) {
@@ -25,7 +25,7 @@ export function useBooleanMutation<TVariables>(params: {
     []
   );
 
-  const mutation = useApiMutation<unknown, TVariables>({
+  const mutation = useApiMutation<TData, TVariables>({
     request: stableRequest,
     invalidateQueries: params.invalidateQueries
   });
@@ -39,7 +39,7 @@ export function useBooleanMutation<TVariables>(params: {
         await mutateAsync(variables);
         return true;
       } catch (err) {
-        setError(getErrorMessage(err, fallbackRef.current));
+        setError(getErrorMessage(err instanceof Error ? err : String(err), fallbackRef.current));
         return false;
       }
     },

@@ -5,6 +5,12 @@ import { useIsClient } from "@/presentation/query";
 export type LatLng = { lat: number; lng: number };
 export type SearchResult = { label: string; lat: number; lng: number };
 
+interface NominatimSearchHit {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
 interface State {
   searchQuery:   string;
   searchResults: SearchResult[];
@@ -81,9 +87,9 @@ export const useLocationPicker = ({ latitude, longitude, onChange }: Props) => {
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(state.searchQuery)}&limit=5`,
         { headers: { "Accept-Language": "ar" } }
       );
-      const data = await res.json();
+      const data: NominatimSearchHit[] = await res.json();
       if (!data.length) dispatch({ type: "SEARCH_ERR", payload: "لم يتم العثور على نتائج" });
-      else dispatch({ type: "SET_RESULTS", payload: data.map((d: any) => ({
+      else dispatch({ type: "SET_RESULTS", payload: data.map((d) => ({
         label: d.display_name, lat: parseFloat(d.lat), lng: parseFloat(d.lon),
       }))});
     } catch {

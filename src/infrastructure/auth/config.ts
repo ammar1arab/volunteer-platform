@@ -75,7 +75,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (dbUser && dbUser.tokenVersion > (token.tokenVersion as number)) {
-          return null as unknown as JWT;
+          return { ...token, id: "" };
         }
       }
 
@@ -83,7 +83,20 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      if (!token?.id) return { ...session, user: undefined as any };
+      if (!token?.id) {
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: "",
+            role: UserRole.VOLUNTEER,
+            profilePictureUrl: null,
+            isSuperAdmin: false,
+            permissions: [],
+            tokenVersion: 0
+          }
+        };
+      }
 
       if (session.user) {
         session.user.id                = token.id as string;

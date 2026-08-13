@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { useIsClient } from "@/presentation/query";
 import { FileDown, Download } from "lucide-react";
 import { Modal } from "@/presentation/components";
-import { useExportUsersButton } from "./ExportUsersButton.logic";
+import { useExportUsersButton, type ExcelExportRow } from "./ExportUsersButton.logic";
 import styles from "./ExportUsersButton.module.scss";
 
 interface Column {
@@ -13,7 +13,7 @@ interface Column {
 }
 
 interface ExportUsersButtonProps {
-  data: any[];
+  data: ExcelExportRow[];
   columns: Column[];
   buttonText?: string;
 }

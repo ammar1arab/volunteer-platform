@@ -5,7 +5,7 @@ import { useVolunteerSpotlightPage } from "./VolunteerSpotlightPage.logic";
 import Image from "next/image";
 import { AdminVolunteerSpotlightCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, Dropdown, SelectInput, Search, } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, Users, User } from "lucide-react";
-import { MONTH_LABELS } from "@/presentation/constants";
+import { MONTH_LABELS, isJordanianCity } from "@/presentation/constants";
 
 const VolunteerSpotlightPage = () => {
     const {
@@ -141,7 +141,10 @@ const VolunteerSpotlightPage = () => {
                             label="المدينة"
                             value={form.city}
                             options={cityOptions}
-                            onChange={(value) => setForm((p) => ({ ...p, city: value as any }))}
+                            onChange={(value) => {
+                                if (!isJordanianCity(value)) return;
+                                setForm((p) => ({ ...p, city: value }));
+                            }}
                             required
                         />
                         <SelectInput

@@ -141,8 +141,11 @@ export default function Chatbot() {
         }
 
         if (!isOpen) setHasUnread(true);
-      } catch (err: unknown) {
-        if ((err as Error)?.name !== "AbortError") {
+      } catch (err) {
+        const aborted =
+          (err instanceof DOMException && err.name === "AbortError") ||
+          (err instanceof Error && err.name === "AbortError");
+        if (!aborted) {
           setMessages((prev) =>
             prev.map((m) =>
               m.id === botId

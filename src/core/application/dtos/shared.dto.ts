@@ -1,15 +1,17 @@
+import type { JordanianCity } from "@/core/domain/enums";
+
 export interface UserSummaryDto {
   id: string;
   fullName: string;
   email: string;
   phone: string;
-  city?: string;
+  city?: JordanianCity;
 }
 
 export interface VolunteerProfileSummaryDto {
   profilePictureUrl?: string;
   membershipNumber?: string;
-  city?: string;
+  city?: JordanianCity;
   dateOfBirth?: string;
   gender?: string;
   bio?: string;

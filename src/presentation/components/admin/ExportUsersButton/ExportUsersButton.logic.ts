@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback } from "react";
 import * as XLSX from "xlsx";
 
 interface Column {
@@ -8,7 +8,10 @@ interface Column {
   label: string;
 }
 
-export const useExportUsersButton = (data: any[], allColumns: Column[]) => {
+export type ExcelCellValue = string | number;
+export type ExcelExportRow = Record<string, ExcelCellValue>;
+
+export const useExportUsersButton = (data: ExcelExportRow[], allColumns: Column[]) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
     () => allColumns.map(col => col.key)
@@ -34,10 +37,11 @@ export const useExportUsersButton = (data: any[], allColumns: Column[]) => {
   const exportToExcel = useCallback(() => {
     const columns = allColumns.filter(col => selectedColumns.includes(col.key));
     
-    const exportData = data.map(item => {
-      const row: any = {};
-      columns.forEach(col => {
-        row[col.label] = item[col.key] || "-";
+    const exportData = data.map((item) => {
+      const row: ExcelExportRow = {};
+      columns.forEach((col) => {
+        const cell = item[col.key];
+        row[col.label] = cell === undefined || cell === "" ? "-" : cell;
       });
       return row;
     });

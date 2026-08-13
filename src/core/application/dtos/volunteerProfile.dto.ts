@@ -4,7 +4,7 @@ import type { Result } from "./base.dto";
 export interface VolunteerProfileDto {
   id: string;
   userId: string;
-  city: string;
+  city: JordanianCity;
   dateOfBirth: string;
   profilePictureUrl?: string | null;
   membershipNumber?: string | null;

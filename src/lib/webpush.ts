@@ -33,8 +33,12 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
           JSON.stringify(payload),
           { TTL: 86400 },
         );
-      } catch (err: any) {
-        if (err?.statusCode === 404 || err?.statusCode === 410) {
+      } catch (err) {
+        const statusCode =
+          err instanceof Error && "statusCode" in err && typeof err.statusCode === "number"
+            ? err.statusCode
+            : undefined;
+        if (statusCode === 404 || statusCode === 410) {
           dead.push(sub.endpoint);
         }
       }

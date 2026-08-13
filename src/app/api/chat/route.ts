@@ -21,14 +21,21 @@ interface ChatMessage {
   content: string;
 }
 
-function isRateLimitError(err: unknown): boolean {
-  if (typeof err !== "object" || err === null) return false;
-  const e = err as { status?: number; message?: string; error?: { type?: string } };
+function isRateLimitError(err: Error): boolean {
+  const status = "status" in err && typeof err.status === "number" ? err.status : undefined;
+  const nestedType =
+    "error" in err &&
+    typeof err.error === "object" &&
+    err.error !== null &&
+    "type" in err.error &&
+    typeof err.error.type === "string"
+      ? err.error.type
+      : undefined;
   return (
-    e.status === 429 ||
-    e.error?.type === "rate_limit_exceeded" ||
-    (typeof e.message === "string" &&
-      (e.message.includes("429") || e.message.includes("rate_limit")))
+    status === 429 ||
+    nestedType === "rate_limit_exceeded" ||
+    err.message.includes("429") ||
+    err.message.includes("rate_limit")
   );
 }
 
@@ -90,7 +97,7 @@ export async function POST(req: Request): Promise<Response> {
   try {
     streamResponse = await callGroq(groq, MODEL_PRIMARY, groqMessages);
   } catch (primaryErr) {
-    if (!isRateLimitError(primaryErr)) {
+    if (!(primaryErr instanceof Error) || !isRateLimitError(primaryErr)) {
       console.error("[chat] Groq error:", primaryErr);
       return textStream(MSG_ERROR);
     }
@@ -100,7 +107,9 @@ export async function POST(req: Request): Promise<Response> {
       modelUsed      = MODEL_FALLBACK;
     } catch (fallbackErr) {
       console.error("[chat] Fallback model also failed:", fallbackErr);
-      return textStream(isRateLimitError(fallbackErr) ? MSG_RATE_LIMIT : MSG_ERROR);
+      return textStream(
+        fallbackErr instanceof Error && isRateLimitError(fallbackErr) ? MSG_RATE_LIMIT : MSG_ERROR
+      );
     }
   }
 
@@ -116,7 +125,7 @@ export async function POST(req: Request): Promise<Response> {
         }
       } catch (err) {
         console.error("[chat] Stream error:", err);
-        controller.enqueue(encoder.encode("\n\n" + (isRateLimitError(err) ? MSG_RATE_LIMIT : MSG_ERROR)));
+        controller.enqueue(encoder.encode("\n\n" + (err instanceof Error && isRateLimitError(err) ? MSG_RATE_LIMIT : MSG_ERROR)));
       } finally {
         controller.close();
       }

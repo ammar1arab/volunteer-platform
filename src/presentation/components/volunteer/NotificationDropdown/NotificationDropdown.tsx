@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import styles from "./NotificationDropdown.module.scss";
 import type { NotificationDto } from "@/core/application/dtos";
+import type { NotificationMetadata } from "@/core/domain/interfaces";
 import { NotificationType } from "@/core/domain/enums";
 import { relativeTime } from "@/lib/utils";
 
@@ -19,7 +20,7 @@ interface Props {
   onClose: () => void;
 }
 
-const getNotificationIcon = (type: string, metadata?: Record<string, unknown>) => {
+const getNotificationIcon = (type: string, metadata?: NotificationMetadata | null) => {
   if (type === NotificationType.HOURS_MILESTONE) {
     const map: Record<string, React.ReactNode> = {
       Sprout: <Sprout size={15} />,
@@ -28,7 +29,7 @@ const getNotificationIcon = (type: string, metadata?: Record<string, unknown>) =
       Crown: <Crown size={15} />,
       Rocket: <Rocket size={15} />,
     };
-    return map[(metadata?.icon as string) ?? ""] ?? <Award size={15} />;
+    return map[metadata?.icon ?? ""] ?? <Award size={15} />;
   }
   const map: Partial<Record<string, React.ReactNode>> = {
     [NotificationType.WELCOME]: <Gift size={15} />,

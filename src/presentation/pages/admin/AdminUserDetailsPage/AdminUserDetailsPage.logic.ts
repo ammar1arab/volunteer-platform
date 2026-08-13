@@ -5,10 +5,11 @@ import { useUserDetails, useToast, useAuth, usePageReset } from "@/presentation/
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { ParticipationStatus, UserRole } from "@/core/domain/enums";
 import { ROUTES } from "@/presentation/constants";
+import type { ExcelExportRow } from "@/presentation/components/admin/ExportUsersButton/ExportUsersButton.logic";
 
 interface EditingField {
   field: string;
-  value: unknown;
+  value: string | boolean | null;
 }
 
 const ITEMS_PER_PAGE = 5;
@@ -45,9 +46,9 @@ export const useAdminUserDetailsPage = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
 
-  const startEditing = useCallback((field: string, value: unknown) => setEditingField({ field, value }), []);
+  const startEditing = useCallback((field: string, value: string | boolean | null) => setEditingField({ field, value }), []);
   const cancelEditing = useCallback(() => setEditingField(null), []);
-  const updateFieldValue = useCallback((value: unknown) => setEditingField((p) => (p ? { ...p, value } : null)), []);
+  const updateFieldValue = useCallback((value: string | boolean | null) => setEditingField((p) => (p ? { ...p, value } : null)), []);
 
   const saveField = useCallback(async () => {
     if (!editingField) return;
@@ -105,7 +106,7 @@ export const useAdminUserDetailsPage = () => {
     [activities]
   );
 
-  const exportData = useMemo(() => {
+  const exportData = useMemo((): ExcelExportRow[] => {
     if (!user) return [];
     return [
       {

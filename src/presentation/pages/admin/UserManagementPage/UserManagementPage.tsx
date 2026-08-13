@@ -7,6 +7,7 @@ import {
   UserCard, LoadingState, EmptyState, ToastContainer,
   Pagination, Dropdown, ExportUsersButton, Search
 } from "@/presentation/components";
+import type { ExcelExportRow } from "@/presentation/components/admin/ExportUsersButton/ExportUsersButton.logic";
 
 const SORT_OPTIONS = [
   { key: "default", label: "الافتراضي" },
@@ -38,7 +39,7 @@ const EXPORT_COLUMNS = [
   { key: "certificatesCount", label: "عدد الشهادات" },
 ];
 
-const ExportBtn = ({ data }: { data: any[] }) => (
+const ExportBtn = ({ data }: { data: ExcelExportRow[] }) => (
   <ExportUsersButton data={data} columns={EXPORT_COLUMNS} buttonText="Export Excel" />
 );
 

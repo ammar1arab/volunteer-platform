@@ -55,7 +55,7 @@ export const useForgotPassword = () => {
         return;
       }
 
-      const token = (result as any).data?.resetToken ?? "";
+      const token = result.data?.resetToken ?? "";
       if (!token) {
         setError("حدث خطأ في إصدار رمز إعادة التعيين");
         return;

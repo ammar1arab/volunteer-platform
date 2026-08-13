@@ -1,11 +1,12 @@
 import type { Notification } from "@/core/domain/entities";
+import type { NotificationMetadata } from "@/core/domain/interfaces";
 
 export interface CreateNotificationInput {
   userId:    string;
   type:      string;
   title:     string;
   message:   string;
-  metadata?: Record<string, unknown>;
+  metadata?: NotificationMetadata;
 }
 
 export interface TargetedUserRow {

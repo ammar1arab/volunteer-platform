@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { JordanianCity, UserRole } from "@/core/domain/enums";
+import { UserRole } from "@/core/domain/enums";
 import { useActivityParticipations, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { getCityLabel } from "@/presentation/constants";
@@ -126,7 +126,7 @@ export const useParticipationRequestsPage = () => {
         fullName: r.volunteer?.fullName || "-",
         email: r.volunteer?.email || "-",
         phone: r.volunteer?.phone || "-",
-        city: r.volunteer?.city ? getCityLabel(r.volunteer.city as JordanianCity) : "-",
+        city: r.volunteer?.city ? getCityLabel(r.volunteer.city) : "-",
         activityTitle: r.activity?.title || "-",
         activityDate: r.activity?.date
           ? new Date(r.activity.date).toLocaleDateString("ar")

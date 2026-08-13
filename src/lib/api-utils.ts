@@ -78,7 +78,7 @@ export function csrfCheck(req: Request): NextResponse | null {
 }
 
 
-export function toResponse(result: Result<unknown>, successStatus = 200) {
+export function toResponse<T>(result: Result<T>, successStatus = 200) {
   const status = result.success ? successStatus : (STATUS_MAP[result.error?.code] ?? 400);
   return NextResponse.json(result, { status });
 }
@@ -95,8 +95,8 @@ export function badRequest(message = "Invalid request") {
   return NextResponse.json({ success: false, error: { code: "BAD_REQUEST", message } }, { status: 400 });
 }
 
-export function apiError(scope: string, action: string, error: unknown) {
-  logger.error(scope, action, error instanceof Error ? error : new Error(String(error)));
+export function apiError(scope: string, action: string, error: Error | string) {
+  logger.error(scope, action, typeof error === "string" ? error : error);
   return NextResponse.json(
     { success: false, error: { code: "INTERNAL_ERROR", message: "Internal server error" } },
     { status: 500 }

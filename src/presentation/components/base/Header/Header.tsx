@@ -116,7 +116,7 @@ const Header = () => {
   const isVolunteer = status === 'authenticated' && session?.user?.role === 'VOLUNTEER';
   const userName = session?.user?.name ?? '';
   const userInitial = userName.charAt(0).toUpperCase() || 'أ';
-  const avatarUrl = (session?.user as any)?.profilePictureUrl ?? null;
+  const avatarUrl = session?.user?.profilePictureUrl ?? null;
 
   const toggle = (menu: OpenMenu) => {
     setMenuOpen(false);

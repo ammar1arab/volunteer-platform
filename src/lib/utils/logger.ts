@@ -2,13 +2,23 @@ import * as Sentry from "@sentry/nextjs";
 
 export type LogLevel = "info" | "warn" | "error";
 
+export type LogMetaValue =
+  | string
+  | number
+  | boolean
+  | null
+  | LogMetaValue[]
+  | { [key: string]: LogMetaValue | undefined };
+
+export type LogMeta = string | Error | { [key: string]: LogMetaValue | undefined };
+
 export interface Logger {
-  info(scope: string, action: string, meta?: unknown): void;
-  warn(scope: string, action: string, meta?: unknown): void;
-  error(scope: string, action: string, meta?: unknown): void;
+  info(scope: string, action: string, meta?: LogMeta): void;
+  warn(scope: string, action: string, meta?: LogMeta): void;
+  error(scope: string, action: string, meta?: LogMeta): void;
 }
 
-const stringify = (value: unknown): string => {
+const stringify = (value: LogMeta): string => {
   if (value instanceof Error) return value.message;
   try {
     return typeof value === "string" ? value : JSON.stringify(value);
@@ -17,7 +27,7 @@ const stringify = (value: unknown): string => {
   }
 };
 
-const log = (level: LogLevel, scope: string, action: string, meta?: unknown): void => {
+const log = (level: LogLevel, scope: string, action: string, meta?: LogMeta): void => {
   const ts = new Date().toISOString();
   const msg = `[${ts}] [${level.toUpperCase()}] [${scope}.${action}]`;
   const out = meta ? `${msg} ${stringify(meta)}` : msg;

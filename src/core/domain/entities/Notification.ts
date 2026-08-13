@@ -1,5 +1,5 @@
 import { BaseEntity } from "@/core/domain/entities";
-import { NotificationProps } from "@/core/domain/interfaces";
+import { NotificationProps, NotificationMetadata } from "@/core/domain/interfaces";
 import { NotificationType } from "@/core/domain/enums";
 
 class Notification extends BaseEntity {
@@ -21,7 +21,7 @@ class Notification extends BaseEntity {
     type: NotificationType;
     title: string;
     message: string;
-    metadata?: Record<string, unknown>;
+    metadata?: NotificationMetadata;
   }): Notification {
     return new Notification({
       ...input,
@@ -59,7 +59,7 @@ class Notification extends BaseEntity {
   get isRead(): boolean {
     return this.props.isRead;
   }
-  get metadata(): Record<string, unknown> | null {
+  get metadata(): NotificationMetadata | null {
     return this.props.metadata;
   }
 

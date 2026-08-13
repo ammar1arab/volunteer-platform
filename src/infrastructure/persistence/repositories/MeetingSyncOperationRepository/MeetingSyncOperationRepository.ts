@@ -1,5 +1,6 @@
 import IMeetingSyncOperationRepository, {
-  MeetingSyncOperationRecord
+  MeetingSyncOperationRecord,
+  MeetingSyncPayload
 } from "./IMeetingSyncOperationRepository";
 import type { MeetingSyncOperation as PrismaMeetingSyncOperation, Prisma } from "@prisma/client";
 import { prisma } from "@/infrastructure/persistence/prisma";
@@ -7,6 +8,15 @@ import {
   MeetingSyncOperationStatus,
   MeetingSyncOperationType
 } from "@/core/domain/enums";
+
+function parseMeetingSyncPayload(value: Prisma.JsonValue): MeetingSyncPayload | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (typeof value.activityId !== "string" || typeof value.type !== "string") return null;
+  return {
+    activityId: value.activityId,
+    type: value.type as MeetingSyncOperationType
+  };
+}
 
 class MeetingSyncOperationRepository implements IMeetingSyncOperationRepository {
   private map(data: PrismaMeetingSyncOperation): MeetingSyncOperationRecord {
@@ -16,7 +26,7 @@ class MeetingSyncOperationRepository implements IMeetingSyncOperationRepository 
       type: data.type as MeetingSyncOperationType,
       status: data.status as MeetingSyncOperationStatus,
       attempts: data.attempts,
-      payload: data.payload,
+      payload: parseMeetingSyncPayload(data.payload),
       lastError: data.lastError ?? null,
       dedupeKey: data.dedupeKey,
       scheduledFor: data.scheduledFor,
@@ -30,7 +40,7 @@ class MeetingSyncOperationRepository implements IMeetingSyncOperationRepository 
     activityId: string;
     type: MeetingSyncOperationType;
     dedupeKey: string;
-    payload?: unknown;
+    payload?: MeetingSyncPayload;
     scheduledFor?: Date;
   }): Promise<MeetingSyncOperationRecord> {
     const now = new Date();
@@ -42,7 +52,9 @@ class MeetingSyncOperationRepository implements IMeetingSyncOperationRepository 
         type: input.type,
         status: MeetingSyncOperationStatus.PENDING,
         attempts: 0,
-        payload: (input.payload as Prisma.InputJsonValue) ?? undefined,
+        payload: input.payload
+          ? { activityId: input.payload.activityId, type: input.payload.type }
+          : undefined,
         lastError: null,
         dedupeKey: input.dedupeKey,
         scheduledFor: input.scheduledFor ?? now,
@@ -53,7 +65,9 @@ class MeetingSyncOperationRepository implements IMeetingSyncOperationRepository 
       update: {
         type: input.type,
         status: MeetingSyncOperationStatus.PENDING,
-        payload: (input.payload as Prisma.InputJsonValue) ?? undefined,
+        payload: input.payload
+          ? { activityId: input.payload.activityId, type: input.payload.type }
+          : undefined,
         lastError: null,
         scheduledFor: input.scheduledFor ?? now,
         processedAt: null,

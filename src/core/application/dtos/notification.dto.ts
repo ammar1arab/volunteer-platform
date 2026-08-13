@@ -1,5 +1,6 @@
 import { NotificationType } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
+import type { NotificationMetadata } from "@/core/domain/interfaces";
 
 export interface NotificationDto {
   id: string;
@@ -8,7 +9,7 @@ export interface NotificationDto {
   title: string;
   message: string;
   isRead: boolean;
-  metadata: Record<string, unknown> | null;
+  metadata: NotificationMetadata | null;
   createdAt: string;
   link: string | null;
 }

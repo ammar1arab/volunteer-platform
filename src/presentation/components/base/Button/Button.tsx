@@ -1,9 +1,11 @@
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 import styles from './Button.module.scss';
 
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     children: ReactNode;
-    variant?: "primary" | "secondary" | "ghost" | "danger";
+    variant?: ButtonVariant;
     size?: "sm" | "md" | "lg";
     loading?: boolean;
     fullWidth?: boolean;

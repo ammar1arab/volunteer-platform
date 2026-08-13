@@ -24,6 +24,8 @@ const VP_FIELDS = new Set([
 
 const NULLABLE_VP = new Set(["educationLevel", "occupation", "membershipNumber"]);
 
+export type EditableFieldValue = string | boolean | null;
+
 export const useUserDetails = (userId: string) => {
   const userQuery = useFetchData<UserAnalyticsDto>({
     queryKey: queryKeys.users.detail(userId),
@@ -39,9 +41,9 @@ export const useUserDetails = (userId: string) => {
 
   const invalidate = [queryKeys.users.detail(userId), queryKeys.users.all];
 
-  const saveMutation = useBooleanMutation<{ field: string; value: unknown }>({
+  const saveMutation = useBooleanMutation<{ field: string; value: EditableFieldValue }>({
     request: async ({ field, value }) => {
-      let next = value;
+      let next: EditableFieldValue = value;
       if (field === "hasVolunteerExperience") next = value === true || value === "true";
       if (NULLABLE_VP.has(field) && (next === "" || next == null)) next = null;
       if (VP_FIELDS.has(field)) {
@@ -78,7 +80,7 @@ export const useUserDetails = (userId: string) => {
   }, [userRefetch, activitiesRefetch]);
 
   const saveField = useCallback(
-    (field: string, value: unknown) => saveMutation.run({ field, value }),
+    (field: string, value: EditableFieldValue) => saveMutation.run({ field, value }),
     [saveMutation.run]
   );
   const toggleActive = useCallback(

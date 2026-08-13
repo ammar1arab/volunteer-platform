@@ -1,6 +1,6 @@
 "use client";
 import styles from "./ActivityModal.module.scss";
-import { useActivityModal, MEETING_LINK_SOURCE_OPTIONS } from "./ActivityModal.logic";
+import { useActivityModal, MEETING_LINK_SOURCE_OPTIONS, type ActivityFormData } from "./ActivityModal.logic";
 import Image from "next/image";
 import {
   DAY_OPTIONS,
@@ -33,8 +33,8 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   mode: "create" | "edit";
-  initialData?: any;
-  onSubmit: (data: any) => Promise<void>;
+  initialData?: ActivityFormData | null;
+  onSubmit: (data: ActivityFormData) => Promise<void>;
   onImageUpload: (file: File) => Promise<string | null>;
   isSubmitting: boolean;
 };

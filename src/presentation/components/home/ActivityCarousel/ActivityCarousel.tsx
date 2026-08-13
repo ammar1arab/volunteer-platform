@@ -1,13 +1,15 @@
 "use client";
 import styles from "./ActivityCarousel.module.scss";
 import { ActivityCard, Button, SectionHeader } from "@/presentation/components";
+import type { ButtonVariant } from "@/presentation/components/base/Button/Button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useActivityCarousel } from "./useActivityCarousel";
+import type { ActivityDto } from "@/core/application/dtos";
 
 interface ActivityCarouselProps {
-  activities: any[];
-  getActionButton: (activity: any) => {
-    variant: any;
+  activities: ActivityDto[];
+  getActionButton: (activity: ActivityDto) => {
+    variant: ButtonVariant;
     disabled: boolean;
     label: string;
     onClick?: () => void | Promise<void>;
@@ -41,7 +43,7 @@ const ActivityCarousel = ({ activities, getActionButton, submitting, onViewAll }
 
         <div className={styles.viewport} ref={emblaRef}>
           <ul className={styles.carouselTrack}>
-            {activities.map((activity: any) => {
+            {activities.map((activity) => {
               const action = getActionButton(activity);
               return (
                 <li key={activity.id} className={styles.carouselItem}>

@@ -3,6 +3,7 @@
 import "leaflet/dist/leaflet.css";
 import dynamic from "next/dynamic";
 import { useRef } from "react";
+import type { Icon, LeafletMouseEvent, Marker as LeafletMarker } from "leaflet";
 import { Search, MapPinned, Link, X, ChevronDown, Check, Loader2, Navigation } from "lucide-react";
 import { useLocationPicker, LatLng, SearchResult } from "./LocationPicker.logic";
 import styles from "./LocationPicker.module.scss";
@@ -12,7 +13,7 @@ const TileLayer = dynamic(() => import("react-leaflet").then((m) => m.TileLayer)
 const Marker = dynamic(() => import("react-leaflet").then((m) => m.Marker), { ssr: false });
 
 const MapFixer = () => {
-    const { useMap } = require("react-leaflet");
+    const { useMap } = require("react-leaflet") as typeof import("react-leaflet");
     const map = useMap();
     return (
         <span
@@ -26,13 +27,13 @@ const MapFixer = () => {
 };
 
 const MapEvents = ({ onClick }: { onClick: (p: LatLng) => void }) => {
-    const { useMapEvents } = require("react-leaflet");
-    useMapEvents({ click: (e: any) => onClick({ lat: e.latlng.lat, lng: e.latlng.lng }) });
+    const { useMapEvents } = require("react-leaflet") as typeof import("react-leaflet");
+    useMapEvents({ click: (e: LeafletMouseEvent) => onClick({ lat: e.latlng.lat, lng: e.latlng.lng }) });
     return null;
 };
 
-const DraggableMarker = ({ position, icon, onDragEnd }: { position: LatLng; icon: any; onDragEnd: (p: LatLng) => void }) => {
-    const markerRef = useRef<any>(null);
+const DraggableMarker = ({ position, icon, onDragEnd }: { position: LatLng; icon: Icon; onDragEnd: (p: LatLng) => void }) => {
+    const markerRef = useRef<LeafletMarker | null>(null);
     const handlers = {
         dragend() {
             const m = markerRef.current;
@@ -42,10 +43,10 @@ const DraggableMarker = ({ position, icon, onDragEnd }: { position: LatLng; icon
     return <Marker position={[position.lat, position.lng]} icon={icon} draggable ref={markerRef} eventHandlers={handlers} />;
 };
 
-let markerIcon: any = null;
-function getMarkerIcon() {
+let markerIcon: Icon | null = null;
+function getMarkerIcon(): Icon {
     if (markerIcon) return markerIcon;
-    const L = require("leaflet");
+    const L = require("leaflet") as typeof import("leaflet");
     markerIcon = new L.Icon({
         iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
         shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",

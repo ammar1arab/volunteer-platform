@@ -6,7 +6,8 @@ import {
   DomainFeaturedPostCategory,
   JordanianCity,
   MeetingLinkSource,
-  MeetingPlatform
+  MeetingPlatform,
+  MeetingSyncStatus
 } from "@/core/domain/enums";
 import { MEETING_LINK_SOURCE_CREATE_LABELS } from "@/presentation/constants/labels";
 
@@ -33,6 +34,8 @@ export type ActivityFormData = {
   meetingPlatform: MeetingPlatform | "";
   meetingLinkSource: MeetingLinkSourceForm;
   primaryPresenterId: string;
+  meetingSyncStatus?: MeetingSyncStatus;
+  meetingSyncError?: string | null;
 };
 
 const EMPTY_FORM: ActivityFormData = {

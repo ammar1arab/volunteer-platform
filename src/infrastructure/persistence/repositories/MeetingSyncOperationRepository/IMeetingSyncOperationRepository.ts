@@ -3,13 +3,18 @@ import {
   MeetingSyncOperationType
 } from "@/core/domain/enums";
 
+export interface MeetingSyncPayload {
+  activityId: string;
+  type: MeetingSyncOperationType;
+}
+
 export interface MeetingSyncOperationRecord {
   id: string;
   activityId: string;
   type: MeetingSyncOperationType;
   status: MeetingSyncOperationStatus;
   attempts: number;
-  payload: unknown;
+  payload: MeetingSyncPayload | null;
   lastError: string | null;
   dedupeKey: string;
   scheduledFor: Date;
@@ -23,7 +28,7 @@ interface IMeetingSyncOperationRepository {
     activityId: string;
     type: MeetingSyncOperationType;
     dedupeKey: string;
-    payload?: unknown;
+    payload?: MeetingSyncPayload;
     scheduledFor?: Date;
   }): Promise<MeetingSyncOperationRecord>;
   findById(id: string): Promise<MeetingSyncOperationRecord | null>;

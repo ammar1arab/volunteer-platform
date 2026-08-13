@@ -1,19 +1,20 @@
 import { Notification } from "@/core/domain/entities";
 import { NotificationType } from "@/core/domain/enums";
+import type { NotificationMetadata } from "@/core/domain/interfaces";
 import type { NotificationDto, BroadcastDto } from "@/core/application/dtos";
 import { ROUTES } from "@/presentation/constants";
 
 function resolveLink(
   type: NotificationType,
-  metadata: Record<string, unknown> | null
+  metadata: NotificationMetadata | null
 ): string | null {
   switch (type) {
     case NotificationType.CERTIFICATE_ISSUED: {
-      const id = metadata?.certificateId as string | undefined;
+      const id = metadata?.certificateId;
       return id ? ROUTES.VERIFY(id) : ROUTES.VOLUNTEER.CERTIFICATES;
     }
     case NotificationType.ANNOUNCEMENT:
-      return (metadata?.link as string | undefined) ?? null;
+      return metadata?.link ?? null;
     default:
       return null;
   }
@@ -36,13 +37,13 @@ export function toNotificationDto(entity: Notification): NotificationDto {
 export function toBroadcastDto(entity: Notification): BroadcastDto {
   const meta = entity.metadata ?? {};
   return {
-    broadcastId:     (meta.broadcastId as string) ?? entity.id,
+    broadcastId:     meta.broadcastId ?? entity.id,
     title:           entity.title,
     message:         entity.message,
-    totalRecipients: (meta.totalRecipients as number) ?? 0,
-    target:          (meta.target as string) ?? "ALL",
-    targetValue:     (meta.targetValue as string | undefined) ?? null,
-    link:            (meta.link as string | undefined) ?? null,
+    totalRecipients: meta.totalRecipients ?? 0,
+    target:          meta.target ?? "ALL",
+    targetValue:     meta.targetValue ?? null,
+    link:            meta.link ?? null,
     createdAt:       entity.createdAt.toISOString(),
   };
 }

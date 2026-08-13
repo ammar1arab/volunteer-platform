@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useCallback } from "react";
 import { useFeaturedPosts } from "@/presentation/hooks";
-import { CATEGORY_OPTIONS, getMonthLabel } from "@/presentation/constants";
+import { CATEGORY_OPTIONS, getMonthLabel, isFeaturedPostCategory } from "@/presentation/constants";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 const ITEMS_PER_PAGE = 20;
@@ -65,8 +65,8 @@ export const useFeaturedPostsPublicPage = () => {
       });
     }
 
-    if (selectedCategory !== "all") {
-      result = result.filter((post) => post.categories.includes(selectedCategory as any));
+    if (selectedCategory !== "all" && isFeaturedPostCategory(selectedCategory)) {
+      result = result.filter((post) => post.categories.includes(selectedCategory));
     }
 
     if (appliedSearch.trim()) {

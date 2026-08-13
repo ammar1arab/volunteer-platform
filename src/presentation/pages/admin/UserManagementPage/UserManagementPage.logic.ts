@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useCallback } from "react";
-import { UserRole } from "@/core/domain/enums";
+import { UserRole, JordanianCity } from "@/core/domain/enums";
 import { useUsers, useToast, useAuth, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 import { getCityLabel, getEducationLevelLabel } from "@/presentation/constants";
+import type { ExcelExportRow } from "@/presentation/components/admin/ExportUsersButton/ExportUsersButton.logic";
 
 type SortOption = "default" | "oldest" | "newest" | "name" | "age" | "most-active" | "most-hours" | "most-certs";
 
@@ -117,7 +118,7 @@ export const useUserManagementPage = () => {
 
   const cityOptions = useMemo(() => {
     const allVolunteers = users.filter((u) => u.role === "VOLUNTEER");
-    const counts = new Map<string, number>();
+    const counts = new Map<JordanianCity, number>();
     allVolunteers.forEach((u) => {
       const city = u.volunteerProfile?.city;
       if (city) counts.set(city, (counts.get(city) || 0) + 1);
@@ -126,7 +127,7 @@ export const useUserManagementPage = () => {
       { key: "all", label: "الجميع", count: allVolunteers.length },
       ...Array.from(counts.entries())
         .sort((a, b) => b[1] - a[1])
-        .map(([city, count]) => ({ key: city, label: getCityLabel(city as any), count }))
+        .map(([city, count]) => ({ key: city, label: getCityLabel(city), count }))
     ];
   }, [users]);
 
@@ -135,7 +136,7 @@ export const useUserManagementPage = () => {
     return volunteers.slice(start, start + ITEMS_PER_PAGE);
   }, [volunteers, currentPage]);
 
-  const exportData = useMemo(
+  const exportData = useMemo((): ExcelExportRow[] =>
     () =>
       volunteers.map((user) => ({
         fullName: user.fullName,
@@ -143,7 +144,7 @@ export const useUserManagementPage = () => {
         phone: user.phone,
         email: user.email,
         membershipNumber: user.volunteerProfile?.membershipNumber || "-",
-        city: getCityLabel(user.volunteerProfile?.city as any) || "-",
+        city: user.volunteerProfile?.city ? getCityLabel(user.volunteerProfile.city) : "-",
         educationLevel: user.volunteerProfile?.educationLevel
           ? getEducationLevelLabel(user.volunteerProfile.educationLevel)
           : "-",

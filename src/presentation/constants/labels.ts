@@ -197,6 +197,16 @@ export const getEducationLevelLabel = (level: EducationLevel | string) => {
   return EDUCATION_LEVEL_LABELS[level as EducationLevel] || level;
 };
 export const getCityLabel = (city: JordanianCity) => CITY_LABELS[city] || city;
+
+const JORDANIAN_CITY_VALUES = new Set<string>(Object.values(JordanianCity));
+export function isJordanianCity(value: string): value is JordanianCity {
+  return JORDANIAN_CITY_VALUES.has(value);
+}
+
+const FEATURED_CATEGORY_VALUES = new Set<string>(Object.values(DomainFeaturedPostCategory));
+export function isFeaturedPostCategory(value: string): value is DomainFeaturedPostCategory {
+  return FEATURED_CATEGORY_VALUES.has(value);
+}
 export const getCategoryLabel = (cat: DomainFeaturedPostCategory) => CATEGORY_LABELS[cat] || cat;
 export const getDayLabel = (day: DayOfWeek) => DAY_LABELS[day] || day;
 export const getMonthLabel = (month: number) => MONTH_LABELS[month] || String(month);

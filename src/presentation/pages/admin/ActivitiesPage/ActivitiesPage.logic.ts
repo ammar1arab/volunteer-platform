@@ -5,6 +5,7 @@ import { ActivityStatus, ActivityType, DayOfWeek, MeetingLinkSource, MeetingPlat
 import { useActivities, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
+import type { ActivityFormData } from "@/presentation/components/admin/ActivityModal/ActivityModal.logic";
 import { processImageForUpload } from "@/lib/utils";
 import { ACTIVITY_STATUS_LABELS } from "@/presentation/constants";
 
@@ -23,7 +24,7 @@ export const STATUS_MAP = {
   [ActivityStatus.COMPLETED]: { label: ACTIVITY_STATUS_LABELS[ActivityStatus.COMPLETED], class: "completed" }
 } as const;
 
-const VALIDATION_RULES = [
+const VALIDATION_RULES: { field: keyof ActivityFormData; message: string }[] = [
   { field: "title", message: "العنوان مطلوب" },
   { field: "description", message: "الوصف مطلوب" },
   { field: "imageUrl", message: "الصورة مطلوبة" },
@@ -54,7 +55,7 @@ export const useActivitiesPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [showVolunteersModal, setShowVolunteersModal] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<ActivityDto | null>(null);
-  const [editData, setEditData] = useState<any>(null);
+  const [editData, setEditData] = useState<ActivityFormData | null>(null);
 
   const [searchQuery, setSearchQuery] = useSessionStorageState(
     "filters.admin.activities.searchQuery",
@@ -110,14 +111,16 @@ export const useActivitiesPage = () => {
       activityType: activity.activityType,
       categories: activity.categories,
       maxVolunteers: activity.maxVolunteers,
-      placeName: activity.placeName,
-      city: activity.city,
-      latitude: activity.latitude,
-      longitude: activity.longitude,
-      meetingLink: activity.meetingLink,
-      meetingPlatform: activity.meetingPlatform,
+      placeName: activity.placeName ?? "",
+      city: activity.city ?? "",
+      latitude: activity.latitude ?? 31.9454,
+      longitude: activity.longitude ?? 35.9284,
+      meetingLink: activity.meetingLink ?? "",
+      meetingPlatform: activity.meetingPlatform ?? "",
       meetingLinkSource: activity.meetingLinkSource ?? MeetingLinkSource.MANUAL,
-      primaryPresenterId: activity.primaryPresenterId ?? ""
+      primaryPresenterId: activity.primaryPresenterId ?? "",
+      meetingSyncStatus: activity.meetingSyncStatus,
+      meetingSyncError: activity.meetingSyncError
     });
     setShowModal(true);
   }, []);
@@ -154,7 +157,7 @@ export const useActivitiesPage = () => {
     [uploadImage, showToast]
   );
 
-  const validate = useCallback((form: any): string | null => {
+  const validate = useCallback((form: ActivityFormData): string | null => {
     for (const rule of VALIDATION_RULES) {
       const value = form[rule.field];
       if (!value || (typeof value === "string" && !value.trim())) return rule.message;
@@ -175,7 +178,7 @@ export const useActivitiesPage = () => {
   }, []);
 
   const handleModalSubmit = useCallback(
-    async (formData: any) => {
+    async (formData: ActivityFormData) => {
       const error = validate(formData);
       if (error) {
         showToast(error, "warning");
@@ -186,17 +189,17 @@ export const useActivitiesPage = () => {
         title: formData.title.trim(),
         description: formData.description.trim(),
         imageUrl: formData.imageUrl,
-        dayOfWeek: formData.dayOfWeek as DayOfWeek,
+        dayOfWeek: formData.dayOfWeek,
         date: formData.date,
         startTime: formData.startTime,
         endTime: formData.endTime,
         durationHours: Number(formData.durationHours),
-        activityType: formData.activityType as ActivityType,
+        activityType: formData.activityType,
         categories: formData.categories ?? [],
         maxVolunteers: formData.maxVolunteers,
 
         placeName: formData.activityType === ActivityType.IN_PERSON ? formData.placeName?.trim() || null : null,
-        city: formData.activityType === ActivityType.IN_PERSON ? formData.city || null : null,
+        city: formData.activityType === ActivityType.IN_PERSON && formData.city !== "" ? formData.city : null,
         latitude: formData.activityType === ActivityType.IN_PERSON ? (formData.latitude ?? null) : null,
         longitude: formData.activityType === ActivityType.IN_PERSON ? (formData.longitude ?? null) : null,
         meetingLink:
@@ -208,11 +211,11 @@ export const useActivitiesPage = () => {
           formData.activityType === ActivityType.ONLINE
             ? formData.meetingLinkSource === MeetingLinkSource.GOOGLE_MEET_AUTO
               ? MeetingPlatform.GOOGLE_MEET
-              : formData.meetingPlatform || null
+              : formData.meetingPlatform === "" ? null : formData.meetingPlatform
             : null,
         meetingLinkSource:
           formData.activityType === ActivityType.ONLINE
-            ? (formData.meetingLinkSource as MeetingLinkSource) || MeetingLinkSource.MANUAL
+            ? formData.meetingLinkSource || MeetingLinkSource.MANUAL
             : undefined,
         primaryPresenterId:
           formData.activityType === ActivityType.ONLINE
