@@ -5,7 +5,10 @@ import type {
   MeetingWaitingGuestDto
 } from "@/core/application/dtos";
 
-const PARTICIPANT_TTL_MS = 120_000;
+/** Waiting guests drop if they stop polling. */
+const WAITING_TTL_MS = 180_000;
+/** Admitted seats / hosts stay until explicit leave (or very long idle). */
+const ADMITTED_TTL_MS = 2 * 60 * 60 * 1000;
 
 type SeatStage = "waiting" | "admitted" | "denied";
 
@@ -34,9 +37,12 @@ const getRoom = (activityId: string): Room => {
   return created;
 };
 
+const seatTtl = (seat: Seat) =>
+  seat.role === "host" || seat.stage === "admitted" ? ADMITTED_TTL_MS : WAITING_TTL_MS;
+
 const prune = (room: Room, now: number) => {
   for (const [userId, seat] of room.seats) {
-    if (now - seat.lastSeenAt > PARTICIPANT_TTL_MS) room.seats.delete(userId);
+    if (now - seat.lastSeenAt > seatTtl(seat)) room.seats.delete(userId);
   }
 };
 
@@ -45,7 +51,7 @@ const dropIfEmpty = (activityId: string, room: Room) => {
 };
 
 const isLiveHost = (seat: Seat, now: number) =>
-  seat.role === "host" && now - seat.lastSeenAt <= PARTICIPANT_TTL_MS;
+  seat.role === "host" && now - seat.lastSeenAt <= ADMITTED_TTL_MS;
 
 const hostPresent = (room: Room, now: number) => {
   for (const seat of room.seats.values()) {
@@ -56,7 +62,12 @@ const hostPresent = (room: Room, now: number) => {
 
 const waitingGuests = (room: Room, now: number): MeetingWaitingGuestDto[] =>
   [...room.seats.values()]
-    .filter((seat) => seat.role === "guest" && seat.stage === "waiting" && now - seat.lastSeenAt <= PARTICIPANT_TTL_MS)
+    .filter(
+      (seat) =>
+        seat.role === "guest" &&
+        seat.stage === "waiting" &&
+        now - seat.lastSeenAt <= WAITING_TTL_MS
+    )
     .sort((a, b) => a.joinedAt - b.joinedAt)
     .map((seat) => ({ ...identityOf(seat), requestedAt: seat.joinedAt }));
 

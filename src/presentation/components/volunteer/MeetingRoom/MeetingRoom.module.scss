@@ -352,3 +352,37 @@
     border-top: 1px solid rgba($white, 0.08);
   }
 }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .topBar {
+    padding: 4px 10px;
+  }
+
+  .meta {
+    display: none;
+  }
+
+  .title {
+    max-width: min(100%, 28ch);
+    font-size: $font-xs;
+  }
+
+  .workspace {
+    flex-direction: row;
+  }
+
+  .dock {
+    width: min(260px, 36%);
+    max-height: none;
+    border-top: 0;
+    border-inline-start: 1px solid rgba($white, 0.08);
+  }
+
+  .dockHead {
+    padding: 6px $sp-sm;
+  }
+
+  .dockItem {
+    padding: 6px;
+  }
+}

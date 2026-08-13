@@ -14,6 +14,7 @@ import {
   VideoOff,
   X
 } from "lucide-react";
+import { useState } from "react";
 import Button from "@/presentation/components/base/Button/Button";
 import ConfirmDialog from "@/presentation/components/base/ConfirmDialog/ConfirmDialog";
 import EmptyState from "@/presentation/components/state/EmptyState/EmptyState";
@@ -28,6 +29,11 @@ import {
   getMeetingPhaseLabel,
   useMeetingRoom
 } from "./MeetingRoom.logic";
+import {
+  playMeetingAdmitSound,
+  playMeetingDenySound,
+  playMeetingWaitingSound
+} from "./meetingSounds";
 
 type Props = {
   activityId: string;
@@ -56,7 +62,6 @@ const WaitingDock = ({
         <li key={guest.userId} className={styles.dockItem}>
           <div className={styles.dockIdentity}>
             <strong>{guest.fullName}</strong>
-            <span>{guest.email}</span>
           </div>
           <div className={styles.dockActions}>
             <Button
@@ -127,9 +132,33 @@ const MeetingRoom = ({ activityId, onLeave }: Props) => {
       : null;
   const GateIcon = gateStage === "denied" ? ShieldOff : gateStage === "waiting_admit" ? Users : UserRound;
 
+  const [heardAdmit, setHeardAdmit] = useState(false);
+  const [waitingCount, setWaitingCount] = useState(-1);
+
+  if (session?.stage === "admitted" && !heardAdmit) {
+    setHeardAdmit(true);
+    playMeetingAdmitSound();
+  }
+  if (session?.stage !== "admitted" && heardAdmit) {
+    setHeardAdmit(false);
+  }
+
+  if (session?.role === "host") {
+    const next = session.waiting.length;
+    if (waitingCount >= 0 && next > waitingCount) {
+      playMeetingWaitingSound();
+    }
+    if (waitingCount !== next) setWaitingCount(next);
+  } else if (waitingCount !== -1) {
+    setWaitingCount(-1);
+  }
+
   const handleAdmit = (userId: string, allow: boolean) => {
     void admit(userId, allow)
-      .then(() => showToast(allow ? MEETING_TOASTS.admitted : MEETING_TOASTS.rejected, allow ? "success" : "info"))
+      .then(() => {
+        if (allow) playMeetingAdmitSound();
+        else playMeetingDenySound();
+      })
       .catch(() => showToast(MEETING_TOASTS.failed, "error"));
   };
 

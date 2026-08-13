@@ -36,3 +36,13 @@
     padding: 0;
   }
 }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .live {
+    height: 100dvh;
+  }
+
+  .containerLive {
+    padding: 0;
+  }
+}

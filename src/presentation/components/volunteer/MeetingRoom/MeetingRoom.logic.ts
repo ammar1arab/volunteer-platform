@@ -123,17 +123,7 @@ const sendLeave = (activityId: string) => {
   });
 };
 
-const scheduleLeave = (activityId: string) => {
-  cancelPendingLeave(activityId);
-  pendingLeaves.set(
-    activityId,
-    setTimeout(() => {
-      pendingLeaves.delete(activityId);
-      sendLeave(activityId);
-    }, 500)
-  );
-};
-
+/** Keep heartbeat alive; only leave on real page unload — never on React remount. */
 export function useMeetingPresence(activityId: string, enabled: boolean) {
   const subscribe = useCallback(
     (_onStoreChange: () => void) => {
@@ -146,7 +136,6 @@ export function useMeetingPresence(activityId: string, enabled: boolean) {
       window.addEventListener("pagehide", onPageHide);
       return () => {
         window.removeEventListener("pagehide", onPageHide);
-        scheduleLeave(activityId);
       };
     },
     [activityId, enabled]
@@ -253,14 +242,13 @@ export function useMeetingRoomEmbed(input: {
   const jwt = input.jwt?.trim() || "";
   const conferenceKey =
     input.enabled && parentNode && scriptStatus === "ready" && roomName
-      ? `${host}:${roomName}:${retry}:${displayName}:${email}:${jwt.slice(0, 12)}`
+      ? `${host}:${roomName}:${retry}:${displayName}:${email}`
       : "";
 
   const callbacks = useMemo(
     () => ({
-      onJoined: () => showToast(MEETING_TOASTS.joined, "success"),
-      onLeft: (reason: "hangup" | "cancel") =>
-        showToast(reason === "cancel" ? MEETING_TOASTS.cancelled : MEETING_TOASTS.left, "info"),
+      onJoined: () => undefined,
+      onLeft: () => undefined,
       onFailed: () => showToast(MEETING_TOASTS.failed, "error")
     }),
     [showToast]
@@ -305,10 +293,9 @@ export function useMeetingRoomEmbed(input: {
     scriptStatus === "error" || timedOut ? "failed" : snapshot.status;
 
   const retryLoad = useCallback(() => {
-    showToast(MEETING_TOASTS.retrying, "info");
     setStartedAt(Date.now());
     setRetry((count) => count + 1);
-  }, [showToast]);
+  }, []);
 
   const requestLeave = useCallback(
     async (onLeave: () => void) => {
@@ -348,7 +335,25 @@ export function useMeetingRoom(activityId: string) {
   const identityName = gate.session?.identity.fullName || MEETING_LABELS.guestName;
   const identityEmail = gate.session?.identity.email || "";
   const canEnterMedia = gate.session?.stage === "admitted" && Boolean(gate.session.identity.email);
-  const embedConfig = canEnterMedia ? gate.session?.embed : null;
+  const liveEmbed = canEnterMedia ? gate.session?.embed : null;
+  const [lockedEmbed, setLockedEmbed] = useState<{
+    roomName: string;
+    host: string;
+    jwt: string | null;
+  } | null>(null);
+
+  if (liveEmbed?.roomName && !lockedEmbed) {
+    setLockedEmbed({
+      roomName: liveEmbed.roomName,
+      host: liveEmbed.host,
+      jwt: liveEmbed.jwt
+    });
+  }
+  if (!canEnterMedia && lockedEmbed) {
+    setLockedEmbed(null);
+  }
+
+  const embedConfig = lockedEmbed ?? liveEmbed;
 
   useMeetingPresence(activityId, Boolean(gate.session));
 
@@ -356,7 +361,7 @@ export function useMeetingRoom(activityId: string) {
     activityId,
     roomName: embedConfig?.roomName,
     host: embedConfig?.host,
-    jwt: embedConfig?.jwt,
+    jwt: embedConfig?.jwt ?? liveEmbed?.jwt,
     displayName: identityName,
     email: identityEmail,
     subject: gate.session?.title?.trim() || MEETING_LABELS.roomTitle,
