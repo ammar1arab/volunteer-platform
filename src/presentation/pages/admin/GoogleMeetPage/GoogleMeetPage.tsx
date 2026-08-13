@@ -12,13 +12,12 @@ import {
   Dropdown,
   MeetingReportModal,
   VolunteersModal,
-  MeetingListItem,
-  Badge
+  MeetingListItem
 } from "@/presentation/components";
 import { ROUTES } from "@/presentation/constants";
 import { ActivityType, ActivityStatus } from "@/core/domain/enums";
 import { useRouter } from "next/navigation";
-import { Video, PlugZap, Unplug, Settings2 } from "lucide-react";
+import { Video, PlugZap, Unplug, Settings2, CircleAlert } from "lucide-react";
 import type { GoogleMeetView } from "./GoogleMeetPage.logic";
 
 const GoogleMeetPage = () => {
@@ -80,54 +79,54 @@ const GoogleMeetPage = () => {
       <header className={styles.header}>
         <div className={styles.actions}>
           {showMeetings && (
-            <Search
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onSearch={setAppliedSearch}
-              placeholder="ابحث..."
-            />
+            <div className={styles.searchSlot}>
+              <Search
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSearch={setAppliedSearch}
+                placeholder="ابحث..."
+              />
+            </div>
           )}
-          <div className={styles.actionsEnd}>
-            {showMeetings && (
-              <>
-                <Dropdown
-                  items={viewItems}
-                  active={activeView}
-                  onChange={(key) => setActiveView(key as GoogleMeetView)}
-                  placeholder="العرض"
-                  compact
-                />
-                <Dropdown
-                  items={syncFilterItems}
-                  active={syncFilter}
-                  onChange={setSyncFilter}
-                  placeholder="المزامنة"
-                  compact
-                />
-              </>
-            )}
-            <button
-              type="button"
-              className={`${styles.btnSettings} ${activeView === "settings" ? styles.btnSettingsActive : ""}`}
-              title="الإعدادات"
-              aria-label="الإعدادات"
-              aria-pressed={activeView === "settings"}
-              onClick={() =>
-                setActiveView(activeView === "settings" ? listView : "settings")
-              }
-            >
-              <Settings2 size={16} />
-            </button>
-            <button
-              type="button"
-              className={connected ? styles.btnDisconnect : styles.btnConnect}
-              onClick={connected ? handleDisconnect : handleConnect}
-              disabled={submitting}
-            >
-              {connected ? <Unplug size={16} /> : <PlugZap size={16} />}
-              {connected ? "قطع الاتصال" : "ربط Google"}
-            </button>
-          </div>
+          {showMeetings && (
+            <div className={styles.filters}>
+              <Dropdown
+                items={viewItems}
+                active={activeView}
+                onChange={(key) => setActiveView(key as GoogleMeetView)}
+                placeholder="العرض"
+                compact
+              />
+              <Dropdown
+                items={syncFilterItems}
+                active={syncFilter}
+                onChange={setSyncFilter}
+                placeholder="المزامنة"
+                compact
+              />
+            </div>
+          )}
+          <button
+            type="button"
+            className={`${styles.btnSettings} ${activeView === "settings" ? styles.btnSettingsActive : ""}`}
+            title="الإعدادات"
+            aria-label="الإعدادات"
+            aria-pressed={activeView === "settings"}
+            onClick={() =>
+              setActiveView(activeView === "settings" ? listView : "settings")
+            }
+          >
+            <Settings2 size={16} />
+          </button>
+          <button
+            type="button"
+            className={connected ? styles.btnDisconnect : styles.btnConnect}
+            onClick={connected ? handleDisconnect : handleConnect}
+            disabled={submitting}
+          >
+            {connected ? <Unplug size={16} /> : <PlugZap size={16} />}
+            {connected ? "قطع الاتصال" : "ربط Google"}
+          </button>
         </div>
       </header>
 
@@ -186,26 +185,9 @@ const GoogleMeetPage = () => {
           <LoadingState />
         ) : (
           <div className={styles.settings}>
-            <section className={styles.panel}>
-              <div className={styles.panelTop}>
-                <div className={styles.identity}>
-                  <span className={`${styles.dot} ${connected ? styles.dotOn : styles.dotOff}`} />
-                  <div className={styles.identityCopy}>
-                    <div className={styles.panelTitleRow}>
-                      <h3 className={styles.panelTitle}>حساب Google</h3>
-                      <Badge variant={connected ? "success" : "danger"}>
-                        {connected ? "متصل" : "غير متصل"}
-                      </Badge>
-                    </div>
-                    <p className={styles.email} dir="ltr">{organizerEmail}</p>
-                  </div>
-                </div>
-              </div>
-
-              {integration?.lastError && (
-                <p className={styles.error}>{integration.lastError}</p>
-              )}
-            </section>
+            {integration?.lastError && (
+              <p className={styles.error}>{integration.lastError}</p>
+            )}
 
             <section className={styles.failedSection}>
               <div className={styles.titleGroup}>
@@ -214,9 +196,9 @@ const GoogleMeetPage = () => {
               </div>
 
               {failedLoading ? (
-                <LoadingState />
+                <LoadingState compact />
               ) : failedMeetings.length === 0 ? (
-                <p className={styles.muted}>لا توجد مزامنات فاشلة حالياً</p>
+                <EmptyState icon={CircleAlert} message="لا توجد مزامنات فاشلة حالياً" />
               ) : (
                 <div className={styles.list}>
                   {failedMeetings.map((meeting) => (

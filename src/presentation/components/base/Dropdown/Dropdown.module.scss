@@ -22,6 +22,15 @@
   overflow: visible;
 }
 
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3999;
+  background: transparent;
+  border: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .trigger {
   @include flex(row, center, space-between);
   width: 100%;

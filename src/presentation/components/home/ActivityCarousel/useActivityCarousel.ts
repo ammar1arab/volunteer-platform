@@ -32,8 +32,9 @@ export const useActivityCarousel = () => {
     {
       loop: true,
       align: "start",
-      containScroll: false,
-      direction: "rtl"
+      containScroll: "trimSnaps",
+      direction: "rtl",
+      slidesToScroll: 1
     },
     [Autoplay({ delay: 3000, stopOnInteraction: true, stopOnMouseEnter: true })]
   );

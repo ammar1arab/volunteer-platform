@@ -87,10 +87,11 @@ export const useGoogleMeetPage = () => {
   );
 
   const setActiveView = useCallback((view: GoogleMeetView) => {
+    if (view === activeView) return;
     if (view === "upcoming" || view === "finished") setListView(view);
     setActiveViewState(view);
     setCurrentPage(1);
-  }, [setListView, setActiveViewState, setCurrentPage]);
+  }, [activeView, setListView, setActiveViewState, setCurrentPage]);
   const setAppliedSearch = usePageReset(setAppliedSearchState, setCurrentPage);
   const setSyncFilter = usePageReset(setSyncFilterState, setCurrentPage);
 
@@ -100,14 +101,21 @@ export const useGoogleMeetPage = () => {
   const currentListView: "upcoming" | "finished" =
     activeView === "upcoming" || activeView === "finished" ? activeView : listView;
 
-  const {
-    list,
-    loading: meetingsLoading,
-    refresh: refreshMeetings
-  } = useMeetingsQuery({
-    filter: currentListView,
+  const upcomingQuery = useMeetingsQuery({
+    filter: "upcoming",
     enabled: true
   });
+  const finishedQuery = useMeetingsQuery({
+    filter: "finished",
+    enabled: true
+  });
+  const list = currentListView === "finished" ? finishedQuery.list : upcomingQuery.list;
+  const meetingsLoading =
+    currentListView === "finished" ? finishedQuery.loading : upcomingQuery.loading;
+  const refreshMeetings = useCallback(() => {
+    void upcomingQuery.refresh();
+    void finishedQuery.refresh();
+  }, [upcomingQuery.refresh, finishedQuery.refresh]);
 
   const {
     list: failedMeetings,

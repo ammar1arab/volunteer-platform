@@ -70,7 +70,7 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
   const close = () => setIsOpen(false);
 
   const handleSelect = (key: string) => {
-    onChange(key);
+    if (key !== active) onChange(key);
     close();
   };
 
@@ -78,14 +78,10 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
     isOpen && mounted && coords
       ? createPortal(
           <>
-            <button
-              type="button"
-              aria-label="إغلاق القائمة"
+            <div
+              role="presentation"
+              className={styles.backdrop}
               onClick={close}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") close();
-              }}
-              style={{ position: "fixed", inset: 0, zIndex: 3999, background: "transparent", border: 0 }}
             />
             <div
               className={`${styles.menu} ${compact ? styles.compactMenu : ""} no-scrollbar`}

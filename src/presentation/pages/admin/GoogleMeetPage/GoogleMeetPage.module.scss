@@ -14,24 +14,60 @@
 }
 
 .actions {
-  @include flex(row, center, space-between, $sp-sm);
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: $sp-sm;
+  width: 100%;
+  min-width: 0;
 
   @include sm {
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "search settings"
+      "filters disconnect";
+  }
+
+  &:not(:has(.searchSlot)) {
+    @include sm {
+      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-areas: "settings disconnect";
+    }
   }
 }
 
-.actionsEnd {
-  @include flex(row, center, flex-end, $sp-sm);
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  min-height: 36px;
-  height: auto;
+.searchSlot {
+  flex: 1 1 auto;
+  min-width: 0;
+
+  > * {
+    width: 100%;
+    min-width: 0;
+  }
 
   @include sm {
+    grid-area: search;
+  }
+}
+
+.filters {
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+  min-width: 0;
+  margin-inline-start: auto;
+
+  @include sm {
+    grid-area: filters;
     width: 100%;
+    margin-inline-start: 0;
+    justify-content: stretch;
+
+    > * {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: none;
+    }
   }
 }
 
@@ -46,6 +82,10 @@
     color: $green;
     border-color: $green;
   }
+
+  @include sm {
+    grid-area: settings;
+  }
 }
 
 .btnSettingsActive {
@@ -54,25 +94,22 @@
   background: rgba($green, 0.08);
 }
 
-.btnConnect {
+.btnConnect,
+.btnDisconnect {
   @include create-btn;
 
   @include sm {
-    flex: 1 1 auto;
+    grid-area: disconnect;
+    min-width: 0;
   }
 }
 
 .btnDisconnect {
-  @include create-btn;
   background: $red;
 
   &:hover {
     background: $red;
     box-shadow: 0 4px 12px rgba($red, 0.3);
-  }
-
-  @include sm {
-    flex: 1 1 auto;
   }
 }
 
@@ -88,81 +125,11 @@
   min-width: 0;
 }
 
-.panel {
-  @include flex-col;
-  gap: $sp-md;
-  padding: $sp-md $sp-lg;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  background: $bg;
-  min-width: 0;
-}
-
-.panelTop {
-  min-width: 0;
-}
-
-.identity {
-  @include flex(row, flex-start, flex-start, $sp-md);
-  min-width: 0;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: $radius-full;
-  margin-top: 7px;
-  flex-shrink: 0;
-}
-
-.dotOn {
-  background: $green;
-  box-shadow: 0 0 0 4px rgba($green, 0.15);
-}
-
-.dotOff {
-  background: $red;
-  box-shadow: 0 0 0 4px rgba($red, 0.12);
-}
-
-.identityCopy {
-  @include flex-col;
-  gap: 4px;
-  min-width: 0;
-  flex: 1;
-}
-
-.panelTitleRow {
-  @include flex(row, center, flex-start, $sp-sm);
-  flex-wrap: wrap;
-}
-
-.panelTitle {
-  margin: 0;
-  font-size: $font-md;
-  font-weight: 800;
-  color: $text;
-}
-
-.email {
-  margin: 0;
-  font-size: $font-sm;
-  font-weight: 600;
-  color: $text;
-  word-break: break-all;
-}
-
 .error {
   margin: 0;
   font-size: $font-xs;
   color: $red;
   line-height: 1.5;
-}
-
-.muted {
-  margin: 0;
-  font-size: $font-sm;
-  color: $text-muted;
 }
 
 .failedSection {

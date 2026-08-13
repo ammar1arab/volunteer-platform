@@ -60,6 +60,8 @@
   flex: 1;
   overflow: hidden;
   min-width: 0;
+  container-type: inline-size;
+  container-name: activity-carousel;
 }
 
 .carouselTrack {
@@ -73,6 +75,7 @@
 }
 
 .carouselItem {
+  box-sizing: border-box;
   flex: 0 0 100%;
   min-width: 0;
   min-height: 0;
@@ -86,13 +89,11 @@
     min-width: 0;
     display: flex;
   }
+}
 
-  @media (min-width: $bp-sm) {
-    flex: 0 0 50%;
-  }
-
-  @media (min-width: $bp-md) {
-    flex: 0 0 33.333333%;
+@container activity-carousel (min-width: 520px) {
+  .carouselItem {
+    flex-basis: 50%;
   }
 }
 
