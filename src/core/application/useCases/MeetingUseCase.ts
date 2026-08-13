@@ -651,9 +651,34 @@ class MeetingUseCase {
     return left.trim().toLowerCase() === right.trim().toLowerCase();
   }
 
-  private async resolveMeetingAccess(activityId: string, userId: string, role: string) {
+  private async resolveMeetingActor(
+    activityId: string,
+    userId: string,
+    sessionRole: string,
+    sessionEmail: string | null | undefined
+  ) {
     guard(activityId, "معرّف النشاط مطلوب");
     guard(userId, "معرّف المستخدم مطلوب");
+
+    const claimedEmail = sessionEmail?.trim() ?? "";
+    if (!claimedEmail) {
+      return fail("FORBIDDEN", "لا يمكن التحقق من بريد الجلسة. سجّل الدخول مجدداً");
+    }
+
+    const user = await this.userRepository.findById(userId);
+    if (!user) return fail("NOT_FOUND", "المستخدم غير موجود");
+
+    const accountEmail = user.email.trim();
+    if (!accountEmail) return fail("FORBIDDEN", "لا يوجد بريد إلكتروني مرتبط بحسابك");
+    if (!this.emailsMatch(claimedEmail, accountEmail)) {
+      return fail("FORBIDDEN", "البريد الإلكتروني للجلسة لا يطابق حسابك على المنصة");
+    }
+    if (sessionRole !== user.role) {
+      return fail("FORBIDDEN", "بيانات الجلسة لا تطابق حسابك على المنصة");
+    }
+    if (user.role !== UserRole.ADMIN && !user.emailVerified) {
+      return fail("FORBIDDEN", "يجب تأكيد البريد الإلكتروني على المنصة قبل دخول الاجتماع");
+    }
 
     const activity = await this.activityRepository.findById(activityId);
     if (!activity) return fail("NOT_FOUND", "النشاط غير موجود");
@@ -665,7 +690,7 @@ class MeetingUseCase {
     if (props.status === ActivityStatus.CANCELLED) {
       return fail("INVALID_STATE", "تم إلغاء هذا النشاط");
     }
-    if (role !== UserRole.ADMIN && props.status !== ActivityStatus.PUBLISHED) {
+    if (user.role !== UserRole.ADMIN && props.status !== ActivityStatus.PUBLISHED) {
       return fail(
         "INVALID_STATE",
         props.status === ActivityStatus.COMPLETED ? "انتهى هذا الاجتماع" : "الاجتماع غير متاح حالياً"
@@ -675,16 +700,13 @@ class MeetingUseCase {
     const link = props.meetingLink;
     if (!link) return fail("INVALID_STATE", "رابط الاجتماع غير متوفر بعد");
 
-    let isHost = role === UserRole.ADMIN;
-    if (!isHost) {
-      const presenter = await this.presenterRepository.findByActivityAndPresenter(activityId, userId);
-      isHost = Boolean(presenter?.isActive);
-    }
+    const presenter = await this.presenterRepository.findByActivityAndPresenter(activityId, user.id);
+    const isHost = user.role === UserRole.ADMIN || Boolean(presenter?.isActive);
 
     if (!isHost) {
       const participation = await this.participationRepository.findByActivityAndVolunteer(
         activityId,
-        userId
+        user.id
       );
       if (!participation || participation.status !== ParticipationStatus.APPROVED) {
         return fail("FORBIDDEN", "ليس لديك صلاحية للانضمام إلى هذا الاجتماع");
@@ -693,6 +715,11 @@ class MeetingUseCase {
 
     return ok({
       isHost,
+      identity: {
+        userId: user.id,
+        fullName: user.fullName.trim() || accountEmail,
+        email: accountEmail
+      },
       payload: {
         url: link,
         title: props.title,
@@ -704,37 +731,16 @@ class MeetingUseCase {
     });
   }
 
-  private async resolveMeetingIdentity(userId: string, sessionEmail: string | null | undefined) {
-    const user = await this.userRepository.findById(userId);
-    if (!user) return fail("NOT_FOUND", "المستخدم غير موجود");
-    if (user.role !== UserRole.ADMIN && !user.emailVerified) {
-      return fail("FORBIDDEN", "يجب تأكيد البريد الإلكتروني على المنصة قبل دخول الاجتماع");
-    }
-
-    const email = user.email.trim();
-    if (!email) return fail("FORBIDDEN", "لا يوجد بريد إلكتروني مرتبط بحسابك");
-
-    const claimed = sessionEmail?.trim();
-    if (claimed && !this.emailsMatch(claimed, email)) {
-      return fail("FORBIDDEN", "البريد الإلكتروني للجلسة لا يطابق حسابك على المنصة");
-    }
-
-    return ok({
-      userId: user.id,
-      fullName: user.fullName.trim() || email,
-      email
-    });
-  }
-
   async getMeetingLaunchUrl(
     activityId: string,
     userId: string,
-    role: string
+    role: string,
+    sessionEmail: string | null | undefined
   ): Promise<GetMeetingLaunchUrlResponse> {
     try {
-      const access = await this.resolveMeetingAccess(activityId, userId, role);
-      if (!access.success) return access;
-      return ok(access.data.payload);
+      const actor = await this.resolveMeetingActor(activityId, userId, role, sessionEmail);
+      if (!actor.success) return actor;
+      return ok(actor.data.payload);
     } catch (error) {
       return serviceError(MeetingUseCase.SCOPE, "getMeetingLaunchUrl", error, "تعذر جلب رابط الاجتماع");
     }
@@ -747,17 +753,14 @@ class MeetingUseCase {
     sessionEmail: string | null | undefined
   ): Promise<GetMeetingSessionResponse> {
     try {
-      const access = await this.resolveMeetingAccess(activityId, userId, role);
-      if (!access.success) return access;
-
-      const identity = await this.resolveMeetingIdentity(userId, sessionEmail);
-      if (!identity.success) return identity;
+      const actor = await this.resolveMeetingActor(activityId, userId, role, sessionEmail);
+      if (!actor.success) return actor;
 
       return ok(
         touchMeetingGate({
           activityId,
-          identity: identity.data,
-          role: access.data.isHost ? "host" : "guest"
+          identity: actor.data.identity,
+          role: actor.data.isHost ? "host" : "guest"
         })
       );
     } catch (error) {
@@ -768,11 +771,12 @@ class MeetingUseCase {
   async leaveMeetingSession(
     activityId: string,
     userId: string,
-    role: string
+    role: string,
+    sessionEmail: string | null | undefined
   ): Promise<LeaveMeetingSessionResponse> {
     try {
-      const access = await this.resolveMeetingAccess(activityId, userId, role);
-      if (!access.success) return access;
+      const actor = await this.resolveMeetingActor(activityId, userId, role, sessionEmail);
+      if (!actor.success) return actor;
       return ok({ left: leaveMeetingGate(activityId, userId) });
     } catch (error) {
       return serviceError(MeetingUseCase.SCOPE, "leaveMeetingSession", error, "تعذر مغادرة جلسة الاجتماع");
@@ -789,18 +793,15 @@ class MeetingUseCase {
   ): Promise<GetMeetingSessionResponse> {
     try {
       guard(guestUserId, "معرّف المشارك مطلوب");
-      const access = await this.resolveMeetingAccess(activityId, hostUserId, hostRole);
-      if (!access.success) return access;
-      if (!access.data.isHost) {
+      const actor = await this.resolveMeetingActor(activityId, hostUserId, hostRole, sessionEmail);
+      if (!actor.success) return actor;
+      if (!actor.data.isHost) {
         return fail("FORBIDDEN", "فقط المضيف يمكنه قبول المشاركين");
       }
 
-      const identity = await this.resolveMeetingIdentity(hostUserId, sessionEmail);
-      if (!identity.success) return identity;
-
       touchMeetingGate({
         activityId,
-        identity: identity.data,
+        identity: actor.data.identity,
         role: "host"
       });
 

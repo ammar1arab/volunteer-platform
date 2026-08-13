@@ -56,6 +56,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger, session: sessionUpdate }) {
       if (user) {
         token.id                = user.id;
+        token.email             = user.email;
         token.role              = user.role as UserRole;
         token.profilePictureUrl = user.profilePictureUrl ?? null;
         token.isSuperAdmin      = user.isSuperAdmin;
@@ -99,6 +100,7 @@ export const authOptions: NextAuthOptions = {
 
       if (session.user) {
         session.user.id                = token.id as string;
+        session.user.email             = typeof token.email === "string" ? token.email : "";
         session.user.role              = token.role as UserRole;
         session.user.profilePictureUrl = (token.profilePictureUrl as string) ?? null;
         session.user.isSuperAdmin      = token.isSuperAdmin as boolean;

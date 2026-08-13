@@ -132,16 +132,16 @@ export async function requireAuth(req: Request, role?: UserRole): Promise<AuthRe
 
       const dbUser = await prisma.user.findUnique({
         where: { id: userId },
-        select: { isSuperAdmin: true, permissions: true }
+        select: { isSuperAdmin: true, permissions: true, email: true }
       });
 
-      Sentry.setUser({ id: userId });
+      Sentry.setUser({ id: userId, email: dbUser?.email });
       return {
         session: {
           user: {
             id: userId,
             role: userRole,
-            email: "",
+            email: dbUser?.email ?? "",
             isSuperAdmin: dbUser?.isSuperAdmin ?? false,
             permissions: dbUser?.permissions ?? []
           }

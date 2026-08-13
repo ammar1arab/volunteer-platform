@@ -19,7 +19,12 @@ export async function GET(req: Request, ctx: { params: Promise<{ activityId: str
     return toResponse(
       await providers
         .meeting()
-        .getMeetingLaunchUrl(activityId, auth.session.user.id, auth.session.user.role)
+        .getMeetingLaunchUrl(
+          activityId,
+          auth.session.user.id,
+          auth.session.user.role,
+          auth.session.user.email
+        )
     );
   } catch (error) {
     return apiError("API", "GET /meetings/[activityId]/launch", error);

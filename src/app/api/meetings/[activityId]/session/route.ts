@@ -56,7 +56,12 @@ export async function POST(req: Request, ctx: { params: Promise<{ activityId: st
       return toResponse(
         await providers
           .meeting()
-          .leaveMeetingSession(activityId, auth.session.user.id, auth.session.user.role)
+          .leaveMeetingSession(
+            activityId,
+            auth.session.user.id,
+            auth.session.user.role,
+            auth.session.user.email
+          )
       );
     }
 
