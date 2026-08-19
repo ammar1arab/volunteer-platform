@@ -4,6 +4,7 @@ import React from "react";
 import { Modal, LoadingState, EmptyState } from "@/presentation/components";
 import { Users, User as UserIcon } from "lucide-react";
 import { useFetchData } from "@/presentation/hooks";
+import { formatDateArabic } from "@/lib/utils";
 import styles from "./AnalyticsModals.module.scss";
 
 interface Props {
@@ -46,7 +47,7 @@ const UsersAnalyticsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   <div className={styles.secondaryText}>{user.email}</div>
                 </div>
                 <div className={styles.metaText} dir="ltr">
-                  {new Date(user.createdAt).toLocaleDateString("ar-EG")}
+                  {formatDateArabic(user.createdAt)}
                 </div>
               </div>
             ))}

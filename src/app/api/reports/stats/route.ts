@@ -22,11 +22,19 @@ export async function GET(req: NextRequest) {
       totalActivities,
       pendingRequests,
       systemLogsStats,
+      activityViewsAgg,
+      postViewsAgg,
+      magazineDownloadsAgg,
+      systemOperations,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.activity.count(),
       prisma.activityParticipation.count({ where: { status: "PENDING" } }),
       prisma.systemLog.groupBy({ by: ['status'], _count: { status: true } }),
+      prisma.activity.aggregate({ _sum: { views: true } }),
+      prisma.featuredPost.aggregate({ _sum: { views: true } }),
+      prisma.monthlyMagazine.aggregate({ _sum: { downloads: true } }),
+      prisma.systemLog.count(),
     ]);
 
     const errorCount = systemLogsStats
@@ -40,6 +48,10 @@ export async function GET(req: NextRequest) {
         totalActivities,
         pendingRequests,
         errorCount,
+        activityViews: activityViewsAgg._sum.views ?? 0,
+        postViews: postViewsAgg._sum.views ?? 0,
+        magazineDownloads: magazineDownloadsAgg._sum.downloads ?? 0,
+        systemOperations,
       }
     });
   } catch (error) {

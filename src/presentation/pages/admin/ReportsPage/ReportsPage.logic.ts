@@ -7,6 +7,10 @@ export interface DashboardStats {
   totalActivities: number;
   pendingRequests: number;
   errorCount: number;
+  activityViews: number;
+  postViews: number;
+  magazineDownloads: number;
+  systemOperations: number;
 }
 
 export interface SystemLog {

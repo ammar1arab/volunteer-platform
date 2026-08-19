@@ -3,5 +3,6 @@ import { BaseEntityProps } from "./BaseEntityProps";
 export interface MonthlyMagazineProps extends BaseEntityProps {
   title: string;
   pdfUrl: string;
-  monthYear: Date; 
+  monthYear: Date;
+  downloads?: number;
 }

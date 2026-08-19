@@ -51,7 +51,8 @@ class Activity extends BaseEntity {
       meetingSyncError: props.meetingSyncError ?? null,
       meetingSyncedAt: props.meetingSyncedAt ?? null,
       timeZone: props.timeZone?.trim() || Activity.DEFAULT_TIME_ZONE,
-      deletedAt: props.deletedAt ?? null
+      deletedAt: props.deletedAt ?? null,
+      views: props.views ?? 0
     };
   }
 
@@ -62,7 +63,7 @@ class Activity extends BaseEntity {
   }
 
   static create(
-    input: Omit<ActivityProps, "id" | "createdAt" | "updatedAt" | "currentVolunteers" | "status">
+    input: Omit<ActivityProps, "id" | "createdAt" | "updatedAt" | "currentVolunteers" | "status" | "views">
   ): Activity {
     if (input.activityType === ActivityType.IN_PERSON) {
       if (!input.placeName?.trim()) throw new Error("Place name is required for in-person activities");
@@ -81,7 +82,8 @@ class Activity extends BaseEntity {
       status: ActivityStatus.DRAFT,
       createdAt: new Date(),
       updatedAt: new Date(),
-      isActive: true
+      isActive: true,
+      views: 0
     });
   }
 
@@ -210,7 +212,7 @@ class Activity extends BaseEntity {
     );
   }
 
-  update(input: Partial<Omit<ActivityProps, "id" | "createdAt" | "currentVolunteers" | "status" | "createdBy">>): void {
+  update(input: Partial<Omit<ActivityProps, "id" | "createdAt" | "currentVolunteers" | "status" | "createdBy" | "views">>): void {
     if (!this.canBeEdited()) throw new Error("Cannot edit a cancelled or completed activity");
 
     let changed = false;
@@ -391,6 +393,18 @@ class Activity extends BaseEntity {
   }
   get endTime(): string {
     return this.props.endTime;
+  }
+  get timeZone(): string {
+    return this.props.timeZone;
+  }
+
+  get views(): number {
+    return this.props.views;
+  }
+
+  incrementViews(): void {
+    this.props.views += 1;
+    this.touch();
   }
 
   toObject(): ActivityProps {

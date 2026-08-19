@@ -20,6 +20,7 @@ class MonthlyMagazine extends BaseEntity {
       title: props.title.trim(),
       pdfUrl: props.pdfUrl.trim(),
       monthYear: MonthlyMagazine.normalizeMonthYear(props.monthYear),
+      downloads: props.downloads ?? 0,
     };
   }
 
@@ -36,6 +37,7 @@ class MonthlyMagazine extends BaseEntity {
       createdAt: new Date(),
       updatedAt: new Date(),
       isActive: input.isActive ?? true,
+      downloads: 0,
     });
   }
 
@@ -86,6 +88,15 @@ class MonthlyMagazine extends BaseEntity {
 
   get monthYear(): Date {
     return this.props.monthYear;
+  }
+
+  get downloads(): number {
+    return this.props.downloads ?? 0;
+  }
+
+  incrementDownloads(): void {
+    this.props.downloads = this.downloads + 1;
+    this.touch();
   }
 
   toObject(): MonthlyMagazineProps {

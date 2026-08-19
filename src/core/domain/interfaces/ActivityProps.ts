@@ -44,4 +44,5 @@ export interface ActivityProps extends BaseEntityProps {
   meetingSyncError: string | null;
   meetingSyncedAt: Date | null;
   timeZone: string;
+  views: number;
 }

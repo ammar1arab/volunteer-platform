@@ -17,7 +17,8 @@ class FeaturedPost extends BaseEntity {
       categories: [...(props.categories ?? [])],
       imageUrl: props.imageUrl.trim(),
       title: props.title.trim(),
-      description: props.description.trim()
+      description: props.description.trim(),
+      views: props.views ?? 0,
     };
   }
 
@@ -28,7 +29,8 @@ class FeaturedPost extends BaseEntity {
       createdAt: new Date(),
       publishedAt: input.publishedAt ?? new Date(),
       updatedAt: new Date(),
-      isActive: input.isActive ?? true
+      isActive: input.isActive ?? true,
+      views: 0,
     });
   }
 
@@ -99,6 +101,15 @@ class FeaturedPost extends BaseEntity {
 
   get publishedAt(): Date {
     return this.props.publishedAt;
+  }
+
+  get views(): number {
+    return this.props.views ?? 0;
+  }
+
+  incrementViews(): void {
+    this.props.views = this.views + 1;
+    this.touch();
   }
 
   toObject(): FeaturedPostProps {

@@ -72,6 +72,10 @@ export { default as UsersAnalyticsModal } from "./admin/AnalyticsModals/UsersAna
 export { default as ActivitiesAnalyticsModal } from "./admin/AnalyticsModals/ActivitiesAnalyticsModal";
 export { default as PendingRequestsModal } from "./admin/AnalyticsModals/PendingRequestsModal";
 export { default as SystemErrorsModal } from "./admin/AnalyticsModals/SystemErrorsModal";
+export { default as ActivityViewsModal } from "./admin/AnalyticsModals/ActivityViewsModal";
+export { default as PostViewsModal } from "./admin/AnalyticsModals/PostViewsModal";
+export { default as MagazineDownloadsModal } from "./admin/AnalyticsModals/MagazineDownloadsModal";
+export { default as SystemOperationsModal } from "./admin/AnalyticsModals/SystemOperationsModal";
 
 export { default as NotificationBell } from "./volunteer/NotificationBell/NotificationBell";
 export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";

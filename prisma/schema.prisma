@@ -95,6 +95,7 @@ model Activity {
   meetingSyncedAt   DateTime?
   timeZone          String                  @default("Asia/Amman")
   deletedAt         DateTime?
+  views             Int                     @default(0)
   creator           User                    @relation("ActivityCreator", fields: [createdBy], references: [id])
   participations    ActivityParticipation[]
   certificates      Certificate[]
@@ -272,6 +273,7 @@ model FeaturedPost {
   updatedAt   DateTime               @updatedAt
   categories  FeaturedPostCategory[] @default([])
   publishedAt DateTime               @default(now())
+  views       Int                    @default(0)
 
   @@index([title])
   @@map("featured_posts")
@@ -299,6 +301,7 @@ model MonthlyMagazine {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  downloads Int      @default(0)
 
   @@index([monthYear])
   @@map("monthly_magazines")

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import styles from "./ReportsPage.module.scss";
 import { useReportsPage } from "./ReportsPage.logic";
-import { SectionHeader, StatsCard, SelectInput, Search, SystemLogsTable, UsersAnalyticsModal, ActivitiesAnalyticsModal, PendingRequestsModal, SystemErrorsModal } from "@/presentation/components";
-import { Activity, Users, Clock, ShieldAlert } from "lucide-react";
+import { StatsCard, SelectInput, Search, SystemLogsTable, UsersAnalyticsModal, ActivitiesAnalyticsModal, PendingRequestsModal, SystemErrorsModal, ActivityViewsModal, PostViewsModal, MagazineDownloadsModal, SystemOperationsModal } from "@/presentation/components";
+import { Activity, Users, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare } from "lucide-react";
 import { SystemLogStatus } from "@/core/domain/enums";
 
 const STATUS_OPTIONS = [
@@ -21,25 +21,27 @@ export default function ReportsPage() {
     logs,
     pagination,
     isLoadingLogs,
-    page,
     handlePageChange,
     filterAction,
     filterStatus,
     handleFilterChange,
   } = useReportsPage();
 
-  const [activeModal, setActiveModal] = useState<"users" | "activities" | "pending" | "errors" | null>(null);
+  const [activeModal, setActiveModal] = useState<"users" | "activities" | "pending" | "errors" | "activityViews" | "postViews" | "magazineDownloads" | "operations" | null>(null);
 
   const statItems = [
     { id: "users" as const, title: "إجمالي المستخدمين", value: stats?.totalUsers, icon: Users, color: "blue" as const },
     { id: "activities" as const, title: "الأنشطة التطوعية", value: stats?.totalActivities, icon: Activity, color: "green" as const },
+    { id: "activityViews" as const, title: "مشاهدات الأنشطة", value: stats?.activityViews, icon: Eye, color: "blue" as const },
+    { id: "postViews" as const, title: "تفاعل المقالات", value: stats?.postViews, icon: FileText, color: "yellow" as const },
+    { id: "magazineDownloads" as const, title: "تحميلات المجلة", value: stats?.magazineDownloads, icon: Download, color: "green" as const },
+    { id: "operations" as const, title: "عمليات النظام", value: stats?.systemOperations, icon: ActivitySquare, color: "blue" as const },
     { id: "pending" as const, title: "الطلبات المعلقة", value: stats?.pendingRequests, icon: Clock, color: "yellow" as const },
     { id: "errors" as const, title: "أخطاء النظام", value: stats?.errorCount, icon: ShieldAlert, color: "red" as const },
   ];
 
   return (
     <div className={styles.page}>
-      <SectionHeader title="سجل النظام والتقارير" subtitle="نظرة عامة على أداء المنصة وسجل النظام" align="start" />
 
       <div className={styles.statsGrid}>
         {statItems.map((item) => (
@@ -91,6 +93,10 @@ export default function ReportsPage() {
         onReject={() => {}} 
       />
       <SystemErrorsModal isOpen={activeModal === "errors"} onClose={() => setActiveModal(null)} />
+      <ActivityViewsModal isOpen={activeModal === "activityViews"} onClose={() => setActiveModal(null)} />
+      <PostViewsModal isOpen={activeModal === "postViews"} onClose={() => setActiveModal(null)} />
+      <MagazineDownloadsModal isOpen={activeModal === "magazineDownloads"} onClose={() => setActiveModal(null)} />
+      <SystemOperationsModal isOpen={activeModal === "operations"} onClose={() => setActiveModal(null)} />
     </div>
   );
 }

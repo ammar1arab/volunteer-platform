@@ -3,6 +3,7 @@
 import React from "react";
 import { Modal, LoadingState, EmptyState, Badge } from "@/presentation/components";
 import { Activity } from "lucide-react";
+import { formatDateArabic } from "@/lib/utils";
 import { useFetchData } from "@/presentation/hooks";
 import { getActivityStatusLabel } from "@/presentation/constants";
 import { ActivityStatus } from "@/core/domain/enums";
@@ -46,7 +47,7 @@ const ActivitiesAnalyticsModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 <div className={styles.content}>
                   <div className={styles.primaryText}>{activity.title}</div>
                   <div className={styles.metaText} dir="ltr" style={{ marginTop: "4px" }}>
-                    {new Date(activity.date).toLocaleDateString("ar-EG")}
+                    {formatDateArabic(activity.date)}
                   </div>
                 </div>
                 <div>
