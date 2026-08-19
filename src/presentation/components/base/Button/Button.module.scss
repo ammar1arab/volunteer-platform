@@ -2,11 +2,11 @@
 @use "@/presentation/styles/mixins" as *;
 
 .button {
-  width: 100%;
+  width: fit-content;
   @include flex-center;
   gap: $sp-xs;
   font-weight: 600;
-  border: none;
+  border: 1px solid transparent;
   border-radius: $radius;
   cursor: pointer;
   transition: $transition;
@@ -49,7 +49,6 @@
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: $shadow;
   }
 
   &:active:not(:disabled) {
@@ -84,9 +83,11 @@
 .secondary {
   background: transparent;
   color: $green;
+  border-color: $border;
 
   &:hover:not(:disabled) {
-    background: rgba($green, 0.1);
+    background: rgba($green, 0.05);
+    border-color: rgba($green, 0.2);
     transform: translateY(-2px);
   }
 
@@ -98,11 +99,12 @@
 .ghost {
   background: transparent;
   color: $text;
+  border-color: $border;
 
   &:hover:not(:disabled) {
-    background: rgba($green, 0.05);
-    border-color: $green;
-    color: $green;
+    background: $surface-hover;
+    border-color: $border;
+    color: $text;
   }
 }
 
@@ -112,7 +114,6 @@
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba($red, 0.3);
   }
 
   &:active:not(:disabled) {

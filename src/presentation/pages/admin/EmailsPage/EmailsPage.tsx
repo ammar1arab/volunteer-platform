@@ -355,9 +355,9 @@ const EmailsPage = () => {
                 <span className={styles.metaTag}>{form.hasExperience === "yes" ? "يملك خبرة" : "لا يملك خبرة"}</span>
               )}
             </div>
-            <button className={styles.toggleAllBtn} onClick={toggleAll}>
+            <Button variant="ghost" size="sm" onClick={toggleAll}>
               {allSelected ? "إلغاء الكل" : "تحديد الكل"}
-            </button>
+            </Button>
           </div>
 
           <div className={styles.modalList}>
@@ -390,7 +390,7 @@ const EmailsPage = () => {
           </div>
 
           <div className={styles.modalFooter}>
-            <button className={styles.btnGhost} onClick={closePreview} disabled={isSending}>إلغاء</button>
+            <Button variant="ghost" onClick={closePreview} disabled={isSending}>إلغاء</Button>
             <Button
               type="button"
               variant="primary"

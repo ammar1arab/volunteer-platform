@@ -4,8 +4,9 @@
 .card {
   @include flex(row, center, flex-start, $sp-md);
   padding: $sp-md;
+  background: $surface;
   border-radius: $radius-lg;
-  border: 2px solid $border;
+  border: 1px solid $border;
   position: relative;
   overflow: hidden;
   transition: all 0.25s ease;
@@ -24,8 +25,7 @@
     cursor: pointer;
 
     &:hover {
-      border-color: $green;
-      box-shadow: 0 4px 16px rgba($green, 0.2);
+      background: $surface-hover;
       transform: translateY(-2px);
 
       &::before {
@@ -45,7 +45,6 @@
 
   &.admin {
     background: linear-gradient(135deg, rgba(#3b82f6, 0.03), $bg);
-    border-color: rgba(#3b82f6, 0.2);
 
     .avatar {
       background: linear-gradient(135deg, #3b82f6, #2563eb);

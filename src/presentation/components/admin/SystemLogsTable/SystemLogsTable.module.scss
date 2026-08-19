@@ -1,3 +1,5 @@
+@use "@/presentation/styles/variables" as *;
+
 .tableWrapper {
   width: 100%;
   overflow-x: auto;
@@ -12,7 +14,7 @@
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: var(--border-color);
+    background: $border;
     border-radius: var(--radius-full);
   }
 }
@@ -25,7 +27,7 @@
   th,
   td {
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid $border;
   }
 
   th {
@@ -85,4 +87,65 @@
 .userEmail {
   font-size: 0.75rem;
   color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .tableWrapper {
+    border-radius: 0;
+    background: transparent;
+    margin-bottom: 1rem;
+  }
+
+  .table {
+    display: block;
+
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    tr {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid $border;
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      overflow: hidden;
+      
+      &:hover {
+        background: var(--bg-card);
+      }
+
+      &:last-child td {
+        border-bottom: none;
+      }
+    }
+
+    td {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid $border;
+      
+      &::before {
+        content: attr(data-label);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-inline-end: 1rem;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .actionCell, .userCell {
+    align-items: flex-end;
+    text-align: left;
+  }
 }

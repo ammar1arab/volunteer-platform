@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Calendar, Clock, MapPin, Wifi, CheckCircle2, XCircle, Navigation, Award } from "lucide-react";
 import styles from "./ActivityItem.module.scss";
-import { Modal, Share } from "@/presentation/components";
+import { Modal, Share, Button } from "@/presentation/components";
 import {
   getMonthLabel, getParticipationStatusLabel,
   getActivityTypeLabel, getMeetingPlatformLabel,
@@ -161,24 +161,23 @@ const ActivityItem = ({
                 <span className={styles.linkPending}>الرابط قيد الإنشاء</span>
               )}
               {hasMap && mapUrl && (
-                <button type="button" className={styles.mapBtn} onClick={() => setLocationModalOpen(true)}>
-                  <MapPin size={12} />
+                <Button variant="secondary" size="sm" onClick={() => setLocationModalOpen(true)} icon={<MapPin size={12} />}>
                   الموقع
-                </button>
+                </Button>
               )}
             </div>
 
 
             <div className={styles.btnGroup}>
               {canCancel(status, activityStatus) && onCancel && (
-                <button className={styles.btnCancel} disabled={actionLoading} onClick={onCancel}>
+                <Button variant="danger" size="sm" disabled={actionLoading} onClick={onCancel}>
                   {actionLoading ? "..." : status === ParticipationStatus.APPROVED ? "إلغاء انضمامي" : "إلغاء الطلب"}
-                </button>
+                </Button>
               )}
               {(status === ParticipationStatus.REJECTED || status === ParticipationStatus.CANCELLED) && onReapply && (
-                <button className={styles.btnReapply} disabled={actionLoading} onClick={onReapply}>
+                <Button variant="primary" size="sm" disabled={actionLoading} onClick={onReapply}>
                   {actionLoading ? "..." : "انضمام مجدداً"}
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -201,10 +200,10 @@ const ActivityItem = ({
           <div className={styles.locActions}>
             <Share
               trigger={(openShare) => (
-                <button type="button" className={styles.locBtnShare}
+                <Button type="button" variant="secondary"
                   onClick={() => openShare({ title: placeName ?? "الموقع", text: `${placeName ?? ""}\n${mapUrl}` })}>
                   مشاركة الموقع
-                </button>
+                </Button>
               )}
             />
             <a className={styles.locBtnMaps} href={mapUrl} target="_blank" rel="noopener noreferrer"

@@ -4,7 +4,7 @@ import { useAdminUserDetailsPage } from "./AdminUserDetailsPage.logic";
 import Link from "next/link";
 import {
   LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown,
-  ActivityItem, ToastContainer, Pagination, ExportUsersButton, ConfirmDialog, EditableField,
+  ActivityItem, ToastContainer, Pagination, ExportUsersButton, ConfirmDialog, EditableField, Button
 } from "@/presentation/components";
 import {
   ArrowRight, Activity, CheckCircle, Clock, XCircle,
@@ -124,17 +124,26 @@ const AdminUserDetailsPage = () => {
           <ArrowRight size={16} /> العودة
         </Link>
         <div className={styles.actions}>
-          <button
-            className={user.isActive ? styles.btnDeactivate : styles.btnActivate}
+          <Button
+            variant={user.isActive ? "danger" : "primary"}
+            size="sm"
             onClick={() => setShowToggleConfirm(true)}
             disabled={isTogglingActive}
+            loading={isTogglingActive}
+            icon={user.isActive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
           >
-            {isTogglingActive ? <span className={styles.spinner} /> : user.isActive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
-            <span>{user.isActive ? "تعطيل" : "تفعيل"}</span>
-          </button>
-          <button className={styles.btnDanger} onClick={() => setShowDeleteConfirm(true)} disabled={isDeleting}>
-            <Trash2 size={13} /><span>حذف</span>
-          </button>
+            {user.isActive ? "تعطيل" : "تفعيل"}
+          </Button>
+          <Button 
+            variant="danger" 
+            size="sm"
+            onClick={() => setShowDeleteConfirm(true)} 
+            disabled={isDeleting}
+            loading={isDeleting}
+            icon={<Trash2 size={13} />}
+          >
+            حذف
+          </Button>
           <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export Excel" />
         </div>
       </div>
@@ -149,10 +158,10 @@ const AdminUserDetailsPage = () => {
       />
 
       <div className={styles.statsGrid}>
-        <StatsCard icon={Activity}    value={user.stats.totalActivities}    label="إجمالي الفرص"  variant="blue"   />
-        <StatsCard icon={CheckCircle} value={user.stats.approvedActivities} label="موافق عليه"    variant="green"  />
-        <StatsCard icon={Clock}       value={user.stats.pendingRequests}     label="قيد الانتظار" variant="yellow" />
-        <StatsCard icon={XCircle}     value={user.stats.rejectedRequests}    label="مرفوض"        variant="red"    />
+        <StatsCard icon={Activity}    value={user.stats.totalActivities}    label="إجمالي الفرص"  variant="primary" />
+        <StatsCard icon={CheckCircle} value={user.stats.approvedActivities} label="موافق عليه"    variant="success" />
+        <StatsCard icon={Clock}       value={user.stats.pendingRequests}     label="قيد الانتظار" variant="warning" />
+        <StatsCard icon={XCircle}     value={user.stats.rejectedRequests}    label="مرفوض"        variant="danger" />
       </div>
 
       <div className={styles.grid}>

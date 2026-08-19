@@ -33,7 +33,7 @@ import {
   playMeetingAdmitSound,
   playMeetingDenySound,
   playMeetingWaitingSound
-} from "./meetingSounds";
+} from "@/presentation/utils/sounds";
 
 type Props = {
   activityId: string;

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { AttendanceStatus, ActivityStatus } from "@/core/domain/enums";
 import {
   Modal, LoadingState, EmptyState, ConfirmDialog, ToastContainer,
-  CompleteActivityProgress, ExportUsersButton, Pagination,
+  CompleteActivityProgress, ExportUsersButton, Pagination, Button
 } from "@/presentation/components";
 import { ROUTES, getCityLabel, getAttendanceStatusLabel } from "@/presentation/constants";
 import { useCompleteActivity } from "@/presentation/hooks";
@@ -308,9 +308,9 @@ const VolunteersModal = ({
               )}
             </p>
             {canComplete && (
-              <button className={styles.btnComplete} onClick={requestComplete}>
-                <Archive size={15} /> إكمال النشاط
-              </button>
+              <Button variant="primary" icon={<Archive size={15} />} onClick={requestComplete}>
+                إكمال النشاط
+              </Button>
             )}
           </div>
         </div>

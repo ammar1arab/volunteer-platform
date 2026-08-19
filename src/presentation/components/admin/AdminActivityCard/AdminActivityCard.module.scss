@@ -15,6 +15,7 @@
   @include flex(row, stretch, flex-start);
   border-radius: $radius-lg;
   background: $bg;
+  border: 1px solid $border;
   overflow: hidden;
   position: relative;
   transition:

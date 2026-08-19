@@ -140,7 +140,7 @@
 
   &.waiting {
     opacity: 0.38;
-    .iconCircle { background: rgba($border, 0.5); color: $text-muted; }
+    .iconCircle { background: $border; color: $text-muted; }
   }
 }
 

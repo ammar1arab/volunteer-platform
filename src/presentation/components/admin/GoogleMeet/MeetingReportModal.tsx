@@ -13,7 +13,7 @@ import {
 import { useMeetingReport, useMatchAttendee } from "@/presentation/hooks";
 import { MeetingAttendeeMatchStatus } from "@/core/domain/enums";
 import { Clock3, Mail, UserRound, Users } from "lucide-react";
-import { formatDateArabic } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 
 type MatchOption = { value: string; label: string };
 
@@ -108,7 +108,7 @@ const MeetingReportModal = ({
               </span>
               {report.importedAt && (
                 <span className={styles.label}>
-                  استيراد: {formatDateArabic(report.importedAt)}
+                  استيراد: {formatDate(report.importedAt)}
                 </span>
               )}
             </div>

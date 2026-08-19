@@ -3,7 +3,7 @@
 import { createPortal } from "react-dom";
 import { useIsClient } from "@/presentation/query";
 import { FileDown, Download } from "lucide-react";
-import { Modal } from "@/presentation/components";
+import { Modal, Button } from "@/presentation/components";
 import { useExportUsersButton, type ExcelExportRow } from "./ExportUsersButton.logic";
 import styles from "./ExportUsersButton.module.scss";
 
@@ -21,7 +21,7 @@ interface ExportUsersButtonProps {
 const ExportUsersButton = ({
   data,
   columns,
-  buttonText = "تصدير Excel",
+  buttonText = "Export",
 }: ExportUsersButtonProps) => {
   const mounted = useIsClient();
   const {
@@ -65,18 +65,17 @@ const ExportUsersButton = ({
         </div>
 
         <div className={styles.modalActions}>
-          <button type="button" className={styles.btnCancel} onClick={closeModal}>
+          <Button variant="ghost" onClick={closeModal}>
             إلغاء
-          </button>
-          <button
-            type="button"
-            className={styles.btnSubmit}
+          </Button>
+          <Button
+            variant="primary"
             onClick={exportToExcel}
             disabled={selectedColumns.length === 0}
+            icon={<Download size={16} />}
           >
-            <Download size={16} />
             Export ({selectedColumns.length})
-          </button>
+          </Button>
         </div>
       </div>
     </Modal>
@@ -84,10 +83,9 @@ const ExportUsersButton = ({
 
   return (
     <>
-      <button type="button" className={styles.btn} onClick={openModal}>
-        <FileDown size={18} />
+      <Button variant="secondary" onClick={openModal} icon={<FileDown size={18} />}>
         {buttonText}
-      </button>
+      </Button>
       {mounted ? createPortal(modal, document.body) : null}
     </>
   );

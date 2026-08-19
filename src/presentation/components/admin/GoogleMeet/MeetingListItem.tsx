@@ -7,6 +7,7 @@ import { MeetingSyncStatus } from "@/core/domain/enums";
 import { ROUTES } from "@/presentation/constants";
 import Link from "next/link";
 import type { MeetingListItemDto } from "@/presentation/services/meetings.service";
+import { formatDate } from "@/lib/utils/date";
 import {
   Calendar,
   Users,
@@ -30,18 +31,8 @@ type Props = {
   onOpenVolunteers?: (meeting: MeetingListItemDto) => void;
 };
 
-const formatDate = (date: string) => {
-  try {
-    const d = new Date(date);
-    return d.toLocaleDateString("ar-JO", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric"
-    });
-  } catch {
-    return date;
-  }
+const formatDateLocal = (date: string) => {
+  return formatDate(date);
 };
 
 const MeetingListItem = ({
@@ -71,7 +62,7 @@ const MeetingListItem = ({
           <div className={styles.cell}>
             <Calendar size={13} className={styles.icon} />
             <span className={styles.text}>
-              {formatDate(meeting.date)} · {meeting.startTime} – {meeting.endTime}
+              {formatDateLocal(meeting.date)} · {meeting.startTime} – {meeting.endTime}
             </span>
           </div>
 

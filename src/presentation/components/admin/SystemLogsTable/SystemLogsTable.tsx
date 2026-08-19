@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./SystemLogsTable.module.scss";
-import { Badge, Pagination, EmptyState, LoadingState } from "@/presentation/components";
-import { formatDateArabic } from "@/lib/utils";
+import { Pagination, EmptyState, LoadingState, SystemLogBadge } from "@/presentation/components";
+import { formatDate } from "@/lib/utils/date";
 import { SystemLogStatus } from "@/core/domain/enums";
 import { Activity } from "lucide-react";
 import type { SystemLog, PaginationData } from "@/presentation/pages/admin/ReportsPage/ReportsPage.logic";
@@ -43,13 +43,13 @@ const SystemLogsTable: React.FC<Props> = ({ logs, isLoading, pagination, onPageC
           <tbody>
             {logs.map((log) => (
               <tr key={log.id}>
-                <td>
+                <td data-label="الحدث">
                   <div className={styles.actionCell}>
                     <span className={styles.actionName}>{log.action}</span>
                     {log.message && <span className={styles.actionMessage}>{log.message}</span>}
                   </div>
                 </td>
-                <td>
+                <td data-label="المستخدم">
                   {log.user ? (
                     <div className={styles.userCell}>
                       <span className={styles.userName}>{log.user.fullName}</span>
@@ -59,25 +59,11 @@ const SystemLogsTable: React.FC<Props> = ({ logs, isLoading, pagination, onPageC
                     <span className={styles.userEmail}>نظام</span>
                   )}
                 </td>
-                <td>
-                  <Badge
-                    variant={
-                      log.status === SystemLogStatus.SUCCESS
-                        ? "success"
-                        : log.status === SystemLogStatus.ERROR
-                        ? "danger"
-                        : "warning"
-                    }
-                  >
-                    {log.status === SystemLogStatus.SUCCESS
-                      ? "نجاح"
-                      : log.status === SystemLogStatus.ERROR
-                      ? "خطأ"
-                      : "فشل"}
-                  </Badge>
+                <td data-label="الحالة">
+                  <SystemLogBadge status={log.status} />
                 </td>
-                <td dir="ltr" style={{ textAlign: "right" }}>
-                  {formatDateArabic(log.createdAt)}
+                <td data-label="التاريخ والوقت" dir="ltr" style={{ textAlign: "right" }}>
+                  {formatDate(log.createdAt)}
                 </td>
               </tr>
             ))}

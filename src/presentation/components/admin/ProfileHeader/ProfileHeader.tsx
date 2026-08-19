@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { Upload, Calendar } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 import styles from "./ProfileHeader.module.scss";
 
 type Props = {
@@ -48,7 +49,7 @@ const ProfileHeader = ({
         <span className={styles.role}>{role}</span>
         <div className={styles.memberSince}>
           <Calendar size={14} />
-          <span>عضو منذ {new Date(createdAt).toLocaleDateString("ar")}</span>
+          <span>عضو منذ {formatDate(createdAt)}</span>
         </div>
         {totalHours !== undefined && (
           <div className={styles.hoursChip}>

@@ -55,14 +55,35 @@ export const getMaxDateOfBirth = (): string => {
   return formatDateForInput(date);
 };
 
-export const formatDateArabic = (date: Date | string): string => {
+export const formatDate = (date: Date | string): string => {
   const d = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("en-GB", {
     year: "numeric",
     month: "short",
     day: "numeric",
-    hour: "numeric",
+  }).format(d);
+};
+
+export const formatDateTime = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
     minute: "2-digit",
     hour12: true,
-  }).format(d).replace(/, /g, " at "); // e.g. "11 Aug 2024 at 10:30 am"
+  }).format(d).toUpperCase();
 };
+
+export const formatTime = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(d);
+};
+
+// Kept for backward compatibility while migrating
+export const formatDateArabic = formatDateTime;

@@ -3,10 +3,10 @@ import styles from "./ActivitiesPage.module.scss";
 import { useActivitiesPage, FILTERS, STATUS_MAP } from "./ActivitiesPage.logic";
 
 import { ActivityStatus, ActivityType } from "@/core/domain/enums";
-import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown, Search, Badge } from "@/presentation/components";
+import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown, Search, Badge, Button } from "@/presentation/components";
 import { Plus, Edit2, Trash2, CalendarDays, Send, Ban, UsersIcon, RotateCcw } from "lucide-react";
 import { getActivityTypeLabel } from "@/presentation/constants";
-import { formatDateArabic } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 
 const ActivitiesPage = () => {
   const {
@@ -36,9 +36,9 @@ const ActivitiesPage = () => {
               placeholder="تصفية حسب الحالة"
               compact
             />
-            <button className={styles.btnCreate} onClick={openCreateModal}>
-              <Plus size={18} /> إضافة فرصة جديدة
-            </button>
+            <Button variant="primary" icon={<Plus size={18} />} onClick={openCreateModal}>
+              إضافة فرصة جديدة
+            </Button>
           </div>
         </div>
       </header>
@@ -115,7 +115,7 @@ const ActivitiesPage = () => {
         activityId={selectedActivity?.id || ""}
         activityTitle={selectedActivity?.title || ""}
         activityStatus={selectedActivity?.status || ""}
-        activityDate={selectedActivity ? formatDateArabic(selectedActivity.date) : ""}
+        activityDate={selectedActivity ? formatDate(selectedActivity.date) : ""}
         activityType={selectedActivity ? getActivityTypeLabel(selectedActivity.activityType as ActivityType) : ""}
         durationHours={selectedActivity?.durationHours ?? 0}
         isOpen={showVolunteersModal}

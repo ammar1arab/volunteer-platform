@@ -201,9 +201,9 @@ const ActivityDetailsPage = () => {
 
 
               {isInPerson && mapsUrl && (
-                <button className={styles.mapsBtn} onClick={() => setLocationModalOpen(true)}>
-                  <MapPin size={12} /> افتح الخريطة
-                </button>
+                <Button variant="secondary" size="sm" icon={<MapPin size={12} />} onClick={() => setLocationModalOpen(true)}>
+                  افتح الخريطة
+                </Button>
               )}
             </div>
 
@@ -231,10 +231,10 @@ const ActivityDetailsPage = () => {
             <div className={styles.locActions}>
               <Share
                 trigger={(openShare) => (
-                  <button type="button" className={styles.locBtnShare}
+                  <Button type="button" variant="secondary" size="md"
                     onClick={() => openShare({ title: activity.placeName ?? "", text: `${activity.placeName ?? ""}\n${mapsUrl}` })}>
                     مشاركة الموقع
-                  </button>
+                  </Button>
                 )}
               />
               <a className={styles.locBtnMaps} href={mapsUrl} target="_blank"

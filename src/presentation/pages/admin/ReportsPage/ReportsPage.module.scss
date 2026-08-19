@@ -21,7 +21,8 @@
 .section {
   background: $surface;
   padding: 1.5rem;
-  box-shadow: $shadow;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -46,7 +47,9 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 4px; // For scrollbar
 }
 
 .tableWrapper {

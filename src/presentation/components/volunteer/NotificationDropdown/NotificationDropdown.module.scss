@@ -38,7 +38,7 @@
   animation: dropdownReveal 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   background: $bg;
-  border: 1px solid rgba($border, 0.5);
+  border: 1px solid $border;
 
   @media (max-width: $bp-sm) {
     position: fixed;
@@ -70,7 +70,7 @@
 .actionBtn {
   @include flex(row, center, center, 4px);
   background: transparent;
-  border: none;
+  border: 1px solid $border;
   cursor: pointer;
   font-size: $font-xs;
   font-weight: 700;

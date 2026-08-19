@@ -1,4 +1,5 @@
 import { buildEmailFooter } from "./emailFooter";
+import { formatDate } from "@/lib/utils/date";
 
 export interface RecipientVars {
   name:          string;
@@ -8,9 +9,7 @@ export interface RecipientVars {
 }
 
 export function applyVariables(text: string, vars: RecipientVars): string {
-  const today = new Date().toLocaleDateString("ar-SA", {
-    year: "numeric", month: "long", day: "numeric",
-  });
+  const today = formatDate(new Date());
   return text
     .replace(/{اسم_المتطوع}/g,  vars.name)
     .replace(/{المدينة}/g,       vars.city ?? "")

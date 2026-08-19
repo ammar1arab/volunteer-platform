@@ -32,7 +32,6 @@
     right: 0;
     bottom: 0;
     width: 3px;
-    background: currentColor;
     border-radius: 0 $radius-lg $radius-lg 0;
   }
 }
@@ -72,36 +71,19 @@
   align-items: center;
 }
 
-.spinner {
-  animation: spin 1s linear infinite;
-  color: $text-muted;
+.skeletonValue {
+  height: 24px;
+  width: 60px;
+  border-radius: 6px;
+  @include skeleton-loading;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.green {
-  color: $green;
-  border-color: rgba($green, 0.2);
-  .iconWrapper { background: $green; }
-}
-
-.yellow {
-  color: $yellow;
-  border-color: rgba($yellow, 0.2);
-  .iconWrapper { background: $yellow; }
-}
-
-.red {
-  color: $red;
-  border-color: rgba($red, 0.2);
-  .iconWrapper { background: $red; }
-}
-
-.blue {
-  color: $blue;
-  border-color: rgba($blue, 0.2);
-  .iconWrapper { background: $blue; }
-}
+.primary { .iconWrapper { background: $blue; } &::after { background: $blue; } }
+.success { .iconWrapper { background: $green; } &::after { background: $green; } }
+.warning { .iconWrapper { background: $yellow; } &::after { background: $yellow; } }
+.danger  { .iconWrapper { background: $red; } &::after { background: $red; } }
+.info    { .iconWrapper { background: $text-secondary; } &::after { background: $text-secondary; } }
+.violet  { .iconWrapper { background: #8b5cf6; } &::after { background: #8b5cf6; } }
+.pink    { .iconWrapper { background: #ec4899; } &::after { background: #ec4899; } }
+.orange  { .iconWrapper { background: #f97316; } &::after { background: #f97316; } }
+.teal    { .iconWrapper { background: #14b8a6; } &::after { background: #14b8a6; } }

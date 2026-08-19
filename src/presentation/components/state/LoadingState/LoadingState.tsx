@@ -1,4 +1,5 @@
 import styles from "./LoadingState.module.scss";
+import { loadingSoundDataUri } from "@/presentation/utils/loadingSound";
 
 interface Props {
   compact?: boolean;
@@ -8,10 +9,10 @@ interface Props {
 const LoadingState = ({ compact = false, text }: Props) => {
   return (
     <div className={`${styles.container} ${compact ? styles.compact : ""}`}>
-      <div className={styles.spinner}>
-        <div className={styles.ring}></div>
-        <div className={styles.ring}></div>
-        <div className={styles.dot}></div>
+      <audio src={loadingSoundDataUri} autoPlay style={{ display: 'none' }} />
+      <div className={styles.loader}>
+        <div className={styles.pulse}></div>
+        <div className={styles.pulse}></div>
       </div>
       {text && <span className={styles.text}>{text}</span>}
     </div>

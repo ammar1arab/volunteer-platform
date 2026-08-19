@@ -1,26 +1,24 @@
-import { LucideIcon, Loader2 } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import styles from "./StatsCard.module.scss";
 
-type Variant = "green" | "yellow" | "red" | "blue";
+type Variant = "primary" | "success" | "warning" | "danger" | "info" | "violet" | "pink" | "orange" | "teal";
 
 type Props = {
   icon: LucideIcon;
   value: number | string;
   title?: string;
   label?: string;
-  color?: Variant;
   variant?: Variant;
   loading?: boolean;
   onClick?: () => void;
 };
 
-const StatsCard = ({ icon: Icon, value, title, label, color, variant, loading, onClick }: Props) => {
+const StatsCard = ({ icon: Icon, value, title, label, variant = "primary", loading, onClick }: Props) => {
   const displayLabel = title || label;
-  const displayVariant = color || variant || "blue";
 
   return (
     <div 
-      className={`${styles.card} ${styles[displayVariant]} ${onClick ? styles.clickable : ""}`}
+      className={`${styles.card} ${styles[variant]} ${onClick ? styles.clickable : ""}`}
       onClick={onClick}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -31,7 +29,7 @@ const StatsCard = ({ icon: Icon, value, title, label, color, variant, loading, o
       <div className={styles.content}>
         <span className={styles.label}>{displayLabel}</span>
         <span className={styles.value}>
-          {loading ? <Loader2 size={20} className={styles.spinner} /> : value}
+          {loading ? <div className={styles.skeletonValue} /> : value}
         </span>
       </div>
     </div>

@@ -399,7 +399,7 @@
   @include flex(row, center, flex-end, $sp-sm);
   padding-bottom: $sp-xs;
   margin-bottom: $sp-xs;
-  border-bottom: 1px solid rgba($border, 0.4);
+  border-bottom: 1px solid $border;
 }
 .controls {
   display: flex;

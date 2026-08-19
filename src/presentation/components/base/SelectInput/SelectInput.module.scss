@@ -31,7 +31,7 @@
   height: 42px;
   padding: 0 14px;
   background: $bg;
-  border: 1px solid #e5e7eb;
+  border: 1px solid $border;
   border-radius: 8px;
   font-family: inherit;
   font-size: $font-sm;
@@ -108,6 +108,7 @@
   border-radius: 8px;
   color: $text;
   font-weight: 500;
+  white-space: nowrap;
 
   &:hover { background: rgba($green, 0.08); color: #128a39; }
   &:active { transform: scale(0.98); }

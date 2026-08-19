@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import { UserRole } from "@/core/domain/enums";
 import { useActivityParticipations, useToast, useAuth, useConfirmDialog, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
+import { formatDate } from "@/lib/utils/date";
 import { getCityLabel, isJordanianCity } from "@/presentation/constants";
 
 export const useParticipationRequestsPage = () => {
@@ -129,7 +130,7 @@ export const useParticipationRequestsPage = () => {
         city: r.volunteer?.city ? getCityLabel(r.volunteer.city) : "-",
         activityTitle: r.activity?.title || "-",
         activityDate: r.activity?.date
-          ? new Date(r.activity.date).toLocaleDateString("ar")
+          ? formatDate(r.activity.date)
           : "-",
       })),
     [filteredRequests]

@@ -113,17 +113,7 @@ const AdminSidebar = ({ isOpen, isCollapsed, isSuperAdmin, permissions, onToggle
         </button>
 
         <div className={styles.head}>
-          <button
-            type="button"
-            className={styles.brand}
-            onClick={onToggleCollapse}
-            aria-label={isCollapsed ? "توسيع القائمة" : "طي القائمة"}
-            title={isCollapsed ? "توسيع" : "طي"}
-          >
-            <span className={styles.brandIcon}>
-              <LayoutDashboard size={15} strokeWidth={1.75} />
-            </span>
-          </button>
+
 
           <button
             type="button"

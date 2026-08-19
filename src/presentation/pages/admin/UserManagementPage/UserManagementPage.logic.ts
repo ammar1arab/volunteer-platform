@@ -5,6 +5,7 @@ import { UserRole, JordanianCity } from "@/core/domain/enums";
 import { useUsers, useToast, useAuth, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
+import { formatDate } from "@/lib/utils/date";
 import { getCityLabel, getEducationLevelLabel } from "@/presentation/constants";
 import type { ExcelExportRow } from "@/presentation/components/admin/ExportUsersButton/ExportUsersButton.logic";
 
@@ -156,7 +157,7 @@ export const useUserManagementPage = () => {
         interests: user.volunteerProfile?.interests?.join(", ") || "-",
         languages: user.volunteerProfile?.languages?.join(", ") || "-",
         preferredVolunteerTypes: user.volunteerProfile?.preferredVolunteerTypes?.join(", ") || "-",
-        createdAt: new Date(user.createdAt).toLocaleDateString("ar"),
+        createdAt: formatDate(user.createdAt),
         certificatesCount: user.stats.certificatesCount || 0,
       })),
     [volunteers]

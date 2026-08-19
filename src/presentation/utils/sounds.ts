@@ -41,11 +41,12 @@ const tone = (
   freq: number,
   at: number,
   dur: number,
-  vol: number
+  vol: number,
+  type: OscillatorType = "sine"
 ) => {
   const osc = audio.createOscillator();
   const gain = audio.createGain();
-  osc.type = "sine";
+  osc.type = type;
   osc.frequency.value = freq;
   gain.gain.setValueAtTime(0, at);
   gain.gain.linearRampToValueAtTime(vol, at + 0.02);
@@ -56,7 +57,7 @@ const tone = (
   osc.stop(at + dur + 0.04);
 };
 
-const play = (factory: (audio: AudioContext, gainMaster: GainNode, t: number) => void) => {
+export const play = (factory: (audio: AudioContext, gainMaster: GainNode, t: number) => void) => {
   void ensure().then((audio) => {
     if (!audio || !master) return;
     factory(audio, master, audio.currentTime + 0.02);
@@ -82,5 +83,14 @@ export const playMeetingDenySound = () => {
 export const playMeetingWaitingSound = () => {
   play((audio, gainMaster, t) => {
     tone(audio, gainMaster, 660, t, 0.22, 0.18);
+  });
+};
+
+/** Very soft, magical, ethereal double ping for loading states. Matches the radar pulse. */
+export const playLoadingPulseSound = () => {
+  play((audio, gainMaster, t) => {
+    // Ethereal rising chord (A5 -> E6)
+    tone(audio, gainMaster, 880.00, t, 0.4, 0.08, "sine");
+    tone(audio, gainMaster, 1318.51, t + 0.15, 0.6, 0.08, "sine");
   });
 };

@@ -5,7 +5,7 @@ $bg: #ffffff;
 $white: #ffffff;
 $text: #000000;
 $text-muted: #666666;
-$border: #cccccc;
+$border: rgba(0, 0, 0, 0.08);
 $blue: #2563eb;
 $yellow: #f59e0b;
 $surface: #ffffff;
@@ -36,8 +36,8 @@ $radius-lg: 16px;
 $radius-2xl: 24px;
 $radius-full: 9999px;
 
-$shadow: none;
-$shadow-deep: none;
+$shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+$shadow-deep: 0 4px 12px rgba(0, 0, 0, 0.06);
 $transition: 0.2s ease;
 
 $bp-sm: 600px;

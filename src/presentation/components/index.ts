@@ -51,7 +51,7 @@ export { default as AdminVolunteerSpotlightCard } from "./admin/AdminVolunteerSp
 export { default as AdminMagazineCard } from "./admin/AdminMagazineCard/AdminMagazineCard";
 export { default as VolunteersModal } from "./admin/VolunteersModal/VolunteersModal";
 export { default as UserCard } from "./admin/UserCard/UserCard";
-export { default as UserStatsCard } from "./admin/UserStatsCard/UserStatsCard";
+
 export { default as ParticipationRequestItem } from "./admin/ParticipationRequestItem/ParticipationRequestItem";
 export { default as StatsCard } from "./admin/StatsCard/StatsCard";
 export { default as ProfileHeader } from "./admin/ProfileHeader/ProfileHeader";
@@ -68,6 +68,7 @@ export { default as MeetingReportModal } from "./admin/GoogleMeet/MeetingReportM
 export { default as MeetingListItem } from "./admin/GoogleMeet/MeetingListItem";
 export { default as PresenterPicker } from "./admin/PresenterPicker/PresenterPicker";
 export { default as SystemLogsTable } from "./admin/SystemLogsTable/SystemLogsTable";
+export { SystemLogBadge } from "./admin/SystemLogBadge/SystemLogBadge";
 export { SharedDataModal } from "./admin/SharedDataModal/SharedDataModal";
 
 

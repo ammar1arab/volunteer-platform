@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useUserDetails, useToast, useAuth, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { ParticipationStatus, UserRole } from "@/core/domain/enums";
+import { formatDate } from "@/lib/utils/date";
 import { ROUTES } from "@/presentation/constants";
 import type { ExcelExportRow } from "@/presentation/components/admin/ExportUsersButton/ExportUsersButton.logic";
 
@@ -116,7 +117,7 @@ export const useAdminUserDetailsPage = () => {
         membershipNumber: user.volunteerProfile?.membershipNumber || "-",
         city: user.volunteerProfile?.city || "-",
         dateOfBirth: user.volunteerProfile?.dateOfBirth
-          ? new Date(user.volunteerProfile.dateOfBirth).toLocaleDateString("ar")
+          ? formatDate(user.volunteerProfile.dateOfBirth)
           : "-",
         gender: user.volunteerProfile?.gender || "-",
         educationLevel: user.volunteerProfile?.educationLevel || "-",
@@ -128,7 +129,7 @@ export const useAdminUserDetailsPage = () => {
         languages: user.volunteerProfile?.languages?.join(", ") || "-",
         preferredVolunteerTypes: user.volunteerProfile?.preferredVolunteerTypes?.join(", ") || "-",
         activities: activities.map((a) => a.activity.title).join(", ") || "-",
-        createdAt: new Date(user.createdAt).toLocaleDateString("ar")
+        createdAt: formatDate(user.createdAt)
       }
     ];
   }, [user, activities]);

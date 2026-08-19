@@ -1,7 +1,7 @@
 import React from "react";
 import { Users, Activity, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare } from "lucide-react";
-import { Badge } from "@/presentation/components";
-import { formatDateArabic } from "@/lib/utils";
+import { Badge, SystemLogBadge } from "@/presentation/components";
+import { formatDate } from "@/lib/utils/date";
 import type { Column } from "@/presentation/components/admin/SharedDataModal/SharedDataModal";
 import { ActivityStatus, SystemLogStatus } from "@/core/domain/enums";
 import { getActivityStatusLabel } from "@/presentation/constants";
@@ -9,7 +9,7 @@ import { getActivityStatusLabel } from "@/presentation/constants";
 export const USERS_COLUMNS: Column<any>[] = [
   { key: "name", header: "الاسم", accessor: (u) => u.fullName, sortable: true, sortValue: (u) => u.fullName },
   { key: "email", header: "البريد الإلكتروني", accessor: (u) => u.email, sortable: true, sortValue: (u) => u.email },
-  { key: "date", header: "تاريخ الانضمام", accessor: (u) => formatDateArabic(u.createdAt), sortable: true, sortValue: (u) => new Date(u.createdAt).getTime() },
+  { key: "date", header: "تاريخ الانضمام", accessor: (u) => formatDate(u.createdAt), sortable: true, sortValue: (u) => new Date(u.createdAt).getTime() },
 ];
 
 export const ACTIVITIES_COLUMNS: Column<any>[] = [
@@ -20,25 +20,20 @@ export const ACTIVITIES_COLUMNS: Column<any>[] = [
       </Badge>
     ) 
   },
-  { key: "date", header: "تاريخ النشاط", accessor: (a) => formatDateArabic(a.date), sortable: true, sortValue: (a) => new Date(a.date).getTime() },
+  { key: "date", header: "تاريخ النشاط", accessor: (a) => formatDate(a.date), sortable: true, sortValue: (a) => new Date(a.date).getTime() },
 ];
 
 export const PENDING_REQUESTS_COLUMNS: Column<any>[] = [
   { key: "volunteer", header: "اسم المتطوع", accessor: (r) => r.volunteerName, sortable: true, sortValue: (r) => r.volunteerName },
   { key: "activity", header: "النشاط", accessor: (r) => r.activityTitle, sortable: true, sortValue: (r) => r.activityTitle },
-  { key: "date", header: "تاريخ الطلب", accessor: (r) => formatDateArabic(r.createdAt), sortable: true, sortValue: (r) => new Date(r.createdAt).getTime() },
+  { key: "date", header: "تاريخ الطلب", accessor: (r) => formatDate(r.createdAt), sortable: true, sortValue: (r) => new Date(r.createdAt).getTime() },
 ];
 
 export const SYSTEM_LOGS_COLUMNS: Column<any>[] = [
   { key: "action", header: "الحدث", accessor: (l) => l.action, sortable: true, sortValue: (l) => l.action },
   { key: "user", header: "المستخدم", accessor: (l) => l.user?.fullName || "نظام", sortable: true, sortValue: (l) => l.user?.fullName || "نظام" },
-  { key: "status", header: "الحالة", accessor: (l) => (
-      <Badge variant={l.status === SystemLogStatus.SUCCESS ? "success" : l.status === SystemLogStatus.ERROR ? "danger" : "warning"}>
-        {l.status === SystemLogStatus.SUCCESS ? "نجاح" : l.status === SystemLogStatus.ERROR ? "خطأ" : "فشل"}
-      </Badge>
-    )
-  },
-  { key: "date", header: "التاريخ", accessor: (l) => formatDateArabic(l.createdAt), sortable: true, sortValue: (l) => new Date(l.createdAt).getTime() },
+  { key: "status", header: "الحالة", accessor: (l) => <SystemLogBadge status={l.status} /> },
+  { key: "date", header: "التاريخ", accessor: (l) => formatDate(l.createdAt), sortable: true, sortValue: (l) => new Date(l.createdAt).getTime() },
 ];
 
 export const MODAL_CONFIGS: Record<string, any> = {
@@ -94,7 +89,7 @@ export const MODAL_CONFIGS: Record<string, any> = {
     dataKey: "posts",
     columns: [
       { key: "title", header: "عنوان المقال", accessor: (p: any) => p.title, sortable: true, sortValue: (p: any) => p.title },
-      { key: "date", header: "التاريخ", accessor: (p: any) => formatDateArabic(p.createdAt), sortable: true, sortValue: (p: any) => new Date(p.createdAt).getTime() },
+      { key: "date", header: "التاريخ", accessor: (p: any) => formatDate(p.createdAt), sortable: true, sortValue: (p: any) => new Date(p.createdAt).getTime() },
     ],
     emptyTitle: "لا يوجد تفاعل",
     emptyMessage: "لا توجد مقالات مسجلة.",

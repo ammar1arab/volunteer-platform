@@ -25,6 +25,8 @@ export const formatForHTML = (text: string): string => {
     .replace(/\n/g, "<br>");
 };
 
+import { formatDate } from "./date";
+
 export const truncate = (
   text: string,
   maxLength: number,
@@ -184,7 +186,7 @@ export const formatRelativeTime = (date: string | Date): string => {
   if (diffDays < 30)
     return `منذ ${diffDays} ${diffDays === 1 ? "يوم" : diffDays === 2 ? "يومين" : "أيام"}`;
 
-  return past.toLocaleDateString("ar-JO");
+  return formatDate(past);
 };
 
 export const cleanUserInput = (text: string): string => {

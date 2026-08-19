@@ -188,13 +188,17 @@
 @mixin card {
   border-radius: $radius-lg;
   padding: $sp-lg;
+  background: $surface;
+  border: 1px solid $border;
+  box-shadow: $shadow;
 }
 
 @mixin card-hover {
   @include card;
   transition: $transition;
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
+    border-color: rgba(0,0,0,0.12);
     box-shadow: $shadow-deep;
   }
 }
@@ -205,6 +209,8 @@
   padding: $sp-sm $sp-md;
   border-radius: $radius;
   color: $text;
+  background: $surface;
+  border: 1px solid $border;
   font: inherit;
   transition: $transition;
   &:focus {

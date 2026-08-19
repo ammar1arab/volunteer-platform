@@ -82,7 +82,7 @@
     color: $red;
   }
   &.muted {
-    background: rgba($border, 0.5);
+    background: $border;
     color: $text-muted;
   }
   &.blue {
@@ -189,7 +189,7 @@
   @include flex(row, center, space-between, $sp-sm);
   flex-wrap: wrap;
   padding-top: $sp-xs;
-  border-top: 1px solid rgba($border, 0.6);
+  border-top: 1px solid $border;
   gap: $sp-xs;
 }
 
@@ -221,12 +221,13 @@
   font-size: $font-xs;
   font-weight: 600;
   color: $text-muted;
-  background: rgba($border, 0.4);
+  background: $border;
 }
 
 .mapBtn {
   @include flex(row, center, center, 5px);
   padding: 4px 12px;
+  border: 1px solid $border;
   border-radius: $radius;
   font-size: $font-xs;
   font-weight: 600;
@@ -247,6 +248,7 @@
 
 .btnReapply {
   padding: 4px $sp-sm;
+  border: 1px solid $border;
   border-radius: $radius;
   background: rgba($green, 0.06);
   color: $green;
@@ -267,6 +269,7 @@
 
 .btnCancel {
   padding: 4px $sp-sm;
+  border: 1px solid $border;
   border-radius: $radius;
   background: rgba($red, 0.06);
   color: $red;
@@ -309,6 +312,7 @@
 .locBtnShare {
   @include flex-center;
   padding: $sp-sm;
+  border: 1px solid $border;
   border-radius: $radius;
   background: transparent;
   color: $text;

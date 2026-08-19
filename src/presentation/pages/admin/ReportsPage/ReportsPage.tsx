@@ -3,7 +3,7 @@
 import { useState } from "react";
 import styles from "./ReportsPage.module.scss";
 import { useReportsPage } from "./ReportsPage.logic";
-import { StatsCard, SelectInput, Search, SystemLogsTable, ConfirmDialog, SharedDataModal } from "@/presentation/components";
+import { StatsCard, SelectInput, Search, SystemLogsTable, ConfirmDialog, SharedDataModal, Button } from "@/presentation/components";
 import { MODAL_CONFIGS } from "./ReportsModalsConfig";
 import { Activity, Users, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare, Trash2 } from "lucide-react";
 import { SystemLogStatus } from "@/core/domain/enums";
@@ -34,14 +34,14 @@ export default function ReportsPage() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const statItems = [
-    { id: "users" as const, title: "إجمالي المستخدمين", value: stats?.totalUsers, icon: Users, color: "blue" as const },
-    { id: "activities" as const, title: "الأنشطة التطوعية", value: stats?.totalActivities, icon: Activity, color: "green" as const },
-    { id: "activityViews" as const, title: "مشاهدات الأنشطة", value: stats?.activityViews, icon: Eye, color: "blue" as const },
-    { id: "postViews" as const, title: "تفاعل المقالات", value: stats?.postViews, icon: FileText, color: "yellow" as const },
-    { id: "magazineDownloads" as const, title: "تحميلات المجلة", value: stats?.magazineDownloads, icon: Download, color: "green" as const },
-    { id: "operations" as const, title: "عمليات النظام", value: stats?.systemOperations, icon: ActivitySquare, color: "blue" as const },
-    { id: "pending" as const, title: "الطلبات المعلقة", value: stats?.pendingRequests, icon: Clock, color: "yellow" as const },
-    { id: "errors" as const, title: "أخطاء النظام", value: stats?.errorCount, icon: ShieldAlert, color: "red" as const },
+    { id: "users" as const, title: "إجمالي المستخدمين", value: stats?.totalUsers, icon: Users, variant: "primary" as const },
+    { id: "activities" as const, title: "الأنشطة التطوعية", value: stats?.totalActivities, icon: Activity, variant: "success" as const },
+    { id: "activityViews" as const, title: "مشاهدات الأنشطة", value: stats?.activityViews, icon: Eye, variant: "teal" as const },
+    { id: "postViews" as const, title: "تفاعل المقالات", value: stats?.postViews, icon: FileText, variant: "warning" as const },
+    { id: "magazineDownloads" as const, title: "تحميلات المجلة", value: stats?.magazineDownloads, icon: Download, variant: "violet" as const },
+    { id: "operations" as const, title: "عمليات النظام", value: stats?.systemOperations, icon: ActivitySquare, variant: "pink" as const },
+    { id: "pending" as const, title: "الطلبات المعلقة", value: stats?.pendingRequests, icon: Clock, variant: "orange" as const },
+    { id: "errors" as const, title: "أخطاء النظام", value: stats?.errorCount, icon: ShieldAlert, variant: "danger" as const },
   ];
 
   return (
@@ -54,7 +54,7 @@ export default function ReportsPage() {
             title={item.title}
             value={item.value ?? "-"}
             icon={item.icon}
-            color={item.color}
+            variant={item.variant}
             loading={isLoadingStats}
             onClick={() => setActiveModal(item.id)}
           />
@@ -77,15 +77,16 @@ export default function ReportsPage() {
               value={filterStatus}
               onChange={(val) => handleFilterChange(filterAction, val)}
             />
-            <button 
-              className="btn btn-danger"
-              style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", height: "40px" }}
+            <Button 
+              variant="danger"
+              size="md"
+              icon={<Trash2 size={16} />}
               onClick={() => setShowClearConfirm(true)}
               disabled={isClearing}
+              loading={isClearing}
             >
-              <Trash2 size={16} />
               {isClearing ? "جاري المسح..." : "مسح السجلات"}
-            </button>
+            </Button>
           </div>
         </div>
 

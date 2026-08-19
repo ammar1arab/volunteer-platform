@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Modal, LoadingState, EmptyState, Pagination, Search } from "@/presentation/components";
+import { Modal, LoadingState, EmptyState, Pagination, Search, Button } from "@/presentation/components";
 import { Download, ArrowUpDown, ArrowUp, ArrowDown, LucideIcon } from "lucide-react";
 import { useFetchData } from "@/presentation/hooks";
 import styles from "./SharedDataModal.module.scss";
@@ -144,10 +144,9 @@ export function SharedDataModal<T extends Record<string, any>>({
               placeholder="ابحث..."
             />
           </div>
-          <button className={styles.exportBtn} onClick={exportToCSV} disabled={!processedData.length}>
-            <Download size={18} />
-            تصدير إلى Excel
-          </button>
+          <Button variant="secondary" size="sm" onClick={exportToCSV} disabled={!processedData.length} icon={<Download size={16} />}>
+            Export
+          </Button>
         </div>
 
         {isLoading ? (

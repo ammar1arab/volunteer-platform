@@ -1,9 +1,9 @@
 import { buildEmailFooter } from "./emailFooter";
-import { formatDateArabic } from "@/lib/utils/date";
+import { formatDate } from "@/lib/utils/date";
 
 export function buildContactEmail(senderName: string, senderEmail: string, message: string): string {
   const green = "#16a34a";
-  const sentAt = formatDateArabic(new Date());
+  const sentAt = formatDate(new Date());
 
   const row = (label: string, value: string) => `
     <tr>
