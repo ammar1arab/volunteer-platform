@@ -2,48 +2,78 @@
 @use "@/presentation/styles/mixins" as *;
 
 .container {
-  @include flex-center;
-  min-height: 100vh; 
-  padding: $sp-2xl;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $sp-md;
+  width: 100%;
+  min-height: 250px;
+  padding: $sp-2xl 0;
+  
+  &.compact {
+    min-height: 120px;
+    padding: $sp-md 0;
+  }
 }
 
-.loader {
-  @include flex(row, center, center, 12px);
+.spinner {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  @include flex-center;
+}
+
+.ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+
+  &:nth-child(1) {
+    border-top-color: $green;
+    border-bottom-color: $green;
+    animation-duration: 0.8s;
+  }
+
+  &:nth-child(2) {
+    border-left-color: $red;
+    border-right-color: $red;
+    animation-duration: 1.2s;
+    animation-direction: reverse;
+  }
 }
 
 .dot {
-  width: 14px;
-  height: 14px;
-  background: $green;
+  width: 12px;
+  height: 12px;
+  background-color: $green;
   border-radius: 50%;
-  animation: wave 1.4s ease-in-out infinite;
-  &:nth-child(1) {
-    animation-delay: 0s;
-  }
-  &:nth-child(2) {
-    animation-delay: 0.2s;
-  }
-  &:nth-child(3) {
-    animation-delay: 0.4s;
-  }
-  &:nth-child(4) {
-    animation-delay: 0.6s;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+.text {
+  color: $text-secondary;
+  font-size: $font-sm;
+  font-weight: 500;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
   }
 }
 
-@keyframes wave {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
+@keyframes pulse {
+  0% {
+    transform: scale(0.85);
     opacity: 0.6;
   }
-  50% {
-    transform: translateY(-20px) scale(1.2);
+  100% {
+    transform: scale(1.1);
     opacity: 1;
   }
-}
-
-.compact {
-  min-height: unset;
-  padding: $sp-2xl 0;
 }
