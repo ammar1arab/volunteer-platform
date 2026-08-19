@@ -1,0 +1,107 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+
+  th, td {
+    padding: 1rem;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--surface-hover);
+    white-space: nowrap;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: var(--surface-hover);
+  }
+}
+
+.actionCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .actionName {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .actionMessage {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+}
+
+.userCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .userName {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .userEmail {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+  }
+}

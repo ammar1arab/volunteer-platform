@@ -19,3 +19,4 @@ export { PresenterRole } from "./PresenterRole";
 export { NotificationType } from "./NotificationType";
 export { CertificateStatus } from "./CertificateStatus";
 export { OtpType } from "./OtpType";
+export { SystemLogStatus } from "./SystemLogStatus";

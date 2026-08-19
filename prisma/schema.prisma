@@ -8,54 +8,54 @@ datasource db {
 }
 
 model User {
-  id                String                  @id @default(uuid())
-  email             String                  @unique
-  password          String
-  fullName          String
-  phone             String
-  role              UserRole
-  isActive          Boolean                 @default(true)
-  createdAt         DateTime                @default(now())
-  updatedAt         DateTime                @updatedAt
-  emailVerified     Boolean                 @default(false)
-  tokenVersion      Int                     @default(0)
-  isSuperAdmin      Boolean                 @default(false)
-  permissions       String[]                @default([])
-  createdActivities Activity[]              @relation("ActivityCreator")
-  participations    ActivityParticipation[] @relation("VolunteerParticipations")
-  certificates      Certificate[]
-  notifications     Notification[]
-  volunteerProfile  VolunteerProfile?
-  pushSubscriptions PushSubscription[]
-  presentedActivities ActivityPresenter[]   @relation("ActivityPresenterUser")
-  meetingIntegrations MeetingIntegration[]  @relation("MeetingIntegrationConnectedBy")
+  id                  String                    @id @default(uuid())
+  email               String                    @unique
+  password            String
+  fullName            String
+  phone               String
+  role                UserRole
+  isActive            Boolean                   @default(true)
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+  emailVerified       Boolean                   @default(false)
+  tokenVersion        Int                       @default(0)
+  isSuperAdmin        Boolean                   @default(false)
+  permissions         String[]                  @default([])
+  createdActivities   Activity[]                @relation("ActivityCreator")
+  participations      ActivityParticipation[]   @relation("VolunteerParticipations")
+  certificates        Certificate[]
+  notifications       Notification[]
+  volunteerProfile    VolunteerProfile?
+  pushSubscriptions   PushSubscription[]
+  presentedActivities ActivityPresenter[]       @relation("ActivityPresenterUser")
+  meetingIntegrations MeetingIntegration[]      @relation("MeetingIntegrationConnectedBy")
   meetingAttendances  ActivityMeetingAttendee[] @relation("MeetingAttendeeUser")
-
+  systemLogs          SystemLog[]
 
   @@map("users")
 }
 
 model VolunteerProfile {
-  id                       String          @id @default(uuid())
-  userId                   String          @unique
-  city                     JordanianCity
-  dateOfBirth              DateTime
-  profilePictureUrl        String?
-  membershipNumber         String?
-  gender                   Gender?
-  bio                      String?
-  skills                   String[]        @default([])
-  interests                String[]        @default([])
-  educationLevel           EducationLevel?
-  occupation               String?
-  languages                String[]        @default([])
-  preferredVolunteerTypes  String[]        @default([])
-  hasVolunteerExperience   Boolean         @default(false)
-  isActive                 Boolean         @default(true)
-  createdAt                DateTime        @default(now())
-  updatedAt                DateTime        @updatedAt
-  totalVolunteerHours      Float           @default(0)
-  user                     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                      String          @id @default(uuid())
+  userId                  String          @unique
+  city                    JordanianCity
+  dateOfBirth             DateTime
+  profilePictureUrl       String?
+  membershipNumber        String?
+  gender                  Gender?
+  bio                     String?
+  skills                  String[]        @default([])
+  interests               String[]        @default([])
+  educationLevel          EducationLevel?
+  occupation              String?
+  languages               String[]        @default([])
+  preferredVolunteerTypes String[]        @default([])
+  hasVolunteerExperience  Boolean         @default(false)
+  isActive                Boolean         @default(true)
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+  totalVolunteerHours     Float           @default(0)
+  user                    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("volunteer_profiles")
@@ -165,38 +165,38 @@ model MeetingSyncOperation {
 }
 
 model ActivityMeetingReport {
-  id             String                    @id @default(uuid())
-  activityId     String                    @unique
-  conferenceId   String?
-  startedAt      DateTime?
-  endedAt        DateTime?
-  status         String                    @default("PENDING")
-  lastError      String?
-  importedAt     DateTime?
-  reviewedAt     DateTime?
-  createdAt      DateTime                  @default(now())
-  updatedAt      DateTime                  @updatedAt
-  activity       Activity                  @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  attendees      ActivityMeetingAttendee[]
+  id           String                    @id @default(uuid())
+  activityId   String                    @unique
+  conferenceId String?
+  startedAt    DateTime?
+  endedAt      DateTime?
+  status       String                    @default("PENDING")
+  lastError    String?
+  importedAt   DateTime?
+  reviewedAt   DateTime?
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  activity     Activity                  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  attendees    ActivityMeetingAttendee[]
 
   @@index([status])
   @@map("activity_meeting_reports")
 }
 
 model ActivityMeetingAttendee {
-  id             String                @id @default(uuid())
-  reportId       String
-  displayName    String
-  signedInEmail  String?
-  matchedUserId  String?
-  matchStatus    String                @default("UNMATCHED")
-  attendedSeconds Int                  @default(0)
-  firstJoinedAt  DateTime?
-  lastLeftAt     DateTime?
-  createdAt      DateTime              @default(now())
-  updatedAt      DateTime              @updatedAt
-  report         ActivityMeetingReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  matchedUser    User?                 @relation("MeetingAttendeeUser", fields: [matchedUserId], references: [id], onDelete: SetNull)
+  id              String                @id @default(uuid())
+  reportId        String
+  displayName     String
+  signedInEmail   String?
+  matchedUserId   String?
+  matchStatus     String                @default("UNMATCHED")
+  attendedSeconds Int                   @default(0)
+  firstJoinedAt   DateTime?
+  lastLeftAt      DateTime?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  report          ActivityMeetingReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  matchedUser     User?                 @relation("MeetingAttendeeUser", fields: [matchedUserId], references: [id], onDelete: SetNull)
 
   @@index([reportId])
   @@index([matchedUserId])
@@ -441,4 +441,21 @@ enum FeaturedPostCategory {
   LAW
   CULTURE
   SPECIAL_EVENTS
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  action    String
+  status    String   @default("SUCCESS")
+  message   String?
+  metadata  Json?
+  userId    String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([action])
+  @@index([status])
+  @@index([createdAt])
+  @@map("system_logs")
 }

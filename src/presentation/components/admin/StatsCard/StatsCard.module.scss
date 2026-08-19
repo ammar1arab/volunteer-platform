@@ -1,63 +1,94 @@
 @use "@/presentation/styles/variables" as *;
-@use "@/presentation/styles/mixins" as *;
 
 .card {
   display: flex;
   align-items: center;
-  gap: $sp-md;
-  padding: $sp-md;
-  border-radius: $radius;
-  border: 2px solid;
-  transition: $transition;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 6px;
+    background: currentColor;
+  }
 
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
+}
 
-  @media (max-width: 640px) {
-    padding: $sp-sm;
-    gap: $sp-sm;
-  }
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background-color: var(--icon-bg);
+  color: currentColor;
+  flex-shrink: 0;
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-
-.value {
-  font-size: $font-xl;
-  font-weight: 700;
-  line-height: 1;
-
-  @media (max-width: 640px) {
-    font-size: $font-lg;
-  }
+  gap: 0.5rem;
+  z-index: 1;
 }
 
 .label {
-  font-size: $font-xs;
-  color: $text-muted;
-  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: var(--text-muted);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .green {
-  border-color: $green;
-  color: $green;
+  color: #10b981;
+  --icon-bg: rgba(16, 185, 129, 0.15);
 }
 
 .yellow {
-  border-color: #f59e0b;
   color: #f59e0b;
+  --icon-bg: rgba(245, 158, 11, 0.15);
 }
 
 .red {
-  border-color: $red;
-  color: $red;
+  color: #ef4444;
+  --icon-bg: rgba(239, 68, 68, 0.15);
 }
 
 .blue {
-  border-color: #3b82f6;
   color: #3b82f6;
+  --icon-bg: rgba(59, 130, 246, 0.15);
 }

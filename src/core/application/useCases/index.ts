@@ -2,6 +2,7 @@ export { default as AuthUseCase } from "./AuthUseCase";
 export { default as OtpUseCase } from "./OtpUseCase";
 export { default as UserUseCase } from "./UserUseCase";
 export { default as VolunteerProfileUseCase } from "./VolunteerProfileUseCase";
+export { default as SystemLogUseCase } from "./SystemLogUseCase";
 export { default as CertificateUseCase } from "./CertificateUseCase";
 export { default as ActivityUseCase } from "./ActivityUseCase";
 export { default as ActivityParticipationUseCase } from "./ActivityParticipationUseCase";

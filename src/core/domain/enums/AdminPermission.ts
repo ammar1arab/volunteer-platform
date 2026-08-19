@@ -7,7 +7,8 @@ export const ADMIN_PERMISSIONS = [
   "MANAGE_MAGAZINE",
   "MANAGE_NOTIFICATIONS",
   "MANAGE_EMAILS",
-  "MANAGE_MEETINGS"
+  "MANAGE_MEETINGS",
+  "MANAGE_REPORTS"
 ] as const;
 
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number];

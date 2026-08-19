@@ -12,3 +12,4 @@ export { default as NotificationRepository } from "./NotificationRepository/Noti
 export { default as MeetingIntegrationRepository } from "./MeetingIntegrationRepository/MeetingIntegrationRepository";
 export { default as MeetingSyncOperationRepository } from "./MeetingSyncOperationRepository/MeetingSyncOperationRepository";
 export { default as ActivityPresenterRepository } from "./ActivityPresenterRepository/ActivityPresenterRepository";
+export { default as SystemLogRepository } from "./SystemLogRepository/SystemLogRepository";

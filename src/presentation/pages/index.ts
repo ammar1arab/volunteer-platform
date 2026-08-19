@@ -21,6 +21,7 @@ export { default as NotificationsPage } from "./admin/NotificationsPage/Notifica
 export { default as EmailsPage } from "./admin/EmailsPage/EmailsPage";
 export { default as PermissionsPage } from "./admin/PermissionsPage/PermissionsPage";
 export { default as GoogleMeetPage } from "./admin/GoogleMeetPage/GoogleMeetPage";
+export { default as ReportsPage } from "./admin/ReportsPage/ReportsPage";
 
 export { default as VolunteerProfilePage } from "./volunteer/VolunteerProfilePage/VolunteerProfilePage";
 export { default as VolunteerActivitiesPage } from "./volunteer/VolunteerActivitiesPage/VolunteerActivitiesPage";

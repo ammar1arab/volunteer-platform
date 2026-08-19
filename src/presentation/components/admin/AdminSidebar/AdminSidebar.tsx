@@ -9,21 +9,22 @@ import type { AdminPermission } from "@/core/domain/enums";
 import { ConfirmDialog } from "@/presentation/components";
 import { useState } from "react";
 import {
-  FileText,
-  Activity,
+  Newspaper,
+  Star,
+  BookOpen,
+  UserPlus,
+  HeartHandshake,
+  Video,
+  Mail,
+  Bell,
   Users,
-  UserCheck,
+  PieChart,
+  ShieldCheck,
   X,
   LogOut,
-  Trophy,
-  BookOpen,
-  Bell,
-  Mail,
-  ShieldCheck,
   PanelRightClose,
   PanelRightOpen,
-  LayoutDashboard,
-  Video
+  LayoutDashboard
 } from "lucide-react";
 
 type NavItem = {
@@ -35,15 +36,16 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: ROUTES.ADMIN.FEATURED_POSTS, label: PERMISSION_LABELS.MANAGE_POSTS, icon: FileText, permission: "MANAGE_POSTS" },
-  { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: PERMISSION_LABELS.MANAGE_SPOTLIGHT, icon: Trophy, permission: "MANAGE_SPOTLIGHT" },
+  { href: ROUTES.ADMIN.FEATURED_POSTS, label: PERMISSION_LABELS.MANAGE_POSTS, icon: Newspaper, permission: "MANAGE_POSTS" },
+  { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: PERMISSION_LABELS.MANAGE_SPOTLIGHT, icon: Star, permission: "MANAGE_SPOTLIGHT" },
   { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: PERMISSION_LABELS.MANAGE_MAGAZINE, icon: BookOpen, permission: "MANAGE_MAGAZINE" },
-  { href: ROUTES.ADMIN.REQUESTS, label: PERMISSION_LABELS.MANAGE_REQUESTS, icon: UserCheck, permission: "MANAGE_REQUESTS" },
-  { href: ROUTES.ADMIN.ACTIVITIES, label: PERMISSION_LABELS.MANAGE_ACTIVITIES, icon: Activity, permission: "MANAGE_ACTIVITIES" },
+  { href: ROUTES.ADMIN.REQUESTS, label: PERMISSION_LABELS.MANAGE_REQUESTS, icon: UserPlus, permission: "MANAGE_REQUESTS" },
+  { href: ROUTES.ADMIN.ACTIVITIES, label: PERMISSION_LABELS.MANAGE_ACTIVITIES, icon: HeartHandshake, permission: "MANAGE_ACTIVITIES" },
   { href: ROUTES.ADMIN.GOOGLE_MEET, label: PERMISSION_LABELS.MANAGE_MEETINGS, icon: Video, permission: "MANAGE_MEETINGS" },
   { href: ROUTES.ADMIN.EMAILS, label: PERMISSION_LABELS.MANAGE_EMAILS, icon: Mail, permission: "MANAGE_EMAILS" },
   { href: ROUTES.ADMIN.NOTIFICATIONS, label: PERMISSION_LABELS.MANAGE_NOTIFICATIONS, icon: Bell, permission: "MANAGE_NOTIFICATIONS" },
   { href: ROUTES.ADMIN.USERS, label: PERMISSION_LABELS.MANAGE_USERS, icon: Users, permission: "MANAGE_USERS" },
+  { href: ROUTES.ADMIN.REPORTS, label: PERMISSION_LABELS.MANAGE_REPORTS, icon: PieChart, permission: "MANAGE_REPORTS" },
   { href: ROUTES.ADMIN.PERMISSIONS, label: "إدارة الصلاحيات", icon: ShieldCheck, superAdminOnly: true }
 ];
 
