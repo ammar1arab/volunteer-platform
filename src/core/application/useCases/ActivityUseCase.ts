@@ -10,6 +10,7 @@ import { Activity, ActivityPresenter } from "@/core/domain/entities";
 import { R2StorageService } from "@/infrastructure/external";
 import { serviceError, guard, guardRange } from "@/core/application/common";
 import { toActivityDto, toActivityDtoList } from "@/core/application/mappers";
+import { SystemLogUseCase } from "@/core/application/useCases";
 import {
   ActivityStatus,
   ActivityType,
@@ -17,6 +18,7 @@ import {
   MeetingLinkSource,
   MeetingSyncOperationType,
   MeetingSyncStatus,
+  SystemLogStatus,
   NotificationType,
   PresenterRole
 } from "@/core/domain/enums";
@@ -57,7 +59,8 @@ class ActivityUseCase {
     private activityRepository: ActivityRepository,
     private participationRepository: ActivityParticipationRepository,
     private syncOperationRepository: MeetingSyncOperationRepository = new MeetingSyncOperationRepository(),
-    private presenterRepository: ActivityPresenterRepository = new ActivityPresenterRepository()
+    private presenterRepository: ActivityPresenterRepository = new ActivityPresenterRepository(),
+    private systemLogUseCase?: SystemLogUseCase
   ) {
     this.storageService = new R2StorageService();
   }
@@ -288,6 +291,10 @@ class ActivityUseCase {
 
       const created = await this.activityRepository.create(activity);
 
+      if (this.systemLogUseCase) {
+        await this.systemLogUseCase.logAction({ action: "ACTIVITY_CREATED", status: SystemLogStatus.SUCCESS, message: `إنشاء فرصة تطوعية جديدة: ${created.title}`, userId, metadata: { activityId: created.id } });
+      }
+
       if (created.activityType === ActivityType.ONLINE && dto.primaryPresenterId !== undefined) {
         await this.upsertPrimaryPresenter(created.id, dto.primaryPresenterId);
         if (dto.primaryPresenterId?.trim()) {
@@ -466,6 +473,10 @@ class ActivityUseCase {
         await this.enqueueMeetingSync(updated.id, MeetingSyncOperationType.CREATE);
       }
 
+      if (this.systemLogUseCase) {
+        await this.systemLogUseCase.logAction({ action: "ACTIVITY_PUBLISHED", status: SystemLogStatus.SUCCESS, message: `نشر الفرصة التطوعية: ${activity.title}`, metadata: { activityId: updated.id } });
+      }
+
       logger.info(ActivityUseCase.SCOPE, "publish", `Activity published: ${id}`);
       return ok({ activity: await this.toEnrichedDto(updated.id, updated) });
     } catch (error) {
@@ -505,6 +516,10 @@ class ActivityUseCase {
             tag: `cancelled-${id}`
           }
         );
+      }
+
+      if (this.systemLogUseCase) {
+        await this.systemLogUseCase.logAction({ action: "ACTIVITY_CANCELLED", status: SystemLogStatus.SUCCESS, message: `إلغاء الفرصة التطوعية: ${activity.title}`, metadata: { activityId: updated.id } });
       }
 
       logger.info(ActivityUseCase.SCOPE, "cancel", `Activity cancelled: ${id} notified=${approved.length}`);

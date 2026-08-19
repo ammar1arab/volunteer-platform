@@ -3,11 +3,11 @@ import {
   UserRepository,
   PendingRegistrationRepository
 } from "@/infrastructure/persistence/repositories";
-import { EmailUseCase } from "@/core/application/useCases";
+import { EmailUseCase, SystemLogUseCase } from "@/core/application/useCases";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
 import { serviceError } from "@/core/application/common";
 import { prisma } from "@/infrastructure/persistence/prisma";
-import { UserRole, JordanianCity, Gender, EducationLevel, NotificationType, OtpType } from "@/core/domain/enums";
+import { UserRole, JordanianCity, Gender, EducationLevel, NotificationType, OtpType, SystemLogStatus } from "@/core/domain/enums";
 import {
   ok,
   fail,
@@ -31,7 +31,8 @@ class OtpUseCase {
     private otpRepository: OtpRepository,
     private userRepository: UserRepository,
     private emailUseCase: EmailUseCase,
-    private pendingRepository: PendingRegistrationRepository
+    private pendingRepository: PendingRegistrationRepository,
+    private systemLogUseCase: SystemLogUseCase
   ) {}
 
   private generateCode(): string {
@@ -44,7 +45,12 @@ class OtpUseCase {
       if (!SecurityValidator.isValidEmail(email)) return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
 
       const recentCount = await this.otpRepository.countRecentByEmail(email, HOUR_MS);
-      if (recentCount >= MAX_PER_HOUR) return fail("RATE_LIMITED", "لقد تجاوزت الحد المسموح به. يرجى المحاولة لاحقاً");
+      if (recentCount >= MAX_PER_HOUR) {
+        if (this.systemLogUseCase) {
+          await this.systemLogUseCase.logAction({ action: "OTP_RATE_LIMIT", status: SystemLogStatus.ERROR, message: "تجاوز حد إرسال رمز التحقق", metadata: { email, type: dto.type } });
+        }
+        return fail("RATE_LIMITED", "لقد تجاوزت الحد المسموح به. يرجى المحاولة لاحقاً");
+      }
 
       const lastSentAt = await this.otpRepository.getLastSentAt(email, dto.type);
       if (lastSentAt) {
@@ -80,7 +86,13 @@ class OtpUseCase {
         const attempts = await this.otpRepository.incrementAttempts(record.id);
         if (attempts >= MAX_ATTEMPTS) {
           await this.otpRepository.markUsed(record.id);
+          if (this.systemLogUseCase) {
+            await this.systemLogUseCase.logAction({ action: "OTP_VERIFY_FAILED", status: SystemLogStatus.FAILURE, message: "تجاوز الحد الأقصى لمحاولات إدخال الرمز الخاطئ", metadata: { email, type: dto.type } });
+          }
           return fail("INVALID_OTP", "تم تجاوز عدد المحاولات المسموحة");
+        }
+        if (this.systemLogUseCase) {
+          await this.systemLogUseCase.logAction({ action: "OTP_VERIFY_FAILED", status: SystemLogStatus.ERROR, message: "محاولة إدخال رمز خاطئ", metadata: { email, type: dto.type, attempts } });
         }
         return fail("INVALID_OTP", `الرمز غير صحيح. متبقي ${MAX_ATTEMPTS - attempts} محاولات`);
       }

@@ -9,7 +9,8 @@ import type { Prisma } from "@prisma/client";
 import { Activity, ActivityParticipation } from "@/core/domain/entities";
 import { serviceError, guard } from "@/core/application/common";
 import { toParticipationDto, toUserSummaryDto, toActivitySummaryDto } from "@/core/application/mappers";
-import { ActivityStatus, MeetingSyncOperationType, ParticipationStatus, NotificationType, isJordanianCity } from "@/core/domain/enums";
+import { SystemLogUseCase } from "@/core/application/useCases";
+import { ActivityStatus, MeetingSyncOperationType, ParticipationStatus, NotificationType, isJordanianCity, SystemLogStatus } from "@/core/domain/enums";
 import {
   ok,
   fail,
@@ -37,7 +38,8 @@ class ActivityParticipationUseCase {
     private activityRepository: ActivityRepository,
     private userRepository: UserRepository,
     private volunteerProfileRepository: VolunteerProfileRepository,
-    private syncOperationRepository: MeetingSyncOperationRepository = new MeetingSyncOperationRepository()
+    private syncOperationRepository: MeetingSyncOperationRepository = new MeetingSyncOperationRepository(),
+    private systemLogUseCase?: SystemLogUseCase
   ) {}
 
   private async maybeEnqueueAttendeeSync(activity: Activity | null): Promise<void> {
@@ -157,6 +159,11 @@ class ActivityParticipationUseCase {
 
       const participation = ActivityParticipation.create({ activityId, volunteerId });
       const created = await this.participationRepository.create(participation);
+      
+      if (this.systemLogUseCase) {
+        await this.systemLogUseCase.logAction({ action: "JOIN_REQUEST_CREATED", status: SystemLogStatus.SUCCESS, message: `طلب انضمام جديد لنشاط: ${activity.title}`, userId: volunteerId, metadata: { activityId } });
+      }
+
       logger.info(ActivityParticipationUseCase.SCOPE, "createJoinRequest", `Created for activity: ${activityId}`);
       return ok({ participation: await this.mapWithRelations(created) });
     } catch (error) {
@@ -229,6 +236,10 @@ class ActivityParticipationUseCase {
         }
       }
 
+      if (this.systemLogUseCase) {
+        await this.systemLogUseCase.logAction({ action: "JOIN_REQUEST_APPROVED", status: SystemLogStatus.SUCCESS, message: `قبول طلب مشاركة لنشاط: ${activity.title}`, userId: participation.volunteerId, metadata: { activityId: activity.id, participationId: id } });
+      }
+
       logger.info(ActivityParticipationUseCase.SCOPE, "approve", `Approved: ${id}`);
       await this.maybeEnqueueAttendeeSync(activity);
       return ok({ participation: await this.mapWithRelations(participation) });
@@ -270,6 +281,10 @@ class ActivityParticipationUseCase {
           url: ROUTES.ACTIVITIES,
           tag: `rejected-${activity.id}`
         });
+      }
+
+      if (this.systemLogUseCase && activity) {
+        await this.systemLogUseCase.logAction({ action: "JOIN_REQUEST_REJECTED", status: SystemLogStatus.SUCCESS, message: `رفض طلب مشاركة لنشاط: ${activity.title}`, userId: participation.volunteerId, metadata: { activityId: activity?.id, participationId: id } });
       }
 
       logger.info(ActivityParticipationUseCase.SCOPE, "reject", `Rejected: ${id}`);

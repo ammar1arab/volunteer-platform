@@ -37,6 +37,7 @@ const makeEmailUseCase   = () => new EmailUseCase(new UserRepository());
 const makePendingRepo    = () => new PendingRegistrationRepository();
 const makeOtpRepo        = () => new OtpRepository();
 const makeUserRepo       = () => new UserRepository();
+const makeSystemLogUseCase = () => new SystemLogUseCase(new SystemLogRepository());
 
 const makeOtpUseCase = () =>
   new OtpUseCase(
@@ -44,6 +45,7 @@ const makeOtpUseCase = () =>
     makeUserRepo(),
     makeEmailUseCase(),
     makePendingRepo(),
+    makeSystemLogUseCase()
   );
 
 const makeAuthUseCase = () =>
@@ -51,12 +53,13 @@ const makeAuthUseCase = () =>
     makeUserRepo(),
     makeOtpUseCase(),
     makePendingRepo(),
+    makeSystemLogUseCase()
   );
 
 export const providers = {
   auth:  makeAuthUseCase,
   otp:   makeOtpUseCase,
-  systemLog: () => new SystemLogUseCase(new SystemLogRepository()),
+  systemLog: makeSystemLogUseCase,
 
   user:             () => new UserUseCase(new UserRepository()),
   volunteerProfile: () => new VolunteerProfileUseCase(new VolunteerProfileRepository(), new R2StorageService()),
@@ -66,6 +69,7 @@ export const providers = {
       new ActivityParticipationRepository(),
       new MeetingSyncOperationRepository(),
       new ActivityPresenterRepository(),
+      makeSystemLogUseCase()
     ),
 
   participation: () =>
@@ -75,6 +79,7 @@ export const providers = {
       new UserRepository(),
       new VolunteerProfileRepository(),
       new MeetingSyncOperationRepository(),
+      makeSystemLogUseCase()
     ),
 
   featuredPost:       () => new FeaturedPostUseCase(new FeaturedPostRepository()),

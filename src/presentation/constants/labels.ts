@@ -44,7 +44,7 @@ export const PERMISSION_LABELS: Record<AdminPermission, string> = {
   MANAGE_EMAILS: "إدارة الإيميلات",
   MANAGE_USERS: "إدارة المستخدمين",
   MANAGE_MEETINGS: "إدارة الاجتماعات",
-  MANAGE_REPORTS: "إدارة التقارير"
+  MANAGE_REPORTS: "سجل النظام والتقارير"
 };
 
 export const GENDER_LABELS: Record<Gender, string> = {

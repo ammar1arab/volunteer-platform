@@ -67,6 +67,11 @@ export { default as MeetingStatusBadge } from "./admin/GoogleMeet/MeetingStatusB
 export { default as MeetingReportModal } from "./admin/GoogleMeet/MeetingReportModal";
 export { default as MeetingListItem } from "./admin/GoogleMeet/MeetingListItem";
 export { default as PresenterPicker } from "./admin/PresenterPicker/PresenterPicker";
+export { default as SystemLogsTable } from "./admin/SystemLogsTable/SystemLogsTable";
+export { default as UsersAnalyticsModal } from "./admin/AnalyticsModals/UsersAnalyticsModal";
+export { default as ActivitiesAnalyticsModal } from "./admin/AnalyticsModals/ActivitiesAnalyticsModal";
+export { default as PendingRequestsModal } from "./admin/AnalyticsModals/PendingRequestsModal";
+export { default as SystemErrorsModal } from "./admin/AnalyticsModals/SystemErrorsModal";
 
 export { default as NotificationBell } from "./volunteer/NotificationBell/NotificationBell";
 export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";

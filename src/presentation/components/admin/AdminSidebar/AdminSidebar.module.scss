@@ -15,7 +15,6 @@ $row: 36px;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #fff 0%, #fbfbfb 100%);
-  border-left: 1px solid rgba($border, 0.75);
   transition: width 0.24s $ease;
   z-index: 100;
 
@@ -56,7 +55,6 @@ $row: 36px;
   height: 52px;
   flex-shrink: 0;
   padding: 0 10px;
-  border-bottom: 1px solid rgba($border, 0.7);
 }
 
 .brand {
@@ -72,7 +70,6 @@ $row: 36px;
   @include flex-center;
   width: 28px;
   height: 28px;
-  border-radius: 8px;
   background: rgba($green, 0.1);
   color: $green;
   flex-shrink: 0;
@@ -83,7 +80,6 @@ $row: 36px;
   @include flex-center;
   width: 30px;
   height: 30px;
-  border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
   color: $text-muted;
@@ -201,7 +197,6 @@ $row: 36px;
 .footer {
   flex-shrink: 0;
   padding: 8px;
-  border-top: 1px solid rgba($border, 0.7);
 }
 
 .logout {
@@ -298,7 +293,6 @@ $row: 36px;
     width: 34px;
     height: 34px;
     border-radius: $radius;
-    border: 1px solid rgba($red, 0.2);
     background: rgba($red, 0.06);
     color: $red;
     z-index: 1;
@@ -306,7 +300,6 @@ $row: 36px;
     &:hover {
       background: $red;
       color: #fff;
-      border-color: $red;
       transform: none;
     }
   }
@@ -356,7 +349,6 @@ $row: 36px;
     height: 50px;
     justify-content: center;
     border-radius: $radius-lg;
-    border: 1px solid rgba($red, 0.2);
     background: rgba($red, 0.05);
     color: $red;
     font-size: $font-sm;
@@ -365,7 +357,6 @@ $row: 36px;
     &:hover {
       background: $red;
       color: #fff;
-      border-color: $red;
       box-shadow: 0 3px 10px rgba($red, 0.22);
       transform: none;
 

@@ -1,31 +1,40 @@
 @use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
 
 .card {
+  @include card;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 1.5rem;
-  background: var(--surface);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  gap: $sp-md;
+  padding: $sp-md;
+  background: $surface;
+  border-radius: $radius-lg;
+  border: 1px solid $border;
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
 
-  &::before {
+  &.clickable {
+    cursor: pointer;
+    
+    &:hover {
+      background: $surface-hover;
+    }
+    
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  &::after {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
-    width: 6px;
+    width: 3px;
     background: currentColor;
-  }
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 0 $radius-lg $radius-lg 0;
   }
 }
 
@@ -33,39 +42,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  background-color: var(--icon-bg);
-  color: currentColor;
+  width: 3rem;
+  height: 3rem;
+  border-radius: $radius-md;
   flex-shrink: 0;
+  color: $white;
+  z-index: 1;
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: $sp-xs;
   z-index: 1;
 }
 
 .label {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  font-weight: 500;
+  font-size: $font-xs;
+  color: $text-secondary;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .value {
-  font-size: 1.75rem;
-  font-weight: 800;
+  font-size: $font-xl;
+  font-weight: 700;
   line-height: 1;
-  color: var(--text-primary);
+  color: $text;
   display: flex;
   align-items: center;
 }
 
 .spinner {
   animation: spin 1s linear infinite;
-  color: var(--text-muted);
+  color: $text-muted;
 }
 
 @keyframes spin {
@@ -74,21 +84,25 @@
 }
 
 .green {
-  color: #10b981;
-  --icon-bg: rgba(16, 185, 129, 0.15);
+  color: $green;
+  border-color: rgba($green, 0.2);
+  .iconWrapper { background: $green; }
 }
 
 .yellow {
-  color: #f59e0b;
-  --icon-bg: rgba(245, 158, 11, 0.15);
+  color: $yellow;
+  border-color: rgba($yellow, 0.2);
+  .iconWrapper { background: $yellow; }
 }
 
 .red {
-  color: #ef4444;
-  --icon-bg: rgba(239, 68, 68, 0.15);
+  color: $red;
+  border-color: rgba($red, 0.2);
+  .iconWrapper { background: $red; }
 }
 
 .blue {
-  color: #3b82f6;
-  --icon-bg: rgba(59, 130, 246, 0.15);
+  color: $blue;
+  border-color: rgba($blue, 0.2);
+  .iconWrapper { background: $blue; }
 }

@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import styles from "./ReportsPage.module.scss";
 import { useReportsPage } from "./ReportsPage.logic";
-import { SectionHeader, StatsCard, Pagination, Badge, SelectInput, LoadingState } from "@/presentation/components";
-import { Activity, Users, AlertCircle, Clock, ShieldAlert } from "lucide-react";
+import { SectionHeader, StatsCard, SelectInput, Search, SystemLogsTable, UsersAnalyticsModal, ActivitiesAnalyticsModal, PendingRequestsModal, SystemErrorsModal } from "@/presentation/components";
+import { Activity, Users, Clock, ShieldAlert } from "lucide-react";
 import { SystemLogStatus } from "@/core/domain/enums";
 
 const STATUS_OPTIONS = [
@@ -27,26 +28,29 @@ export default function ReportsPage() {
     handleFilterChange,
   } = useReportsPage();
 
+  const [activeModal, setActiveModal] = useState<"users" | "activities" | "pending" | "errors" | null>(null);
+
   const statItems = [
-    { title: "إجمالي المستخدمين", value: stats?.totalUsers, icon: Users, color: "blue" as const },
-    { title: "الأنشطة التطوعية", value: stats?.totalActivities, icon: Activity, color: "green" as const },
-    { title: "الطلبات المعلقة", value: stats?.pendingRequests, icon: Clock, color: "yellow" as const },
-    { title: "أخطاء النظام", value: stats?.errorCount, icon: ShieldAlert, color: "red" as const },
+    { id: "users" as const, title: "إجمالي المستخدمين", value: stats?.totalUsers, icon: Users, color: "blue" as const },
+    { id: "activities" as const, title: "الأنشطة التطوعية", value: stats?.totalActivities, icon: Activity, color: "green" as const },
+    { id: "pending" as const, title: "الطلبات المعلقة", value: stats?.pendingRequests, icon: Clock, color: "yellow" as const },
+    { id: "errors" as const, title: "أخطاء النظام", value: stats?.errorCount, icon: ShieldAlert, color: "red" as const },
   ];
 
   return (
     <div className={styles.page}>
-      <SectionHeader title="التقارير والإحصائيات" subtitle="نظرة عامة على أداء المنصة وسجل النظام" />
+      <SectionHeader title="سجل النظام والتقارير" subtitle="نظرة عامة على أداء المنصة وسجل النظام" align="start" />
 
       <div className={styles.statsGrid}>
-        {statItems.map((item, index) => (
+        {statItems.map((item) => (
           <StatsCard
-            key={index}
+            key={item.id}
             title={item.title}
             value={item.value ?? "-"}
             icon={item.icon}
             color={item.color}
             loading={isLoadingStats}
+            onClick={() => setActiveModal(item.id)}
           />
         ))}
       </div>
@@ -55,8 +59,14 @@ export default function ReportsPage() {
         <div className={styles.sectionHeader}>
           <h2>سجل أحداث النظام</h2>
           <div className={styles.filters}>
+            <Search
+              value={filterAction}
+              onChange={(val) => handleFilterChange(val, filterStatus)}
+              onSearch={(val) => handleFilterChange(val, filterStatus)}
+              placeholder="ابحث في السجلات..."
+            />
             <SelectInput
-              label="تصفية حسب الحالة"
+              label=""
               options={STATUS_OPTIONS}
               value={filterStatus}
               onChange={(val) => handleFilterChange(filterAction, val)}
@@ -64,71 +74,23 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        {isLoadingLogs ? (
-          <LoadingState />
-        ) : (
-          <>
-            <div className={styles.tableWrapper}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>الحدث</th>
-                    <th>المستخدم</th>
-                    <th>الحالة</th>
-                    <th>التاريخ والوقت</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {logs.map((log) => (
-                    <tr key={log.id}>
-                      <td>
-                        <div className={styles.actionCell}>
-                          <span className={styles.actionName}>{log.action}</span>
-                          {log.message && <span className={styles.actionMessage}>{log.message}</span>}
-                        </div>
-                      </td>
-                      <td>
-                        {log.user ? (
-                          <div className={styles.userCell}>
-                            <span className={styles.userName}>{log.user.fullName}</span>
-                            <span className={styles.userEmail}>{log.user.email}</span>
-                          </div>
-                        ) : (
-                          <span className={styles.userEmail}>نظام</span>
-                        )}
-                      </td>
-                      <td>
-                        <Badge variant={log.status === SystemLogStatus.SUCCESS ? "success" : log.status === SystemLogStatus.ERROR ? "danger" : "warning"}>
-                          {log.status === SystemLogStatus.SUCCESS ? "نجاح" : log.status === SystemLogStatus.ERROR ? "خطأ" : "فشل"}
-                        </Badge>
-                      </td>
-                      <td dir="ltr" style={{ textAlign: "right" }}>
-                        {new Date(log.createdAt).toLocaleString("ar-EG")}
-                      </td>
-                    </tr>
-                  ))}
-                  {logs.length === 0 && (
-                    <tr>
-                      <td colSpan={4} style={{ textAlign: "center", padding: "2rem" }}>
-                        لا توجد سجلات مطابقة
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {pagination && pagination.totalPages > 1 && (
-              <Pagination
-                currentPage={page}
-                totalItems={pagination.total}
-                itemsPerPage={pagination.limit}
-                onPageChange={handlePageChange}
-              />
-            )}
-          </>
-        )}
+        <SystemLogsTable
+          logs={logs}
+          isLoading={isLoadingLogs}
+          pagination={pagination}
+          onPageChange={handlePageChange}
+        />
       </section>
+
+      <UsersAnalyticsModal isOpen={activeModal === "users"} onClose={() => setActiveModal(null)} />
+      <ActivitiesAnalyticsModal isOpen={activeModal === "activities"} onClose={() => setActiveModal(null)} />
+      <PendingRequestsModal 
+        isOpen={activeModal === "pending"} 
+        onClose={() => setActiveModal(null)}
+        onApprove={() => {}}
+        onReject={() => {}} 
+      />
+      <SystemErrorsModal isOpen={activeModal === "errors"} onClose={() => setActiveModal(null)} />
     </div>
   );
 }

@@ -7,11 +7,35 @@
 }
 
 .header {
-  text-align: center;
   margin-top: $sp-xl;
   margin-bottom: $sp-xl;
   @include flex-col;
-  align-items: center;
+
+  &.center {
+    text-align: center;
+    align-items: center;
+
+    .subtitle {
+      margin: 0 auto $sp-md;
+    }
+
+    .underline {
+      margin: 0 auto;
+    }
+  }
+
+  &.start {
+    text-align: right;
+    align-items: flex-start;
+
+    .subtitle {
+      margin: 0 0 $sp-md 0;
+    }
+
+    .underline {
+      margin: 0;
+    }
+  }
 }
 
 .title {
@@ -25,7 +49,6 @@
 .subtitle {
   color: $text-muted;
   max-width: 600px;
-  margin: 0 auto $sp-md;
   line-height: 1.6;
 }
 
@@ -34,7 +57,6 @@
   width: 80px;
   height: 3px;
   background: rgba($black, 0.05);
-  margin: 0 auto;
   border-radius: $radius-full;
   overflow: hidden;
 

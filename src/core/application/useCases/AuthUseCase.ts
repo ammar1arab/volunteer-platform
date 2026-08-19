@@ -1,9 +1,9 @@
 import { UserRepository, PendingRegistrationRepository } from "@/infrastructure/persistence/repositories";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
-import { UserRole, OtpType } from "@/core/domain/enums";
+import { UserRole, OtpType, SystemLogStatus } from "@/core/domain/enums";
 import { Email } from "@/core/domain/valueObjects";
 import { serviceError } from "@/core/application/common";
-import { OtpUseCase } from "@/core/application/useCases";
+import { OtpUseCase, SystemLogUseCase } from "@/core/application/useCases";
 import {
   ok,
   fail,
@@ -25,7 +25,8 @@ class AuthUseCase {
   constructor(
     private userRepository: UserRepository,
     private otpUseCase: OtpUseCase,
-    private pendingRepository: PendingRegistrationRepository
+    private pendingRepository: PendingRegistrationRepository,
+    private systemLogUseCase: SystemLogUseCase
   ) {}
 
   async signIn(dto: SignInRequest): Promise<SignInResponse> {
@@ -34,8 +35,18 @@ class AuthUseCase {
       if (!SecurityValidator.isValidEmail(emailStr)) return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
 
       const user = await this.userRepository.findByEmail(emailStr);
-      if (!user) return fail("INVALID_CREDENTIALS", "البريد الإلكتروني أو كلمة المرور غير صحيحة");
-      if (!user.isActiveAccount()) return fail("FORBIDDEN", "الحساب غير مفعل");
+      if (!user) {
+        if (this.systemLogUseCase) {
+          await this.systemLogUseCase.logAction({ action: "FAILED_LOGIN", status: SystemLogStatus.FAILURE, message: "محاولة تسجيل دخول فاشلة", metadata: { email: emailStr } });
+        }
+        return fail("INVALID_CREDENTIALS", "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      }
+      if (!user.isActiveAccount()) {
+        if (this.systemLogUseCase) {
+          await this.systemLogUseCase.logAction({ action: "FAILED_LOGIN", status: SystemLogStatus.ERROR, message: "محاولة تسجيل دخول لحساب غير مفعل", userId: user.id });
+        }
+        return fail("FORBIDDEN", "الحساب غير مفعل");
+      }
 
       let isValid = false;
       if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
@@ -54,7 +65,12 @@ class AuthUseCase {
         isValid = user.password === dto.password;
       }
 
-      if (!isValid) return fail("INVALID_CREDENTIALS", "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      if (!isValid) {
+        if (this.systemLogUseCase) {
+          await this.systemLogUseCase.logAction({ action: "FAILED_LOGIN", status: SystemLogStatus.FAILURE, message: "كلمة مرور غير صحيحة", userId: user.id });
+        }
+        return fail("INVALID_CREDENTIALS", "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      }
 
       if (user.role === UserRole.VOLUNTEER && !user.emailVerified) {
         await this.otpUseCase.send({ email: emailStr, type: OtpType.EMAIL_VERIFY });
@@ -122,6 +138,9 @@ class AuthUseCase {
 
       await this.otpUseCase.send({ email: emailObj.getValue(), type: OtpType.EMAIL_VERIFY });
 
+      if (this.systemLogUseCase) {
+        await this.systemLogUseCase.logAction({ action: "VOLUNTEER_SIGNUP", status: SystemLogStatus.SUCCESS, message: `تسجيل متطوع جديد قيد الانتظار: ${fullName}`, metadata: { email: emailObj.getValue() } });
+      }
       logger.info(AuthUseCase.SCOPE, "signUp", `Pending registration saved for: ${emailObj.getValue()}`);
       return ok({ user: { id: "", email: emailObj.getValue(), fullName } });
     } catch (error) {

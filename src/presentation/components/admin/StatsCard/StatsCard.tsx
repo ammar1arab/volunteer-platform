@@ -11,14 +11,20 @@ type Props = {
   color?: Variant;
   variant?: Variant;
   loading?: boolean;
+  onClick?: () => void;
 };
 
-const StatsCard = ({ icon: Icon, value, title, label, color, variant, loading }: Props) => {
+const StatsCard = ({ icon: Icon, value, title, label, color, variant, loading, onClick }: Props) => {
   const displayLabel = title || label;
   const displayVariant = color || variant || "blue";
 
   return (
-    <div className={`${styles.card} ${styles[displayVariant]}`}>
+    <div 
+      className={`${styles.card} ${styles[displayVariant]} ${onClick ? styles.clickable : ""}`}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       <div className={styles.iconWrapper}>
         <Icon size={26} strokeWidth={1.75} />
       </div>
