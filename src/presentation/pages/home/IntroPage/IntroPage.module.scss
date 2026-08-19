@@ -44,7 +44,7 @@
   stroke: rgba($green, 0.85);
   stroke-width: 0.32;
   stroke-linecap: round;
-  filter: drop-shadow(0 0 2.4px rgba($green, 0.55));
+  filter: none !important;
   stroke-dasharray: 250;
   stroke-dashoffset: 250;
   animation: draw 0.5s ease-out forwards;
@@ -59,7 +59,7 @@
   stroke-dasharray: 1600;
   stroke-dashoffset: 1600;
   animation: draw 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.38s;
-  filter: drop-shadow(0 0 7px rgba($green, 0.8));
+  filter: none !important;
 }
 
 @keyframes draw {
@@ -75,7 +75,7 @@
 
 .dot {
   fill: $red;
-  filter: drop-shadow(0 0 4px rgba($red, 0.6));
+  filter: none !important;
 }
 
 .cityName {

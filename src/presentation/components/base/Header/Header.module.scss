@@ -52,7 +52,7 @@ $mobile-break: 900px;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-top: 6px solid $green;
-  filter: drop-shadow(0 0 5px rgba($green, 0.9));
+  filter: none !important;
   pointer-events: none;
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 

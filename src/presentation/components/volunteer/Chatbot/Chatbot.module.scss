@@ -266,10 +266,10 @@ $t-spr: 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
 @keyframes aiBotGlow {
   0%,
   100% {
-    filter: drop-shadow(0 0 3px rgba(74, 222, 128, 0));
+    filter: none !important;
   }
   50% {
-    filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.7));
+    filter: none !important;
   }
 }
 
