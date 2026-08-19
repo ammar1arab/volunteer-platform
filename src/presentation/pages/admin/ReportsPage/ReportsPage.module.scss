@@ -1,3 +1,6 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
 .page {
   display: flex;
   flex-direction: column;
@@ -16,11 +19,11 @@
 }
 
 .section {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
   padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: $shadow;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -36,7 +39,7 @@
   h2 {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: $text;
     margin: 0;
   }
 }
@@ -60,13 +63,13 @@
   th, td {
     padding: 1rem;
     text-align: right;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid $border;
   }
 
   th {
     font-weight: 600;
-    color: var(--text-secondary);
-    background: var(--surface-hover);
+    color: $text-secondary;
+    background: $surface-hover;
     white-space: nowrap;
   }
 
@@ -75,7 +78,7 @@
   }
 
   tr:hover td {
-    background: var(--surface-hover);
+    background: $surface-hover;
   }
 }
 
@@ -86,12 +89,12 @@
 
   .actionName {
     font-weight: 600;
-    color: var(--text-primary);
+    color: $text;
   }
 
   .actionMessage {
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: $text-secondary;
   }
 }
 
@@ -102,11 +105,11 @@
 
   .userName {
     font-weight: 500;
-    color: var(--text-primary);
+    color: $text;
   }
 
   .userEmail {
     font-size: 0.85rem;
-    color: var(--text-tertiary);
+    color: $text-tertiary;
   }
 }

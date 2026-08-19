@@ -1,9 +1,12 @@
+"use client";
+
 import React from "react";
 import { Modal, LoadingState, EmptyState } from "@/presentation/components";
 import SystemLogsTable from "../SystemLogsTable/SystemLogsTable";
 import { ShieldAlert } from "lucide-react";
 import { useFetchData } from "@/presentation/hooks";
 import type { SystemLog, PaginationData } from "@/presentation/pages/admin/ReportsPage/ReportsPage.logic";
+import styles from "./AnalyticsModals.module.scss";
 
 interface Props {
   isOpen: boolean;
@@ -37,7 +40,7 @@ const SystemErrorsModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="أخطاء النظام الحالية" size="lg">
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", maxHeight: "70vh", overflowY: "auto" }}>
+      <div className={styles.container} style={{ maxHeight: "70vh" }}>
         {isLoading ? (
           <LoadingState />
         ) : data?.logs.length === 0 ? (

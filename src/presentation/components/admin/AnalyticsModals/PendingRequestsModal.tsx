@@ -1,9 +1,12 @@
+"use client";
+
 import React from "react";
 import { Modal, LoadingState, EmptyState } from "@/presentation/components";
 import ParticipationRequestItem from "../ParticipationRequestItem/ParticipationRequestItem";
 import { Clock } from "lucide-react";
 import { useFetchData } from "@/presentation/hooks";
 import type { ActivityParticipationDto } from "@/core/application/dtos";
+import styles from "./AnalyticsModals.module.scss";
 
 interface Props {
   isOpen: boolean;
@@ -27,7 +30,7 @@ const PendingRequestsModal: React.FC<Props> = ({ isOpen, onClose, onApprove, onR
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="الطلبات المعلقة">
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", maxHeight: "60vh", overflowY: "auto", padding: "0.5rem" }}>
+      <div className={styles.container}>
         {isLoading ? (
           <LoadingState />
         ) : requests.length > 0 ? (
