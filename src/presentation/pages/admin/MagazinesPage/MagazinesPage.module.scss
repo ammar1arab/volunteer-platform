@@ -156,7 +156,6 @@
   height: 52px;
   border-radius: $radius;
   background: rgba($green, 0.08);
-  border: 1px solid rgba($green, 0.2);
   color: $green;
   flex-shrink: 0;
 }
@@ -189,7 +188,6 @@
   width: fit-content;
   cursor: pointer;
   border-radius: $radius;
-  border: 1px solid $border;
   background: #fff;
   color: $text;
   transition: all 0.2s ease;

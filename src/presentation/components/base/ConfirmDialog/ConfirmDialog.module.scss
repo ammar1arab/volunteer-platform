@@ -52,7 +52,6 @@
 
 .cancel {
   background: transparent;
-  border: 1px solid $border;
   color: $text;
 
   &:hover {
@@ -87,7 +86,6 @@
   color: $red;
   font-size: $font-xs;
   font-weight: 600;
-  border: 1px solid rgba($red, 0.2);
   width: 100%;
   text-align: center;
 }

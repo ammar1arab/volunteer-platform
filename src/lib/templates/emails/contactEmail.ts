@@ -1,18 +1,9 @@
 import { buildEmailFooter } from "./emailFooter";
+import { formatDateArabic } from "@/lib/utils/date";
 
 export function buildContactEmail(senderName: string, senderEmail: string, message: string): string {
   const green = "#16a34a";
-  const sentAt = new Date()
-    .toLocaleString("en-GB", {
-      timeZone: "Asia/Amman",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    })
-    .replace(/(\d+)\/(\d+)\/(\d+),?/, "$3/$2/$1");
+  const sentAt = formatDateArabic(new Date());
 
   const row = (label: string, value: string) => `
     <tr>

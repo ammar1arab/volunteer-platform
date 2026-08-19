@@ -57,9 +57,12 @@ export const getMaxDateOfBirth = (): string => {
 
 export const formatDateArabic = (date: Date | string): string => {
   const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("ar-JO", {
+  return new Intl.DateTimeFormat("en-GB", {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
-  }).format(d);
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(d).replace(/, /g, " at "); // e.g. "11 Aug 2024 at 10:30 am"
 };

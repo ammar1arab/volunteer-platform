@@ -60,7 +60,6 @@
   @include flex(row, center, flex-start, 6px);
   padding: 8px 10px;
   border-radius: $radius;
-  border: 1px solid transparent;
   cursor: pointer;
   font-size: $font-xs;
   font-weight: 600;

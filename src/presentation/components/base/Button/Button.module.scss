@@ -84,7 +84,6 @@
 .secondary {
   background: transparent;
   color: $green;
-  border: 1px solid $green;
 
   &:hover:not(:disabled) {
     background: rgba($green, 0.1);
@@ -99,7 +98,6 @@
 .ghost {
   background: transparent;
   color: $text;
-  border: 1px solid $border;
 
   &:hover:not(:disabled) {
     background: rgba($green, 0.05);

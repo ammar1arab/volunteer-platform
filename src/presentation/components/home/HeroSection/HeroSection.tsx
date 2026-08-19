@@ -16,10 +16,6 @@ const HeroSection = () => {
       <div className={styles.orb} data-orb="2" />
       <div className={styles.orb} data-orb="3" />
       <div className={styles.content}>
-        <div className={styles.badge}>
-          <span className={styles.dot} />
-          منصة تطوعية رائدة
-        </div>
         <h1 className={styles.title}>
           <span className={styles.word}>اصنع</span>
           <span className={styles.word}>أثراً</span>

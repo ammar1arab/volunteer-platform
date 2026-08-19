@@ -71,7 +71,6 @@
 .card {
   @include flex(row, center, flex-start, $sp-sm);
   padding: $sp-sm $sp-md;
-  border: 1px solid $border;
   border-radius: $radius;
   cursor: pointer;
   transition: $transition;
@@ -155,7 +154,6 @@
   font-size: $font-sm;
   font-weight: 600;
   border-radius: $radius;
-  border: 1px solid $border;
   background: transparent;
   color: $text-muted;
   cursor: pointer;

@@ -23,7 +23,6 @@
   font-weight: 700;
   background: rgba($green, 0.12);
   color: $green;
-  border: 1px solid rgba($green, 0.25);
   border-radius: $radius-full;
   padding: 2px 8px;
   max-width: 180px;
@@ -38,7 +37,6 @@
 }
 
 .list {
-  border: 1px solid $border;
   border-radius: $radius;
   @include flex-col;
   overflow: hidden;

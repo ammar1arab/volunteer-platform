@@ -7,11 +7,13 @@ import {
   LoadingState,
   EmptyState,
   Button,
-  SelectInput
+  SelectInput,
+  Badge
 } from "@/presentation/components";
 import { useMeetingReport, useMatchAttendee } from "@/presentation/hooks";
 import { MeetingAttendeeMatchStatus } from "@/core/domain/enums";
 import { Clock3, Mail, UserRound, Users } from "lucide-react";
+import { formatDateArabic } from "@/lib/utils";
 
 type MatchOption = { value: string; label: string };
 
@@ -105,8 +107,8 @@ const MeetingReportModal = ({
                 غير مطابق: {report.unmatchedCount}
               </span>
               {report.importedAt && (
-                <span>
-                  استيراد: {new Date(report.importedAt).toLocaleString("ar-JO")}
+                <span className={styles.label}>
+                  استيراد: {formatDateArabic(report.importedAt)}
                 </span>
               )}
             </div>
@@ -143,13 +145,9 @@ const MeetingReportModal = ({
                             {attendee.signedInEmail}
                           </span>
                         )}
-                        <span
-                          className={
-                            isUnmatched ? styles.badgeWarn : styles.badgeOk
-                          }
-                        >
+                        <Badge variant={isUnmatched ? "warning" : "success"}>
                           {isUnmatched ? "غير مطابق" : "مطابق"}
-                        </span>
+                        </Badge>
                       </div>
                     </div>
 

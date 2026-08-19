@@ -3,9 +3,10 @@ import styles from "./ActivitiesPage.module.scss";
 import { useActivitiesPage, FILTERS, STATUS_MAP } from "./ActivitiesPage.logic";
 
 import { ActivityStatus, ActivityType } from "@/core/domain/enums";
-import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown, Search } from "@/presentation/components";
+import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown, Search, Badge } from "@/presentation/components";
 import { Plus, Edit2, Trash2, CalendarDays, Send, Ban, UsersIcon, RotateCcw } from "lucide-react";
 import { getActivityTypeLabel } from "@/presentation/constants";
+import { formatDateArabic } from "@/lib/utils";
 
 const ActivitiesPage = () => {
   const {
@@ -54,9 +55,9 @@ const ActivitiesPage = () => {
                   key={activity.id}
                   activity={activity}
                   meta={
-                    <span className={`${styles.status} ${styles[statusInfo.class]}`}>
+                    <Badge variant={activity.status === ActivityStatus.PUBLISHED ? "success" : activity.status === ActivityStatus.DRAFT ? "warning" : activity.status === ActivityStatus.CANCELLED ? "danger" : "neutral"}>
                       {statusInfo.label}
-                    </span>
+                    </Badge>
                   }
                   actions={
                     <div className={styles.cardActions}>
@@ -74,7 +75,7 @@ const ActivitiesPage = () => {
 
                       <button className={styles.btnInfo} title="عرض المتطوعين" onClick={() => handleViewVolunteers(activity)}>
                         <UsersIcon size={14} />
-                        <span className={styles.badgeCount}>{activity.currentVolunteers}</span>
+                        <Badge variant="info">{activity.currentVolunteers}</Badge>
                       </button>
 
                       {activity.status === ActivityStatus.CANCELLED ? (
@@ -114,7 +115,7 @@ const ActivitiesPage = () => {
         activityId={selectedActivity?.id || ""}
         activityTitle={selectedActivity?.title || ""}
         activityStatus={selectedActivity?.status || ""}
-        activityDate={selectedActivity ? new Date(selectedActivity.date).toLocaleDateString("ar-JO") : ""}
+        activityDate={selectedActivity ? formatDateArabic(selectedActivity.date) : ""}
         activityType={selectedActivity ? getActivityTypeLabel(selectedActivity.activityType as ActivityType) : ""}
         durationHours={selectedActivity?.durationHours ?? 0}
         isOpen={showVolunteersModal}

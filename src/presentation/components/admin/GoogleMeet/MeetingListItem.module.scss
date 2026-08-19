@@ -6,7 +6,6 @@
   @include flex(row, center, space-between, $sp-md);
   padding: $sp-sm $sp-md;
   background: $bg;
-  border: 1px solid $border;
   border-radius: $radius;
   transition: $transition;
   gap: $sp-sm;
@@ -114,7 +113,6 @@
 }
 
 .reportChip {
-  border: 1px solid rgba(#2563eb, 0.25);
   background: rgba(#2563eb, 0.06);
   color: #2563eb;
   border-radius: $radius-full;

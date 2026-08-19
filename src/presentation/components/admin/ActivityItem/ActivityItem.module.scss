@@ -4,7 +4,6 @@
 
 .card {
   @include flex(row, stretch, flex-start, 0);
-  border: 1px solid $border;
   border-radius: $radius-md;
   background: $white;
   overflow: hidden;
@@ -73,32 +72,26 @@
   &.green {
     background: rgba($green, 0.1);
     color: $green;
-    border: 1px solid rgba($green, 0.2);
   }
   &.yellow {
     background: rgba(#f59e0b, 0.1);
     color: #b45309;
-    border: 1px solid rgba(#f59e0b, 0.25);
   }
   &.red {
     background: rgba($red, 0.08);
     color: $red;
-    border: 1px solid rgba($red, 0.2);
   }
   &.muted {
     background: rgba($border, 0.5);
     color: $text-muted;
-    border: 1px solid $border;
   }
   &.blue {
     background: rgba(#2563eb, 0.1);
     color: #2563eb;
-    border: 1px solid rgba(#2563eb, 0.2);
   }
   &.violet {
     background: rgba(#7c3aed, 0.1);
     color: #7c3aed;
-    border: 1px solid rgba(#7c3aed, 0.2);
   }
 }
 
@@ -115,12 +108,10 @@
 .typeBadgeOnline {
   background: rgba(#2563eb, 0.08);
   color: #2563eb;
-  border: 1px solid rgba(#2563eb, 0.2);
 }
 .typeBadgeInPerson {
   background: rgba($green, 0.08);
   color: $green;
-  border: 1px solid rgba($green, 0.2);
 }
 
 
@@ -132,7 +123,6 @@
   font-weight: 600;
   background: rgba($green, 0.08);
   color: $green;
-  border: 1px solid rgba($green, 0.2);
 }
 .absentBadge {
   @include flex(row, center, center, 4px);
@@ -142,7 +132,6 @@
   font-weight: 600;
   background: rgba($red, 0.06);
   color: $red;
-  border: 1px solid rgba($red, 0.15);
 }
 
 
@@ -154,7 +143,6 @@
   font-weight: 700;
   background: rgba($green, 0.06);
   color: $green;
-  border: 1px solid rgba($green, 0.15);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -217,7 +205,6 @@
   font-size: $font-xs;
   font-weight: 600;
   text-decoration: none;
-  border: 1px solid rgba(#2563eb, 0.2);
   background: rgba(#2563eb, 0.06);
   color: #2563eb;
   transition: $transition;
@@ -244,7 +231,6 @@
   font-size: $font-xs;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid rgba($green, 0.2);
   background: rgba($green, 0.06);
   color: $green;
   transition: $transition;
@@ -262,7 +248,6 @@
 .btnReapply {
   padding: 4px $sp-sm;
   border-radius: $radius;
-  border: 1px solid rgba($green, 0.3);
   background: rgba($green, 0.06);
   color: $green;
   font-size: $font-xs;
@@ -283,7 +268,6 @@
 .btnCancel {
   padding: 4px $sp-sm;
   border-radius: $radius;
-  border: 1px solid rgba($red, 0.3);
   background: rgba($red, 0.06);
   color: $red;
   font-size: $font-xs;
@@ -326,7 +310,6 @@
   @include flex-center;
   padding: $sp-sm;
   border-radius: $radius;
-  border: 1px solid $border;
   background: transparent;
   color: $text;
   font-size: $font-sm;

@@ -23,7 +23,6 @@
 
 .modal {
   background: $bg;
-  border: 1px solid $border;
   border-radius: $radius-lg;
   padding: $sp-xl;
   width: 100%;
@@ -50,7 +49,6 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 1px solid $border;
   background: transparent;
   color: $text-muted;
   cursor: pointer;
@@ -124,7 +122,6 @@
   width: 100%;
   padding: $sp-sm;
   border-radius: $radius;
-  border: 1px solid $border;
   background: transparent;
   color: $text-muted;
   font-size: $font-sm;

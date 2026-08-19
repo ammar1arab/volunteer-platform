@@ -7,7 +7,7 @@ import remarkBreaks from "remark-breaks";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LoadingState, Button, Share, Modal, ActivityPresenterBadge } from "@/presentation/components";
+import { LoadingState, Button, Share, Modal, ActivityPresenterBadge, Badge } from "@/presentation/components";
 import { useActivityDetails, useActivityParticipations, useToast } from "@/presentation/hooks";
 import { getMonthLabel, getCityLabel, getActivityTypeLabel, canOpenMeetingLobby, ROUTES, ACTIVITY_PRESENTER_LABEL, MEETING_LABELS } from "@/presentation/constants";
 import { ActivityStatus, ActivityType } from "@/core/domain/enums";
@@ -111,8 +111,8 @@ const ActivityDetailsPage = () => {
 
               <div className={styles.heroBadges}>
                 {activity.isFull
-                  ? <span className={styles.badgeFull}><XCircle size={12} /> مكتمل</span>
-                  : <span className={styles.badgeOpen}><CheckCircle2 size={12} /> متاح</span>}
+                  ? <Badge variant="danger"><XCircle size={12} /> مكتمل</Badge>
+                  : <Badge variant="success"><CheckCircle2 size={12} /> متاح</Badge>}
               </div>
 
 

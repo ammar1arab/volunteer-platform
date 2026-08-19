@@ -1,4 +1,5 @@
 import { Activity, CheckCircle, Clock, XCircle, TrendingUp } from "lucide-react";
+import { Badge } from "@/presentation/components";
 import styles from "./UserStatsCard.module.scss";
 
 interface StatItem {
@@ -65,10 +66,10 @@ const UserStatsCard = ({ stats }: UserStatsCardProps) => {
                 <div className={styles.valueGroup}>
                   <span className={styles.value}>{item.value}</span>
                   {item.percentage !== undefined && (
-                    <div className={styles.badge}>
+                    <Badge variant="success">
                       <TrendingUp size={12} />
                       <span>{item.percentage}%</span>
-                    </div>
+                    </Badge>
                   )}
                 </div>
                 <span className={styles.label}>{item.label}</span>

@@ -1,6 +1,6 @@
 "use client";
 import styles from "./AboutSection.module.scss";
-import { Container, Button } from "@/presentation/components";
+import { Container, Button, Badge } from "@/presentation/components";
 import { ROUTES } from "@/presentation/constants";
 import { Fingerprint, Zap, Award, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -29,9 +29,11 @@ const AboutSection = () => {
       <Container>
         <div className={styles.inner}>
           <div className={styles.header}>
-            <div className={styles.badge}>
-              <Star size={13} fill="currentColor" />
-              منذ عام 2012 وبصمتنا تكبر
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+              <Badge variant="info">
+                <Star size={13} fill="currentColor" style={{ marginLeft: '4px' }} />
+                منذ عام 2012 وبصمتنا تكبر
+              </Badge>
             </div>
             <h2 className={styles.title}>
               نحن لا نتطوع فقط، نحن <span className={styles.greenText}>نصنع أثراً</span>

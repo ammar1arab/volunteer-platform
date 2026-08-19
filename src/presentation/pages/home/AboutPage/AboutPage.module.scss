@@ -23,7 +23,6 @@
   gap: $sp-xs;
   padding: $sp-xs $sp-lg;
   background: rgba($green, 0.08);
-  border: 1px solid rgba($green, 0.25);
   border-radius: $radius-full;
   color: $green;
   font-size: $font-sm;
@@ -101,7 +100,6 @@
 
 .stat {
   padding: 24px;
-  border: 1px solid rgba($border, 0.6);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -188,7 +186,6 @@
 
   .goalCard {
     padding: 20px;
-    border: 1px solid rgba($border, 0.6);
     border-radius: 12px;
     display: flex;
     align-items: flex-start;
@@ -235,7 +232,6 @@
   .activityCard {
     text-align: center;
     padding: 28px 20px;
-    border: 1px solid rgba($border, 0.6);
     border-radius: 20px;
 
     svg { color: $green; margin: 0 auto 16px; }

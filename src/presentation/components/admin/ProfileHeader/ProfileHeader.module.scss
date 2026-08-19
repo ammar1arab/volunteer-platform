@@ -6,7 +6,6 @@
   align-items: center;
   gap: $sp-lg;
   padding: $sp-lg;
-  border: 1px solid $border;
   border-radius: $radius-lg;
   margin-bottom: $sp-lg;
   @media (max-width: 640px) {
@@ -120,7 +119,6 @@
   margin-top: $sp-xs;
   padding: 4px 12px;
   background: rgba($green, 0.08);
-  border: 1px solid rgba($green, 0.2);
   border-radius: $radius-full;
   width: fit-content;
 }

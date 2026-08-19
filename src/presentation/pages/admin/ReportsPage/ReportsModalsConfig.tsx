@@ -38,7 +38,7 @@ export const SYSTEM_LOGS_COLUMNS: Column<any>[] = [
       </Badge>
     )
   },
-  { key: "date", header: "التاريخ", accessor: (l) => new Date(l.createdAt).toLocaleString("ar-EG"), sortable: true, sortValue: (l) => new Date(l.createdAt).getTime() },
+  { key: "date", header: "التاريخ", accessor: (l) => formatDateArabic(l.createdAt), sortable: true, sortValue: (l) => new Date(l.createdAt).getTime() },
 ];
 
 export const MODAL_CONFIGS: Record<string, any> = {

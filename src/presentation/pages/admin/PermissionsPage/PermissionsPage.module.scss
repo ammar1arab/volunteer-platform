@@ -40,7 +40,6 @@
 
 .card {
   background: $bg;
-  border: 1px solid $border;
   border-radius: $radius-md;
   overflow: hidden;
   display: flex;
@@ -105,7 +104,6 @@
   font-weight: 700;
   color: $green;
   background: rgba($green, 0.08);
-  border: 1px solid rgba($green, 0.2);
   padding: 2px 8px;
   border-radius: $radius-full;
   white-space: nowrap;
@@ -190,7 +188,6 @@
   @include flex(row, center, flex-start, 6px);
   padding: 8px 10px;
   border-radius: $radius;
-  border: 1px solid transparent;
   cursor: pointer;
   font-size: $font-xs;
   font-weight: 600;

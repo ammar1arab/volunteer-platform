@@ -26,7 +26,6 @@
   gap: $sp-xs;
   padding: $sp-xs $sp-lg;
   background: rgba($green, 0.08);
-  border: 1px solid rgba($green, 0.25);
   border-radius: $radius-full;
   color: $green;
   font-size: $font-sm;
@@ -105,7 +104,6 @@
   @include flex(row, center, flex-start, $sp-md);
   padding: $sp-sm $sp-lg;
   border-radius: $radius-full;
-  border: 1px solid rgba($red, 0.2);
   min-width: 200px;
   box-shadow: 5px 5px 0 $red;
   transition:

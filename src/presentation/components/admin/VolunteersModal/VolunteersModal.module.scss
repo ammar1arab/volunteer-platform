@@ -41,7 +41,6 @@
   @include flex(row, flex-start, flex-start, $sp-sm);
   padding: $sp-sm $sp-md;
   border-radius: $radius;
-  border: 1px solid rgba($red, 0.3);
   background: rgba($red, 0.04);
   animation:
     slideDown 0.2s ease,
@@ -121,7 +120,6 @@
 .card {
   @include flex(row, flex-start, flex-start, $sp-md);
   padding: $sp-sm $sp-md;
-  border: 1px solid $border;
   border-radius: $radius;
   cursor: pointer;
   transition: $transition;
@@ -262,7 +260,6 @@
   font-weight: 600;
   color: #2563eb;
   background: rgba(#2563eb, 0.08);
-  border: 1px solid rgba(#2563eb, 0.2);
   cursor: pointer;
   transition: $transition;
 
@@ -279,7 +276,6 @@
   padding: $sp-sm $sp-md;
   border-radius: $radius;
   background: rgba(#2563eb, 0.06);
-  border: 1px solid rgba(#2563eb, 0.2);
 }
 
 .meetBannerBody {
@@ -294,7 +290,6 @@
 }
 
 .meetApplyAll {
-  border: 1px solid rgba(#2563eb, 0.35);
   background: rgba(#2563eb, 0.1);
   color: #1d4ed8;
   border-radius: $radius;
@@ -380,7 +375,6 @@
   width: 24px;
   height: 24px;
   border-radius: $radius;
-  border: 1px solid rgba($red, 0.25);
   background: transparent;
   color: $red;
   cursor: pointer;

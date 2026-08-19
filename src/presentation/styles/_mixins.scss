@@ -179,7 +179,6 @@
 @mixin btn-secondary {
   @include btn;
   background: transparent;
-  border: 1px solid $border;
   color: $text;
   &:hover {
     background: rgba($green, 0.05);
@@ -187,7 +186,6 @@
 }
 
 @mixin card {
-  border: 1px solid $border;
   border-radius: $radius-lg;
   padding: $sp-lg;
 }
@@ -205,7 +203,6 @@
   box-sizing: border-box;
   width: 100%;
   padding: $sp-sm $sp-md;
-  border: 1px solid $border;
   border-radius: $radius;
   color: $text;
   font: inherit;
@@ -243,7 +240,6 @@
 
 @mixin glass-card {
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
@@ -329,7 +325,6 @@
   border-radius: $radius;
   text-align: center;
   font-weight: 600;
-  border: 1px solid;
   margin-bottom: $sp-md;
 }
 

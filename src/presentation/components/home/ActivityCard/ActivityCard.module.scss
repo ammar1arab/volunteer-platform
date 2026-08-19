@@ -14,7 +14,6 @@
 .card {
   @include flex(row, stretch, flex-start);
   border-radius: $radius-lg;
-  border: 1px solid $border;
   overflow: hidden;
   cursor: pointer;
   width: 100%;
@@ -128,7 +127,6 @@
   width: 26px;
   height: 26px;
   border-radius: $radius;
-  border: 1px solid $border;
   background: transparent;
   color: $text-muted;
   cursor: pointer;
@@ -188,7 +186,6 @@
   @include flex(row, flex-start, flex-start, $sp-sm);
   padding: 7px $sp-sm;
   border-radius: $radius;
-  border: 1px solid $border;
   transition: border-color $transition;
 
   &:hover {
@@ -243,7 +240,6 @@
   @include flex(row, center, space-between, $sp-sm);
   padding: 7px $sp-sm;
   border-radius: $radius;
-  border: 1px solid $border;
   margin-top: auto;
   transition: border-color $transition;
 
@@ -286,7 +282,6 @@
   @include flex(row, center, center, 5px);
   padding: 4px 10px;
   border-radius: $radius;
-  border: 1px solid rgba($red, 0.3);
   background: rgba($red, 0.04);
   color: $red;
   font-size: 11px;
@@ -327,7 +322,6 @@
   @include flex-center;
   padding: $sp-sm;
   border-radius: $radius;
-  border: 1px solid rgba(#2563eb, 0.25);
   background: rgba(#2563eb, 0.05);
   color: #2563eb;
   font-size: $font-sm;
@@ -344,7 +338,6 @@
   @include flex-center;
   padding: $sp-sm;
   border-radius: $radius;
-  border: 1px solid rgba($red, 0.25);
   background: rgba($red, 0.05);
   color: $red;
   font-size: $font-sm;

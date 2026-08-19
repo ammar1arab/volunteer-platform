@@ -42,7 +42,6 @@
   font-weight: 700;
   padding: 4px 10px;
   border-radius: $radius;
-  border: 1px solid $border;
   background: transparent;
   color: $text-muted;
   cursor: pointer;
@@ -78,7 +77,6 @@
   @include flex(row, center, flex-start, $sp-xs);
   padding: 8px 10px;
   border-radius: $radius;
-  border: 1px solid transparent;
   cursor: pointer;
   font-size: $font-xs;
   font-weight: 600;

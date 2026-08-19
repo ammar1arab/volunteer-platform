@@ -77,7 +77,6 @@
   @include img-contain($sp-md);
   aspect-ratio: 16 / 10;
   border-radius: $radius-lg;
-  border: 1px solid $border;
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 
   img {

@@ -22,7 +22,6 @@
   padding: 5px 14px;
   background: rgba($green, 0.08);
   color: $green;
-  border: 1px solid rgba($green, 0.25);
   border-radius: $radius-full;
   font-size: $font-xs;
   font-weight: 700;
@@ -34,7 +33,6 @@
   aspect-ratio: 1050 / 750;
   border-radius: $radius-md;
   overflow: hidden;
-  border: 1px solid $border;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.06),
     0 16px 40px rgba(0, 0, 0, 0.08);
@@ -102,7 +100,6 @@
 .btnSecondary {
   @extend %btn;
   background: transparent;
-  border: 1px solid $border;
   color: $text;
   &:hover { border-color: $green; color: $green; }
 }

@@ -116,7 +116,6 @@
   font-weight: 600;
   background: rgba($green, 0.12);
   color: $green;
-  border: 1px solid rgba($green, 0.25);
   border-radius: $radius-full;
   padding: 0.1rem 0.55rem;
 }
@@ -147,7 +146,6 @@
 }
 
 .userList {
-  border: 1px solid $border;
   border-radius: $radius;
   @include flex-col;
   overflow: hidden;
@@ -271,7 +269,6 @@
   gap: 0.4rem;
   padding: $sp-sm $sp-md;
   border-radius: $radius;
-  border: 1px solid $border;
   transition: border-color $transition;
   flex-shrink: 0;
   min-width: 0;
@@ -375,7 +372,6 @@
   border-radius: $radius;
   background: rgba($green, 0.08);
   color: $green;
-  border: 1px solid rgba($green, 0.2);
   cursor: pointer;
   transition: background $transition;
   white-space: nowrap;
@@ -397,7 +393,6 @@
   border-radius: $radius;
   background: rgba($red, 0.07);
   color: $red;
-  border: 1px solid rgba($red, 0.2);
   cursor: pointer;
   transition: background $transition;
 

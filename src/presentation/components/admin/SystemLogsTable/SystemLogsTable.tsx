@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./SystemLogsTable.module.scss";
 import { Badge, Pagination, EmptyState, LoadingState } from "@/presentation/components";
+import { formatDateArabic } from "@/lib/utils";
 import { SystemLogStatus } from "@/core/domain/enums";
 import { Activity } from "lucide-react";
 import type { SystemLog, PaginationData } from "@/presentation/pages/admin/ReportsPage/ReportsPage.logic";
@@ -76,7 +77,7 @@ const SystemLogsTable: React.FC<Props> = ({ logs, isLoading, pagination, onPageC
                   </Badge>
                 </td>
                 <td dir="ltr" style={{ textAlign: "right" }}>
-                  {new Date(log.createdAt).toLocaleString("ar-EG")}
+                  {formatDateArabic(log.createdAt)}
                 </td>
               </tr>
             ))}

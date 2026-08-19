@@ -20,7 +20,6 @@
     padding: 4px 10px;
     border-radius: $radius-full;
     background: rgba($text-muted, 0.08);
-    border: 1px solid rgba($text-muted, 0.15);
   }
 }
 
@@ -53,7 +52,6 @@
   @include flex(row, flex-start, space-between, $sp-sm);
   flex-wrap: wrap;
   padding: $sp-sm $sp-md;
-  border: 1px solid $border;
   border-radius: $radius;
   background: $bg;
   gap: $sp-sm;
@@ -135,7 +133,6 @@
 }
 
 .clearBtn {
-  border: 1px solid rgba($red, 0.25);
   background: rgba($red, 0.05);
   color: $red;
   border-radius: $radius;
