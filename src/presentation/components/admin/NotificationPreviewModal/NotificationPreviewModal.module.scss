@@ -72,6 +72,7 @@
   @include flex(row, center, flex-start, $sp-sm);
   padding: $sp-sm $sp-md;
   border-radius: $radius;
+  border: 1px solid $border;
   cursor: pointer;
   transition: $transition;
   user-select: none;
@@ -154,6 +155,7 @@
   font-size: $font-sm;
   font-weight: 600;
   border-radius: $radius;
+  border: 1px solid $border;
   background: transparent;
   color: $text-muted;
   cursor: pointer;

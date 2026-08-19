@@ -6,7 +6,7 @@ import { Send, Users, MapPin, Check, Clock, AtSign } from "lucide-react";
 import {
   LoadingState, EmptyState, ToastContainer,
   SelectInput, Button, Modal, ConfirmDialog,
-  EmailPreviewPane,
+  EmailPreviewPane, Badge,
 } from "@/presentation/components";
 import {
   useEmailsPageLogic,
@@ -347,12 +347,12 @@ const EmailsPage = () => {
                 <strong>{selectedIds.size}</strong>
                 <span> / {previewUsers.length} محدد</span>
               </span>
-              {form.minHours && <span className={styles.metaTag}><Clock size={10} /> ≥ {form.minHours} ساعة</span>}
-              {form.minAge && <span className={styles.metaTag}>من {form.minAge} سنة</span>}
-              {form.maxAge && <span className={styles.metaTag}>إلى {form.maxAge} سنة</span>}
-              {form.interests && <span className={styles.metaTag}>{form.interests}</span>}
+              {form.minHours && <Badge variant="info"><Clock size={10} /> ≥ {form.minHours} ساعة</Badge>}
+              {form.minAge && <Badge variant="info">من {form.minAge} سنة</Badge>}
+              {form.maxAge && <Badge variant="info">إلى {form.maxAge} سنة</Badge>}
+              {form.interests && <Badge variant="info">{form.interests}</Badge>}
               {form.hasExperience !== "all" && (
-                <span className={styles.metaTag}>{form.hasExperience === "yes" ? "يملك خبرة" : "لا يملك خبرة"}</span>
+                <Badge variant="info">{form.hasExperience === "yes" ? "يملك خبرة" : "لا يملك خبرة"}</Badge>
               )}
             </div>
             <Button variant="ghost" size="sm" onClick={toggleAll}>

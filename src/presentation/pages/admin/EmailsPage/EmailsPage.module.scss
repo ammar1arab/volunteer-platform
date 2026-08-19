@@ -1,0 +1,383 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+@use "@/presentation/styles/admin-mixins" as *;
+
+.root {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: $sp-xl;
+  align-items: flex-start;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: $sp-lg;
+  }
+}
+
+.composer {
+  @include flex-col;
+  gap: $sp-lg;
+}
+
+.preview {
+  position: sticky;
+  top: 70px;
+
+  @media (max-width: 1024px) {
+    position: static;
+  }
+}
+
+.step {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.stepHead {
+  @include flex(row, flex-start, flex-start, $sp-sm);
+}
+
+.stepNum {
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-full;
+  background: rgba($green, 0.1);
+  color: $green;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.stepTitle {
+  margin: 0;
+  font-size: $font-md;
+  font-weight: 700;
+  color: $text;
+}
+
+.stepSub {
+  margin: 2px 0 0;
+  font-size: $font-sm;
+  color: $text-muted;
+}
+
+.stepBody {
+  @include flex-col;
+  gap: $sp-md;
+  padding-right: 40px;
+
+  @media (max-width: 768px) {
+    padding-right: 0;
+  }
+}
+
+.sep {
+  height: 1px;
+  background: $border;
+  margin: $sp-sm 0;
+}
+
+.field {
+  @include flex-col;
+  gap: 8px;
+}
+
+.fieldRow {
+  @include flex(row, flex-end, space-between, $sp-sm);
+  flex-wrap: wrap;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+
+  .optional {
+    color: $text-muted;
+    font-weight: 400;
+    font-size: 11px;
+    margin-right: 6px;
+  }
+}
+
+.varBadge {
+  font-family: monospace;
+  background: rgba($green, 0.1);
+  color: $green;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 8px;
+  font-size: 11px;
+}
+
+.input {
+  @include input;
+  width: 100%;
+}
+
+.textarea {
+  @include input;
+  width: 100%;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.charCount {
+  font-size: 11px;
+  color: $text-muted;
+  text-align: left;
+}
+
+.templates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: $sp-sm;
+}
+
+.templateCard {
+  @include flex-col;
+  gap: 4px;
+  padding: $sp-sm;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $bg;
+  cursor: pointer;
+  text-align: right;
+  transition: $transition;
+
+  &:hover {
+    border-color: rgba($green, 0.4);
+    background: rgba($green, 0.02);
+  }
+}
+
+.templateOn {
+  border-color: $green;
+  background: rgba($green, 0.04);
+  box-shadow: 0 0 0 1px $green;
+
+  .templateName {
+    color: $green;
+  }
+}
+
+.templateName {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+}
+
+.templateDesc {
+  font-size: 11px;
+  color: $text-muted;
+}
+
+.vars {
+  @include flex(row, center, flex-start, 6px);
+  flex-wrap: wrap;
+}
+
+.varPill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: $radius-full;
+  background: $surface-hover;
+  color: $text-secondary;
+  border: 1px solid $border;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    border-color: $green;
+    color: $green;
+    background: rgba($green, 0.04);
+  }
+}
+
+.extraFilters {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-md;
+  background: rgba($black, 0.02);
+  border-radius: $radius;
+  border: 1px solid $border;
+  margin-top: $sp-sm;
+}
+
+.extraFiltersLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: $text;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-md;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.expToggle {
+  @include flex(row, center, flex-start, 4px);
+  background: $surface-hover;
+  padding: 4px;
+  border-radius: $radius;
+  border: 1px solid $border;
+}
+
+.expBtn {
+  flex: 1;
+  padding: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text-secondary;
+  background: transparent;
+  border: none;
+  border-radius: calc(#{$radius} - 2px);
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    color: $text;
+  }
+}
+
+.expBtnOn {
+  background: $bg;
+  color: $green;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.inputHint {
+  font-size: 11px;
+  color: $text-muted;
+}
+
+.footer {
+  padding-top: $sp-lg;
+  border-top: 1px solid $border;
+  @include flex(row, center, flex-end, $sp-sm);
+  padding-right: 40px;
+
+  @media (max-width: 768px) {
+    padding-right: 0;
+  }
+}
+
+// Modal styles
+.modal {
+  @include flex-col;
+  gap: $sp-md;
+}
+
+.modalBar {
+  @include flex(row, flex-start, space-between, $sp-sm);
+  border-bottom: 1px solid $border;
+  padding-bottom: $sp-sm;
+}
+
+.modalMeta {
+  @include flex(row, center, flex-start, 6px);
+  flex-wrap: wrap;
+}
+
+.modalCount {
+  font-size: 13px;
+  color: $text-muted;
+  margin-left: 8px;
+
+  strong {
+    color: $green;
+    font-weight: 700;
+  }
+}
+
+.modalList {
+  @include flex-col;
+  gap: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.recipient {
+  @include flex(row, flex-start, flex-start, $sp-sm);
+  padding: $sp-sm;
+  border: 1px solid $border;
+  border-radius: $radius;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    border-color: rgba($green, 0.3);
+    background: rgba($green, 0.02);
+  }
+}
+
+.recipientOn {
+  border-color: rgba($green, 0.5);
+  background: rgba($green, 0.04);
+}
+
+.tick {
+  @include flex-center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid $border;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: $transition;
+}
+
+.tickOn {
+  background: $green;
+  border-color: $green;
+  color: $white;
+}
+
+.recipientBody {
+  @include flex-col;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.recipientName {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+}
+
+.recipientMeta {
+  @include flex(row, center, flex-start, 12px);
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.rEmail {
+  @include flex(row, center, flex-start, 4px);
+  font-size: 11px;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.rMeta {
+  @include flex(row, center, flex-start, 4px);
+  font-size: 11px;
+  color: $text-muted;
+}
+
+.modalFooter {
+  @include flex(row, center, flex-end, $sp-sm);
+  padding-top: $sp-sm;
+  border-top: 1px solid $border;
+}

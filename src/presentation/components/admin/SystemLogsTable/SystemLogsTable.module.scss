@@ -5,6 +5,8 @@
   overflow-x: auto;
   border-radius: var(--radius-lg);
   background: var(--bg-card);
+  border: 1px solid $border;
+  box-shadow: none;
   margin-bottom: 1.5rem;
 
   &::-webkit-scrollbar {
@@ -93,6 +95,7 @@
   .tableWrapper {
     border-radius: 0;
     background: transparent;
+    border: none;
     margin-bottom: 1rem;
   }
 

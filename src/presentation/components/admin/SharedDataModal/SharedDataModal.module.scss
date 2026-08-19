@@ -40,6 +40,8 @@
   overflow-x: auto;
   border-radius: $radius-md;
   background: $surface;
+  border: 1px solid $border;
+  box-shadow: none;
 }
 
 .table {

@@ -249,18 +249,10 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: rgba($green, 0.25) transparent;
-
+  scrollbar-width: none;
+  
   &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba($green, 0.25);
-    border-radius: 4px;
+    display: none;
   }
 }
 
@@ -372,6 +364,7 @@
   border-radius: $radius;
   background: rgba($green, 0.08);
   color: $green;
+  border: 1px solid $border;
   cursor: pointer;
   transition: background $transition;
   white-space: nowrap;
@@ -393,6 +386,7 @@
   border-radius: $radius;
   background: rgba($red, 0.07);
   color: $red;
+  border: 1px solid $border;
   cursor: pointer;
   transition: background $transition;
 
