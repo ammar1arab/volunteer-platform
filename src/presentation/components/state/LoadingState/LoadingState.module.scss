@@ -2,55 +2,111 @@
 @use "@/presentation/styles/mixins" as *;
 
 .container {
-  display: flex;
-  flex-direction: column;
+  @include flex-col;
   align-items: center;
   justify-content: center;
-  gap: $sp-md;
+  gap: $sp-lg;
   width: 100%;
   flex: 1;
-  padding: clamp(2rem, 5vh, 4rem) 0;
+  padding: clamp(3rem, 8vh, 6rem) 0;
   
   &.compact {
     padding: $sp-md 0;
     min-height: auto;
+    gap: $sp-sm;
   }
 }
 
 .loader {
+  position: relative;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  .compact & {
+    width: 32px;
+    height: 32px;
+  }
 }
 
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid rgba($green, 0.15);
-  border-top-color: $green;
+.ringOuter {
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
-  animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  border: 2px solid transparent;
+  border-top-color: $green;
+  border-right-color: rgba($green, 0.4);
+  animation: spinOuter 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  
+  .compact & {
+    border-width: 1.5px;
+  }
+}
+
+.ringInner {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-bottom-color: $green;
+  border-left-color: rgba($green, 0.2);
+  animation: spinInner 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse;
+
+  .compact & {
+    inset: 4px;
+    border-width: 1.5px;
+  }
+}
+
+.glow {
+  position: absolute;
+  inset: 50%;
+  width: 0;
+  height: 0;
+  box-shadow: 0 0 30px 15px rgba($green, 0.25);
+  border-radius: 50%;
+  animation: pulseGlow 2s ease-in-out infinite alternate;
+
+  .compact & {
+    box-shadow: 0 0 16px 8px rgba($green, 0.2);
+  }
 }
 
 .text {
-  color: $text-secondary;
+  color: $text;
   font-size: $font-sm;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  animation: fadePulse 1.5s ease-in-out infinite alternate;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  background: linear-gradient(90deg, $text, $green, $text);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmerText 3s linear infinite;
+
+  .compact & {
+    font-size: 12px;
+  }
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes spinOuter {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.05); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
-@keyframes fadePulse {
-  0% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-  }
+@keyframes spinInner {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(0.9); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes pulseGlow {
+  0% { opacity: 0.4; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes shimmerText {
+  to { background-position: 200% center; }
 }

@@ -11,7 +11,9 @@ const LoadingState = ({ compact = false, text }: Props) => {
     <div className={`${styles.container} ${compact ? styles.compact : ""}`}>
       <audio src={loadingSoundDataUri} autoPlay style={{ display: 'none' }} />
       <div className={styles.loader}>
-        <div className={styles.spinner}></div>
+        <div className={styles.ringOuter}></div>
+        <div className={styles.ringInner}></div>
+        <div className={styles.glow}></div>
       </div>
       {text && <span className={styles.text}>{text}</span>}
     </div>

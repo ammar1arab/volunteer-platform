@@ -62,7 +62,7 @@ const SystemLogsTable: React.FC<Props> = ({ logs, isLoading, pagination, onPageC
                 <td data-label="الحالة">
                   <SystemLogBadge status={log.status} />
                 </td>
-                <td data-label="التاريخ والوقت" dir="ltr" style={{ textAlign: "right" }}>
+                <td data-label="التاريخ والوقت" dir="ltr" className={styles.dateCell}>
                   {formatDate(log.createdAt)}
                 </td>
               </tr>
