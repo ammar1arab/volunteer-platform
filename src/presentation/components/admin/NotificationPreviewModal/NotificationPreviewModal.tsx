@@ -2,7 +2,7 @@
 import styles from "./NotificationPreviewModal.module.scss";
 import { useMemo } from "react";
 import { Users, MapPin, User2, Check, Clock } from "lucide-react";
-import { Modal, ConfirmDialog, EmptyState, Pagination } from "@/presentation/components";
+import { Modal, ConfirmDialog, EmptyState, Pagination, UserList } from "@/presentation/components";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { PreviewUserDto } from "@/core/application/dtos";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
@@ -59,45 +59,22 @@ const NotificationPreviewModal = ({
             {users.length === 0 ? (
               <EmptyState icon={Users} message="لا يوجد متطوعون" />
             ) : (
-              <div className={styles.list}>
-                {paginated.map(u => {
-                  const checked = selectedIds.has(u.id);
-                  return (
-                    <div
-                      key={u.id}
-                      className={`${styles.card} ${checked ? styles.cardChecked : ""}`}
-                      onClick={() => onToggleUser(u.id)}
-                    >
-                      <div className={`${styles.checkbox} ${checked ? styles.checkboxActive : ""}`}>
-                        {checked && <Check size={11} />}
-                      </div>
-                      <div className={styles.info}>
-                        <span className={styles.name}>{u.name}</span>
-                        <div className={styles.meta}>
-                          {u.city && (
-                            <span className={styles.metaItem}>
-                              <MapPin size={10} />
-                              {getCityLabel(u.city as JordanianCity)}
-                            </span>
-                          )}
-                          {u.gender && (
-                            <span className={styles.metaItem}>
-                              <User2 size={10} />
-                              {getGenderLabel(u.gender as Gender)}
-                            </span>
-                          )}
-                          {u.hours !== undefined && u.hours > 0 && (
-                            <span className={styles.metaItem}>
-                              <Clock size={10} />
-                              {u.hours} ساعة
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <UserList
+                users={paginated.map(u => ({
+                  id: u.id,
+                  name: u.name,
+                  email: (u as any).email || "",
+                  meta: [
+                    u.city ? { label: "المدينة", value: getCityLabel(u.city as JordanianCity), icon: MapPin } : null,
+                    u.gender ? { label: "الجنس", value: getGenderLabel(u.gender as Gender), icon: User2 } : null,
+                    u.hours !== undefined && u.hours > 0 ? { label: "ساعات", value: `${u.hours} ساعة`, icon: Clock } : null
+                  ].filter(Boolean) as any
+                }))}
+                layout="list"
+                selectable
+                selectedIds={selectedIds}
+                onToggleUser={onToggleUser}
+              />
             )}
           </div>
 

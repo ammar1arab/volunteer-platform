@@ -1,6 +1,6 @@
 import React from "react";
 import { Users, Activity, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare } from "lucide-react";
-import { Badge, SystemLogBadge } from "@/presentation/components";
+import { Badge, SystemLogBadge, UserList } from "@/presentation/components";
 import { formatDate } from "@/lib/utils/date";
 import type { Column } from "@/presentation/components/admin/SharedDataModal/SharedDataModal";
 import { ActivityStatus, SystemLogStatus } from "@/core/domain/enums";
@@ -45,6 +45,20 @@ export const MODAL_CONFIGS: Record<string, any> = {
     columns: USERS_COLUMNS,
     emptyTitle: "لا يوجد مستخدمين",
     emptyMessage: "لم ينضم أي مستخدمين جدد مؤخراً.",
+    customListRenderer: (data: any[]) => (
+      <UserList
+        users={data.map((u) => ({
+          id: u.id,
+          name: u.fullName,
+          email: u.email,
+          meta: [
+            u.city ? { value: u.city, icon: require("lucide-react").MapPin } : null,
+            { value: formatDate(u.createdAt), icon: require("lucide-react").Clock }
+          ].filter(Boolean) as any
+        }))}
+        layout="list"
+      />
+    )
   },
   activities: {
     title: "إحصائيات الأنشطة",

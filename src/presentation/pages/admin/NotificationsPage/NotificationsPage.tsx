@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import {
   LoadingState, EmptyState, ToastContainer, SelectInput,
-  Button, NotificationPreviewModal, ConfirmDialog, Pagination, BroadcastRecipientsModal
+  Button, NotificationPreviewModal, ConfirmDialog, Pagination, BroadcastRecipientsModal, UserList
 } from "@/presentation/components";
 import {
   useNotificationsPageLogic,
@@ -239,24 +239,24 @@ const NotificationsPage = () => {
                           </span>
                         </div>
                       )}
-                      {paginatedVolunteers.map(v => (
-                        <div
-                          key={v.id}
-                          className={`${styles.userItem} ${directSelectedIds.has(v.id) ? styles.userItemSelected : ""}`}
-                          onClick={() => toggleDirectUser(v.id)}
-                        >
-                          <span className={`${styles.checkbox} ${directSelectedIds.has(v.id) ? styles.checkboxActive : ""}`} />
-                          <div className={styles.userInfo}>
-                            <span className={styles.userName}>{v.name}</span>
-                            {v.hours !== undefined && (
-                              <span className={styles.userHours}>{v.hours} ساعة</span>
-                            )}
-
-                          </div>
-                        </div>
-                      ))}
-                      {filteredVolunteers.length === 0 && (
+                      
+                      {filteredVolunteers.length === 0 ? (
                         <p className={styles.noResults}>لا توجد نتائج</p>
+                      ) : (
+                        <UserList
+                          users={paginatedVolunteers.map(v => ({
+                            id: v.id,
+                            name: v.name,
+                            email: (v as any).email || "",
+                            meta: [
+                              v.hours !== undefined ? { value: `${v.hours} ساعة` } : null
+                            ].filter(Boolean) as any
+                          }))}
+                          layout="list"
+                          selectable
+                          selectedIds={directSelectedIds}
+                          onToggleUser={toggleDirectUser}
+                        />
                       )}
                     </div>
 

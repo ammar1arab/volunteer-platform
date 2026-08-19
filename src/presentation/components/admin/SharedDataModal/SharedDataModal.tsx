@@ -26,6 +26,7 @@ interface Props<T> {
   emptyMessage: string;
   exportFileName?: string;
   itemsPerPage?: number;
+  customListRenderer?: (data: T[]) => React.ReactNode;
 }
 
 export function SharedDataModal<T extends Record<string, any>>({
@@ -40,6 +41,7 @@ export function SharedDataModal<T extends Record<string, any>>({
   emptyMessage,
   exportFileName = "export",
   itemsPerPage = 5,
+  customListRenderer,
 }: Props<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -153,6 +155,8 @@ export function SharedDataModal<T extends Record<string, any>>({
           <LoadingState />
         ) : processedData.length === 0 ? (
           <EmptyState icon={Icon as any} title={emptyTitle} message={emptyMessage} />
+        ) : customListRenderer ? (
+          customListRenderer(paginatedData)
         ) : (
           <div className={styles.tableWrapper}>
             <table className={styles.table}>

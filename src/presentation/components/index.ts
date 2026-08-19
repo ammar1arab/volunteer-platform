@@ -50,7 +50,8 @@ export { default as AdminFeaturedPostCard } from "./admin/AdminFeaturedPostCard/
 export { default as AdminVolunteerSpotlightCard } from "./admin/AdminVolunteerSpotlightCard/AdminVolunteerSpotlightCard";
 export { default as AdminMagazineCard } from "./admin/AdminMagazineCard/AdminMagazineCard";
 export { default as VolunteersModal } from "./admin/VolunteersModal/VolunteersModal";
-export { default as UserCard } from "./admin/UserCard/UserCard";
+export { default as UserList } from "./admin/UserList/UserList";
+export type { UserListDto, UserListMeta } from "./admin/UserList/UserList";
 
 export { default as ParticipationRequestItem } from "./admin/ParticipationRequestItem/ParticipationRequestItem";
 export { default as StatsCard } from "./admin/StatsCard/StatsCard";

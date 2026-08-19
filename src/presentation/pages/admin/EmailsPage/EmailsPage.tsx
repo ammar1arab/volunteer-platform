@@ -6,7 +6,7 @@ import { Send, Users, MapPin, Check, Clock, AtSign } from "lucide-react";
 import {
   LoadingState, EmptyState, ToastContainer,
   SelectInput, Button, Modal, ConfirmDialog,
-  EmailPreviewPane, Badge,
+  EmailPreviewPane, Badge, UserList,
 } from "@/presentation/components";
 import {
   useEmailsPageLogic,
@@ -361,32 +361,22 @@ const EmailsPage = () => {
           </div>
 
           <div className={styles.modalList}>
-            {previewUsers.length === 0 ? (
-              <EmptyState icon={Users} message="لا يوجد مستلمون" />
-            ) : (
-              previewUsers.map((u: EmailRecipientDto) => {
-                const on = selectedIds.has(u.id);
-                return (
-                  <div
-                    key={u.id}
-                    className={`${styles.recipient} ${on ? styles.recipientOn : ""}`}
-                    onClick={() => toggleUser(u.id)}
-                  >
-                    <div className={`${styles.tick} ${on ? styles.tickOn : ""}`}>
-                      {on && <Check size={10} />}
-                    </div>
-                    <div className={styles.recipientBody}>
-                      <span className={styles.recipientName}>{u.name}</span>
-                      <div className={styles.recipientMeta}>
-                        <span className={styles.rEmail} dir="ltr"><AtSign size={10} />{u.email}</span>
-                        {u.city && <span className={styles.rMeta}><MapPin size={10} />{getCityLabel(u.city as JordanianCity)}</span>}
-                        <span className={styles.rMeta}><Clock size={10} />{Math.round(u.hours)} ساعة</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
+            <UserList
+              users={previewUsers.map((u: EmailRecipientDto) => ({
+                id: u.id,
+                name: u.name,
+                email: u.email,
+                meta: [
+                  u.city ? { value: getCityLabel(u.city as JordanianCity), icon: MapPin } : null,
+                  { value: `${Math.round(u.hours)} ساعة`, icon: Clock }
+                ].filter(Boolean) as any
+              }))}
+              layout="list"
+              selectable
+              selectedIds={selectedIds}
+              onToggleUser={toggleUser}
+              emptyMessage="لا يوجد مستلمون"
+            />
           </div>
 
           <div className={styles.modalFooter}>
