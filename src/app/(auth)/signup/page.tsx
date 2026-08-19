@@ -135,7 +135,7 @@ const SignupPage = () => {
               <div className={styles.rowFixed}>
                 <div className={styles.field}>
                   <SelectInput
-                    label="المستوى التعليمي (اختياري)"
+                    label="المستوى التعليمي"
                     value={form.educationLevel}
                     options={[{ value: "", label: "غير محدد" }, ...EDUCATION_LEVEL_OPTIONS]}
                     onChange={v => handleChange("educationLevel", v)}
@@ -143,7 +143,7 @@ const SignupPage = () => {
                 </div>
                 <div className={styles.field}>
                   <Input
-                    label="التخصص / المهنة (اختياري)"
+                    label="التخصص / المهنة"
                     value={form.occupation}
                     onChange={e => handleChange("occupation", e.target.value)}
                   />
