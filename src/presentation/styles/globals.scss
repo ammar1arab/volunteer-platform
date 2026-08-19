@@ -80,7 +80,7 @@ input,
 textarea,
 select {
   @include input;
-  font-size: 16px; /* Prevents iOS auto-zoom */
+  font-size: 16px;
 }
 
 textarea {
