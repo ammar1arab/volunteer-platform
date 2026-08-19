@@ -60,6 +60,15 @@ class SystemLogUseCase {
       return serviceError(SystemLogUseCase.SCOPE, "getLogs", error, "Failed to fetch logs");
     }
   }
+
+  async clearAll() {
+    try {
+      await this.systemLogRepository.clearAll();
+      return ok({ success: true });
+    } catch (error) {
+      return serviceError(SystemLogUseCase.SCOPE, "clearAll", error, "Failed to clear logs");
+    }
+  }
 }
 
 export default SystemLogUseCase;

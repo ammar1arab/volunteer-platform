@@ -1,0 +1,82 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.container {
+  @include flex-col;
+  gap: $sp-md;
+  padding: $sp-sm;
+}
+
+.controls {
+  @include flex(row, center, space-between, $sp-md);
+  flex-wrap: wrap;
+}
+
+.search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.exportBtn {
+  @include flex-center;
+  gap: $sp-xs;
+  padding: $sp-sm $sp-md;
+  background-color: $green;
+  color: white;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  font-weight: 500;
+  transition: opacity 0.2s;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: $radius-md;
+  background: $surface;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+
+  th, td {
+    padding: $sp-md;
+    font-size: $font-sm;
+  }
+
+  th {
+    background: $bg-color;
+    color: $text-secondary;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      color: $text;
+    }
+  }
+
+  td {
+    color: $text;
+    border-bottom: 1px solid rgba($border, 0.5); /* subtle inner separator */
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.sortIcon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: $sp-xs;
+  color: $text-muted;
+}

@@ -228,3 +228,11 @@ textarea {
     box-shadow: 0 0 0 10px rgba($green, 0);
   }
 }
+
+/* Hide scrollbar globally but allow scrolling */
+* {
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
+}

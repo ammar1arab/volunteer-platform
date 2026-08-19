@@ -5,9 +5,23 @@ import { SystemLogStatus } from "@/core/domain/enums";
 
 export default class SystemLogRepository {
   async create(data: Prisma.SystemLogUncheckedCreateInput) {
-    return prisma.systemLog.create({
+    const result = await prisma.systemLog.create({
       data
     });
+
+    void prisma.$executeRaw`
+      DELETE FROM system_logs
+      WHERE id IN (
+        SELECT id FROM (
+          SELECT id,
+            ROW_NUMBER() OVER (ORDER BY "createdAt" DESC) AS rn
+          FROM system_logs
+        ) ranked
+        WHERE rn > 100
+      )
+    `;
+
+    return result;
   }
 
   async findMany(options: {
@@ -36,5 +50,9 @@ export default class SystemLogRepository {
       prisma.systemLog.count({ where: { status: SystemLogStatus.ERROR } })
     ]);
     return { total, errorCount };
+  }
+
+  async clearAll() {
+    return prisma.systemLog.deleteMany({});
   }
 }

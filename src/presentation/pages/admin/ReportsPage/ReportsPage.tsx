@@ -3,8 +3,9 @@
 import { useState } from "react";
 import styles from "./ReportsPage.module.scss";
 import { useReportsPage } from "./ReportsPage.logic";
-import { StatsCard, SelectInput, Search, SystemLogsTable, UsersAnalyticsModal, ActivitiesAnalyticsModal, PendingRequestsModal, SystemErrorsModal, ActivityViewsModal, PostViewsModal, MagazineDownloadsModal, SystemOperationsModal } from "@/presentation/components";
-import { Activity, Users, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare } from "lucide-react";
+import { StatsCard, SelectInput, Search, SystemLogsTable, ConfirmDialog, SharedDataModal } from "@/presentation/components";
+import { MODAL_CONFIGS } from "./ReportsModalsConfig";
+import { Activity, Users, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare, Trash2 } from "lucide-react";
 import { SystemLogStatus } from "@/core/domain/enums";
 
 const STATUS_OPTIONS = [
@@ -25,9 +26,12 @@ export default function ReportsPage() {
     filterAction,
     filterStatus,
     handleFilterChange,
+    clearLogs,
+    isClearing,
   } = useReportsPage();
 
   const [activeModal, setActiveModal] = useState<"users" | "activities" | "pending" | "errors" | "activityViews" | "postViews" | "magazineDownloads" | "operations" | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const statItems = [
     { id: "users" as const, title: "إجمالي المستخدمين", value: stats?.totalUsers, icon: Users, color: "blue" as const },
@@ -73,6 +77,15 @@ export default function ReportsPage() {
               value={filterStatus}
               onChange={(val) => handleFilterChange(filterAction, val)}
             />
+            <button 
+              className="btn btn-danger"
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", height: "40px" }}
+              onClick={() => setShowClearConfirm(true)}
+              disabled={isClearing}
+            >
+              <Trash2 size={16} />
+              {isClearing ? "جاري المسح..." : "مسح السجلات"}
+            </button>
           </div>
         </div>
 
@@ -84,19 +97,27 @@ export default function ReportsPage() {
         />
       </section>
 
-      <UsersAnalyticsModal isOpen={activeModal === "users"} onClose={() => setActiveModal(null)} />
-      <ActivitiesAnalyticsModal isOpen={activeModal === "activities"} onClose={() => setActiveModal(null)} />
-      <PendingRequestsModal 
-        isOpen={activeModal === "pending"} 
-        onClose={() => setActiveModal(null)}
-        onApprove={() => {}}
-        onReject={() => {}} 
+      {activeModal && MODAL_CONFIGS[activeModal] && (
+        <SharedDataModal
+          isOpen={true}
+          onClose={() => setActiveModal(null)}
+          {...MODAL_CONFIGS[activeModal]}
+        />
+      )}
+
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={() => {
+          clearLogs();
+          setShowClearConfirm(false);
+        }}
+        title="تأكيد مسح السجلات"
+        message="هل أنت متأكد من رغبتك في مسح جميع سجلات النظام؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="نعم، امسح السجلات"
+        cancelText="إلغاء"
+        variant="danger"
       />
-      <SystemErrorsModal isOpen={activeModal === "errors"} onClose={() => setActiveModal(null)} />
-      <ActivityViewsModal isOpen={activeModal === "activityViews"} onClose={() => setActiveModal(null)} />
-      <PostViewsModal isOpen={activeModal === "postViews"} onClose={() => setActiveModal(null)} />
-      <MagazineDownloadsModal isOpen={activeModal === "magazineDownloads"} onClose={() => setActiveModal(null)} />
-      <SystemOperationsModal isOpen={activeModal === "operations"} onClose={() => setActiveModal(null)} />
     </div>
   );
 }

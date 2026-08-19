@@ -34,6 +34,7 @@ export const useReportsPage = () => {
   const [page, setPage] = useState(1);
   const [filterAction, setFilterAction] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
+  const [isClearing, setIsClearing] = useState(false);
 
   const statsQuery = useFetchData<DashboardStats>({
     queryKey: ["reports", "stats"],
@@ -65,6 +66,22 @@ export const useReportsPage = () => {
     setPage(1);
   }, []);
 
+  const clearLogs = useCallback(async () => {
+    try {
+      setIsClearing(true);
+      const res = await fetch("/api/reports/logs", { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to clear logs");
+      // Refetch both stats and logs after clearing
+      void statsQuery.refetch();
+      void logsQuery.refetch();
+      setPage(1);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsClearing(false);
+    }
+  }, [statsQuery, logsQuery]);
+
   return {
     stats: statsQuery.data,
     isLoadingStats: statsQuery.isLoading,
@@ -76,5 +93,7 @@ export const useReportsPage = () => {
     filterAction,
     filterStatus,
     handleFilterChange,
+    clearLogs,
+    isClearing,
   };
 };

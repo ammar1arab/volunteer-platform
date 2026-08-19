@@ -8,6 +8,7 @@ export { default as Footer } from "./base/Footer/Footer";
 export { default as Container } from "./base/Container/Container";
 export { default as AnimatedBackground } from "./base/AnimatedBackground/AnimatedBackground";
 export { default as Avatar } from "./base/Avatar/Avatar";
+export { default as ConfirmDialog } from "./base/ConfirmDialog/ConfirmDialog";
 export { default as Pagination } from "./base/Pagination/Pagination";
 export { default as SectionHeader } from "./base/SectionHeader/SectionHeader";
 export { default as Input } from "./base/Input/Input";
@@ -16,7 +17,6 @@ export { default as Button } from "./base/Button/Button";
 export { default as SelectInput } from "./base/SelectInput/SelectInput";
 export { default as DateInput } from "./base/DateInput/DateInput";
 export { default as BirthDateInput } from "./base/BirthDateInput/BirthDateInput";
-export { default as ConfirmDialog } from "./base/ConfirmDialog/ConfirmDialog";
 export { default as Badge } from "./base/Badge/Badge";
 export { default as ActivityPresenterBadge } from "./activity/ActivityPresenterBadge/ActivityPresenterBadge";
 export { default as Dropdown } from "./base/Dropdown/Dropdown";
@@ -68,14 +68,8 @@ export { default as MeetingReportModal } from "./admin/GoogleMeet/MeetingReportM
 export { default as MeetingListItem } from "./admin/GoogleMeet/MeetingListItem";
 export { default as PresenterPicker } from "./admin/PresenterPicker/PresenterPicker";
 export { default as SystemLogsTable } from "./admin/SystemLogsTable/SystemLogsTable";
-export { default as UsersAnalyticsModal } from "./admin/AnalyticsModals/UsersAnalyticsModal";
-export { default as ActivitiesAnalyticsModal } from "./admin/AnalyticsModals/ActivitiesAnalyticsModal";
-export { default as PendingRequestsModal } from "./admin/AnalyticsModals/PendingRequestsModal";
-export { default as SystemErrorsModal } from "./admin/AnalyticsModals/SystemErrorsModal";
-export { default as ActivityViewsModal } from "./admin/AnalyticsModals/ActivityViewsModal";
-export { default as PostViewsModal } from "./admin/AnalyticsModals/PostViewsModal";
-export { default as MagazineDownloadsModal } from "./admin/AnalyticsModals/MagazineDownloadsModal";
-export { default as SystemOperationsModal } from "./admin/AnalyticsModals/SystemOperationsModal";
+export { SharedDataModal } from "./admin/SharedDataModal/SharedDataModal";
+
 
 export { default as NotificationBell } from "./volunteer/NotificationBell/NotificationBell";
 export { default as NotificationDropdown } from "./volunteer/NotificationDropdown/NotificationDropdown";
