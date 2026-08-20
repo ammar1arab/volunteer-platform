@@ -9,6 +9,7 @@ export { default as Container } from "./base/Container/Container";
 export { default as AnimatedBackground } from "./base/AnimatedBackground/AnimatedBackground";
 export { default as Avatar } from "./base/Avatar/Avatar";
 export { default as ConfirmDialog } from "./base/ConfirmDialog/ConfirmDialog";
+export { default as UserCard } from './admin/UserCard/UserCard';
 export { default as Pagination } from "./base/Pagination/Pagination";
 export { default as SectionHeader } from "./base/SectionHeader/SectionHeader";
 export { default as Input } from "./base/Input/Input";

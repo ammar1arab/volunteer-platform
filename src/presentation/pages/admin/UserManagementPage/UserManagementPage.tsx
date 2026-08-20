@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import styles from "./UserManagementPage.module.scss";
 import { useUserManagementPage } from "./UserManagementPage.logic";
 import {
-  UserList, LoadingState, EmptyState, ToastContainer,
+  UserCard, LoadingState, EmptyState, ToastContainer,
   Pagination, Dropdown, ExportUsersButton, Search
 } from "@/presentation/components";
 import type { ExcelExportRow } from "@/presentation/components/admin/ExportUsersButton/ExportUsersButton.logic";
@@ -57,18 +57,6 @@ const UserManagementPage = () => {
     [volunteers.length, admins.length]
   );
 
-  const mapToUserListDto = (users: any[]) => users.map(u => ({
-    id: u.id,
-    name: u.fullName,
-    email: u.email,
-    phone: u.phone,
-    avatarUrl: u.volunteerProfile?.profilePictureUrl,
-    role: u.role,
-    meta: u.role === "VOLUNTEER" ? [
-      { label: "شهادات", value: u.stats?.certificatesCount ?? 0, icon: require("lucide-react").Award },
-      { label: "ساعات", value: u.stats?.totalHours ? `${u.stats.totalHours}h` : "0h", icon: require("lucide-react").Clock }
-    ] : []
-  }));
 
   if (status === "loading") return <LoadingState />;
 
@@ -131,13 +119,11 @@ const UserManagementPage = () => {
                 />
               ) : (
                 <>
-                  <UserList
-                    users={mapToUserListDto(paginatedVolunteers)}
-                    layout="grid"
-                    onNavigate={(id) => {
-                      // Handled inside UserList via NextLink, but we can log or trigger events here
-                    }}
-                  />
+                  <div className={styles.grid}>
+                    {paginatedVolunteers.map((user) => (
+                      <UserCard key={user.id} user={user} />
+                    ))}
+                  </div>
                   <Pagination
                     currentPage={currentPage}
                     totalItems={volunteers.length}
@@ -160,10 +146,11 @@ const UserManagementPage = () => {
                   </div>
                 </div>
               </div>
-              <UserList
-                users={mapToUserListDto(admins)}
-                layout="grid"
-              />
+              <div className={styles.grid}>
+                {admins.map((user) => (
+                  <UserCard key={user.id} user={user} />
+                ))}
+              </div>
             </section>
           )}
         </>
