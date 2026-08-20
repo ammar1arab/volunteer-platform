@@ -4,6 +4,7 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { ReactNode } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { QueryProvider } from "@/presentation/query";
+import { ImagePreviewProvider } from "@/presentation/providers/ImagePreviewProvider";
 
 let sentryUserKey = "";
 
@@ -36,8 +37,10 @@ export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
       <QueryProvider>
-        <SentryUserSync />
-        {children}
+        <ImagePreviewProvider>
+          <SentryUserSync />
+          {children}
+        </ImagePreviewProvider>
       </QueryProvider>
     </SessionProvider>
   );

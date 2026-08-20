@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
-import { Upload, Calendar } from "lucide-react";
+import { Upload, Calendar, User } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
+import { useImagePreview } from "@/presentation/providers/ImagePreviewProvider";
 import styles from "./ProfileHeader.module.scss";
 
 type Props = {
@@ -19,6 +20,8 @@ const ProfileHeader = ({
   fullName, role, profilePictureUrl, createdAt,
   isEditable = false, isUploading = false, onImageUpload, totalHours,
 }: Props) => {
+  const { previewImage } = useImagePreview();
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && onImageUpload) onImageUpload(file);
@@ -29,18 +32,22 @@ const ProfileHeader = ({
       <div className={styles.avatarWrapper}>
         {isEditable ? (
           <label className={styles.avatarLabel}>
-            {profilePictureUrl
-              ? <Image src={profilePictureUrl} alt={fullName} width={80} height={80} className={styles.avatar} />
-              : <div className={styles.avatarPlaceholder}>{fullName.charAt(0).toUpperCase()}</div>}
+            <div onClick={() => profilePictureUrl && previewImage(profilePictureUrl)} style={{ cursor: profilePictureUrl ? 'pointer' : 'default' }}>
+              {profilePictureUrl
+                ? <Image src={profilePictureUrl} alt={fullName} width={80} height={80} className={styles.avatar} />
+                : <div className={styles.avatarPlaceholder}><User size={32} /></div>}
+            </div>
             <div className={styles.uploadBadge}>
               {isUploading ? <div className={styles.spinner} /> : <Upload size={14} />}
             </div>
             <input type="file" accept="image/*" className={styles.fileInput} onChange={handleFileChange} disabled={isUploading} />
           </label>
         ) : (
-          profilePictureUrl
-            ? <Image src={profilePictureUrl} alt={fullName} width={80} height={80} className={styles.avatar} />
-            : <div className={styles.avatarPlaceholder}>{fullName.charAt(0).toUpperCase()}</div>
+          <div onClick={() => profilePictureUrl && previewImage(profilePictureUrl)} style={{ cursor: profilePictureUrl ? 'pointer' : 'default' }}>
+            {profilePictureUrl
+              ? <Image src={profilePictureUrl} alt={fullName} width={80} height={80} className={styles.avatar} />
+              : <div className={styles.avatarPlaceholder}>{fullName.charAt(0).toUpperCase()}</div>}
+          </div>
         )}
       </div>
 

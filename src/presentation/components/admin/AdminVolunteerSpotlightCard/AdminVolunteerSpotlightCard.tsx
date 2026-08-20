@@ -5,6 +5,7 @@ import { JordanianCity } from "@/core/domain/enums";
 import { getCityLabel } from "@/presentation/constants/labels";
 import { formatDate } from "@/lib/utils/date";
 import { MapPin, Calendar } from "lucide-react";
+import { useImagePreview } from "@/presentation/providers/ImagePreviewProvider";
 
 type Props = {
   imageUrl: string;
@@ -18,6 +19,7 @@ type Props = {
 
 const AdminVolunteerSpotlightCard = ({ imageUrl, name, description, city, spotlightDate, meta, actions }: Props) => {
   const formattedDate = formatDate(spotlightDate);
+  const { previewImage } = useImagePreview();
 
   return (
     <article className={styles.card}>
@@ -25,7 +27,11 @@ const AdminVolunteerSpotlightCard = ({ imageUrl, name, description, city, spotli
 
         <div className={styles.header}>
           <div className={styles.avatarWrap}>
-            <div className={styles.avatar}>
+            <div 
+              className={styles.avatar} 
+              onClick={() => imageUrl && previewImage(imageUrl)} 
+              style={{ cursor: imageUrl ? 'pointer' : 'default' }}
+            >
               <Image src={imageUrl} alt={name} fill sizes="80px" className={styles.avatarImg} />
             </div>
             <div className={styles.glow} />

@@ -8,6 +8,7 @@ import { ROUTES } from "@/presentation/constants";
 import { formatDate } from "@/lib/utils/date";
 import { VolunteerSpotlightDto } from "@/core/application/dtos";
 import { getCityLabel, getMonthLabel } from "@/presentation/constants/labels";
+import { useImagePreview } from "@/presentation/providers/ImagePreviewProvider";
 
 type Props = { spotlight: VolunteerSpotlightDto };
 
@@ -23,6 +24,7 @@ const VolunteerSpotlightCard = ({ spotlight }: Props) => {
   };
 
   const formattedDate = formatDate(spotlight.spotlightDate);
+  const { previewImage } = useImagePreview();
 
   return (
     <article ref={cardRef} className={styles.card} onMouseMove={handleMouseMove}
@@ -30,7 +32,14 @@ const VolunteerSpotlightCard = ({ spotlight }: Props) => {
 
       <div className={styles.body}>
         <div className={styles.avatarWrap}>
-          <div className={styles.avatar}>
+          <div 
+            className={styles.avatar} 
+            onClick={(e) => {
+              e.stopPropagation();
+              previewImage(spotlight.imageUrl);
+            }} 
+            style={{ cursor: 'pointer' }}
+          >
             <Image src={spotlight.imageUrl} alt={spotlight.name} fill sizes="80px" className={styles.avatarImg} />
           </div>
           <div className={styles.glow} />
