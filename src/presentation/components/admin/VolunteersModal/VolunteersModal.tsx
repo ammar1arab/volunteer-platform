@@ -196,7 +196,7 @@ const VolunteersModal = ({
                     name: volunteer.fullName,
                     email: volunteer.email || "",
                     phone: volunteer.phone,
-                    avatarUrl: volunteer.profilePictureUrl,
+                    avatarUrl: volunteer.profilePictureUrl || undefined,
                     meta: [
                       volunteer.city ? { value: getCityLabel(volunteer.city), icon: MapPin } : null,
                       volunteer.dateOfBirth ? { value: `${calculateAge(volunteer.dateOfBirth)} سنة`, icon: Calendar } : null,
