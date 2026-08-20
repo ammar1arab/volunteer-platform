@@ -76,6 +76,10 @@ function mapVolunteerPreview(u: UserAnalyticsDto): PreviewUserDto {
   return {
     id: u.id,
     name: u.fullName,
+    email: u.email,
+    phone: u.phone,
+    avatarUrl: u.volunteerProfile?.profilePictureUrl || undefined,
+    certifications: u.stats?.certificatesCount ?? 0,
     city: u.volunteerProfile?.city ?? null,
     gender: u.volunteerProfile?.gender ?? null,
     hours: u.stats?.totalHours ?? 0

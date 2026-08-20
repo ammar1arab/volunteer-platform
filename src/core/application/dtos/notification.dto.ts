@@ -36,6 +36,10 @@ export interface BroadcastRecipientDto {
   city: string | null;
   gender: string | null;
   hours: number;
+  email?: string;
+  phone?: string;
+  avatarUrl?: string;
+  certifications?: number;
 }
 
 export interface BroadcastsDto {
@@ -48,6 +52,10 @@ export interface PreviewUserDto {
   city: string | null;
   gender: string | null;
   hours?: number;
+  email?: string;
+  phone?: string;
+  avatarUrl?: string;
+  certifications?: number;
 }
 
 export interface PreviewUsersDto {

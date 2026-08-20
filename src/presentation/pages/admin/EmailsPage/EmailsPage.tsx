@@ -2,59 +2,85 @@
 
 import { useRef } from "react";
 import styles from "./EmailsPage.module.scss";
-import { Send, Users, MapPin, Check, Clock, AtSign } from "lucide-react";
+import { Send, MapPin, Clock } from "lucide-react";
 import {
-  LoadingState, EmptyState, ToastContainer,
-  SelectInput, Button, Modal, ConfirmDialog,
-  EmailPreviewPane, Badge, UserList,
+  LoadingState,
+  ToastContainer,
+  SelectInput,
+  Button,
+  Modal,
+  ConfirmDialog,
+  EmailPreviewPane,
+  Badge,
+  UserList
 } from "@/presentation/components";
 import {
   useEmailsPageLogic,
-  ALIAS_OPTIONS, TARGET_OPTIONS, CITY_OPTIONS,
-  GENDER_OPTIONS, VARS, EMAIL_TEMPLATES,
-  type EmailForm, type ExperienceFilter,
+  ALIAS_OPTIONS,
+  TARGET_OPTIONS,
+  CITY_OPTIONS,
+  GENDER_OPTIONS,
+  VARS,
+  EMAIL_TEMPLATES,
+  type EmailForm,
+  type ExperienceFilter
 } from "./EmailsPage.logic";
-import { getCityLabel } from "@/presentation/constants";
+import { getCityLabel, getGenderLabel } from "@/presentation/constants";
 import type { EmailRecipientDto } from "@/core/application/dtos";
-import { JordanianCity } from "@/core/domain/enums";
+import { Gender, JordanianCity } from "@/core/domain/enums";
 
 const EXP_OPTIONS: { value: ExperienceFilter; label: string }[] = [
-  { value: "all", label: "الكل"         },
-  { value: "yes", label: "يملك خبرة"    },
-  { value: "no",  label: "لا يملك خبرة" },
+  { value: "all", label: "الكل" },
+  { value: "yes", label: "يملك خبرة" },
+  { value: "no", label: "لا يملك خبرة" }
 ];
 
 const EmailsPage = () => {
   const {
-    status, form, isFormValid, hasActivityLinkVar,
-    previewUsers, selectedIds,
-    showPreview, showConfirm,
-    loadingPreview, isSending,
-    toasts, removeToast,
-    setField, applyTemplate,
-    handlePreview, toggleUser, toggleAll,
-    setShowConfirm, handleSend, closePreview,
+    status,
+    form,
+    isFormValid,
+    hasActivityLinkVar,
+    previewUsers,
+    selectedIds,
+    showPreview,
+    showConfirm,
+    loadingPreview,
+    isSending,
+    toasts,
+    removeToast,
+    setField,
+    applyTemplate,
+    handlePreview,
+    toggleUser,
+    toggleAll,
+    setShowConfirm,
+    handleSend,
+    closePreview
   } = useEmailsPageLogic();
 
   const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   const insertVar = (variable: string) => {
     const el = bodyRef.current;
-    if (!el) { setField("body", form.body + variable); return; }
-    const s       = el.selectionStart;
-    const e       = el.selectionEnd;
+    if (!el) {
+      setField("body", form.body + variable);
+      return;
+    }
+    const s = el.selectionStart;
+    const e = el.selectionEnd;
     const newBody = form.body.slice(0, s) + variable + form.body.slice(e);
     setField("body", newBody);
     requestAnimationFrame(() => {
       el.selectionStart = s + variable.length;
-      el.selectionEnd   = s + variable.length;
+      el.selectionEnd = s + variable.length;
       el.focus();
     });
   };
 
-  const allSelected  = selectedIds.size === previewUsers.length && previewUsers.length > 0;
+  const allSelected = selectedIds.size === previewUsers.length && previewUsers.length > 0;
   const noneSelected = selectedIds.size === 0;
-  const charCount    = form.body.length;
+  const charCount = form.body.length;
 
   if (status === "loading") return <LoadingState />;
 
@@ -64,8 +90,6 @@ const EmailsPage = () => {
 
       <div className={styles.root}>
         <div className={styles.composer}>
-
-
           <div className={styles.step}>
             <div className={styles.stepHead}>
               <span className={styles.stepNum}>١</span>
@@ -102,7 +126,6 @@ const EmailsPage = () => {
           </div>
 
           <div className={styles.sep} />
-
 
           <div className={styles.step}>
             <div className={styles.stepHead}>
@@ -172,7 +195,6 @@ const EmailsPage = () => {
 
           <div className={styles.sep} />
 
-
           <div className={styles.step}>
             <div className={styles.stepHead}>
               <span className={styles.stepNum}>٣</span>
@@ -182,8 +204,6 @@ const EmailsPage = () => {
               </div>
             </div>
             <div className={styles.stepBody}>
-
-
               <SelectInput
                 label="الاستهداف الأساسي"
                 value={form.target}
@@ -209,7 +229,6 @@ const EmailsPage = () => {
                   disabled={isSending}
                 />
               )}
-
 
               <div className={styles.extraFilters}>
                 <span className={styles.extraFiltersLabel}>فيلترات إضافية</span>
@@ -310,11 +329,8 @@ const EmailsPage = () => {
                     onChange={(e) => setField("interests", e.target.value)}
                     disabled={isSending}
                   />
-                  <span className={styles.inputHint}>
-                    اكتب اهتمامات مفصولة بفاصلة · مثال: صحة,تعليم,بيئة
-                  </span>
+                  <span className={styles.inputHint}>اكتب اهتمامات مفصولة بفاصلة · مثال: صحة,تعليم,بيئة</span>
                 </div>
-
               </div>
             </div>
           </div>
@@ -347,7 +363,11 @@ const EmailsPage = () => {
                 <strong>{selectedIds.size}</strong>
                 <span> / {previewUsers.length} محدد</span>
               </span>
-              {form.minHours && <Badge variant="info"><Clock size={10} /> ≥ {form.minHours} ساعة</Badge>}
+              {form.minHours && (
+                <Badge variant="info">
+                  <Clock size={10} /> ≥ {form.minHours} ساعة
+                </Badge>
+              )}
               {form.minAge && <Badge variant="info">من {form.minAge} سنة</Badge>}
               {form.maxAge && <Badge variant="info">إلى {form.maxAge} سنة</Badge>}
               {form.interests && <Badge variant="info">{form.interests}</Badge>}
@@ -366,14 +386,14 @@ const EmailsPage = () => {
                 id: u.id,
                 name: u.name,
                 email: u.email,
-                phone: (u as any).phone,
-                avatarUrl: (u as any).avatarUrl || (u as any).profilePictureUrl,
+                phone: u.phone,
+                avatarUrl: u.avatarUrl,
                 meta: [
                   u.city ? { value: getCityLabel(u.city as JordanianCity), icon: MapPin } : null,
-                  (u as any).gender ? { value: getGenderLabel((u as any).gender as Gender), icon: require("lucide-react").User2 } : null,
+                  u.gender ? { value: getGenderLabel(u.gender as Gender), icon: require("lucide-react").User2 } : null,
                   { value: `${Math.round(u.hours)} ساعة`, icon: Clock },
-                  (u as any).certifications ? { value: `${(u as any).certifications} شهادة`, icon: require("lucide-react").Award } : null,
-                ].filter(Boolean) as any
+                  u.certifications ? { value: `${u.certifications} شهادة`, icon: require("lucide-react").Award } : null
+                ].filter(Boolean) as import("@/presentation/components/admin/UserList/UserList").UserListMeta[]
               }))}
               layout="list"
               selectable
@@ -384,7 +404,9 @@ const EmailsPage = () => {
           </div>
 
           <div className={styles.modalFooter}>
-            <Button variant="ghost" onClick={closePreview} disabled={isSending}>إلغاء</Button>
+            <Button variant="ghost" onClick={closePreview} disabled={isSending}>
+              إلغاء
+            </Button>
             <Button
               type="button"
               variant="primary"

@@ -105,8 +105,12 @@ class UserRepository implements IUserRepository {
         id: true,
         fullName: true,
         email: true,
+        phone: true,
         volunteerProfile: {
-          select: { city: true, gender: true, totalVolunteerHours: true }
+          select: { city: true, gender: true, totalVolunteerHours: true, profilePictureUrl: true }
+        },
+        stats: {
+          select: { certificatesCount: true }
         }
       }
     });
@@ -115,9 +119,12 @@ class UserRepository implements IUserRepository {
       id: r.id,
       name: r.fullName,
       email: r.email,
+      phone: r.phone,
       city: r.volunteerProfile?.city ?? null,
       gender: r.volunteerProfile?.gender ?? null,
-      hours: r.volunteerProfile?.totalVolunteerHours ?? 0
+      hours: r.volunteerProfile?.totalVolunteerHours ?? 0,
+      avatarUrl: r.volunteerProfile?.profilePictureUrl ?? undefined,
+      certifications: r.stats?.certificatesCount ?? 0
     }));
   }
 }

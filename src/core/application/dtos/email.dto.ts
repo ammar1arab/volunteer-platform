@@ -27,6 +27,9 @@ export interface EmailRecipientDto {
   city:   string | null;
   gender: string | null;
   hours:  number;
+  phone?: string;
+  avatarUrl?: string;
+  certifications?: number;
 }
 
 export interface EmailRecipientsDto {
