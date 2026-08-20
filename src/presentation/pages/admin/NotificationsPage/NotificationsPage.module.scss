@@ -6,6 +6,7 @@
   grid-template-columns: 420px 1fr;
   gap: $sp-lg;
   align-items: stretch;
+  height: calc(100vh - 140px);
 
   @media (max-width: $bp-lg) {
     grid-template-columns: 360px 1fr;
@@ -13,6 +14,7 @@
   @media (max-width: $bp-md) {
     grid-template-columns: 1fr;
     align-items: flex-start;
+    height: auto;
   }
   @media (max-width: 767px) {
     grid-template-columns: 1fr;

@@ -52,9 +52,6 @@ export default function ReportsPage() {
           <button className={styles.back} onClick={() => setShowMobileTable(false)}>
             <ArrowRight size={16} /> العودة
           </button>
-          <div className={styles.headerActions}>
-            <h2>سجل أحداث النظام</h2>
-          </div>
         </div>
         <div className={styles.filters}>
           <Search

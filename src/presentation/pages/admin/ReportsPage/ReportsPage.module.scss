@@ -91,11 +91,25 @@
 
 .filters {
   display: flex;
-  align-items: center;
   gap: 1rem;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding-bottom: 4px; // For scrollbar
+  
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    > *:nth-child(1) {
+      flex: 1 1 100%;
+    }
+    > *:nth-child(2),
+    > *:nth-child(3) {
+      flex: 1 1 calc(50% - 0.5rem);
+    }
+  }
+
+  @media (min-width: 769px) {
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
 }
 
 .tableWrapper {
