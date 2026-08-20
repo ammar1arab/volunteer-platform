@@ -93,11 +93,11 @@ const VolunteerSpotlightPage = () => {
                                 }
                                 actions={
                                     <div className={styles.cardActions}>
-                                        <button className={styles.btn} onClick={() => openEdit(spotlight)} disabled={isSubmitting}>
+                                        <button className={styles.btnInfo} onClick={() => openEdit(spotlight)} disabled={isSubmitting}>
                                             <Edit2 size={14} />
                                         </button>
-                                        <button className={styles.btn} onClick={() => handleToggle(spotlight)} disabled={isSubmitting}>
-                                            {spotlight.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                                        <button className={spotlight.isActive ? styles.btnWarning : styles.btnSuccess} onClick={() => handleToggle(spotlight)} disabled={isSubmitting}>
+                                            {spotlight.isActive ? <EyeOff size={14} /> : <Eye size={14} />}
                                         </button>
                                         <button className={styles.btnDanger} onClick={() => handleDelete(spotlight)} disabled={isSubmitting}>
                                             <Trash2 size={14} />

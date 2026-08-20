@@ -90,11 +90,11 @@ const FeaturedPostsPage = () => {
                 }
                 actions={
                   <div className={styles.cardActions}>
-                    <button className={styles.btn} onClick={() => openEdit(post)} disabled={isSubmitting}>
+                    <button className={styles.btnInfo} onClick={() => openEdit(post)} disabled={isSubmitting}>
                       <Edit2 size={14} />
                     </button>
-                    <button className={styles.btn} onClick={() => handleToggle(post)} disabled={isSubmitting}>
-                      {post.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                    <button className={post.isActive ? styles.btnWarning : styles.btnSuccess} onClick={() => handleToggle(post)} disabled={isSubmitting}>
+                      {post.isActive ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
                     <button className={styles.btnDanger} onClick={() => handleDelete(post)} disabled={isSubmitting}>
                       <Trash2 size={14} />

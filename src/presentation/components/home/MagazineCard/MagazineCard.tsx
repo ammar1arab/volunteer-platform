@@ -1,16 +1,15 @@
 "use client";
 import styles from "./MagazineCard.module.scss";
 import { BookOpen, Download } from "lucide-react";
-import { getMonthLabel } from "@/presentation/constants/labels";
+import { ExternalLink, Calendar } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/presentation/hooks/uiHooks/useToast";
 
 type Props = { title: string; monthYear: string; pdfUrl: string; };
 
 const MagazineCard = ({ title, monthYear, pdfUrl }: Props) => {
-  const date = new Date(monthYear);
-  const month = getMonthLabel(date.getMonth() + 1);
-  const year = date.getFullYear();
+  const formattedDate = formatDate(monthYear);
 
   const { status } = useSession();
   const { showToast } = useToast();
@@ -60,7 +59,7 @@ const MagazineCard = ({ title, monthYear, pdfUrl }: Props) => {
         </div>
       </div>
       <div className={styles.info}>
-        <div className={styles.datePill}>{month} {year}</div>
+        <div className={styles.datePill}>{formattedDate}</div>
         <h3 className={styles.title}>{title}</h3>
         <div className={styles.downloadBtn}>
           <Download size={12} />

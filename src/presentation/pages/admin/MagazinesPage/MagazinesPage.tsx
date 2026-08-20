@@ -64,11 +64,11 @@ const MagazinesPage = () => {
                 pdfUrl={magazine.pdfUrl}
                 actions={
                   <div className={styles.cardActions}>
-                    <button className={styles.btn} onClick={() => openEdit(magazine)} disabled={isSubmitting}>
+                    <button className={styles.btnInfo} onClick={() => openEdit(magazine)} disabled={isSubmitting}>
                       <Edit2 size={14} />
                     </button>
-                    <button className={styles.btn} onClick={() => handleToggle(magazine)} disabled={isSubmitting}>
-                      {magazine.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                    <button className={magazine.isActive ? styles.btnWarning : styles.btnSuccess} onClick={() => handleToggle(magazine)} disabled={isSubmitting}>
+                      {magazine.isActive ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
                     <button className={styles.btnDanger} onClick={() => handleDelete(magazine)} disabled={isSubmitting}>
                       <Trash2 size={14} />

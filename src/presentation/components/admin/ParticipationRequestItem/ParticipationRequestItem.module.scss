@@ -17,6 +17,13 @@
     box-shadow: 0 2px 8px rgba($black, 0.06);
   }
 
+  &.clickableItem {
+    cursor: pointer;
+    &:active {
+      transform: scale(0.995);
+    }
+  }
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr 1fr auto;
     gap: $sp-xs;

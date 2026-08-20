@@ -1,7 +1,8 @@
 import styles from "./ParticipationRequestItem.module.scss";
 import { ActivityParticipationDto } from "@/core/application/dtos";
 import { User, Mail, Phone, MapPin, Calendar, CheckCircle, XCircle } from "lucide-react";
-import { getCityLabel, getMonthLabel } from "@/presentation/constants";
+import { getCityLabel } from "@/presentation/constants";
+import { formatDate } from "@/lib/utils/date";
 import { JordanianCity } from "@/core/domain/enums";
 
 type Props = {
@@ -12,15 +13,14 @@ type Props = {
 };
 
 const ParticipationRequestItem = ({ request, onApprove, onReject, onVolunteerClick }: Props) => {
-  const date = new Date(request.activity?.date || "");
-  const formattedDate = `${date.getDate()} ${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}`;
+  const formattedDate = formatDate(request.activity?.date || "");
 
   return (
-    <div className={styles.item}>
-      <div
-        className={`${styles.cell} ${onVolunteerClick ? styles.clickable : ""}`}
-        onClick={() => onVolunteerClick?.(request.volunteer?.id || "")}
-      >
+    <div 
+      className={`${styles.item} ${onVolunteerClick ? styles.clickableItem : ""}`}
+      onClick={() => onVolunteerClick?.(request.volunteer?.id || "")}
+    >
+      <div className={styles.cell}>
         <User size={16} className={styles.icon} />
         <span className={styles.text}>{request.volunteer?.fullName}</span>
       </div>
@@ -52,19 +52,25 @@ const ParticipationRequestItem = ({ request, onApprove, onReject, onVolunteerCli
       <div className={styles.actions}>
         <button
           className={styles.btnReject}
-          onClick={() => onReject(request.id, request.volunteer?.fullName || "")}
+          onClick={(e) => {
+            e.stopPropagation();
+            onReject(request.id, request.volunteer?.fullName || "");
+          }}
           title="رفض"
         >
           <XCircle size={16} />
         </button>
         <button
           className={styles.btnApprove}
-          onClick={() => onApprove(
-            request.id,
-            request.volunteer?.fullName || "",
-            request.volunteer?.city ?? undefined,
-            request.activity?.city ?? undefined
-          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            onApprove(
+              request.id,
+              request.volunteer?.fullName || "",
+              request.volunteer?.city ?? undefined,
+              request.activity?.city ?? undefined
+            );
+          }}
           title="موافقة"
         >
           <CheckCircle size={16} />

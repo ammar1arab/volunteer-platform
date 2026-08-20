@@ -84,32 +84,10 @@
   }
 }
 
-.btn {
-  @include action-btn;
-  @include sm {
-    padding: 4px;
-    svg {
-      width: 12px;
-      height: 12px;
-    }
-  }
-}
-
-.btnDanger {
-  @include action-btn;
-  &:hover:not(:disabled) {
-    background: rgba($red, 0.05);
-    border-color: $red;
-    color: $red;
-  }
-  @include sm {
-    padding: 4px;
-    svg {
-      width: 12px;
-      height: 12px;
-    }
-  }
-}
+.btnInfo    { @include action-btn-tinted(#2563eb); }
+.btnSuccess { @include action-btn-tinted($green); }
+.btnWarning { @include action-btn-tinted(#d97706); }
+.btnDanger  { @include action-btn-tinted($red); }
 
 .form {
   @include flex-col;

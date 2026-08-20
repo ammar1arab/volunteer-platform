@@ -309,12 +309,19 @@
 }
 
 .locActions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: $sp-sm;
+  padding-top: $sp-sm;
+  margin-top: $sp-sm;
+  border-top: 1px solid $border;
 
   @include sm {
-    grid-template-columns: 1fr;
+    justify-content: stretch;
+    & > * {
+      flex: 1;
+    }
   }
 }
 

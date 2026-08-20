@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
+import { formatDate } from "@/lib/utils/date";
 import { VolunteerSpotlightDto } from "@/core/application/dtos";
 import { getCityLabel, getMonthLabel } from "@/presentation/constants/labels";
 
@@ -21,10 +22,7 @@ const VolunteerSpotlightCard = ({ spotlight }: Props) => {
     cardRef.current.style.setProperty("--y", `${e.clientY - top}px`);
   };
 
-  const date = new Date(spotlight.spotlightDate);
-  const month = getMonthLabel(date.getMonth() + 1);
-  const year = date.getFullYear();
-  const formattedDate = `${month} ${year}`;
+  const formattedDate = formatDate(spotlight.spotlightDate);
 
   return (
     <article ref={cardRef} className={styles.card} onMouseMove={handleMouseMove}

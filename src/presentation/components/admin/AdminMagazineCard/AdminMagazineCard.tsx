@@ -1,7 +1,7 @@
 "use client";
 import styles from "./AdminMagazineCard.module.scss";
-import { BookOpen, Download } from "lucide-react";
-import { getMonthLabel } from "@/presentation/constants/labels";
+import { BookOpen, Download, ExternalLink, Calendar } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 type Props = {
   title: string; monthYear: string; pdfUrl: string;
@@ -9,9 +9,7 @@ type Props = {
 };
 
 const AdminMagazineCard = ({ title, monthYear, pdfUrl, isActive = true, actions }: Props) => {
-  const date  = new Date(monthYear);
-  const month = getMonthLabel(date.getMonth() + 1);
-  const year  = date.getFullYear();
+  const formattedDate = formatDate(monthYear);
 
   const handleClick = async () => {
     try {
@@ -35,7 +33,7 @@ const AdminMagazineCard = ({ title, monthYear, pdfUrl, isActive = true, actions 
           </div>
         </div>
         <div className={styles.info}>
-          <div className={styles.datePill}>{month} {year}</div>
+          <div className={styles.datePill}>{formattedDate}</div>
           <h3 className={styles.title}>{title}</h3>
         </div>
       </div>

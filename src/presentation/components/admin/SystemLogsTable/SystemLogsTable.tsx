@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./SystemLogsTable.module.scss";
 import { Pagination, EmptyState, LoadingState, SystemLogBadge } from "@/presentation/components";
-import { formatDate } from "@/lib/utils/date";
+import { formatFullDateTime } from "@/lib/utils/date";
 import { SystemLogStatus } from "@/core/domain/enums";
 import { Activity } from "lucide-react";
 import type { SystemLog, PaginationData } from "@/presentation/pages/admin/ReportsPage/ReportsPage.logic";
@@ -63,7 +63,7 @@ const SystemLogsTable: React.FC<Props> = ({ logs, isLoading, pagination, onPageC
                   <SystemLogBadge status={log.status} />
                 </td>
                 <td data-label="التاريخ والوقت" dir="ltr" className={styles.dateCell}>
-                  {formatDate(log.createdAt)}
+                  {formatFullDateTime(log.createdAt)}
                 </td>
               </tr>
             ))}

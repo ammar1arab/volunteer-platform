@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import type { ActivityDto } from "@/core/application/dtos";
 import { ActivityType } from "@/core/domain/enums";
 import { getMonthLabel, getActivityTypeLabel, getCityLabel, ROUTES } from "@/presentation/constants";
-import { Share, Modal, ActivityPresenterBadge } from "@/presentation/components";
+import { Share, Modal, ActivityPresenterBadge, Button } from "@/presentation/components";
 import { MapPin, Clock, Users, Share2, Wifi, MapPinned, Timer, Calendar } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 type Props = { activity: ActivityDto; actionButton?: React.ReactNode };
 
@@ -15,8 +16,7 @@ const ActivityCard = ({ activity, actionButton }: Props) => {
   const router = useRouter();
   const [locationModalOpen, setLocationModalOpen] = useState(false);
 
-  const date = new Date(activity.date);
-  const formattedDate = `${date.getDate()} ${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}`;
+  const formattedDate = formatDate(activity.date);
 
   const mapsUrl = activity.latitude && activity.longitude
     ? `https://www.google.com/maps?q=${activity.latitude},${activity.longitude}`
@@ -131,16 +131,17 @@ const ActivityCard = ({ activity, actionButton }: Props) => {
           <div className={styles.locActions}>
             <Share
               trigger={(openShare) => (
-                <button type="button" className={styles.locBtnShare}
-                  onClick={() => openShare({ title: activity.placeName ?? "", text: `${activity.placeName ?? ""}\n${mapsUrl}` })}>
-                  مشاركة الموقع
-                </button>
+                <Button variant="ghost" icon={<Share2 size={16} />} onClick={() => openShare({ title: activity.placeName ?? "", text: `${activity.placeName ?? ""}\n${mapsUrl}` })}>
+                  مشاركة
+                </Button>
               )}
             />
-            <a className={styles.locBtnMaps} href={mapsUrl} target="_blank"
-              rel="noopener noreferrer" onClick={() => setLocationModalOpen(false)}>
-              فتح في Google Maps
-            </a>
+            <Button variant="primary" icon={<MapPinned size={16} />} onClick={() => {
+              window.open(mapsUrl, "_blank", "noopener,noreferrer");
+              setLocationModalOpen(false);
+            }}>
+              خرائط جوجل
+            </Button>
           </div>
         </Modal>
       )}

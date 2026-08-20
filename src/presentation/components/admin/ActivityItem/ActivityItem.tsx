@@ -9,7 +9,8 @@ import {
   getAttendanceStatusLabel, getCityLabel,
   getOnlineMeetingJoinState, ROUTES
 } from "@/presentation/constants";
-import { ActivityType, AttendanceStatus, JordanianCity, MeetingPlatform, ParticipationStatus } from "@/core/domain/enums";
+import { ParticipationStatus, ActivityType, JordanianCity, MeetingPlatform, AttendanceStatus } from "@/core/domain/enums";
+import { formatDate } from "@/lib/utils/date";
 import Link from "next/link";
 
 type Props = {
@@ -50,8 +51,7 @@ const getAccentVariant = (status: ParticipationStatus, activityStatus?: string):
 };
 
 const fmt = (d: string) => {
-  const dt = new Date(d);
-  return `${dt.getDate()} ${getMonthLabel(dt.getMonth() + 1)} ${dt.getFullYear()}`;
+  return formatDate(d);
 };
 
 const canCancel = (status: ParticipationStatus, activityStatus?: string) =>

@@ -49,21 +49,13 @@
   &:hover:not(:disabled) { color: $text; border-color: $text; }
 }
 
-.btnSuccess {
-  @include action-btn;
-  color: $green;
-  border-color: rgba($green, 0.3);
-  background: rgba($green, 0.05);
-  &:hover:not(:disabled) { background: rgba($green, 0.1); border-color: $green; }
-}
+.btnSuccess { @include action-btn-tinted($green); }
+.btnDanger  { @include action-btn-tinted($red); }
+.btnWarning { @include action-btn-tinted(#d97706); }
 
 .btnInfo {
-  @include action-btn;
+  @include action-btn-tinted(#2563eb);
   position: relative;
-  color: #2563eb;
-  border-color: rgba(#2563eb, 0.3);
-  background: rgba(#2563eb, 0.05);
-  &:hover:not(:disabled) { background: rgba(#2563eb, 0.1); border-color: #2563eb; }
 }
 
 .badgeCount {
@@ -82,24 +74,8 @@
   line-height: 1;
 }
 
-.btnWarning {
-  @include action-btn;
-  color: #d97706;
-  border-color: rgba(#d97706, 0.3);
-  background: rgba(#d97706, 0.05);
-  &:hover:not(:disabled) { background: rgba(#d97706, 0.1); border-color: #d97706; }
-}
-
 .btnRestore {
   @include action-btn;
   color: $text-muted;
   &:hover:not(:disabled) { color: $green; border-color: $green; }
-}
-
-.btnDanger {
-  @include action-btn;
-  color: $red;
-  border-color: rgba($red, 0.3);
-  background: rgba($red, 0.05);
-  &:hover:not(:disabled) { background: rgba($red, 0.1); border-color: $red; }
 }

@@ -26,6 +26,14 @@
   gap: $sp-md;
   height: 100%;
   min-height: 560px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 
   @media (max-width: $bp-md) {
     min-height: unset;
@@ -80,7 +88,16 @@
   @include flex-col;
   gap: $sp-md;
   flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 }
+
 .field {
   @include flex-col;
   gap: $sp-xs;
@@ -241,6 +258,9 @@
   gap: $sp-sm;
   flex: 1;
   min-height: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .broadcastList {
@@ -250,9 +270,12 @@
   overflow-y: auto;
   min-height: 0;
   scrollbar-width: none;
+  -ms-overflow-style: none;
   
   &::-webkit-scrollbar {
     display: none;
+    width: 0;
+    height: 0;
   }
 }
 

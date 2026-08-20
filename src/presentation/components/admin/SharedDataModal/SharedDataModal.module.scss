@@ -42,6 +42,9 @@
   background: $surface;
   border: 1px solid $border;
   box-shadow: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .table {

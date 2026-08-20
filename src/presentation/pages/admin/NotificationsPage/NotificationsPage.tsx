@@ -11,8 +11,9 @@ import {
 } from "@/presentation/components";
 import {
   useNotificationsPageLogic,
-  CITY_OPTIONS, TARGET_OPTIONS, GENDER_OPTIONS, relativeTime,
+  CITY_OPTIONS, TARGET_OPTIONS, GENDER_OPTIONS
 } from "./NotificationsPage.logic";
+import { formatFullDateTime } from "@/lib/utils/date";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
 import type { BroadcastDto } from "@/core/application/dtos";
 import { Gender, JordanianCity } from "@/core/domain/enums";
@@ -336,7 +337,7 @@ const NotificationsPage = () => {
                         <span className={styles.recipients}>
                           <Users size={11} /> {b.totalRecipients} متطوع
                         </span>
-                        <span className={styles.time}>{relativeTime(b.createdAt)}</span>
+                        <span className={styles.time}>{formatFullDateTime(b.createdAt)}</span>
                       </div>
                       <div className={styles.broadcastActions}>
                         <button

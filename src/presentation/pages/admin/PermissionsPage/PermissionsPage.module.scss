@@ -109,23 +109,8 @@
   white-space: nowrap;
 }
 
-.btnEdit {
-  @include action-btn;
-  &:hover:not(:disabled) {
-    border-color: $blue;
-    color: $blue;
-    background: rgba($blue, 0.05);
-  }
-}
-
-.btnDanger {
-  @include action-btn;
-  &:hover:not(:disabled) {
-    background: rgba($red, 0.05);
-    border-color: $red;
-    color: $red;
-  }
-}
+.btnEdit   { @include action-btn-tinted(#2563eb); }
+.btnDanger { @include action-btn-tinted($red); }
 
 .cardBody {
   padding: $sp-md $sp-lg;

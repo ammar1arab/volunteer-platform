@@ -4,6 +4,7 @@ import { X, Link2, Check } from "lucide-react";
 import { useState } from "react";
 import { useShare, type SharePayload } from "./Share.logic";
 import { createPortal } from "react-dom";
+import Button from "../Button/Button";
 
 type ShareProps = {
   trigger: (open: (p: SharePayload) => void) => React.ReactNode;
@@ -87,10 +88,10 @@ const Share = ({ trigger }: ShareProps) => {
 
             <div className={styles.divider} />
 
-            <button className={styles.copyBtn} onClick={handleCopy}>
+            <Button className={styles.copyBtn} variant="secondary" onClick={handleCopy} fullWidth>
               {copied ? <Check size={15} /> : <Link2 size={15} />}
               {copied ? "تم نسخ الرابط!" : "نسخ رابط الصفحة"}
-            </button>
+            </Button>
           </div>
         </div>,
         document.body

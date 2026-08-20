@@ -7,6 +7,66 @@
   gap: 2rem;
 }
 
+.mobileOnly {
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+.desktopOnly {
+  display: flex;
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.mobileTablePage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  
+  .mobileHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: $text-secondary;
+      text-decoration: none;
+      transition: color $transition;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+
+      &:hover {
+        color: $text;
+      }
+    }
+
+    .headerActions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $text;
+    }
+  }
+}
+
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

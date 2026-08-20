@@ -76,6 +76,19 @@ export const formatDateTime = (date: Date | string): string => {
   }).format(d).toUpperCase();
 };
 
+export const formatFullDateTime = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }).format(d).toUpperCase();
+};
+
 export const formatTime = (date: Date | string): string => {
   const d = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("en-US", {

@@ -76,18 +76,10 @@
   flex-wrap: wrap;
 }
 
-.btn {
-  @include action-btn;
-}
-
-.btnDanger {
-  @include action-btn;
-  &:hover:not(:disabled) {
-    background: rgba($red, 0.05);
-    border-color: $red;
-    color: $red;
-  }
-}
+.btnInfo    { @include action-btn-tinted(#2563eb); }
+.btnSuccess { @include action-btn-tinted($green); }
+.btnWarning { @include action-btn-tinted(#d97706); }
+.btnDanger  { @include action-btn-tinted($red); }
 
 .form {
   @include flex-col;

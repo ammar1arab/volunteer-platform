@@ -3,7 +3,8 @@
 import Image from "next/image";
 import styles from "./AdminFeaturedPostCard.module.scss";
 import { Sparkles, Globe, ExternalLink, ShieldCheck } from "lucide-react";
-import { getMonthLabel } from "@/presentation/constants";
+import { ROUTES } from "@/presentation/constants";
+import { formatDate } from "@/lib/utils/date";
 
 type AdminFeaturedPostCardProps = {
   imageUrl: string;
@@ -15,10 +16,7 @@ type AdminFeaturedPostCardProps = {
 };
 
 const AdminFeaturedPostCard = ({ imageUrl, title, description, publishedAt, meta, actions }: AdminFeaturedPostCardProps) => {
-  const date = publishedAt ? new Date(publishedAt) : null;
-  const dateLabel = date
-    ? `${date.getDate()} ${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}`
-    : null;
+  const dateLabel = publishedAt ? formatDate(publishedAt) : "غير متاح";
 
   return (
     <article className={styles.card}>

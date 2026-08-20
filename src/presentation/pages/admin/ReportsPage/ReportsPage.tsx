@@ -5,7 +5,7 @@ import styles from "./ReportsPage.module.scss";
 import { useReportsPage } from "./ReportsPage.logic";
 import { StatsCard, SelectInput, Search, SystemLogsTable, ConfirmDialog, SharedDataModal, Button } from "@/presentation/components";
 import { MODAL_CONFIGS } from "./ReportsModalsConfig";
-import { Activity, Users, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare, Trash2 } from "lucide-react";
+import { Activity, Users, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare, Trash2, ArrowRight } from "lucide-react";
 import { SystemLogStatus } from "@/core/domain/enums";
 
 const STATUS_OPTIONS = [
@@ -32,6 +32,7 @@ export default function ReportsPage() {
 
   const [activeModal, setActiveModal] = useState<"users" | "activities" | "pending" | "errors" | "activityViews" | "postViews" | "magazineDownloads" | "operations" | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showMobileTable, setShowMobileTable] = useState(false);
 
   const statItems = [
     { id: "users" as const, title: "إجمالي المستخدمين", value: stats?.totalUsers, icon: Users, variant: "primary" as const },
@@ -44,8 +45,78 @@ export default function ReportsPage() {
     { id: "errors" as const, title: "أخطاء النظام", value: stats?.errorCount, icon: ShieldAlert, variant: "danger" as const },
   ];
 
+  if (showMobileTable) {
+    return (
+      <div className={styles.mobileTablePage}>
+        <div className={styles.mobileHeader}>
+          <button className={styles.back} onClick={() => setShowMobileTable(false)}>
+            <ArrowRight size={16} /> العودة
+          </button>
+          <div className={styles.headerActions}>
+            <h2>سجل أحداث النظام</h2>
+          </div>
+        </div>
+        <div className={styles.filters}>
+          <Search
+            value={filterAction}
+            onChange={(val) => handleFilterChange(val, filterStatus)}
+            onSearch={(val) => handleFilterChange(val, filterStatus)}
+            placeholder="ابحث في السجلات..."
+          />
+          <SelectInput
+            label=""
+            options={STATUS_OPTIONS}
+            value={filterStatus}
+            onChange={(val) => handleFilterChange(filterAction, val)}
+          />
+          <Button 
+            variant="danger"
+            size="md"
+            icon={<Trash2 size={16} />}
+            onClick={() => setShowClearConfirm(true)}
+            disabled={isClearing}
+            loading={isClearing}
+          >
+            {isClearing ? "جاري المسح..." : "مسح السجلات"}
+          </Button>
+        </div>
+        <SystemLogsTable
+          logs={logs}
+          isLoading={isLoadingLogs}
+          pagination={pagination}
+          onPageChange={handlePageChange}
+        />
+        
+        <ConfirmDialog
+          isOpen={showClearConfirm}
+          onClose={() => setShowClearConfirm(false)}
+          onConfirm={() => {
+            clearLogs();
+            setShowClearConfirm(false);
+          }}
+          title="تأكيد مسح السجلات"
+          message="هل أنت متأكد من رغبتك في مسح جميع سجلات النظام؟ لا يمكن التراجع عن هذا الإجراء."
+          confirmText="نعم، امسح السجلات"
+          cancelText="إلغاء"
+          variant="danger"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
+
+      <div className={styles.mobileOnly}>
+        <Button 
+          variant="secondary" 
+          fullWidth 
+          icon={<Activity size={16} />} 
+          onClick={() => setShowMobileTable(true)}
+        >
+          سجل أحداث النظام
+        </Button>
+      </div>
 
       <div className={styles.statsGrid}>
         {statItems.map((item) => (
@@ -61,7 +132,7 @@ export default function ReportsPage() {
         ))}
       </div>
 
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.desktopOnly}`}>
         <div className={styles.sectionHeader}>
           <h2>سجل أحداث النظام</h2>
           <div className={styles.filters}>
