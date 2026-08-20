@@ -366,9 +366,13 @@ const EmailsPage = () => {
                 id: u.id,
                 name: u.name,
                 email: u.email,
+                phone: (u as any).phone,
+                avatarUrl: (u as any).avatarUrl || (u as any).profilePictureUrl,
                 meta: [
                   u.city ? { value: getCityLabel(u.city as JordanianCity), icon: MapPin } : null,
-                  { value: `${Math.round(u.hours)} ساعة`, icon: Clock }
+                  (u as any).gender ? { value: getGenderLabel((u as any).gender as Gender), icon: require("lucide-react").User2 } : null,
+                  { value: `${Math.round(u.hours)} ساعة`, icon: Clock },
+                  (u as any).certifications ? { value: `${(u as any).certifications} شهادة`, icon: require("lucide-react").Award } : null,
                 ].filter(Boolean) as any
               }))}
               layout="list"

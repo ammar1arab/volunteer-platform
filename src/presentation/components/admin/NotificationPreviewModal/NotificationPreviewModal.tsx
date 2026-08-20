@@ -64,10 +64,13 @@ const NotificationPreviewModal = ({
                   id: u.id,
                   name: u.name,
                   email: (u as any).email || "",
+                  phone: (u as any).phone,
+                  avatarUrl: (u as any).avatarUrl || (u as any).profilePictureUrl,
                   meta: [
-                    u.city ? { label: "المدينة", value: getCityLabel(u.city as JordanianCity), icon: MapPin } : null,
-                    u.gender ? { label: "الجنس", value: getGenderLabel(u.gender as Gender), icon: User2 } : null,
-                    u.hours !== undefined && u.hours > 0 ? { label: "ساعات", value: `${u.hours} ساعة`, icon: Clock } : null
+                    u.city ? { value: getCityLabel(u.city as JordanianCity), icon: MapPin } : null,
+                    u.gender ? { value: getGenderLabel(u.gender as Gender), icon: User2 } : null,
+                    u.hours !== undefined && u.hours > 0 ? { value: `${u.hours} ساعة`, icon: Clock } : null,
+                    (u as any).certifications ? { value: `${(u as any).certifications} شهادة`, icon: require("lucide-react").Award } : null,
                   ].filter(Boolean) as any
                 }))}
                 layout="list"

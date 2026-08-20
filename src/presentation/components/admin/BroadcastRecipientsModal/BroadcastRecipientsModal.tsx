@@ -78,10 +78,12 @@ const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients,
                 name: r.name,
                 email: (r as any).email || "",
                 phone: (r as any).phone,
+                avatarUrl: (r as any).avatarUrl || (r as any).profilePictureUrl,
                 meta: [
                   r.city ? { value: getCityLabel(r.city as JordanianCity), icon: MapPin } : null,
                   r.gender ? { value: getGenderLabel(r.gender as Gender), icon: User2 } : null,
                   r.hours > 0 ? { value: `${r.hours} ساعة`, icon: Clock } : null,
+                  (r as any).certifications ? { value: `${(r as any).certifications} شهادة`, icon: require("lucide-react").Award } : null,
                 ].filter(Boolean) as any[]
               }))}
             />

@@ -1,24 +1,21 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Mail, Phone, ExternalLink, LucideIcon } from "lucide-react";
+import { Mail, Phone, Award, Clock, MapPin, User2 } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 import styles from "./UserList.module.scss";
-
-export interface UserListMeta {
-  icon?: LucideIcon | React.ElementType;
-  value: string | number;
-  label?: string;
-}
 
 export interface UserListDto {
   id: string;
   name: string;
   email: string;
   phone?: string;
+  city?: string;
+  gender?: string;
+  hours?: number;
+  certifications?: number;
   avatarUrl?: string;
   role?: string;
-  meta?: UserListMeta[];
   action?: React.ReactNode;
 }
 
@@ -60,13 +57,25 @@ const UserListItem = ({
 
   return (
     <div
-      className={`${styles.card} ${selectable || onNavigate || profileUrl ? styles.clickable : ""} ${isSelected ? styles.selected : ""} ${user.role === "ADMIN" ? styles.admin : ""}`}
-      onClick={handleCardClick}
+      className={`${styles.card} ${profileUrl ? styles.clickable : ""} ${isSelected ? styles.selected : ""} ${user.role === "ADMIN" ? styles.admin : ""}`}
+      onClick={() => {
+        if (profileUrl) {
+          window.location.href = profileUrl;
+        } else if (onNavigate) {
+          onNavigate();
+        }
+      }}
     >
       <div className={styles.cardMain}>
         {selectable && (
-          <div className={`${styles.checkbox} ${isSelected ? styles.checkboxOn : ""}`}>
-            {isSelected && <Check size={14} />}
+          <div 
+            className={`${styles.checkbox} ${isSelected ? styles.checkboxOn : ""}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onToggle) onToggle();
+            }}
+          >
+            {isSelected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
           </div>
         )}
 
@@ -82,23 +91,6 @@ const UserListItem = ({
           <div className={styles.nameRow}>
             <h3 className={styles.name} title={user.name}>
               {user.name}
-              {!selectable && profileUrl && (
-                <Link
-                  href={profileUrl}
-                  className={styles.profileLink}
-                  onClick={(e) => {
-                    if (onNavigate) {
-                      e.preventDefault();
-                      onNavigate();
-                    } else {
-                      e.stopPropagation();
-                    }
-                  }}
-                  title="عرض الملف الشخصي"
-                >
-                  <ExternalLink size={14} />
-                </Link>
-              )}
             </h3>
           </div>
           <div className={styles.contact}>
@@ -112,22 +104,37 @@ const UserListItem = ({
                 <span>{user.phone}</span>
               </div>
             )}
+            {user.city && (
+              <div className={styles.contactItem} title={user.city}>
+                <MapPin size={12} />
+                <span>{user.city}</span>
+              </div>
+            )}
+            {user.gender && (
+              <div className={styles.contactItem} title={user.gender}>
+                <User2 size={12} />
+                <span>{user.gender}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <div className={styles.cardRight}>
-        {user.meta && user.meta.length > 0 && (
+        {(user.hours !== undefined || user.certifications !== undefined) && (
           <div className={styles.stats}>
-            {user.meta.map((m, idx) => {
-              const Icon = m.icon;
-              return (
-                <div key={idx} className={styles.statItem} title={m.label}>
-                  {Icon && <Icon size={12} />}
-                  <span>{m.value}</span>
-                </div>
-              );
-            })}
+            {user.certifications !== undefined && (
+              <div className={styles.statItem} title="الشهادات">
+                <Award size={12} />
+                <span>{user.certifications}</span>
+              </div>
+            )}
+            {user.hours !== undefined && (
+              <div className={styles.statItem} title="الساعات التطوعية">
+                <Clock size={12} />
+                <span>{user.hours} ساعة</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -138,18 +145,6 @@ const UserListItem = ({
         )}
       </div>
 
-      {selectable && profileUrl && (
-        <Link
-          href={profileUrl}
-          className={styles.absoluteProfileLink}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          title="الملف الشخصي"
-        >
-          <ExternalLink size={14} />
-        </Link>
-      )}
     </div>
   );
 };
