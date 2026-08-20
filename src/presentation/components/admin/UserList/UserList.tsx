@@ -1,9 +1,14 @@
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { Mail, Phone, Award, Clock, MapPin, User2 } from "lucide-react";
+import { Mail, Phone, Award, Clock, MapPin, User2, LucideIcon } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 import styles from "./UserList.module.scss";
+
+export interface UserListMeta {
+  icon?: LucideIcon | React.ElementType;
+  value: string | number;
+  label?: string;
+}
 
 export interface UserListDto {
   id: string;
@@ -16,6 +21,7 @@ export interface UserListDto {
   certifications?: number;
   avatarUrl?: string;
   role?: string;
+  meta?: UserListMeta[];
   action?: React.ReactNode;
 }
 
@@ -116,6 +122,15 @@ const UserListItem = ({
                 <span>{user.gender}</span>
               </div>
             )}
+            {user.meta && user.meta.map((m, idx) => {
+              const Icon = m.icon;
+              return (
+                <div key={`meta-${idx}`} className={styles.contactItem} title={m.label}>
+                  {Icon && <Icon size={12} />}
+                  <span>{m.value}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
