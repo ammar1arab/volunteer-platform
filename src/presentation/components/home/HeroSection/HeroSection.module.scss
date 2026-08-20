@@ -168,12 +168,9 @@
 
   @include sm {
     @include flex-col;
+    align-items: center;
     gap: $sp-md;
     width: 100%;
-
-    > * {
-      width: 100%;
-    }
   }
 }
 

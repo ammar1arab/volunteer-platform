@@ -32,7 +32,7 @@ const VerifyEmailContent = () => {
 
         <form onSubmit={handleSubmit} noValidate>
           <OtpInput value={code} onChange={setCode} onComplete={handleOtpComplete} disabled={loading} />
-          <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6}>
+          <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6} style={{ alignSelf: "center" }}>
             {loading ? "جارٍ التحقق..." : "تفعيل الحساب"}
           </Button>
         </form>

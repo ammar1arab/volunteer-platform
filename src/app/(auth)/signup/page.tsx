@@ -173,7 +173,7 @@ const SignupPage = () => {
                 {E("confirmPassword") && <span className={styles.fieldError}>{E("confirmPassword")}</span>}
               </div>
 
-              <div className={styles.row}>
+              <div className={styles.actionsRow}>
                 <Button type="button" variant="ghost" onClick={handleBack} disabled={loading}>
                   رجوع
                 </Button>

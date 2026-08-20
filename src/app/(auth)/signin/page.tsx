@@ -41,7 +41,7 @@ const SigninContent = () => {
             {fieldErrors.password && <span className={styles.fieldError}>{fieldErrors.password}</span>}
           </div>
 
-          <Button type="submit" loading={loading} disabled={loading}>
+          <Button type="submit" loading={loading} disabled={loading} style={{ alignSelf: "center" }}>
             تسجيل الدخول
           </Button>
 

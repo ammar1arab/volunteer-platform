@@ -83,6 +83,7 @@ const ContactSection = () => {
             icon={<FiSend size={15} />}
             iconPosition="left"
             disabled={status === 'loading'}
+            style={{ justifySelf: 'center' }}
           >
             {status === 'loading' ? 'جارٍ الإرسال...' : 'إرسال الرسالة'}
           </Button>

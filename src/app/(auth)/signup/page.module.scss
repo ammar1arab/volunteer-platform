@@ -76,6 +76,13 @@
   }
 }
 
+.actionsRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $sp-sm;
+}
+
 .rowFixed {
   display: grid;
   grid-template-columns: 1fr 1fr;

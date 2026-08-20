@@ -38,7 +38,7 @@ const ForgotPasswordPage = () => {
                 />
                 {emailError && <span className={styles.fieldError}>{emailError}</span>}
               </div>
-              <Button type="submit" loading={loading} disabled={loading}>
+              <Button type="submit" loading={loading} disabled={loading} style={{ alignSelf: "center" }}>
                 إرسال رمز التحقق
               </Button>
             </form>
@@ -57,7 +57,7 @@ const ForgotPasswordPage = () => {
             {error && <div className={styles.error} role="alert">{error}</div>}
             <form onSubmit={handleVerifyOtp} noValidate>
               <OtpInput value={code} onChange={setCode} onComplete={handleOtpComplete} disabled={loading} />
-              <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6}>
+              <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6} style={{ alignSelf: "center" }}>
                 {loading ? "جارٍ التحقق..." : "تحقق"}
               </Button>
             </form>
@@ -106,7 +106,7 @@ const ForgotPasswordPage = () => {
                 />
                 {confirmError && <span className={styles.fieldError}>{confirmError}</span>}
               </div>
-              <Button type="submit" loading={loading} disabled={loading || !newPassword || !confirmPassword}>
+              <Button type="submit" loading={loading} disabled={loading || !newPassword || !confirmPassword} style={{ alignSelf: "center" }}>
                 تغيير كلمة المرور
               </Button>
             </form>
