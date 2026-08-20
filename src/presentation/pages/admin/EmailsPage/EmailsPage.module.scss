@@ -4,7 +4,7 @@
 
 .root {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 1fr 1fr;
   gap: $sp-xl;
   align-items: flex-start;
 
@@ -137,7 +137,7 @@
 
 .templates {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: $sp-sm;
 
   @media (max-width: 768px) {
