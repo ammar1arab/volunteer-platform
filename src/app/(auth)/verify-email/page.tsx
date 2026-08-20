@@ -32,9 +32,11 @@ const VerifyEmailContent = () => {
 
         <form onSubmit={handleSubmit} noValidate>
           <OtpInput value={code} onChange={setCode} onComplete={handleOtpComplete} disabled={loading} />
-          <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6} style={{ alignSelf: "center" }}>
-            {loading ? "جارٍ التحقق..." : "تفعيل الحساب"}
-          </Button>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6}>
+              {loading ? "جارٍ التحقق..." : "تفعيل الحساب"}
+            </Button>
+          </div>
         </form>
 
         <div className={styles.resend}>

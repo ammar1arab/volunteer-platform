@@ -38,9 +38,11 @@ const ForgotPasswordPage = () => {
                 />
                 {emailError && <span className={styles.fieldError}>{emailError}</span>}
               </div>
-              <Button type="submit" loading={loading} disabled={loading} style={{ alignSelf: "center" }}>
-                إرسال رمز التحقق
-              </Button>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Button type="submit" loading={loading} disabled={loading}>
+                  إرسال رمز التحقق
+                </Button>
+              </div>
             </form>
           </div>
         )}
@@ -57,9 +59,11 @@ const ForgotPasswordPage = () => {
             {error && <div className={styles.error} role="alert">{error}</div>}
             <form onSubmit={handleVerifyOtp} noValidate>
               <OtpInput value={code} onChange={setCode} onComplete={handleOtpComplete} disabled={loading} />
-              <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6} style={{ alignSelf: "center" }}>
-                {loading ? "جارٍ التحقق..." : "تحقق"}
-              </Button>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Button type="submit" loading={loading} disabled={loading || code.join("").length < 6}>
+                  {loading ? "جارٍ التحقق..." : "تحقق"}
+                </Button>
+              </div>
             </form>
             <div className={styles.resend}>
               {resendSent ? (
@@ -106,9 +110,11 @@ const ForgotPasswordPage = () => {
                 />
                 {confirmError && <span className={styles.fieldError}>{confirmError}</span>}
               </div>
-              <Button type="submit" loading={loading} disabled={loading || !newPassword || !confirmPassword} style={{ alignSelf: "center" }}>
-                تغيير كلمة المرور
-              </Button>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Button type="submit" loading={loading} disabled={loading || !newPassword || !confirmPassword}>
+                  تغيير كلمة المرور
+                </Button>
+              </div>
             </form>
           </div>
         )}

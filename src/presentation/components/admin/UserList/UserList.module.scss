@@ -86,9 +86,10 @@
   }
   
   @include sm {
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     padding: $sp-sm;
+    gap: $sp-sm;
   }
 }
 
@@ -209,9 +210,11 @@
   gap: $sp-sm;
   
   @include sm {
-    width: auto;
-    justify-content: flex-end;
+    width: 100%;
+    justify-content: space-between;
     margin-top: 0;
+    padding-top: $sp-sm;
+    border-top: 1px solid $border;
   }
 }
 

@@ -41,9 +41,11 @@ const SigninContent = () => {
             {fieldErrors.password && <span className={styles.fieldError}>{fieldErrors.password}</span>}
           </div>
 
-          <Button type="submit" loading={loading} disabled={loading} style={{ alignSelf: "center" }}>
-            تسجيل الدخول
-          </Button>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button type="submit" loading={loading} disabled={loading}>
+              تسجيل الدخول
+            </Button>
+          </div>
 
           <div className={styles.forgotRow}>
             <Link href="/forgot-password" className={styles.forgotLink}>

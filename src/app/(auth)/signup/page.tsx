@@ -98,14 +98,16 @@ const SignupPage = () => {
                 />
               </div>
 
-              <Button
-                type="button"
-                loading={emailStatus === "checking"}
-                disabled={loading || emailStatus === "checking" || emailStatus === "taken"}
-                onClick={handleNext}
-              >
-                التالي
-              </Button>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Button
+                  type="button"
+                  loading={emailStatus === "checking"}
+                  disabled={loading || emailStatus === "checking" || emailStatus === "taken"}
+                  onClick={handleNext}
+                >
+                  التالي
+                </Button>
+              </div>
             </div>
           </div>
         )}
