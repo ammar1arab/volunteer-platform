@@ -7,20 +7,6 @@
   gap: 2rem;
 }
 
-.mobileOnly {
-  display: none;
-  @media (max-width: 768px) {
-    display: block;
-  }
-}
-
-.desktopOnly {
-  display: flex;
-  @media (max-width: 768px) {
-    display: none;
-  }
-}
-
 .mobileTablePage {
   display: flex;
   flex-direction: column;
@@ -172,5 +158,18 @@
   .userEmail {
     font-size: 0.85rem;
     color: $text-tertiary;
+  }
+}
+
+.mobileOnly {
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+  }
+}
+
+.desktopOnly {
+  @media (max-width: 768px) {
+    display: none !important;
   }
 }
