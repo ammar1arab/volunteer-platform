@@ -51,6 +51,9 @@ export const MODAL_CONFIGS: Record<string, any> = {
           id: u.id,
           name: u.fullName,
           email: u.email,
+          phone: u.phone,
+          avatarUrl: u.avatarUrl,
+          role: u.role,
           meta: [
             u.city ? { value: u.city, icon: require("lucide-react").MapPin } : null,
             { value: formatDate(u.createdAt), icon: require("lucide-react").Clock }

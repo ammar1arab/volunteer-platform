@@ -2,7 +2,7 @@
 import styles from "./BroadcastRecipientsModal.module.scss";
 import { useMemo } from "react";
 import { Search, MapPin, User2, Clock, Users } from "lucide-react";
-import { Modal, EmptyState, LoadingState, Pagination } from "@/presentation/components";
+import { Modal, EmptyState, LoadingState, Pagination, UserList } from "@/presentation/components";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { BroadcastRecipientDto } from "@/core/application/dtos";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
@@ -71,33 +71,20 @@ const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients,
           ) : filtered.length === 0 ? (
             <EmptyState icon={Users} message={search ? "لا توجد نتائج" : "لا يوجد مستقبلون"} />
           ) : (
-            <div className={styles.list}>
-              {paginated.map(r => (
-                <div key={r.id} className={styles.row}>
-                  <div className={styles.avatar}>{r.name.charAt(0)}</div>
-                  <div className={styles.info}>
-                    <span className={styles.name}>{r.name}</span>
-                    <div className={styles.meta}>
-                      {r.city && (
-                        <span className={styles.chip}>
-                          <MapPin size={9} /> {getCityLabel(r.city as JordanianCity)}
-                        </span>
-                      )}
-                      {r.gender && (
-                        <span className={styles.chip}>
-                          <User2 size={9} /> {getGenderLabel(r.gender as Gender)}
-                        </span>
-                      )}
-                      {r.hours > 0 && (
-                        <span className={`${styles.chip} ${styles.hours}`}>
-                          <Clock size={9} /> {r.hours} ساعة
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <UserList
+              layout="list"
+              users={paginated.map(r => ({
+                id: r.id,
+                name: r.name,
+                email: (r as any).email || "",
+                phone: (r as any).phone,
+                meta: [
+                  r.city ? { value: getCityLabel(r.city as JordanianCity), icon: MapPin } : null,
+                  r.gender ? { value: getGenderLabel(r.gender as Gender), icon: User2 } : null,
+                  r.hours > 0 ? { value: `${r.hours} ساعة`, icon: Clock } : null,
+                ].filter(Boolean) as any[]
+              }))}
+            />
           )}
         </div>
 

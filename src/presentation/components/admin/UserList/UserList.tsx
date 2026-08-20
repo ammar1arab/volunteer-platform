@@ -19,6 +19,7 @@ export interface UserListDto {
   avatarUrl?: string;
   role?: string;
   meta?: UserListMeta[];
+  action?: React.ReactNode;
 }
 
 interface UserListProps {
@@ -46,8 +47,6 @@ const UserListItem = ({
   onToggle?: () => void;
   onNavigate?: () => void;
 }) => {
-  const isGrid = layout === "grid";
-
   const handleCardClick = () => {
     if (selectable && onToggle) {
       onToggle();
@@ -56,24 +55,24 @@ const UserListItem = ({
     }
   };
 
-  const isVolunteer = user.role === "VOLUNTEER" || user.role === undefined; // default to true if unspecified for generic lists
+  const isVolunteer = user.role === "VOLUNTEER" || user.role === undefined;
   const profileUrl = isVolunteer ? ROUTES.ADMIN.USER_DETAILS(user.id) : undefined;
 
   return (
     <div
-      className={`${styles.card} ${styles[layout]} ${selectable ? styles.selectable : ""} ${isSelected ? styles.selected : ""}`}
+      className={`${styles.card} ${selectable || onNavigate || profileUrl ? styles.clickable : ""} ${isSelected ? styles.selected : ""} ${user.role === "ADMIN" ? styles.admin : ""}`}
       onClick={handleCardClick}
     >
       <div className={styles.cardMain}>
         {selectable && (
           <div className={`${styles.checkbox} ${isSelected ? styles.checkboxOn : ""}`}>
-            {isSelected && <Check size={isGrid ? 14 : 12} />}
+            {isSelected && <Check size={14} />}
           </div>
         )}
 
         <div className={styles.avatar}>
           {user.avatarUrl ? (
-            <Image src={user.avatarUrl} alt={user.name} width={isGrid ? 56 : 40} height={isGrid ? 56 : 40} className={styles.avatarImg} />
+            <Image src={user.avatarUrl} alt={user.name} width={56} height={56} className={styles.avatarImg} />
           ) : (
             <span className={styles.avatarText}>{user.name.charAt(0).toUpperCase()}</span>
           )}
@@ -81,58 +80,70 @@ const UserListItem = ({
 
         <div className={styles.info}>
           <div className={styles.nameRow}>
-            <h3 className={styles.name} title={user.name}>{user.name}</h3>
-            {!selectable && profileUrl && (
-              <Link
-                href={profileUrl}
-                className={styles.profileLink}
-                onClick={(e) => {
-                  if (onNavigate) {
-                    e.preventDefault();
-                    onNavigate();
-                  }
-                }}
-                title="عرض الملف الشخصي"
-              >
-                <ExternalLink size={14} />
-              </Link>
-            )}
+            <h3 className={styles.name} title={user.name}>
+              {user.name}
+              {!selectable && profileUrl && (
+                <Link
+                  href={profileUrl}
+                  className={styles.profileLink}
+                  onClick={(e) => {
+                    if (onNavigate) {
+                      e.preventDefault();
+                      onNavigate();
+                    } else {
+                      e.stopPropagation();
+                    }
+                  }}
+                  title="عرض الملف الشخصي"
+                >
+                  <ExternalLink size={14} />
+                </Link>
+              )}
+            </h3>
           </div>
           <div className={styles.contact}>
             <div className={styles.contactItem} title={user.email}>
               <Mail size={12} />
-              <span className={styles.contactText}>{user.email}</span>
+              <span>{user.email}</span>
             </div>
-            {user.phone && isGrid && (
+            {user.phone && (
               <div className={styles.contactItem} title={user.phone}>
                 <Phone size={12} />
-                <span className={styles.contactText}>{user.phone}</span>
+                <span>{user.phone}</span>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {user.meta && user.meta.length > 0 && (
-        <div className={styles.stats}>
-          {user.meta.map((m, idx) => {
-            const Icon = m.icon;
-            return (
-              <div key={idx} className={styles.statItem} title={m.label}>
-                {Icon && <Icon size={12} />}
-                <span>{m.value}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <div className={styles.cardRight}>
+        {user.meta && user.meta.length > 0 && (
+          <div className={styles.stats}>
+            {user.meta.map((m, idx) => {
+              const Icon = m.icon;
+              return (
+                <div key={idx} className={styles.statItem} title={m.label}>
+                  {Icon && <Icon size={12} />}
+                  <span>{m.value}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {user.action && (
+          <div className={styles.actionWrapper} onClick={(e) => e.stopPropagation()}>
+            {user.action}
+          </div>
+        )}
+      </div>
 
       {selectable && profileUrl && (
         <Link
           href={profileUrl}
           className={styles.absoluteProfileLink}
           onClick={(e) => {
-            e.stopPropagation(); // prevent toggling selection
+            e.stopPropagation();
           }}
           title="الملف الشخصي"
         >
@@ -150,10 +161,14 @@ export const UserList = ({
   selectedIds = new Set(),
   onToggleUser,
   onNavigate,
-  emptyMessage = "لا يوجد مستخدمين"
+  emptyMessage = "لا يوجد مستخدمين لعرضهم."
 }: UserListProps) => {
-  if (!users || users.length === 0) {
-    return <div className={styles.empty}>{emptyMessage}</div>;
+  if (users.length === 0) {
+    return (
+      <div className={styles.empty}>
+        {emptyMessage}
+      </div>
+    );
   }
 
   return (
@@ -165,12 +180,10 @@ export const UserList = ({
           layout={layout}
           selectable={selectable}
           isSelected={selectedIds.has(user.id)}
-          onToggle={onToggleUser ? () => onToggleUser(user.id) : undefined}
+          onToggle={() => onToggleUser && onToggleUser(user.id)}
           onNavigate={onNavigate ? () => onNavigate(user.id) : undefined}
         />
       ))}
     </div>
   );
 };
-
-export default UserList;

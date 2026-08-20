@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { AttendanceStatus, ActivityStatus } from "@/core/domain/enums";
 import {
   Modal, LoadingState, EmptyState, ConfirmDialog, ToastContainer,
-  CompleteActivityProgress, ExportUsersButton, Pagination, Button
+  CompleteActivityProgress, ExportUsersButton, Pagination, Button, UserList
 } from "@/presentation/components";
 import { ROUTES, getCityLabel, getAttendanceStatusLabel } from "@/presentation/constants";
 import { useCompleteActivity } from "@/presentation/hooks";
@@ -179,8 +179,9 @@ const VolunteersModal = ({
             ) : volunteers.length === 0 ? (
               <EmptyState icon={UsersIcon} message="لا توجد نتائج للبحث" />
             ) : (
-              <div className={styles.list}>
-                {volunteers.map(volunteer => {
+              <UserList
+                layout="list"
+                users={volunteers.map(volunteer => {
                   const attended  = volunteer.attendanceStatus === AttendanceStatus.ATTENDED;
                   const absent    = volunteer.attendanceStatus === AttendanceStatus.ABSENT;
                   const unmarked  = volunteer.attendanceStatus === AttendanceStatus.NOT_MARKED;
@@ -190,54 +191,31 @@ const VolunteersModal = ({
                     ? Math.max(1, Math.round(suggestion.attendedSeconds / 60))
                     : 0;
 
-                  return (
-                    <div
-                      key={volunteer.participationId}
-                      className={`${styles.card} ${attendanceWarning && unmarked ? styles.cardWarn : ""}`}
-                      onClick={() => { onClose(); router.push(ROUTES.ADMIN.USER_DETAILS(volunteer.id)); }}
-                    >
-                      <div className={styles.avatar}>
-                        {volunteer.profilePictureUrl ? (
-                          <Image src={volunteer.profilePictureUrl} alt={volunteer.fullName}
-                            width={44} height={44} className={styles.avatarImage} />
-                        ) : (
-                          <div className={styles.avatarPlaceholder}>
-                            {volunteer.fullName.charAt(0).toUpperCase()}
-                          </div>
+                  return {
+                    id: volunteer.id,
+                    name: volunteer.fullName,
+                    email: volunteer.email || "",
+                    phone: volunteer.phone,
+                    avatarUrl: volunteer.profilePictureUrl,
+                    meta: [
+                      volunteer.city ? { value: getCityLabel(volunteer.city), icon: MapPin } : null,
+                      volunteer.dateOfBirth ? { value: `${calculateAge(volunteer.dateOfBirth)} سنة`, icon: Calendar } : null,
+                    ].filter(Boolean) as any,
+                    action: (
+                      <div className={styles.volunteerActions}>
+                        {canReject && (
+                          <button
+                            className={styles.rejectBtn}
+                            disabled={isRejecting}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setRejectTarget({ participationId: volunteer.participationId, name: volunteer.fullName });
+                            }}
+                            title="إلغاء القبول"
+                          >
+                            <UserMinus size={13} />
+                          </button>
                         )}
-                      </div>
-
-                      <div className={styles.info}>
-                        <div className={styles.nameRow}>
-                          <h3 className={styles.name}>{volunteer.fullName}</h3>
-                          {canReject && (
-                            <button
-                              className={styles.rejectBtn}
-                              disabled={isRejecting}
-                              onClick={e => {
-                                e.stopPropagation();
-                                setRejectTarget({ participationId: volunteer.participationId, name: volunteer.fullName });
-                              }}
-                            >
-                              <UserMinus size={13} />
-                            </button>
-                          )}
-                        </div>
-
-                        <div className={styles.meta}>
-                          <span className={styles.metaItem}>{volunteer.phone}</span>
-                          {volunteer.city && (
-                            <span className={styles.metaItem}>
-                              <MapPin size={11} />{getCityLabel(volunteer.city)}
-                            </span>
-                          )}
-                          {volunteer.dateOfBirth && (
-                            <span className={styles.metaItem}>
-                              <Calendar size={11} />{calculateAge(volunteer.dateOfBirth)} سنة
-                            </span>
-                          )}
-                        </div>
-
                         {suggestion && unmarked && (
                           <button
                             type="button"
@@ -251,7 +229,6 @@ const VolunteersModal = ({
                             اقتراح Meet: حضر (~{suggestedMinutes} د) · تطبيق
                           </button>
                         )}
-
                         {!isCompleted && (
                           <div className={styles.attendanceRow} onClick={e => e.stopPropagation()}>
                             <button
@@ -273,7 +250,6 @@ const VolunteersModal = ({
                             )}
                           </div>
                         )}
-
                         {isCompleted && (
                           <div className={styles.attendanceResult}>
                             {attended && <span className={styles.resultAttended}><Check size={11} /> حضر</span>}
@@ -282,10 +258,10 @@ const VolunteersModal = ({
                           </div>
                         )}
                       </div>
-                    </div>
-                  );
+                    )
+                  };
                 })}
-              </div>
+              />
             )}
           </div>
 

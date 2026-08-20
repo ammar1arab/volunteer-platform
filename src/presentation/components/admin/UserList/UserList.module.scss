@@ -14,7 +14,7 @@
 
 .listWrapper {
   @include flex-col;
-  gap: $sp-xs;
+  gap: $sp-sm;
   width: 100%;
 }
 
@@ -29,47 +29,65 @@
 }
 
 .card {
-  position: relative;
+  @include flex(row, center, space-between, $sp-md);
+  padding: $sp-md;
   background: $surface;
-  border: 1px solid $border;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: $radius-lg;
+  position: relative;
   overflow: hidden;
+  transition: all 0.25s ease;
+  min-height: 88px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 
-  &.selectable {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, rgba($green, 0.03));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  &.clickable {
     cursor: pointer;
+
     &:hover {
-      border-color: rgba($green, 0.4);
-      background: rgba($green, 0.02);
-      transform: translateY(-1px);
-      box-shadow: $shadow;
-    }
-    
-    &:active {
-      transform: scale(0.99);
+      background: $surface-hover;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+      &::before {
+        opacity: 1;
+      }
+
+      .avatar {
+        transform: scale(1.08);
+        box-shadow: 0 0 0 3px rgba($green, 0.2);
+      }
     }
   }
 
   &.selected {
-    border-color: $green;
     background: rgba($green, 0.04);
-  }
+    box-shadow: 0 0 0 1.5px $green;
 
-  &.grid {
-    @include flex-col;
-    padding: $sp-md;
-    border-radius: $radius-lg;
-    gap: $sp-md;
-  }
-
-  &.list {
-    @include flex(row, center, space-between, $sp-sm);
-    padding: 10px $sp-md;
-    border-radius: $radius;
-    min-height: 64px;
-
-    @include sm {
-      padding: 10px $sp-sm;
+    &::before {
+      opacity: 1;
+      background: linear-gradient(135deg, transparent, rgba($green, 0.08));
     }
+  }
+
+  &.admin {
+    background: linear-gradient(135deg, rgba(#3b82f6, 0.03), $bg);
+
+    .avatar {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+    }
+  }
+  
+  @include sm {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
@@ -77,59 +95,34 @@
   @include flex(row, center, flex-start, $sp-sm);
   flex: 1;
   min-width: 0;
-
-  .grid & {
-    align-items: flex-start;
-  }
 }
 
 .checkbox {
   @include flex-center;
   flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
   border: 1.5px solid $border;
-  transition: all 0.2s ease;
   background: $surface;
-
-  .grid & {
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
-    margin-top: 2px;
-  }
-
-  .list & {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-  }
+  transition: all 0.2s ease;
+  color: white;
 
   &.checkboxOn {
     background: $green;
     border-color: $green;
-    color: $white;
   }
 }
 
 .avatar {
-  flex-shrink: 0;
-  border-radius: $radius-full;
-  overflow: hidden;
   @include flex-center;
-  background: rgba($green, 0.08);
-  color: $green;
-  font-weight: 800;
-
-  .grid & {
-    width: 56px;
-    height: 56px;
-    font-size: $font-xl;
-  }
-
-  .list & {
-    width: 40px;
-    height: 40px;
-    font-size: $font-md;
-  }
+  width: 56px;
+  height: 56px;
+  border-radius: $radius-full;
+  background: linear-gradient(135deg, $green, #059669);
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: all 0.25s ease;
 }
 
 .avatarImg {
@@ -138,134 +131,121 @@
   object-fit: cover;
 }
 
+.avatarText {
+  font-size: $font-xl;
+  font-weight: 700;
+  color: $bg;
+}
+
 .info {
   @include flex-col;
-  gap: 2px;
+  gap: 6px;
   flex: 1;
   min-width: 0;
 }
 
 .nameRow {
-  @include flex(row, center, flex-start, $sp-xs);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .name {
-  font-size: $font-sm;
+  font-size: $font-md;
   font-weight: 700;
   color: $text;
   margin: 0;
-  @include truncate;
-
-  .grid & {
-    font-size: $font-md;
-  }
+  @include line-clamp(1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .profileLink {
   color: $text-muted;
   opacity: 0.5;
-  transition: all 0.2s ease;
-  @include flex-center;
+  transition: $transition;
+  display: inline-flex;
+  align-items: center;
 
   &:hover {
-    opacity: 1;
     color: $green;
+    opacity: 1;
   }
+}
+
+.card.clickable:hover .profileLink {
+  opacity: 1;
+  color: $green;
 }
 
 .contact {
   @include flex-col;
-  gap: 1px;
-
-  .list & {
-    flex-direction: row;
-    align-items: center;
-    gap: $sp-sm;
-  }
+  gap: 4px;
 }
 
 .contactItem {
-  @include flex(row, center, flex-start, 4px);
+  @include flex(row, center, flex-start, 6px);
+  font-size: $font-xs;
   color: $text-muted;
-  font-size: 12px;
-
-  .list & {
-    color: $green;
-    font-size: 11px;
-  }
 
   svg {
-    opacity: 0.7;
+    color: $text-tertiary;
     flex-shrink: 0;
+  }
+
+  span {
+    @include line-clamp(1);
   }
 }
 
-.contactText {
-  @include truncate;
-  max-width: 180px;
-  direction: ltr;
-
-  .list & {
-    max-width: 140px;
+.cardRight {
+  display: flex;
+  align-items: center;
+  gap: $sp-md;
+  
+  @include sm {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: $sp-xs;
   }
 }
 
 .stats {
-  @include flex(row, center, flex-start, $sp-sm);
-  flex-wrap: wrap;
-
-  .grid & {
-    padding-top: $sp-sm;
-    border-top: 1px solid rgba($border, 0.5);
-  }
-
-  .list & {
-    flex-shrink: 0;
-    gap: $sp-md;
-    justify-content: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+  
+  @include sm {
+    align-items: flex-start;
   }
 }
 
 .statItem {
-  @include flex(row, center, flex-start, 4px);
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
   font-weight: 600;
   color: $text-secondary;
-  background: rgba($black, 0.03);
-  padding: 4px 8px;
-  border-radius: $radius-full;
+  white-space: nowrap;
 
-  .list & {
-    background: transparent;
-    padding: 0;
-    font-size: 11px;
-    font-weight: 500;
-    color: $text-muted;
+  svg { 
+    color: $text-muted; 
   }
+}
 
-  svg {
-    color: $text-muted;
-  }
+.actionWrapper {
+  display: flex;
+  align-items: center;
+  z-index: 2; /* To ensure it stays clickable above absolute link */
 }
 
 .absoluteProfileLink {
   position: absolute;
-  top: 10px;
-  left: 10px; // assuming RTL
-  color: $text-muted;
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: $radius-full;
-  width: 28px;
-  height: 28px;
-  @include flex-center;
-  transition: all 0.2s ease;
-  z-index: 2;
-
-  &:hover {
-    color: $green;
-    border-color: rgba($green, 0.4);
-    background: rgba($green, 0.05);
-    transform: scale(1.05);
-  }
+  inset: 0;
+  opacity: 0;
+  z-index: 1;
 }

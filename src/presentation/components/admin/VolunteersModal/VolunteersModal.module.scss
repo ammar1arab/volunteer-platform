@@ -190,6 +190,17 @@
   }
 }
 
+.volunteerActions {
+  @include flex-col;
+  align-items: flex-end;
+  gap: $sp-xs;
+  
+  @include sm {
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
 .attendanceRow {
   @include flex(row, center, flex-start, $sp-xs);
   margin-top: 4px;
