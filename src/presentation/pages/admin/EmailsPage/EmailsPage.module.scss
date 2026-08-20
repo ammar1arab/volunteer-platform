@@ -313,7 +313,11 @@
   gap: 8px;
   max-height: 50vh;
   overflow-y: auto;
-  padding-right: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .modalFooter {

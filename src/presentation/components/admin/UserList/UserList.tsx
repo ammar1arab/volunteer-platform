@@ -72,7 +72,7 @@ const UserListItem = ({
 
         <div className={styles.avatar}>
           {user.avatarUrl ? (
-            <Image src={user.avatarUrl} alt={user.name} width={56} height={56} className={styles.avatarImg} />
+            <Image src={user.avatarUrl} alt={user.name} width={42} height={42} className={styles.avatarImg} />
           ) : (
             <span className={styles.avatarText}>{user.name.charAt(0).toUpperCase()}</span>
           )}
