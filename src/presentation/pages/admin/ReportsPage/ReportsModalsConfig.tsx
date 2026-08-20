@@ -102,7 +102,7 @@ export const MODAL_CONFIGS: Record<string, any> = {
   postViews: {
     title: "تفاعل المقالات",
     icon: FileText,
-    fetchUrl: "/api/posts",
+    fetchUrl: "/api/featured-posts",
     dataKey: "posts",
     columns: [
       { key: "title", header: "عنوان المقال", accessor: (p: any) => p.title, sortable: true, sortValue: (p: any) => p.title },
@@ -114,7 +114,7 @@ export const MODAL_CONFIGS: Record<string, any> = {
   magazineDownloads: {
     title: "تحميلات المجلة",
     icon: Download,
-    fetchUrl: "/api/magazines",
+    fetchUrl: "/api/monthly-magazines",
     dataKey: "magazines",
     columns: [
       { key: "title", header: "الإصدار", accessor: (m: any) => m.title, sortable: true, sortValue: (m: any) => m.title },
