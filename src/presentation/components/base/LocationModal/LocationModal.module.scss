@@ -1,0 +1,19 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.locActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $sp-sm;
+  padding-top: $sp-sm;
+  margin-top: $sp-sm;
+  border-top: 1px solid $border;
+
+  @include sm {
+    justify-content: stretch;
+    & > * {
+      flex: 1;
+    }
+  }
+}

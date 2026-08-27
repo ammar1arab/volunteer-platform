@@ -7,11 +7,11 @@ import remarkBreaks from "remark-breaks";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LoadingState, Button, Share, Modal, ActivityPresenterBadge, Badge } from "@/presentation/components";
+import { LoadingState, Button, ActivityPresenterBadge, Badge, Share, LocationModal } from "@/presentation/components";
 import { useActivityDetails, useActivityParticipations, useToast } from "@/presentation/hooks";
 import { getMonthLabel, getCityLabel, getActivityTypeLabel, canOpenMeetingLobby, ROUTES, ACTIVITY_PRESENTER_LABEL, MEETING_LABELS } from "@/presentation/constants";
 import { ActivityStatus, ActivityType } from "@/core/domain/enums";
-import { ArrowRight, MapPin, Calendar, Clock, Users, Share2, CheckCircle2, XCircle, Wifi, MapPinned, Timer } from "lucide-react";
+import { ArrowRight, MapPin, Calendar, Clock, Users, CheckCircle2, XCircle, Wifi, Timer, Share2, MapPinned } from "lucide-react";
 
 const ActivityDetailsPage = () => {
   const params  = useParams();
@@ -224,27 +224,12 @@ const ActivityDetailsPage = () => {
         </article>
       </div>
 
-      {mapsUrl && (
-        <Modal isOpen={locationModalOpen} onClose={() => setLocationModalOpen(false)}
-          title={activity.placeName ?? ""} size="sm">
-          <div className={styles.locBody}>
-            <div className={styles.locActions}>
-              <Share
-                trigger={(openShare) => (
-                  <Button type="button" variant="secondary" size="md"
-                    onClick={() => openShare({ title: activity.placeName ?? "", text: `${activity.placeName ?? ""}\n${mapsUrl}` })}>
-                    مشاركة الموقع
-                  </Button>
-                )}
-              />
-              <a className={styles.locBtnMaps} href={mapsUrl} target="_blank"
-                rel="noopener noreferrer" onClick={() => setLocationModalOpen(false)}>
-                فتح في Google Maps
-              </a>
-            </div>
-          </div>
-        </Modal>
-      )}
+      <LocationModal 
+        isOpen={locationModalOpen} 
+        onClose={() => setLocationModalOpen(false)}
+        placeName={activity.placeName ?? ""}
+        mapsUrl={mapsUrl || ""}
+      />
     </>
   );
 };

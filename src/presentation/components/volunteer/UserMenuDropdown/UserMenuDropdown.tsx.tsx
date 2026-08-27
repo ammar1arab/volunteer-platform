@@ -31,19 +31,14 @@ const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => 
       >
         <div className={styles.userInfo}>
           <div className={styles.avatarWrap}>
-            {avatarUrl ? (
-              <Image 
-                src={avatarUrl} 
-                alt={userName} 
-                width={38} 
-                height={38} 
-                className={styles.avatarImg} 
-              />
-            ) : (
-              <span className={styles.avatarInitial}>
-                {userName.charAt(0).toUpperCase() || 'أ'}
-              </span>
-            )}
+            <Image 
+              src={avatarUrl!} 
+              alt={userName} 
+              width={38} 
+              height={38} 
+              className={styles.avatarImg} 
+              style={{ objectFit: 'cover' }}
+            />
           </div>
           <div className={styles.userMeta}>
             <span className={styles.userName}>{userName}</span>

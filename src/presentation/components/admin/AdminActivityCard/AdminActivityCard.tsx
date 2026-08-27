@@ -5,8 +5,8 @@ import { useState } from "react";
 import { ActivityDto } from "@/core/application/dtos";
 import { ActivityStatus, ActivityType } from "@/core/domain/enums";
 import { getDayLabel, getActivityTypeLabel, getCityLabel, getMonthLabel } from "@/presentation/constants/labels";
-import { Share, Modal, MeetingStatusBadge, ActivityPresenterBadge, Button } from "@/presentation/components";
-import { Calendar, Clock, MapPin, Users, Share2, ExternalLink, Wifi, MapPinned, Timer } from "lucide-react";
+import { MeetingStatusBadge, ActivityPresenterBadge, Button, LocationModal, Share } from "@/presentation/components";
+import { Calendar, Clock, MapPin, Users, ExternalLink, Wifi, Timer, Share2, MapPinned } from "lucide-react";
 import { MeetingLinkSource, MeetingSyncStatus } from "@/core/domain/enums";
 import { ROUTES } from "@/presentation/constants";
 import Link from "next/link";
@@ -182,26 +182,12 @@ const AdminActivityCard = ({ activity, meta, actions }: AdminActivityCardProps) 
         </div>
       </article>
 
-      {mapsUrl && (
-        <Modal isOpen={locationModalOpen} onClose={() => setLocationModalOpen(false)}
-          title={activity.placeName ?? ""} size="sm">
-          <div className={styles.locActions}>
-            <Share
-              trigger={(openShare) => (
-                <Button variant="ghost" icon={<Share2 size={16} />} onClick={() => openShare({ title: activity.placeName ?? "", text: `${activity.placeName ?? ""}\n${mapsUrl}` })}>
-                  مشاركة
-                </Button>
-              )}
-            />
-            <Button variant="primary" icon={<MapPinned size={16} />} onClick={() => {
-              window.open(mapsUrl, "_blank", "noopener,noreferrer");
-              setLocationModalOpen(false);
-            }}>
-              خرائط جوجل
-            </Button>
-          </div>
-        </Modal>
-      )}
+      <LocationModal 
+        isOpen={locationModalOpen} 
+        onClose={() => setLocationModalOpen(false)}
+        placeName={activity.placeName ?? ""}
+        mapsUrl={mapsUrl || ""}
+      />
     </>
   );
 };

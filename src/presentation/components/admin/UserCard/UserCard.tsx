@@ -3,6 +3,7 @@ import styles from "./UserCard.module.scss";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { UserAnalyticsDto } from "@/core/application/dtos";
+import { getFallbackProfileImage } from "@/lib/utils/image";
 import { Mail, Phone, Award, Clock, ExternalLink } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 
@@ -13,6 +14,11 @@ interface UserCardProps {
 export default function UserCard({ user }: UserCardProps) {
   const router = useRouter();
   const isVolunteer = user.role === "VOLUNTEER";
+  
+  const displayImage = getFallbackProfileImage(
+    user.volunteerProfile?.profilePictureUrl, 
+    user.volunteerProfile?.gender
+  );
 
   return (
     <div
@@ -20,19 +26,14 @@ export default function UserCard({ user }: UserCardProps) {
       onClick={() => isVolunteer && router.push(ROUTES.ADMIN.USER_DETAILS(user.id))}
     >
       <div className={styles.avatar}>
-        {user.volunteerProfile?.profilePictureUrl ? (
-          <Image
-            src={user.volunteerProfile.profilePictureUrl}
-            alt={user.fullName}
-            width={56}
-            height={56}
-            className={styles.avatarImg}
-          />
-        ) : (
-          <span className={styles.avatarText}>
-            {user.fullName.charAt(0).toUpperCase()}
-          </span>
-        )}
+        <Image
+          src={displayImage}
+          alt={user.fullName}
+          width={56}
+          height={56}
+          className={styles.avatarImg}
+          style={{ objectFit: 'cover' }}
+        />
       </div>
 
       <div className={styles.info}>

@@ -3,6 +3,7 @@ import styles from "./VolunteerProfilePage.module.scss";
 import { useProfilePage } from "./VolunteerProfilePage.logic";
 import Image from "next/image";
 import Link from "next/link";
+import { getFallbackProfileImage } from "@/lib/utils/image";
 import {
   CITY_OPTIONS,
   ROUTES,
@@ -53,6 +54,8 @@ export default function VolunteerProfilePage() {
   );
 
   const vp = user.volunteerProfile;
+  const displayImage = getFallbackProfileImage(vp?.profilePictureUrl, vp?.gender);
+  
   const ef = {
     editingField, isSaving,
     onStartEdit: startEditing, onCancel: cancelEditing,
@@ -68,10 +71,14 @@ export default function VolunteerProfilePage() {
         <section className={styles.hero}>
           <div className={styles.avatarSection}>
             <label className={styles.avatarLabel}>
-              {vp?.profilePictureUrl
-                ? <Image src={vp.profilePictureUrl} alt={user.fullName} width={88} height={88} className={styles.avatar} />
-                : <div className={styles.avatarPlaceholder}><User size={36} /></div>
-              }
+              <Image 
+                src={displayImage} 
+                alt={user.fullName} 
+                width={88} 
+                height={88} 
+                className={styles.avatar} 
+                style={{ objectFit: 'cover' }} 
+              />
               <input type="file" accept="image/*" className={styles.fileInput}
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleProfilePictureUpload(f); }}
                 disabled={isUploadingImage}

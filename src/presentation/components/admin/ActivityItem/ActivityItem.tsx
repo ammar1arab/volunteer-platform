@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Calendar, Clock, MapPin, Wifi, CheckCircle2, XCircle, Navigation, Award } from "lucide-react";
 import styles from "./ActivityItem.module.scss";
-import { Modal, Share, Button } from "@/presentation/components";
+import { Modal, Share, Button, LocationModal } from "@/presentation/components";
 import {
   getMonthLabel, getParticipationStatusLabel,
   getActivityTypeLabel, getMeetingPlatformLabel,
@@ -195,24 +195,12 @@ const ActivityItem = ({
       </div>
 
 
-      {hasMap && mapUrl && (
-        <Modal isOpen={locationModalOpen} onClose={() => setLocationModalOpen(false)} title={placeName ?? "الموقع"} size="sm">
-          <div className={styles.locActions}>
-            <Share
-              trigger={(openShare) => (
-                <Button type="button" variant="secondary"
-                  onClick={() => openShare({ title: placeName ?? "الموقع", text: `${placeName ?? ""}\n${mapUrl}` })}>
-                  مشاركة الموقع
-                </Button>
-              )}
-            />
-            <a className={styles.locBtnMaps} href={mapUrl} target="_blank" rel="noopener noreferrer"
-              onClick={() => setLocationModalOpen(false)}>
-              فتح في Google Maps
-            </a>
-          </div>
-        </Modal>
-      )}
+      <LocationModal 
+        isOpen={locationModalOpen} 
+        onClose={() => setLocationModalOpen(false)}
+        placeName={placeName ?? "الموقع"}
+        mapsUrl={mapUrl || ""}
+      />
     </>
   );
 };

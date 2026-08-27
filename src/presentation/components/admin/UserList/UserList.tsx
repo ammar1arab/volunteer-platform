@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Mail, Phone, Award, Clock, MapPin, User2, LucideIcon } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 import { useImagePreview } from "@/presentation/providers/ImagePreviewProvider";
+import { getFallbackProfileImage } from "@/lib/utils/image";
 import styles from "./UserList.module.scss";
 
 export interface UserListMeta {
@@ -62,6 +63,7 @@ const UserListItem = ({
   const isVolunteer = user.role === "VOLUNTEER" || user.role === undefined;
   const profileUrl = isVolunteer ? ROUTES.ADMIN.USER_DETAILS(user.id) : undefined;
   const { previewImage } = useImagePreview();
+  const displayImage = getFallbackProfileImage(user.avatarUrl, user.gender);
 
   return (
     <div
@@ -88,22 +90,18 @@ const UserListItem = ({
         )}
 
         <div className={styles.avatar}>
-          {user.avatarUrl ? (
-            <Image 
-              src={user.avatarUrl} 
-              alt={user.name} 
-              width={42} 
-              height={42} 
-              className={styles.avatarImg}
-              onClick={(e) => {
-                e.stopPropagation();
-                previewImage(user.avatarUrl!);
-              }}
-              style={{ cursor: 'pointer' }}
-            />
-          ) : (
-            <span className={styles.avatarText}>{user.name.charAt(0).toUpperCase()}</span>
-          )}
+          <Image 
+            src={displayImage} 
+            alt={user.name} 
+            width={42} 
+            height={42} 
+            className={styles.avatarImg}
+            onClick={(e) => {
+              e.stopPropagation();
+              previewImage(displayImage);
+            }}
+            style={{ cursor: 'pointer', objectFit: 'cover' }}
+          />
         </div>
 
         <div className={styles.info}>

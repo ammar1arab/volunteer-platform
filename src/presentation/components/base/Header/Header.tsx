@@ -11,6 +11,7 @@ import ConfirmDialog from '@/presentation/components/base/ConfirmDialog/ConfirmD
 import NotificationBell from '@/presentation/components/volunteer/NotificationBell/NotificationBell';
 import UserMenuDropdown from '@/presentation/components/volunteer/UserMenuDropdown/UserMenuDropdown.tsx';
 import { RxHamburgerMenu, RxCross2 } from 'react-icons/rx';
+import { getFallbackProfileImage } from '@/lib/utils/image';
 
 const NAV_LINKS = [
   { href: ROUTES.ACTIVITIES, label: 'الفرص التطوعية' },
@@ -41,6 +42,7 @@ const VolunteerActions = ({
   isLoading, isVolunteer, userName, userInitial, avatarUrl,
   openMenu, wrapperRef, onToggle, onClose, onLogout, mobile = false,
 }: ActionsProps) => {
+  const displayImage = getFallbackProfileImage(avatarUrl);
   if (isLoading) return <div className={styles.authPlaceholder} />;
 
   if (!isVolunteer) {
@@ -70,23 +72,20 @@ const VolunteerActions = ({
           ].join(' ')}
           onClick={() => onToggle('user')}
         >
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt={userName}
-              width={mobile ? 30 : 34}
-              height={mobile ? 30 : 34}
-              className={styles.avatarImg}
-            />
-          ) : (
-            <span className={styles.avatarInitial}>{userInitial}</span>
-          )}
+          <Image
+            src={displayImage}
+            alt={userName}
+            width={mobile ? 30 : 34}
+            height={mobile ? 30 : 34}
+            className={styles.avatarImg}
+            style={{ objectFit: 'cover' }}
+          />
         </button>
         <span className={`${styles.caret} ${openMenu === 'user' ? styles.caretVisible : ''}`} />
         {openMenu === 'user' && (
           <UserMenuDropdown
             userName={userName}
-            avatarUrl={avatarUrl}
+            avatarUrl={displayImage}
             onClose={() => onToggle('user')}
             onLogout={onLogout}
           />

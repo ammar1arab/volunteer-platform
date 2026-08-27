@@ -155,6 +155,7 @@ const AdminUserDetailsPage = () => {
         createdAt={user.createdAt}
         isEditable={false}
         totalHours={totalHours}
+        gender={vp?.gender}
       />
 
       <div className={styles.statsGrid}>

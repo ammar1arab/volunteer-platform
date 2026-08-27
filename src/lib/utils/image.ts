@@ -60,9 +60,11 @@ export const createImagePreview = (file: File) => URL.createObjectURL(file);
 export const revokeImagePreview = (url: string) => URL.revokeObjectURL(url);
 
 
-const FALLBACK_IMAGES: Record<Gender, string> = {
+const FALLBACK_IMAGES: Record<string, string> = {
   [Gender.MALE]: "/images/male.png",
   [Gender.FEMALE]: "/images/female.png",
+  "ذكر": "/images/male.png",
+  "أنثى": "/images/female.png",
 };
 
 export const getFallbackProfileImage = (
@@ -70,8 +72,8 @@ export const getFallbackProfileImage = (
   gender?: Gender | string | null
 ): string => {
   if (profilePictureUrl) return profilePictureUrl;
-  return gender && Object.values(Gender).includes(gender as Gender) 
-    ? FALLBACK_IMAGES[gender as Gender] 
+  return gender && FALLBACK_IMAGES[gender] 
+    ? FALLBACK_IMAGES[gender] 
     : "/images/gender.png";
 };
 
