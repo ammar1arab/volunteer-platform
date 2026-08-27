@@ -81,7 +81,7 @@
     background: linear-gradient(135deg, rgba(#3b82f6, 0.03), $bg);
 
     .avatar {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      // background: linear-gradient(135deg, #3b82f6, #2563eb);
     }
   }
   
@@ -121,7 +121,7 @@
   width: 42px;
   height: 42px;
   border-radius: $radius-full;
-  background: linear-gradient(135deg, $green, #059669);
+  // background: linear-gradient(135deg, $green, #059669);
   flex-shrink: 0;
   overflow: hidden;
   transition: all 0.25s ease;

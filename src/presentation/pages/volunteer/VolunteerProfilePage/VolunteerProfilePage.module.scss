@@ -53,7 +53,7 @@
 
 .avatarPlaceholder {
   @include flex-center;
-  background: rgba($green, 0.08);
+  background: transparent;
   color: $green;
 }
 
