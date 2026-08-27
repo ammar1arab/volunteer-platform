@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { UserAnalyticsDto } from "@/core/application/dtos";
 import { getFallbackProfileImage } from "@/lib/utils/image";
+import { useImagePreview } from "@/presentation/providers/ImagePreviewProvider";
 import { Mail, Phone, Award, Clock, ExternalLink } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 
@@ -19,13 +20,22 @@ export default function UserCard({ user }: UserCardProps) {
     user.volunteerProfile?.profilePictureUrl, 
     user.volunteerProfile?.gender
   );
+  
+  const { previewImage } = useImagePreview();
 
   return (
     <div
       className={`${styles.card} ${isVolunteer ? styles.clickable : styles.admin}`}
       onClick={() => isVolunteer && router.push(ROUTES.ADMIN.USER_DETAILS(user.id))}
     >
-      <div className={styles.avatar}>
+      <div 
+        className={styles.avatar}
+        onClick={(e) => {
+          e.stopPropagation();
+          previewImage(displayImage);
+        }}
+        style={{ cursor: 'pointer' }}
+      >
         <Image
           src={displayImage}
           alt={user.fullName}

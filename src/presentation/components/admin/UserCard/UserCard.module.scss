@@ -10,7 +10,8 @@
   overflow: hidden;
   transition: all 0.25s ease;
   min-height: 88px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  box-shadow: none;
+  border: none;
 
   &::before {
     content: "";
@@ -27,7 +28,7 @@
     &:hover {
       background: $surface-hover;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: none;
 
       &::before {
         opacity: 1;
