@@ -1,3 +1,4 @@
+import { Gender } from "@/core/domain/enums/Gender";
 export const compressImage = async (
   file: File,
   maxWidth = 1920,
@@ -57,6 +58,22 @@ export const validateImageFile = (
 
 export const createImagePreview = (file: File) => URL.createObjectURL(file);
 export const revokeImagePreview = (url: string) => URL.revokeObjectURL(url);
+
+
+const FALLBACK_IMAGES: Record<Gender, string> = {
+  [Gender.MALE]: "/images/male.png",
+  [Gender.FEMALE]: "/images/female.png",
+};
+
+export const getFallbackProfileImage = (
+  profilePictureUrl?: string | null,
+  gender?: Gender | string | null
+): string => {
+  if (profilePictureUrl) return profilePictureUrl;
+  return gender && Object.values(Gender).includes(gender as Gender) 
+    ? FALLBACK_IMAGES[gender as Gender] 
+    : "/images/gender.png";
+};
 
 export const processImageForUpload = async (
   file: File,

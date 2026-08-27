@@ -2,6 +2,8 @@
 import Image from "next/image";
 import { Upload, Calendar, User } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
+import { getFallbackProfileImage } from "@/lib/utils/image";
+import { Gender } from "@/core/domain/enums/Gender";
 import { useImagePreview } from "@/presentation/providers/ImagePreviewProvider";
 import styles from "./ProfileHeader.module.scss";
 
@@ -14,11 +16,12 @@ type Props = {
   isUploading?: boolean;
   onImageUpload?: (file: File) => void;
   totalHours?: number;
+  gender?: Gender | string;
 };
 
 const ProfileHeader = ({
   fullName, role, profilePictureUrl, createdAt,
-  isEditable = false, isUploading = false, onImageUpload, totalHours,
+  isEditable = false, isUploading = false, onImageUpload, totalHours, gender,
 }: Props) => {
   const { previewImage } = useImagePreview();
 
@@ -27,15 +30,15 @@ const ProfileHeader = ({
     if (file && onImageUpload) onImageUpload(file);
   };
 
+  const displayImage = getFallbackProfileImage(profilePictureUrl, gender);
+
   return (
     <div className={styles.header}>
       <div className={styles.avatarWrapper}>
         {isEditable ? (
           <label className={styles.avatarLabel}>
-            <div onClick={() => profilePictureUrl && previewImage(profilePictureUrl)} style={{ cursor: profilePictureUrl ? 'pointer' : 'default' }}>
-              {profilePictureUrl
-                ? <Image src={profilePictureUrl} alt={fullName} width={80} height={80} className={styles.avatar} />
-                : <div className={styles.avatarPlaceholder}><User size={32} /></div>}
+            <div onClick={() => displayImage && previewImage(displayImage)} style={{ cursor: 'pointer' }}>
+              <Image src={displayImage} alt={fullName} width={80} height={80} className={styles.avatar} />
             </div>
             <div className={styles.uploadBadge}>
               {isUploading ? <div className={styles.spinner} /> : <Upload size={14} />}
@@ -43,10 +46,8 @@ const ProfileHeader = ({
             <input type="file" accept="image/*" className={styles.fileInput} onChange={handleFileChange} disabled={isUploading} />
           </label>
         ) : (
-          <div onClick={() => profilePictureUrl && previewImage(profilePictureUrl)} style={{ cursor: profilePictureUrl ? 'pointer' : 'default' }}>
-            {profilePictureUrl
-              ? <Image src={profilePictureUrl} alt={fullName} width={80} height={80} className={styles.avatar} />
-              : <div className={styles.avatarPlaceholder}>{fullName.charAt(0).toUpperCase()}</div>}
+          <div onClick={() => displayImage && previewImage(displayImage)} style={{ cursor: 'pointer' }}>
+            <Image src={displayImage} alt={fullName} width={80} height={80} className={styles.avatar} />
           </div>
         )}
       </div>
