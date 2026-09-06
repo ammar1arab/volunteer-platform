@@ -25,8 +25,7 @@ export const API_ENDPOINTS = {
     RESTORE: (id: string) => `/api/activities/${id}/restore`,
     COMPLETE: (id: string) => `/api/activities/${id}/complete`,
     VOLUNTEERS: (id: string) => `/api/activities/${id}/volunteers`,
-    PUBLISHED: "/api/activities?filter=published",
-    VIEW: (id: string) => `/api/activities/${id}/view`
+    PUBLISHED: "/api/activities?filter=published"
   },
   ACTIVITY_PARTICIPATIONS: {
     BASE: "/api/activity-participations",
@@ -45,8 +44,7 @@ export const API_ENDPOINTS = {
   },
   FEATURED_POSTS: {
     BASE: "/api/featured-posts",
-    BY_ID: (id: string) => `/api/featured-posts/${id}`,
-    VIEW: (id: string) => `/api/posts/${id}/view`
+    BY_ID: (id: string) => `/api/featured-posts/${id}`
   },
   VOLUNTEER_SPOTLIGHT: {
     BASE: "/api/volunteer-spotlight",
@@ -55,8 +53,7 @@ export const API_ENDPOINTS = {
   MONTHLY_MAGAZINES: {
     BASE: "/api/monthly-magazines",
     BY_ID: (id: string) => `/api/monthly-magazines/${id}`,
-    UPLOAD: "/api/uploads/magazines",
-    DOWNLOAD: (id: string) => `/api/magazines/${id}/download`
+    UPLOAD: "/api/uploads/magazines"
   },
   UPLOADS: {
     BY_SCOPE: (scope: "featured-posts" | "activities" | "profiles" | "volunteer-spotlight" | "magazines") =>

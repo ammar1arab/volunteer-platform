@@ -1,8 +1,5 @@
-"use client";
-
-import React, { useCallback } from "react";
+import React from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { Mail, Phone, Award, Clock, MapPin, User2, LucideIcon } from "lucide-react";
 import { ROUTES } from "@/presentation/constants";
 import { useImagePreview } from "@/presentation/providers/ImagePreviewProvider";
@@ -46,8 +43,7 @@ const UserListItem = ({
   selectable,
   isSelected,
   onToggle,
-  onNavigate,
-  onOpenProfile
+  onNavigate
 }: {
   user: UserListDto;
   layout: "grid" | "list";
@@ -55,8 +51,15 @@ const UserListItem = ({
   isSelected: boolean;
   onToggle?: () => void;
   onNavigate?: () => void;
-  onOpenProfile: (url: string) => void;
 }) => {
+  const handleCardClick = () => {
+    if (selectable && onToggle) {
+      onToggle();
+    } else if (onNavigate) {
+      onNavigate();
+    }
+  };
+
   const isVolunteer = user.role === "VOLUNTEER" || user.role === undefined;
   const profileUrl = isVolunteer ? ROUTES.ADMIN.USER_DETAILS(user.id) : undefined;
   const { previewImage } = useImagePreview();
@@ -67,7 +70,7 @@ const UserListItem = ({
       className={`${styles.card} ${profileUrl ? styles.clickable : ""} ${isSelected ? styles.selected : ""} ${user.role === "ADMIN" ? styles.admin : ""}`}
       onClick={() => {
         if (profileUrl) {
-          onOpenProfile(profileUrl);
+          window.location.href = profileUrl;
         } else if (onNavigate) {
           onNavigate();
         }
@@ -181,11 +184,6 @@ export const UserList = ({
   onNavigate,
   emptyMessage = "لا يوجد مستخدمين لعرضهم."
 }: UserListProps) => {
-  const router = useRouter();
-  const openProfile = useCallback((url: string) => {
-    router.push(url);
-  }, [router]);
-
   if (users.length === 0) {
     return (
       <div className={styles.empty}>
@@ -205,7 +203,6 @@ export const UserList = ({
           isSelected={selectedIds.has(user.id)}
           onToggle={() => onToggleUser && onToggleUser(user.id)}
           onNavigate={onNavigate ? () => onNavigate(user.id) : undefined}
-          onOpenProfile={openProfile}
         />
       ))}
     </div>

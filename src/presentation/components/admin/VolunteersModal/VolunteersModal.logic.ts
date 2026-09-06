@@ -20,31 +20,23 @@ export type MeetAttendanceSuggestion = {
   displayName: string;
 };
 
-type AttendanceDraft = {
-  overrides: Record<string, boolean | null>;
-  rejectedIds: string[];
-  updatedAt: number;
+const attendanceOverrides = new Map<string, Record<string, boolean | null>>();
+const getOverrides = (activityId: string) => {
+  if (!attendanceOverrides.has(activityId)) attendanceOverrides.set(activityId, {});
+  return attendanceOverrides.get(activityId)!;
 };
-
-const EMPTY_DRAFT: AttendanceDraft = {
-  overrides: {},
-  rejectedIds: [],
-  updatedAt: 0
-};
-
-const attendanceDraftKey = (activityId: string) => `draft.admin.attendance.${activityId}`;
 
 const VOLUNTEERS_PER_PAGE = 15;
 const SUGGEST_ATTENDED_SECONDS = 60;
 
 function applyAttendanceOverrides(
+  activityId: string,
   list: ActivityVolunteerDto[],
-  overrides: Record<string, boolean | null>,
-  rejectedIds: readonly string[]
+  rejectedIds: Set<string>
 ): ActivityVolunteerDto[] {
-  const rejected = new Set(rejectedIds);
+  const overrides = getOverrides(activityId);
   return list
-    .filter((v) => !rejected.has(v.participationId))
+    .filter((v) => !rejectedIds.has(v.participationId))
     .map((v) => {
       if (!(v.participationId in overrides)) return v;
       const val = overrides[v.participationId];
@@ -69,10 +61,8 @@ export const useVolunteersModal = (
   activityType: string,
   durationHours: number
 ) => {
-  const [draft, setDraft] = useSessionStorageState<AttendanceDraft>(
-    attendanceDraftKey(activityId),
-    EMPTY_DRAFT
-  );
+  const [overrideTick, setOverrideTick] = useState(0);
+  const [rejectedIds, setRejectedIds] = useState<Set<string>>(() => new Set());
   const [completing, setCompleting] = useState(false);
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [confirmStep, setConfirmStep] = useState<0 | 1 | 2>(0);
@@ -146,8 +136,8 @@ export const useVolunteersModal = (
   );
 
   const volunteers = useMemo(
-    () => applyAttendanceOverrides(serverList, draft.overrides, draft.rejectedIds),
-    [serverList, draft.overrides, draft.rejectedIds]
+    () => applyAttendanceOverrides(activityId, serverList, rejectedIds),
+    [activityId, serverList, rejectedIds, overrideTick]
   );
 
   const pendingMeetSuggestions = useMemo(() => {
@@ -182,13 +172,10 @@ export const useVolunteersModal = (
   }, [setGenderFilter, setCurrentPage]);
 
   const setAttendance = useCallback((participationId: string, attended: boolean | null) => {
-    setDraft((prev) => ({
-      overrides: { ...prev.overrides, [participationId]: attended },
-      rejectedIds: prev.rejectedIds,
-      updatedAt: Date.now()
-    }));
+    getOverrides(activityId)[participationId] = attended;
     setAttendanceWarning(false);
-  }, [setDraft]);
+    setOverrideTick((n) => n + 1);
+  }, [activityId]);
 
   const applyMeetSuggestion = useCallback(
     (volunteerUserId: string) => {
@@ -202,14 +189,13 @@ export const useVolunteersModal = (
   );
 
   const applyAllMeetSuggestions = useCallback(() => {
-    const additions: Record<string, boolean> = {};
     let applied = 0;
     for (const volunteer of volunteers) {
       if (
         volunteer.attendanceStatus === AttendanceStatus.NOT_MARKED &&
         meetSuggestions.has(volunteer.id)
       ) {
-        additions[volunteer.participationId] = true;
+        getOverrides(activityId)[volunteer.participationId] = true;
         applied += 1;
       }
     }
@@ -217,31 +203,18 @@ export const useVolunteersModal = (
       showToast("لا توجد اقتراحات قابلة للتطبيق", "info");
       return;
     }
-    setDraft((prev) => ({
-      overrides: { ...prev.overrides, ...additions },
-      rejectedIds: prev.rejectedIds,
-      updatedAt: Date.now()
-    }));
     setAttendanceWarning(false);
+    setOverrideTick((n) => n + 1);
     showToast(`تم تطبيق ${applied} اقتراح حضور من Meet`, "success");
-  }, [volunteers, meetSuggestions, setDraft, showToast]);
+  }, [volunteers, meetSuggestions, activityId, showToast]);
 
   const rejectVolunteer = useCallback(
     async (participationId: string, volunteerName: string) => {
       setRejecting(participationId);
       try {
         unwrapResult(await participationApi.reject(participationId));
-        setDraft((prev) => {
-          const overrides = { ...prev.overrides };
-          delete overrides[participationId];
-          return {
-            overrides,
-            rejectedIds: prev.rejectedIds.includes(participationId)
-              ? prev.rejectedIds
-              : [...prev.rejectedIds, participationId],
-            updatedAt: Date.now()
-          };
-        });
+        delete getOverrides(activityId)[participationId];
+        setRejectedIds((prev) => new Set(prev).add(participationId));
         showToast(`تم إزالة ${volunteerName} من النشاط`, "success");
       } catch (err) {
         showToast(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ أثناء إزالة المتطوع"), "error");
@@ -249,11 +222,12 @@ export const useVolunteersModal = (
         setRejecting(null);
       }
     },
-    [setDraft, showToast]
+    [activityId, showToast]
   );
 
   const flushAttendance = useCallback(() => {
-    const items = Object.entries(draft.overrides)
+    const overrides = getOverrides(activityId);
+    const items = Object.entries(overrides)
       .filter(([, val]) => val !== null)
       .map(([participationId, attended]) => ({
         participationId,
@@ -261,7 +235,7 @@ export const useVolunteersModal = (
       }));
     if (!items.length) return Promise.resolve();
     return participationApi.bulkMarkAttendance(items).then(() => undefined);
-  }, [draft.overrides]);
+  }, [activityId]);
 
   const requestComplete = useCallback(() => {
     const hasUnmarked = volunteers.some((v) => v.attendanceStatus === AttendanceStatus.NOT_MARKED);
@@ -288,7 +262,7 @@ export const useVolunteersModal = (
         await prefetchRef.current;
         const success = await onComplete();
         if (success) {
-          setDraft(EMPTY_DRAFT);
+          attendanceOverrides.delete(activityId);
           onClose();
         } else showToast("حدث خطأ أثناء إكمال النشاط", "error");
       } catch (err) {
@@ -299,7 +273,7 @@ export const useVolunteersModal = (
         prefetchRef.current = null;
       }
     },
-    [setDraft, showToast]
+    [activityId, showToast]
   );
 
   const calculateAge = useCallback((dateOfBirth: string): number => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Modal, LoadingState, EmptyState, Pagination, Search, Button } from "@/presentation/components";
 import { Download, ArrowUpDown, ArrowUp, ArrowDown, LucideIcon } from "lucide-react";
 import { useFetchData } from "@/presentation/hooks";
@@ -27,8 +27,6 @@ interface Props<T> {
   exportFileName?: string;
   itemsPerPage?: number;
   customListRenderer?: (data: T[]) => React.ReactNode;
-  defaultSortKey?: string;
-  defaultSortOrder?: "asc" | "desc";
 }
 
 export function SharedDataModal<T extends Record<string, any>>({
@@ -42,15 +40,13 @@ export function SharedDataModal<T extends Record<string, any>>({
   emptyTitle,
   emptyMessage,
   exportFileName = "export",
-  itemsPerPage = 8,
+  itemsPerPage = 5,
   customListRenderer,
-  defaultSortKey,
-  defaultSortOrder = "asc",
 }: Props<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortKey, setSortKey] = useState<string | null>(defaultSortKey ?? null);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">(defaultSortOrder);
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const { data, isLoading } = useFetchData<{ items: T[] }>({
     queryKey: ["admin", "sharedModal", fetchUrl],
@@ -58,8 +54,7 @@ export function SharedDataModal<T extends Record<string, any>>({
       const res = await fetch(fetchUrl);
       if (!res.ok) throw new Error("Failed to fetch data");
       const json = await res.json();
-      const raw = json.data?.[dataKey] ?? json.data ?? [];
-      return { items: Array.isArray(raw) ? raw : [] };
+      return { items: json.data?.[dataKey] || json.data || [] };
     },
   });
 
@@ -110,10 +105,13 @@ export function SharedDataModal<T extends Record<string, any>>({
 
   const exportToCSV = () => {
     if (!processedData.length) return;
-
-    const headers = columns.map((c) => c.header).join(",");
-    const rows = processedData.map((item) => {
-      return columns.map((col) => {
+    
+    // Extract headers
+    const headers = columns.map(c => c.header).join(",");
+    
+    // Extract rows (using sortValue for primitive representation, fallback to stringified accessor if possible, or simple empty string)
+    const rows = processedData.map(item => {
+      return columns.map(col => {
         let val = col.sortValue ? col.sortValue(item) : "";
         if (typeof val === "string") val = `"${val.replace(/"/g, '""')}"`;
         return val;
@@ -130,13 +128,8 @@ export function SharedDataModal<T extends Record<string, any>>({
     document.body.removeChild(link);
   };
 
-  const SortIcon = ({ columnKey }: { columnKey: string }) => {
-    if (sortKey !== columnKey) return <ArrowUpDown size={13} />;
-    return sortOrder === "asc" ? <ArrowUp size={13} /> : <ArrowDown size={13} />;
-  };
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isLoading ? title : `${title} · ${processedData.length}`} size="xl">
+    <Modal isOpen={isOpen} onClose={onClose} title={title} size="lg">
       <div className={styles.container}>
         <div className={styles.controls}>
           <div className={styles.search}>
@@ -163,57 +156,39 @@ export function SharedDataModal<T extends Record<string, any>>({
         ) : processedData.length === 0 ? (
           <EmptyState icon={Icon as any} title={emptyTitle} message={emptyMessage} />
         ) : customListRenderer ? (
-          <div className={styles.customList}>{customListRenderer(paginatedData)}</div>
+          customListRenderer(paginatedData)
         ) : (
-          <>
-            <div className={styles.tableWrapper}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  {columns.map((col) => (
+                    <th key={col.key} onClick={() => handleSort(col.key)} style={{ cursor: col.sortable ? "pointer" : "default" }}>
+                      {col.header}
+                      {col.sortable && (
+                        <span className={styles.sortIcon}>
+                          {sortKey === col.key ? (
+                            sortOrder === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />
+                          ) : (
+                            <ArrowUpDown size={14} />
+                          )}
+                        </span>
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedData.map((item, idx) => (
+                  <tr key={item.id || idx}>
                     {columns.map((col) => (
-                      <th
-                        key={col.key}
-                        onClick={() => handleSort(col.key)}
-                        className={col.sortable ? styles.sortable : undefined}
-                      >
-                        {col.header}
-                        {col.sortable && (
-                          <span className={styles.sortIcon}>
-                            <SortIcon columnKey={col.key} />
-                          </span>
-                        )}
-                      </th>
+                      <td key={col.key}>{col.accessor(item)}</td>
                     ))}
                   </tr>
-                </thead>
-                <tbody>
-                  {paginatedData.map((item, idx) => (
-                    <tr key={item.id || idx}>
-                      {columns.map((col) => (
-                        <td key={col.key}>{col.accessor(item)}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className={styles.mobileCards}>
-              {paginatedData.map((item, idx) => (
-                <article key={item.id || idx} className={styles.itemCard}>
-                  {columns.map((col, colIdx) => (
-                    <div
-                      key={col.key}
-                      className={colIdx === 0 ? styles.itemPrimary : styles.itemRow}
-                    >
-                      {colIdx !== 0 && <span className={styles.itemLabel}>{col.header}</span>}
-                      <span className={styles.itemValue}>{col.accessor(item)}</span>
-                    </div>
-                  ))}
-                </article>
-              ))}
-            </div>
-          </>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {processedData.length > itemsPerPage && (

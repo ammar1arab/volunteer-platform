@@ -4,59 +4,47 @@
 .container {
   @include flex-col;
   gap: $sp-md;
-  min-height: 0;
+  padding: $sp-sm;
 }
 
 .controls {
-  @include flex(row, center, space-between, $sp-sm);
-  flex-wrap: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: $bg;
-  padding-bottom: 2px;
-
-  @media (max-width: 640px) {
-    flex-wrap: wrap;
-
-    .search {
-      flex: 1 1 100%;
-      min-width: 0;
-    }
-
-    button {
-      width: 100%;
-    }
-  }
+  @include flex(row, center, space-between, $sp-md);
+  flex-wrap: wrap;
 }
 
 .search {
   flex: 1;
-  min-width: 180px;
+  min-width: 200px;
 }
 
-.customList {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: $sp-sm;
+.exportBtn {
+  @include flex-center;
+  gap: $sp-xs;
+  padding: $sp-sm $sp-md;
+  background-color: $green;
+  color: white;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  font-weight: 500;
+  transition: opacity 0.2s;
+  border: none;
+  cursor: pointer;
 
-  @media (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-    gap: $sp-md;
+  &:hover {
+    opacity: 0.9;
   }
 }
 
 .tableWrapper {
   width: 100%;
   overflow-x: auto;
-  border-radius: $radius-lg;
+  border-radius: $radius-md;
   background: $surface;
   border: 1px solid $border;
-  box-shadow: $shadow;
-
-  @media (max-width: 768px) {
-    display: none;
-  }
+  box-shadow: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .table {
@@ -65,111 +53,35 @@
   text-align: right;
 
   th, td {
-    padding: 0.85rem 1rem;
+    padding: $sp-md;
     font-size: $font-sm;
-    white-space: nowrap;
   }
 
   th {
-    position: sticky;
-    top: 0;
     background: $surface-hover;
     color: $text-secondary;
-    font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.02em;
-    border-bottom: 1px solid $border;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      color: $text;
+    }
   }
 
   td {
     color: $text;
-    border-bottom: 1px solid $border;
+    border-bottom: 1px solid $border; 
   }
 
-  tbody tr {
-    transition: background 0.15s ease;
-
-    &:hover td {
-      background: $surface-hover;
-    }
-
-    &:last-child td {
-      border-bottom: none;
-    }
-  }
-
-  td:first-child {
-    font-weight: 600;
-    max-width: 280px;
-    white-space: normal;
-  }
-}
-
-.sortable {
-  cursor: pointer;
-  user-select: none;
-
-  &:hover {
-    color: $text;
+  tr:last-child td {
+    border-bottom: none;
   }
 }
 
 .sortIcon {
   display: inline-flex;
   align-items: center;
-  margin-right: 6px;
+  margin-right: $sp-xs;
   color: $text-muted;
-  vertical-align: middle;
-}
-
-.mobileCards {
-  display: none;
-  flex-direction: column;
-  gap: 10px;
-
-  @media (max-width: 768px) {
-    display: flex;
-  }
-}
-
-.itemCard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 14px;
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  box-shadow: $shadow;
-}
-
-.itemPrimary {
-  .itemValue {
-    font-size: $font-sm;
-    font-weight: 700;
-    color: $text;
-    line-height: 1.4;
-  }
-}
-
-.itemRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 22px;
-}
-
-.itemLabel {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: $text-muted;
-  flex-shrink: 0;
-}
-
-.itemValue {
-  font-size: $font-xs;
-  color: $text;
-  text-align: left;
-  min-width: 0;
 }

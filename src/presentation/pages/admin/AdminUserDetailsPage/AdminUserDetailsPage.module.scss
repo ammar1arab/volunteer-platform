@@ -27,17 +27,8 @@
 }
 .header {
   @include flex-between;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: $sp-sm;
-  white-space: nowrap;
-  min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 .actions {
@@ -45,7 +36,6 @@
   align-items: center;
   gap: 0.4rem;
   flex-wrap: nowrap;
-  flex-shrink: 0;
 
   @media (max-width: $bp-sm) {
     gap: 0.3rem;
@@ -294,8 +284,6 @@
   color: $text-muted;
   text-decoration: none;
   font-weight: 500;
-  white-space: nowrap;
-  flex-shrink: 0;
   transition: color $transition;
 
   &:hover {

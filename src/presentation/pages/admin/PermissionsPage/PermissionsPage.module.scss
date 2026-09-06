@@ -21,7 +21,8 @@
 }
 
 .actionsEnd {
-  @include toolbar-end;
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
 }
 
 .btnCreate {

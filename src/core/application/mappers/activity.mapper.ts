@@ -44,8 +44,7 @@ export const toActivityDto = (
     meetingSyncStatus: p.meetingSyncStatus,
     meetingSyncError: includePrivateMeetingFields ? p.meetingSyncError : null,
     meetingSyncedAt: p.meetingSyncedAt?.toISOString() ?? null,
-    timeZone: p.timeZone,
-    views: p.views ?? 0
+    timeZone: p.timeZone
   };
 };
 

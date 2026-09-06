@@ -7,8 +7,6 @@ import type {
   UpdateFeaturedPostRequest
 } from "@/core/application/dtos";
 import { featuredPostApi, uploadApi } from "@/presentation/services";
-import { API_ENDPOINTS } from "@/lib/config";
-import { pingOnce } from "@/lib/utils";
 import {
   EMPTY_ARRAY,
   getErrorMessage,
@@ -119,11 +117,7 @@ export const useFeaturedPosts = (
 export const usePostDetails = (id: string) => {
   const query = useFetchData<FeaturedPostDto>({
     queryKey: queryKeys.featuredPosts.detail(id),
-    request: async () => {
-      const post = unwrapResult(await featuredPostApi.getOne(id)).post;
-      pingOnce(`viewed:post:${id}`, API_ENDPOINTS.FEATURED_POSTS.VIEW(id));
-      return post;
-    },
+    request: async () => unwrapResult(await featuredPostApi.getOne(id)).post,
     options: { enabled: Boolean(id), staleTime: 60_000 }
   });
 

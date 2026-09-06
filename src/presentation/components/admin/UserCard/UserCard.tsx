@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { UserAnalyticsDto } from "@/core/application/dtos";
 import { getFallbackProfileImage } from "@/lib/utils/image";
 import { useImagePreview } from "@/presentation/providers/ImagePreviewProvider";
-import { Mail, Phone, Award, Clock, ExternalLink, MapPin } from "lucide-react";
-import { ROUTES, getCityLabel } from "@/presentation/constants";
-import { JordanianCity } from "@/core/domain/enums";
+import { Mail, Phone, Award, Clock, ExternalLink } from "lucide-react";
+import { ROUTES } from "@/presentation/constants";
 
 interface UserCardProps {
   user: UserAnalyticsDto;
@@ -61,12 +60,6 @@ export default function UserCard({ user }: UserCardProps) {
             <Phone size={12} />
             <span>{user.phone}</span>
           </div>
-          {user.volunteerProfile?.city && (
-            <div className={styles.contactItem}>
-              <MapPin size={12} />
-              <span>{getCityLabel(user.volunteerProfile.city as JordanianCity)}</span>
-            </div>
-          )}
         </div>
       </div>
 

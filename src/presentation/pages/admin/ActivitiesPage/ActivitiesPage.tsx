@@ -111,7 +111,7 @@ const ActivitiesPage = () => {
         onImageUpload={handleImageUpload} isSubmitting={submitting} />
 
       <VolunteersModal
-        key={selectedActivity?.id ?? "none"}
+        key={showVolunteersModal ? selectedActivity?.id ?? "none" : "volunteers-closed"}
         activityId={selectedActivity?.id || ""}
         activityTitle={selectedActivity?.title || ""}
         activityStatus={selectedActivity?.status || ""}

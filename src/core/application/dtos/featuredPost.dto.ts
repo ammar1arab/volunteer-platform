@@ -11,7 +11,6 @@ export interface FeaturedPostDto {
   categories: DomainFeaturedPostCategory[];
   publishedAt: string;
   isActive: boolean;
-  views: number;
   createdAt: string;
   updatedAt: string;
 }

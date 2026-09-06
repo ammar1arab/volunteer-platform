@@ -205,18 +205,15 @@ const VolunteersModal = ({
                       <div className={styles.volunteerActions}>
                         {canReject && (
                           <button
-                            type="button"
-                            className={styles.removeBtn}
+                            className={styles.rejectBtn}
                             disabled={isRejecting}
                             onClick={e => {
                               e.stopPropagation();
                               setRejectTarget({ participationId: volunteer.participationId, name: volunteer.fullName });
                             }}
-                            title="إزالة من النشاط"
-                            aria-label={`إزالة ${volunteer.fullName} من النشاط`}
+                            title="إلغاء القبول"
                           >
-                            <UserMinus size={14} />
-                            <span>إزالة</span>
+                            <UserMinus size={13} />
                           </button>
                         )}
                         {suggestion && unmarked && (
@@ -326,9 +323,8 @@ const VolunteersModal = ({
           if (rejectTarget) rejectVolunteer(rejectTarget.participationId, rejectTarget.name);
           setRejectTarget(null);
         }}
-        title="إزالة من النشاط"
-        message={`سيتم إلغاء قبول "${rejectTarget?.name}" وإزالته من قائمة متطوعي هذا النشاط.`}
-        warning="سيصله إشعار، ولن يبقى ضمن المشاركين."
+        title="إزالة متطوع"
+        message={`هل تريد إزالة "${rejectTarget?.name}" من النشاط؟`}
         confirmText="إزالة"
         cancelText="إلغاء"
         variant="danger"

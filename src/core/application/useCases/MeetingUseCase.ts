@@ -853,10 +853,10 @@ class MeetingUseCase {
       const actor = await this.resolveMeetingActor(activityId, hostUserId, hostRole, sessionEmail);
       if (!actor.success) return actor;
       if (!actor.data.isHost) {
-        return fail("FORBIDDEN", "فقط المدرب يمكنه قبول المشاركين");
+        return fail("FORBIDDEN", "فقط المضيف يمكنه قبول المشاركين");
       }
       if (guestUserId.trim() === hostUserId) {
-        return fail("FORBIDDEN", "لا يمكن قبول المدرب");
+        return fail("FORBIDDEN", "لا يمكن قبول المضيف");
       }
 
       this.toSession(activityId, actor.data);
@@ -869,7 +869,7 @@ class MeetingUseCase {
       });
 
       if (result === "not_host") {
-        return fail("FORBIDDEN", "فقط المدرب يمكنه قبول المشاركين");
+        return fail("FORBIDDEN", "فقط المضيف يمكنه قبول المشاركين");
       }
       if (result === "not_waiting") {
         return fail("NOT_FOUND", "المشارك غير موجود في قائمة الانتظار");

@@ -4,8 +4,6 @@ import { useCallback, useMemo } from "react";
 import type { ActivityDto, CreateActivityRequest, UpdateActivityRequest } from "@/core/application/dtos";
 import { MeetingSyncStatus } from "@/core/domain/enums";
 import { activityApi, uploadApi } from "@/presentation/services";
-import { API_ENDPOINTS } from "@/lib/config";
-import { pingOnce } from "@/lib/utils";
 import {
   EMPTY_ARRAY,
   getErrorMessage,
@@ -185,11 +183,7 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter; enabled?: bool
 export const useActivityDetails = (id: string) => {
   const query = useFetchData<ActivityDto>({
     queryKey: queryKeys.activities.detail(id),
-    request: async () => {
-      const activity = unwrapResult(await activityApi.getOne(id)).activity;
-      pingOnce(`viewed:activity:${id}`, API_ENDPOINTS.ACTIVITIES.VIEW(id));
-      return activity;
-    },
+    request: async () => unwrapResult(await activityApi.getOne(id)).activity,
     options: { enabled: Boolean(id), staleTime: 30_000 }
   });
 

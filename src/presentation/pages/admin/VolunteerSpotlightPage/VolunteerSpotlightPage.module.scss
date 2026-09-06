@@ -24,7 +24,19 @@
 }
 
 .actionsEnd {
-  @include toolbar-end;
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+
+  @include sm {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: $sp-xs;
+
+    > * {
+      width: 100% !important;
+    }
+  }
 }
 
 .btnCreate {

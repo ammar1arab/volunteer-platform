@@ -13,11 +13,6 @@
   position: relative;
   overflow: hidden;
 
-  @media (max-width: $bp-sm) {
-    gap: $sp-sm;
-    padding: $sp-sm;
-  }
-
   &.clickable {
     cursor: pointer;
     
@@ -51,11 +46,6 @@
   flex-shrink: 0;
   color: $white;
   z-index: 1;
-
-  @media (max-width: $bp-sm) {
-    width: 2.4rem;
-    height: 2.4rem;
-  }
 }
 
 .content {
@@ -63,8 +53,6 @@
   flex-direction: column;
   gap: $sp-xs;
   z-index: 1;
-  flex: 1;
-  min-width: 0;
 }
 
 .label {
@@ -72,9 +60,6 @@
   color: $text-secondary;
   font-weight: 600;
   text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .value {
@@ -84,11 +69,6 @@
   color: $text;
   display: flex;
   align-items: center;
-  flex-shrink: 0;
-
-  @media (max-width: $bp-sm) {
-    font-size: $font-lg;
-  }
 }
 
 .skeletonValue {
@@ -107,4 +87,3 @@
 .pink    { .iconWrapper { background: #ec4899; } &::after { background: #ec4899; } }
 .orange  { .iconWrapper { background: #f97316; } &::after { background: #f97316; } }
 .teal    { .iconWrapper { background: #14b8a6; } &::after { background: #14b8a6; } }
-.indigo  { .iconWrapper { background: #6366f1; } &::after { background: #6366f1; } }

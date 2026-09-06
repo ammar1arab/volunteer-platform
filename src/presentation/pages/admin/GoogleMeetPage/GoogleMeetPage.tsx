@@ -232,7 +232,6 @@ const GoogleMeetPage = () => {
 
       {volunteersMeeting && (
         <VolunteersModal
-          key={volunteersMeeting.activityId}
           activityId={volunteersMeeting.activityId}
           activityTitle={volunteersMeeting.title}
           activityStatus={volunteersMeeting.activityStatus || ActivityStatus.PUBLISHED}

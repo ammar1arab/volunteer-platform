@@ -1,7 +1,7 @@
 import { LucideIcon } from "lucide-react";
 import styles from "./StatsCard.module.scss";
 
-type Variant = "primary" | "success" | "warning" | "danger" | "info" | "violet" | "pink" | "orange" | "teal" | "indigo";
+type Variant = "primary" | "success" | "warning" | "danger" | "info" | "violet" | "pink" | "orange" | "teal";
 
 type Props = {
   icon: LucideIcon;

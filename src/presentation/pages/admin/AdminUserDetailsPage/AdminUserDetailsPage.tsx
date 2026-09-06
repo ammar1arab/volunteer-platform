@@ -144,7 +144,7 @@ const AdminUserDetailsPage = () => {
           >
             حذف
           </Button>
-          <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export Excel" size="sm" />
+          <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export Excel" />
         </div>
       </div>
 
