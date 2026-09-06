@@ -4,7 +4,9 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  width: 100%;
+  max-width: none;
+  gap: 1.5rem;
 }
 
 .mobileTablePage {
@@ -55,23 +57,27 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 1rem;
+  width: 100%;
+  align-items: stretch;
 
-  @include md {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
   }
 }
 
 .section {
   background: $surface;
-  padding: 1.5rem;
+  width: 100%;
+  padding: clamp(1rem, 2vw, 1.5rem);
   border: 1px solid $border;
   border-radius: $radius-lg;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  box-shadow: 0 10px 28px rgba($black, 0.04);
 }
 
 .sectionHeader {
@@ -113,6 +119,7 @@
 }
 
 .tableWrapper {
+  width: 100%;
   overflow-x: auto;
 }
 

@@ -9,7 +9,10 @@
   padding: $sp-md;
   background: $surface;
   border-radius: $radius-lg;
-  transition: all 0.2s ease;
+  min-height: 104px;
+  border: 1px solid $border;
+  box-shadow: 0 8px 20px rgba($black, 0.035);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   position: relative;
   overflow: hidden;
 
@@ -23,6 +26,8 @@
     
     &:hover {
       background: $surface-hover;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba($black, 0.08);
     }
     
     &:active {

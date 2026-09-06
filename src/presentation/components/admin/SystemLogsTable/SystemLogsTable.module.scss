@@ -5,9 +5,9 @@
   width: 100%;
   overflow-x: auto;
   border-radius: $radius-lg;
-  background: $bg;
+  background: $surface;
   border: 1px solid $border;
-  box-shadow: none;
+  box-shadow: 0 8px 20px rgba($black, 0.035);
   margin-bottom: $sp-md;
 
   &::-webkit-scrollbar {
@@ -24,18 +24,19 @@
 
 .table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
   text-align: right;
 
   th,
   td {
-    padding: 10px $sp-md;
+    padding: 14px $sp-md;
     border-bottom: 1px solid $border;
     vertical-align: middle;
   }
 
   th {
-    background: rgba($black, 0.015);
+    background: $surface-hover;
     color: $text-muted;
     font-size: 13px;
     font-weight: 700;
@@ -113,6 +114,7 @@
     border-radius: 0;
     background: transparent;
     border: none;
+    box-shadow: none;
     margin-bottom: $sp-md;
   }
 
@@ -130,10 +132,11 @@
 
     tr {
       @include flex-col;
-      border: 1px solid $border;
+      border: 1px solid rgba($border, 0.9);
       border-radius: $radius-lg;
-      background: $bg;
+      background: $surface;
       overflow: hidden;
+      box-shadow: 0 6px 16px rgba($black, 0.04);
       
       &:hover {
         background: $bg;
@@ -149,7 +152,7 @@
 
     td {
       @include flex(row, center, space-between);
-      padding: 12px $sp-md;
+      padding: 13px $sp-md;
       border-bottom: 1px solid rgba($black, 0.04);
       min-width: 0;
       
