@@ -151,6 +151,7 @@
       @include flex(row, center, space-between);
       padding: 12px $sp-md;
       border-bottom: 1px solid rgba($black, 0.04);
+      min-width: 0;
       
       &::before {
         content: attr(data-label);
@@ -159,6 +160,7 @@
         color: $text-muted;
         margin-inline-end: $sp-md;
         white-space: nowrap;
+        flex-shrink: 0;
       }
     }
   }
@@ -167,6 +169,16 @@
     align-items: flex-end;
     text-align: left;
     max-width: 65%;
+    min-width: 0;
+  }
+
+  .actionName,
+  .userName,
+  .userEmail,
+  .dateCell {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .actionMessage {

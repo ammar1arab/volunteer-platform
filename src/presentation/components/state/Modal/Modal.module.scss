@@ -31,22 +31,25 @@
   animation: fadeIn 0.2s ease;
 
   @media (max-width: 640px) {
-    padding: $sp-sm;
+    padding: 0;
+    align-items: flex-end;
   }
 }
 
 .modal {
   background: $bg;
-  border-radius: $radius;
+  border-radius: $radius-lg;
   box-shadow: 0 20px 60px rgba($black, 0.3);
-  max-height: 80vh;
+  max-height: 86vh;
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   @media (max-width: 640px) {
-    max-height: 75vh;
-    width: calc(100vw - 32px);
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: $radius-2xl $radius-2xl 0 0;
   }
 
   &.sm {
@@ -60,6 +63,15 @@
   &.lg {
     width: 760px;
     max-width: calc(100vw - 32px);
+  }
+  &.xl {
+    width: min(1080px, calc(100vw - 48px));
+    max-width: calc(100vw - 32px);
+
+    @media (max-width: 640px) {
+      width: 100%;
+      max-width: 100%;
+    }
   }
 }
 

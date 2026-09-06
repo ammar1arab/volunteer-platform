@@ -7,6 +7,7 @@ export interface MonthlyMagazineDto {
   pdfUrl: string;
   monthYear: string;
   isActive: boolean;
+  downloads: number;
   createdAt: string;
   updatedAt: string;
 }

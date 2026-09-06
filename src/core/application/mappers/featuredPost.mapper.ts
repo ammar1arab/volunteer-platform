@@ -11,6 +11,7 @@ export const toFeaturedPostDto = (entity: FeaturedPost): FeaturedPostDto => {
     categories: p.categories,
     publishedAt: p.publishedAt.toISOString(),
     isActive: p.isActive,
+    views: p.views ?? 0,
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString()
   };

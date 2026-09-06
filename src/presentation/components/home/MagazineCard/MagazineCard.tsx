@@ -5,10 +5,12 @@ import { ExternalLink, Calendar } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/presentation/hooks/uiHooks/useToast";
+import { pingOnce } from "@/lib/utils";
+import { API_ENDPOINTS } from "@/lib/config";
 
-type Props = { title: string; monthYear: string; pdfUrl: string; };
+type Props = { id: string; title: string; monthYear: string; pdfUrl: string; };
 
-const MagazineCard = ({ title, monthYear, pdfUrl }: Props) => {
+const MagazineCard = ({ id, title, monthYear, pdfUrl }: Props) => {
   const formattedDate = formatDate(monthYear);
 
   const { status } = useSession();
@@ -29,6 +31,7 @@ const MagazineCard = ({ title, monthYear, pdfUrl }: Props) => {
 
     try {
       showToast("بدأ التحميل...", "info");
+      pingOnce(`downloaded:magazine:${id}`, API_ENDPOINTS.MONTHLY_MAGAZINES.DOWNLOAD(id));
       const response = await fetch(pdfUrl);
       if (!response.ok) throw new Error();
 

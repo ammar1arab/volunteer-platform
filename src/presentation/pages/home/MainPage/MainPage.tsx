@@ -113,7 +113,7 @@ const MainPage = () => {
             </Reveal>
             <Reveal className={`${styles.magazinesGrid} ${styles.revealStagger}`}>
               {magazines.map((m) => (
-                <MagazineCard key={m.id} title={m.title} monthYear={m.monthYear} pdfUrl={m.pdfUrl} />
+                <MagazineCard id={m.id} key={m.id} title={m.title} monthYear={m.monthYear} pdfUrl={m.pdfUrl} />
               ))}
             </Reveal>
             {hasMoreMagazines && (

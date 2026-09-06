@@ -12,6 +12,8 @@
   transition: $transition;
   position: relative;
   overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &:disabled {
     cursor: not-allowed;

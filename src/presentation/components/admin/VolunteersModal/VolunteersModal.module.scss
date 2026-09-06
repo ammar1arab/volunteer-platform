@@ -381,27 +381,27 @@
   @include flex(row, center, space-between, $sp-xs);
 }
 
-.rejectBtn {
-  @include flex-center;
-  width: 24px;
-  height: 24px;
+.removeBtn {
+  @include flex(row, center, center, 5px);
+  padding: 4px 8px;
   border-radius: $radius;
-  background: transparent;
+  border: 1px solid rgba($red, 0.28);
+  background: rgba($red, 0.05);
   color: $red;
+  font-size: $font-xs;
+  font-weight: 600;
   cursor: pointer;
-  opacity: 0;
   flex-shrink: 0;
   transition: $transition;
 
-  .card:hover & {
-    opacity: 1;
-  }
-  &:hover {
-    background: rgba($red, 0.08);
+  &:hover:not(:disabled),
+  &:focus-visible {
+    background: rgba($red, 0.1);
     border-color: $red;
   }
+
   &:disabled {
-    opacity: 0.4;
+    opacity: 0.45;
     cursor: not-allowed;
   }
 }
