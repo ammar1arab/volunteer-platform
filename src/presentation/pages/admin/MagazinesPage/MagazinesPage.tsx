@@ -1,7 +1,7 @@
 "use client";
 import styles from "./MagazinesPage.module.scss";
 import { useMagazinesPage } from "./MagazinesPage.logic";
-import { AdminMagazineCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, SelectInput, Search, Dropdown } from "@/presentation/components";
+import { AdminMagazineCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, SelectInput, Search, Dropdown, Button } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, BookOpen, FileText } from "lucide-react";
 import { MONTH_LABELS } from "@/presentation/constants/labels";
 
@@ -38,9 +38,9 @@ const MagazinesPage = () => {
               placeholder="السنة"
               compact
             />
-            <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
-              <Plus size={18} /> إضافة مجلة جديدة
-            </button>
+            <Button variant="primary" icon={<Plus size={18} />} onClick={openCreate} disabled={isSubmitting} iconOnlyOnMobile>
+              إضافة مجلة جديدة
+            </Button>
           </div>
         </div>
       </header>

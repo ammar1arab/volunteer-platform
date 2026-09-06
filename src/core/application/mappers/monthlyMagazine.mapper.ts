@@ -9,6 +9,7 @@ export const toMonthlyMagazineDto = (entity: MonthlyMagazine): MonthlyMagazineDt
     pdfUrl: p.pdfUrl,
     monthYear: p.monthYear.toISOString(),
     isActive: p.isActive,
+    downloads: p.downloads ?? 0,
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString()
   };

@@ -123,20 +123,20 @@ export const MEETING_LINK_SOURCE_CREATE_LABELS: Record<MeetingLinkSource, string
 };
 
 export const PRESENTER_ROLE_LABELS: Record<string, string> = {
-  PRIMARY: "مقدم رئيسي",
-  CO_PRESENTER: "مقدم مشارك",
+  PRIMARY: "مدرب رئيسي",
+  CO_PRESENTER: "مدرب مشارك",
   MODERATOR: "مشرف"
 };
 
-export const ACTIVITY_PRESENTER_LABEL = "مقدم النشاط";
+export const ACTIVITY_PRESENTER_LABEL = "المدرب";
 export const ACTIVITY_PRESENTER_PLACEHOLDER = "ابحث بالاسم أو البريد...";
-export const ACTIVITY_PRESENTER_NONE = "بدون مقدم";
+export const ACTIVITY_PRESENTER_NONE = "بدون مدرب";
 export const ACTIVITY_PRESENTER_HINT =
-  "المقدم متطوع عادي من المنصة. يفتح قاعة الاجتماع ليشرح للمشاركين دون طلب انضمام، ويُضاف لدعوة التقويم. بعد انتهاء الجلسة ينتهي دوره.";
+  "المدرب متطوع عادي من المنصة. يفتح قاعة الاجتماع ليشرح للمشاركين دون طلب انضمام، ويُضاف لدعوة التقويم. بعد انتهاء الجلسة ينتهي دوره.";
 export const HOST_ASSIGNED_NOTIFICATION_KIND = "host_assigned";
-export const HOST_ASSIGNED_NOTIFICATION_TITLE = "تم تعيينك كمضيف";
+export const HOST_ASSIGNED_NOTIFICATION_TITLE = "تم تعيينك كمدرب";
 export const hostAssignedNotificationMessage = (activityTitle: string) =>
-  `تم تعيينك مضيفًا لنشاط "${activityTitle}". يمكنك فتح قاعة الاجتماع وقبول المشاركين.`;
+  `تم تعيينك مدربًا لنشاط "${activityTitle}". يمكنك فتح قاعة الاجتماع وقبول المشاركين.`;
 
 export const CITY_LABELS: Record<JordanianCity, string> = {
   [JordanianCity.AMMAN]: "عمّان",

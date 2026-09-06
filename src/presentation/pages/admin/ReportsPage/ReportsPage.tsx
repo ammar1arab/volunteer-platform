@@ -5,7 +5,7 @@ import styles from "./ReportsPage.module.scss";
 import { useReportsPage } from "./ReportsPage.logic";
 import { StatsCard, SelectInput, Search, SystemLogsTable, ConfirmDialog, SharedDataModal, Button } from "@/presentation/components";
 import { MODAL_CONFIGS } from "./ReportsModalsConfig";
-import { Activity, Users, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare, Trash2, ArrowRight } from "lucide-react";
+import { Activity, Users, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare, Trash2, ArrowRight, BookOpen, Newspaper } from "lucide-react";
 import { SystemLogStatus } from "@/core/domain/enums";
 
 const STATUS_OPTIONS = [
@@ -30,13 +30,15 @@ export default function ReportsPage() {
     isClearing,
   } = useReportsPage();
 
-  const [activeModal, setActiveModal] = useState<"users" | "activities" | "pending" | "errors" | "activityViews" | "postViews" | "magazineDownloads" | "operations" | null>(null);
+  const [activeModal, setActiveModal] = useState<"users" | "activities" | "pending" | "errors" | "activityViews" | "postViews" | "magazineDownloads" | "operations" | "magazines" | "featuredPosts" | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showMobileTable, setShowMobileTable] = useState(false);
 
   const statItems = [
     { id: "users" as const, title: "إجمالي المستخدمين", value: stats?.totalUsers, icon: Users, variant: "primary" as const },
     { id: "activities" as const, title: "الأنشطة التطوعية", value: stats?.totalActivities, icon: Activity, variant: "success" as const },
+    { id: "magazines" as const, title: "عدد المجلات", value: stats?.totalMagazines, icon: BookOpen, variant: "info" as const },
+    { id: "featuredPosts" as const, title: "المنشورات المميزة", value: stats?.totalFeaturedPosts, icon: Newspaper, variant: "indigo" as const },
     { id: "activityViews" as const, title: "مشاهدات الأنشطة", value: stats?.activityViews, icon: Eye, variant: "teal" as const },
     { id: "postViews" as const, title: "تفاعل المقالات", value: stats?.postViews, icon: FileText, variant: "warning" as const },
     { id: "magazineDownloads" as const, title: "تحميلات المجلة", value: stats?.magazineDownloads, icon: Download, variant: "violet" as const },

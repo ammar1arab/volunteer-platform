@@ -1,14 +1,14 @@
 "use client";
 import styles from "./MagazineCard.module.scss";
 import { BookOpen, Download } from "lucide-react";
-import { ExternalLink, Calendar } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/presentation/hooks/uiHooks/useToast";
+import { API_ENDPOINTS } from "@/lib/config";
 
-type Props = { title: string; monthYear: string; pdfUrl: string; };
+type Props = { id: string; title: string; monthYear: string; pdfUrl: string; };
 
-const MagazineCard = ({ title, monthYear, pdfUrl }: Props) => {
+const MagazineCard = ({ id, title, monthYear, pdfUrl }: Props) => {
   const formattedDate = formatDate(monthYear);
 
   const { status } = useSession();
@@ -26,6 +26,8 @@ const MagazineCard = ({ title, monthYear, pdfUrl }: Props) => {
       showToast("يرجى تسجيل الدخول لتحميل المجلة", "error");
       return;
     }
+
+    void fetch(API_ENDPOINTS.MONTHLY_MAGAZINES.DOWNLOAD(id), { method: "POST", keepalive: true });
 
     try {
       showToast("بدأ التحميل...", "info");

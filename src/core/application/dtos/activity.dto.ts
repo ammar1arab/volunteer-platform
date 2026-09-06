@@ -47,6 +47,7 @@ export interface ActivityDto {
   meetingSyncError?: string | null;
   meetingSyncedAt?: string | null;
   timeZone?: string;
+  views: number;
   /** Primary presenter volunteer user id (online activities). */
   primaryPresenterId?: string | null;
   /** Public-safe display name of the primary presenter (online activities). */

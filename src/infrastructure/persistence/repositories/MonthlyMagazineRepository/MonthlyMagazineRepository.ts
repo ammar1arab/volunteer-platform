@@ -30,7 +30,8 @@ class MonthlyMagazineRepository implements IMonthlyMagazineRepository {
         monthYear: props.monthYear,
         isActive: props.isActive,
         createdAt: props.createdAt,
-        updatedAt: props.updatedAt
+        updatedAt: props.updatedAt,
+        downloads: props.downloads ?? 0
       }
     });
     return this.mapToEntity(created);

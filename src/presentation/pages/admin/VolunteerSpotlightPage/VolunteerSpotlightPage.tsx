@@ -61,7 +61,7 @@ const VolunteerSpotlightPage = () => {
                             placeholder="المدينة"
                             compact
                         />
-                        <Button variant="primary" icon={<Plus size={18} />} onClick={openCreate} disabled={isSubmitting}>
+                        <Button variant="primary" icon={<Plus size={18} />} onClick={openCreate} disabled={isSubmitting} iconOnlyOnMobile>
                             إضافة متطوع مميز
                         </Button>
                     </div>

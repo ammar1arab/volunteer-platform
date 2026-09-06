@@ -46,7 +46,7 @@ const MagazinesPublicPage = () => {
         <>
           <div className={styles.grid}>
             {magazines.map((m) => (
-              <MagazineCard key={m.id} title={m.title} monthYear={m.monthYear} pdfUrl={m.pdfUrl} />
+              <MagazineCard key={m.id} id={m.id} title={m.title} monthYear={m.monthYear} pdfUrl={m.pdfUrl} />
             ))}
           </div>
           {totalItems > itemsPerPage && (

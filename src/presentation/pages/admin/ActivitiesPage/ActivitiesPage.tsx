@@ -36,7 +36,7 @@ const ActivitiesPage = () => {
               placeholder="تصفية حسب الحالة"
               compact
             />
-            <Button variant="primary" icon={<Plus size={18} />} onClick={openCreateModal}>
+            <Button variant="primary" icon={<Plus size={18} />} onClick={openCreateModal} iconOnlyOnMobile>
               إضافة فرصة جديدة
             </Button>
           </div>
@@ -111,7 +111,7 @@ const ActivitiesPage = () => {
         onImageUpload={handleImageUpload} isSubmitting={submitting} />
 
       <VolunteersModal
-        key={showVolunteersModal ? selectedActivity?.id ?? "none" : "volunteers-closed"}
+        key={selectedActivity?.id ?? "none"}
         activityId={selectedActivity?.id || ""}
         activityTitle={selectedActivity?.title || ""}
         activityStatus={selectedActivity?.status || ""}

@@ -30,6 +30,18 @@
   }
 }
 
+@mixin toolbar-end {
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+
+  @include sm {
+    width: 100%;
+    justify-content: flex-end;
+    gap: $sp-xs;
+  }
+}
+
 @mixin cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

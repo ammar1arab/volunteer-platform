@@ -2,7 +2,7 @@
 import styles from "./FeaturedPostsPage.module.scss";
 import { useFeaturedPostsPage } from "./FeaturedPostsPage.logic";
 import { DomainFeaturedPostCategory } from "@/core/domain/enums";
-import { AdminFeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, MultiSelectInput, Dropdown, Search, SelectInput } from "@/presentation/components";
+import { AdminFeaturedPostCard, ToastContainer, Modal, LoadingState, EmptyState, Pagination, ConfirmDialog, MultiSelectInput, Dropdown, Search, SelectInput, Button } from "@/presentation/components";
 import { Plus, Upload, Edit2, Eye, EyeOff, Trash2, FileImage } from "lucide-react";
 
 const FeaturedPostsPage = () => {
@@ -58,9 +58,9 @@ const FeaturedPostsPage = () => {
               placeholder="التصنيف"
               compact
             />
-            <button className={styles.btnCreate} onClick={openCreate} disabled={isSubmitting}>
-              <Plus size={18} /> إضافة منشور جديد
-            </button>
+            <Button variant="primary" icon={<Plus size={18} />} onClick={openCreate} disabled={isSubmitting} iconOnlyOnMobile>
+              إضافة منشور جديد
+            </Button>
           </div>
         </div>
       </header>

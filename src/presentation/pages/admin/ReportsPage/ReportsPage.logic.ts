@@ -11,6 +11,8 @@ export interface DashboardStats {
   postViews: number;
   magazineDownloads: number;
   systemOperations: number;
+  totalMagazines: number;
+  totalFeaturedPosts: number;
 }
 
 export interface SystemLog {

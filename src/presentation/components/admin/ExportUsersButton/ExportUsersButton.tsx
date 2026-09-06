@@ -16,12 +16,16 @@ interface ExportUsersButtonProps {
   data: ExcelExportRow[];
   columns: Column[];
   buttonText?: string;
+  size?: "sm" | "md" | "lg";
+  iconOnlyOnMobile?: boolean;
 }
 
 const ExportUsersButton = ({
   data,
   columns,
   buttonText = "Export",
+  size = "md",
+  iconOnlyOnMobile = true,
 }: ExportUsersButtonProps) => {
   const mounted = useIsClient();
   const {
@@ -83,7 +87,13 @@ const ExportUsersButton = ({
 
   return (
     <>
-      <Button variant="secondary" onClick={openModal} icon={<FileDown size={18} />}>
+      <Button
+        variant="secondary"
+        size={size}
+        onClick={openModal}
+        icon={<FileDown size={size === "sm" ? 14 : 18} />}
+        iconOnlyOnMobile={iconOnlyOnMobile}
+      >
         {buttonText}
       </Button>
       {mounted ? createPortal(modal, document.body) : null}

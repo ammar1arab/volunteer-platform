@@ -143,3 +143,20 @@
     color: $text-muted; 
   }
 }
+
+@media (max-width: 640px) {
+  .card {
+    padding: $sp-sm;
+    gap: $sp-sm;
+    min-height: 0;
+  }
+
+  .avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .name {
+    font-size: $font-sm;
+  }
+}

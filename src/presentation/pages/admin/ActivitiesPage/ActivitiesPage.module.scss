@@ -12,10 +12,7 @@
 }
 
 .actionsEnd {
-  @include flex(row, center, flex-end, $sp-sm);
-  flex-shrink: 0;
-
-  @include sm { justify-content: space-between; }
+  @include toolbar-end;
 }
 
 .btnCreate { @include create-btn; }
