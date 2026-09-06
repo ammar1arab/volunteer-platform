@@ -5,7 +5,7 @@ import { usePermissionsPage } from "./PermissionsPage.logic";
 import { PermissionsPanel } from "@/presentation/components";
 import {
   LoadingState, EmptyState, ToastContainer,
-  Modal, ConfirmDialog, Search, Button,
+  Modal, ConfirmDialog, Search,
 } from "@/presentation/components";
 import { Plus, Users, Trash2, Edit2 } from "lucide-react";
 import { ADMIN_PERMISSIONS } from "@/core/domain/enums";
@@ -44,9 +44,9 @@ const PermissionsPage = () => {
             placeholder="ابحث باسم أو بريد..."
           />
           <div className={styles.actionsEnd}>
-            <Button variant="primary" icon={<Plus size={18} />} onClick={() => setShowCreateModal(true)} iconOnlyOnMobile>
-              إضافة أدمن
-            </Button>
+            <button className={styles.btnCreate} onClick={() => setShowCreateModal(true)}>
+              <Plus size={18} /> إضافة أدمن
+            </button>
           </div>
         </div>
       </header>

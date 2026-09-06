@@ -12,8 +12,7 @@ import {
   Dropdown,
   MeetingReportModal,
   VolunteersModal,
-  MeetingListItem,
-  Button
+  MeetingListItem
 } from "@/presentation/components";
 import { ROUTES } from "@/presentation/constants";
 import { ActivityType, ActivityStatus } from "@/core/domain/enums";
@@ -122,15 +121,15 @@ const GoogleMeetPage = () => {
                 />
               </div>
             )}
-            <Button
-              variant={connected ? "danger" : "primary"}
-              icon={connected ? <Unplug size={16} /> : <PlugZap size={16} />}
+            <button
+              type="button"
+              className={connected ? styles.btnDisconnect : styles.btnConnect}
               onClick={connected ? handleDisconnect : handleConnect}
               disabled={submitting}
-              iconOnlyOnMobile
             >
+              {connected ? <Unplug size={16} /> : <PlugZap size={16} />}
               {connected ? "قطع الاتصال" : "ربط Google"}
-            </Button>
+            </button>
           </div>
         </div>
       </header>

@@ -17,7 +17,6 @@ interface ExportUsersButtonProps {
   columns: Column[];
   buttonText?: string;
   size?: "sm" | "md" | "lg";
-  iconOnlyOnMobile?: boolean;
 }
 
 const ExportUsersButton = ({
@@ -25,7 +24,6 @@ const ExportUsersButton = ({
   columns,
   buttonText = "Export",
   size = "md",
-  iconOnlyOnMobile = true,
 }: ExportUsersButtonProps) => {
   const mounted = useIsClient();
   const {
@@ -87,13 +85,7 @@ const ExportUsersButton = ({
 
   return (
     <>
-      <Button
-        variant="secondary"
-        size={size}
-        onClick={openModal}
-        icon={<FileDown size={size === "sm" ? 14 : 18} />}
-        iconOnlyOnMobile={iconOnlyOnMobile}
-      >
+      <Button variant="secondary" size={size} onClick={openModal} icon={<FileDown size={size === "sm" ? 14 : 18} />}>
         {buttonText}
       </Button>
       {mounted ? createPortal(modal, document.body) : null}

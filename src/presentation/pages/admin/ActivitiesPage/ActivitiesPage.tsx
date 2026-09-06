@@ -36,7 +36,7 @@ const ActivitiesPage = () => {
               placeholder="تصفية حسب الحالة"
               compact
             />
-            <Button variant="primary" icon={<Plus size={18} />} onClick={openCreateModal} iconOnlyOnMobile>
+            <Button variant="primary" icon={<Plus size={18} />} onClick={openCreateModal}>
               إضافة فرصة جديدة
             </Button>
           </div>

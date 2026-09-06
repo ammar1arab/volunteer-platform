@@ -30,10 +30,10 @@ export async function GET(req: NextRequest) {
       totalFeaturedPosts,
     ] = await Promise.all([
       prisma.user.count(),
-      prisma.activity.count(),
+      prisma.activity.count({ where: { deletedAt: null } }),
       prisma.activityParticipation.count({ where: { status: "PENDING" } }),
       prisma.systemLog.groupBy({ by: ['status'], _count: { status: true } }),
-      prisma.activity.aggregate({ _sum: { views: true } }),
+      prisma.activity.aggregate({ where: { deletedAt: null }, _sum: { views: true } }),
       prisma.featuredPost.aggregate({ _sum: { views: true } }),
       prisma.monthlyMagazine.aggregate({ _sum: { downloads: true } }),
       prisma.systemLog.count(),

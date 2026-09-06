@@ -22,7 +22,17 @@
 }
 
 .actionsEnd {
-  @include toolbar-end;
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+
+  @include sm {
+    width: 100%;
+  }
+}
+
+.btnApproveAll {
+  @include create-btn;
 }
 
 .list {

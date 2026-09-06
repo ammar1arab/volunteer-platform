@@ -4,7 +4,7 @@ import { useParticipationRequestsPage } from "./ParticipationRequestsPage.logic"
 import { useRouter } from "next/navigation";
 import {
   LoadingState, EmptyState, ToastContainer, ConfirmDialog,
-  ParticipationRequestItem, Dropdown, Search, Pagination, ExportUsersButton, Button,
+  ParticipationRequestItem, Dropdown, Search, Pagination, ExportUsersButton,
 } from "@/presentation/components";
 import { ROUTES } from "@/presentation/constants";
 import { CheckCircle, CheckCheck } from "lucide-react";
@@ -50,16 +50,15 @@ const ParticipationRequestsPage = () => {
               placeholder="النشاط"
               compact
             />
-            <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="تصدير" />
-            <Button
-              variant="primary"
-              icon={<CheckCheck size={18} />}
+            <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export" />
+            <button
+              className={styles.btnApproveAll}
               onClick={handleApproveAll}
               disabled={filteredRequests.length === 0}
-              iconOnlyOnMobile
             >
-              {`قبول الكل (${filteredRequests.length})`}
-            </Button>
+              <CheckCheck size={18} />
+              قبول الكل ({filteredRequests.length})
+            </button>
           </div>
         </div>
       </header>
