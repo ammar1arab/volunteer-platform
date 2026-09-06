@@ -36,7 +36,7 @@ const VOLUNTEERS_PER_PAGE = 15;
 const SUGGEST_ATTENDED_SECONDS = 60;
 
 function applyAttendanceOverrides(
-  list: ActivityVolunteerDto[],
+  list: readonly ActivityVolunteerDto[],
   overrides: Record<string, boolean | null>,
   rejectedIds: readonly string[]
 ): ActivityVolunteerDto[] {
