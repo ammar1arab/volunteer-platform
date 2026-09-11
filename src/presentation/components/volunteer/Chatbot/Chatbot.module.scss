@@ -549,7 +549,6 @@ $ink: #173524;
 
   &:hover {
     border-color: $green;
-    transform: translateY(-1px);
   }
 
   strong {
@@ -885,26 +884,24 @@ $ink: #173524;
   }
 }
 
+.agentModal {
+  border-radius: 2rem !important;
+  overflow: hidden;
+}
+
 .agentCta {
   display: grid;
-  gap: 1.05rem;
-  margin: -#{$sp-lg};
-  overflow: hidden;
-  border-radius: inherit;
-  background: linear-gradient(180deg, #f7fbf8 0%, $white 42%);
-
-  @media (max-width: 640px) {
-    margin: -#{$sp-md};
-  }
+  gap: 1rem;
 }
 
 .agentHero {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 11rem;
-  padding: 1.4rem 1rem 0.6rem;
+  min-height: 10.5rem;
+  padding: 1.1rem 1rem 0.5rem;
   overflow: hidden;
+  border-radius: 1.35rem;
   background:
     radial-gradient(circle at 78% 18%, rgba($green, 0.38), transparent 40%),
     radial-gradient(circle at 18% 88%, rgba(#08281c, 0.85), transparent 48%),
@@ -1020,14 +1017,13 @@ $ink: #173524;
 
 .agentCopy {
   display: grid;
-  gap: 0.55rem;
-  padding: 0.1rem 1.2rem 0;
+  gap: 0.5rem;
   text-align: center;
 
   h3 {
     margin: 0;
     color: $ink;
-    font-size: 1.12rem;
+    font-size: 1.05rem;
     font-weight: 800;
     line-height: 1.45;
   }
@@ -1035,38 +1031,33 @@ $ink: #173524;
   p {
     margin: 0;
     color: $text-secondary;
-    font-size: 0.86rem;
+    font-size: 0.84rem;
     line-height: 1.85;
   }
+}
 
-  small {
-    color: $text-tertiary;
-    font-size: 0.72rem;
-    font-weight: 600;
-  }
+.agentChipRow {
+  display: flex;
+  justify-content: center;
 }
 
 .agentCtaBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: calc(100% - 2.4rem);
-  margin: 0 1.2rem 1.2rem;
+  width: 100%;
   gap: 0.4rem;
-  padding: 0.88rem 1rem;
+  padding: 0.9rem 1rem;
   color: $white;
   font-size: 0.92rem;
   font-weight: 800;
   text-decoration: none;
-  border-radius: $radius-full;
+  border-radius: 1.25rem;
   background: linear-gradient(135deg, $green-deep, $green 58%, color.adjust($green, $lightness: 8%));
-  box-shadow: 0 0.55rem 1.35rem rgba($green, 0.28);
-  transition: transform $transition, box-shadow $transition, filter $transition;
+  transition: filter $transition;
 
   &:hover {
-    transform: translateY(-2px);
     filter: brightness(1.04);
-    box-shadow: 0 0.75rem 1.6rem rgba($green, 0.34);
   }
 }
 

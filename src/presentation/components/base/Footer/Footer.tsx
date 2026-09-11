@@ -1,8 +1,9 @@
 'use client';
 import Link from 'next/link';
-import { Instagram, Facebook, Code2 } from 'lucide-react';
+import { Instagram, Facebook } from 'lucide-react';
 import styles from './Footer.module.scss';
 import { ROUTES } from '@/presentation/constants';
+import DevChip from '@/presentation/components/base/DevChip/DevChip';
 
 const Footer = () => {
   return (
@@ -31,10 +32,7 @@ const Footer = () => {
 
         <div className={styles.copyright}>
           <span>© {new Date().getFullYear()} بصمات شبابية</span>
-          <a className={styles.devChip} href="https://portfolio.ammararab.com" target="_blank" rel="noopener noreferrer">
-            <Code2 size={11} strokeWidth={2.5} />
-            <span>Built by Ammar</span>
-          </a>
+          <DevChip fixed />
         </div>
       </div>
     </footer>

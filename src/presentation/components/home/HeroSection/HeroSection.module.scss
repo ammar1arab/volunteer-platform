@@ -182,13 +182,10 @@
   padding: $sp-sm $sp-lg;
   border-radius: $radius;
   white-space: nowrap;
-  transition:
-    color 0.3s ease,
-    transform 0.3s ease;
+  transition: color 0.3s ease;
 
   &:hover {
     color: $green;
-    transform: translateY(-2px);
   }
 }
 

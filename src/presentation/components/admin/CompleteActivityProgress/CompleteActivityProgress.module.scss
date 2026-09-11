@@ -300,14 +300,4 @@
   margin-top: $sp-sm;
   padding: $sp-sm $sp-2xl;
   animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s both;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba($green, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
 }

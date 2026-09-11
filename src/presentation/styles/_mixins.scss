@@ -171,8 +171,6 @@
   color: #fff;
   &:hover {
     background: $green;
-    transform: translateY(-2px);
-    box-shadow: $shadow;
   }
 }
 
@@ -251,30 +249,14 @@
 
 @mixin hover-lift($translateY: -4px, $scale: 1.02) {
   transition: all $transition;
-  &:hover {
-    transform: translateY($translateY) scale($scale);
-    box-shadow: $shadow-deep;
-  }
-  &:active {
-    transform: translateY(-2px) scale(1);
-  }
 }
 
 @mixin hover-scale($scale: 1.05) {
   transition: transform $transition;
-  &:hover {
-    transform: scale($scale);
-  }
-  &:active {
-    transform: scale(0.98);
-  }
 }
 
 @mixin hover-glow($color: $green) {
   transition: all $transition;
-  &:hover {
-    box-shadow: 0 0 20px rgba($color, 0.4);
-  }
 }
 
 @mixin hover-underline($color: $green, $width: 70%) {

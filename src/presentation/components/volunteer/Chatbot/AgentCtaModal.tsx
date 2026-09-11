@@ -2,7 +2,8 @@
 
 import { ArrowUpLeft } from "lucide-react";
 import Modal from "@/presentation/components/state/Modal/Modal";
-import { CHAT_AGENT_CTA } from "@/presentation/constants";
+import DevChip from "@/presentation/components/base/DevChip/DevChip";
+import { CHAT_AGENT_CTA, CHAT_TIPS } from "@/presentation/constants";
 import styles from "./Chatbot.module.scss";
 
 type Props = {
@@ -41,7 +42,13 @@ const CtaRobot = () => (
 );
 
 const AgentCtaModal = ({ open, onClose }: Props) => (
-  <Modal isOpen={open} onClose={onClose} title={null} size="sm">
+  <Modal
+    isOpen={open}
+    onClose={onClose}
+    title={CHAT_TIPS.cta}
+    size="sm"
+    className={styles.agentModal}
+  >
     <div className={styles.agentCta}>
       <div className={styles.agentHero}>
         <CtaRobot />
@@ -50,13 +57,16 @@ const AgentCtaModal = ({ open, onClose }: Props) => (
       <div className={styles.agentCopy}>
         <h3>{CHAT_AGENT_CTA.title}</h3>
         <p>{CHAT_AGENT_CTA.lead}</p>
-        <small>{CHAT_AGENT_CTA.proof}</small>
       </div>
 
       <a className={styles.agentCtaBtn} href={CHAT_AGENT_CTA.whatsapp} target="_blank" rel="noreferrer">
         {CHAT_AGENT_CTA.action}
         <ArrowUpLeft size={16} />
       </a>
+
+      <div className={styles.agentChipRow}>
+        <DevChip label="Ammar Website" href={CHAT_AGENT_CTA.website} />
+      </div>
     </div>
   </Modal>
 );

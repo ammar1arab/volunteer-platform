@@ -44,11 +44,6 @@
   &:hover {
     border-color: rgba($green, 0.35);
     background: rgba($green, 0.06);
-    transform: scale(1.03);
-  }
-
-  &:active {
-    transform: scale(0.96);
   }
 }
 

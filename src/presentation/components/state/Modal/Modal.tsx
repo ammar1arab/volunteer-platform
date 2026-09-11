@@ -9,9 +9,10 @@ interface ModalProps {
   title: string | null;
   children: React.ReactNode;
   size?: "sm" | "md" | "lg" | "xl";
+  className?: string;
 }
 
-const Modal = ({ isOpen, onClose, title, children, size = "md" }: ModalProps) => {
+const Modal = ({ isOpen, onClose, title, children, size = "md", className }: ModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -24,7 +25,7 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }: ModalProps) =>
       }}
     >
       <div
-        className={`${styles.modal} ${styles[size]}`}
+        className={`${styles.modal} ${styles[size]} ${className || ""}`}
         role="dialog"
         aria-modal="true"
         tabIndex={-1}
