@@ -50,7 +50,12 @@
 
   @include sm {
     width: 100%;
+    gap: $sp-xs;
   }
+}
+
+.emptyPrimaryRow {
+  display: none;
 }
 
 .searchSlot {
@@ -89,6 +94,7 @@
   height: 36px;
   min-width: 36px;
   color: $text-muted;
+  flex-shrink: 0;
 
   &:hover {
     color: $green;
@@ -148,6 +154,12 @@
 
 .titleGroup {
   @include flex(row, center, flex-start, $sp-sm);
+}
+
+.settingsTitleGroup {
+  @extend .titleGroup;
+  margin-inline-end: auto;
+  min-width: 0;
 }
 
 .failedTitle {

@@ -24,7 +24,7 @@
 }
 
 .actionsEnd {
-  @include toolbar-end;
+  @include mobile-toolbar-pair;
 }
 
 .btnCreate {

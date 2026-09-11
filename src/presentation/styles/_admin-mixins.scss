@@ -109,6 +109,21 @@
   }
 }
 
+@mixin mobile-toolbar-pair {
+  @include toolbar-end;
+
+  @media (max-width: 640px) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: $sp-xs;
+
+    > * {
+      width: 100% !important;
+      min-width: 0;
+    }
+  }
+}
+
 @mixin status-badge {
   display: inline-block;
   padding: 3px 8px;

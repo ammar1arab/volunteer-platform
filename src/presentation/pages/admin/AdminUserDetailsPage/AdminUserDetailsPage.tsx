@@ -131,6 +131,8 @@ const AdminUserDetailsPage = () => {
             disabled={isTogglingActive}
             loading={isTogglingActive}
             icon={user.isActive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
+            hideTextOnMobile
+            aria-label={user.isActive ? "تعطيل" : "تفعيل"}
           >
             {user.isActive ? "تعطيل" : "تفعيل"}
           </Button>
@@ -141,10 +143,12 @@ const AdminUserDetailsPage = () => {
             disabled={isDeleting}
             loading={isDeleting}
             icon={<Trash2 size={13} />}
+            hideTextOnMobile
+            aria-label="حذف"
           >
             حذف
           </Button>
-          <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export Excel" />
+          <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export Excel" hideTextOnMobile />
         </div>
       </div>
 

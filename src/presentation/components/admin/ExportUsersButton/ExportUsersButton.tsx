@@ -17,6 +17,7 @@ interface ExportUsersButtonProps {
   columns: Column[];
   buttonText?: string;
   size?: "sm" | "md" | "lg";
+  hideTextOnMobile?: boolean;
 }
 
 const ExportUsersButton = ({
@@ -24,6 +25,7 @@ const ExportUsersButton = ({
   columns,
   buttonText = "Export",
   size = "md",
+  hideTextOnMobile = false,
 }: ExportUsersButtonProps) => {
   const mounted = useIsClient();
   const {
@@ -85,7 +87,7 @@ const ExportUsersButton = ({
 
   return (
     <>
-      <Button variant="secondary" size={size} onClick={openModal} icon={<FileDown size={size === "sm" ? 14 : 18} />}>
+      <Button variant="secondary" size={size} onClick={openModal} icon={<FileDown size={size === "sm" ? 14 : 18} />} hideTextOnMobile={hideTextOnMobile} aria-label={buttonText}>
         {buttonText}
       </Button>
       {mounted ? createPortal(modal, document.body) : null}

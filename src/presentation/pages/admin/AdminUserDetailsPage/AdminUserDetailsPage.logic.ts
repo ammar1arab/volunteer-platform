@@ -13,7 +13,7 @@ interface EditingField {
   value: string | boolean | null;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 export const useAdminUserDetailsPage = () => {
   const params = useParams();

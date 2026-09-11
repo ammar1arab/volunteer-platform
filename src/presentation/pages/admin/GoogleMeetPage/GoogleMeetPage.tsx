@@ -78,7 +78,7 @@ const GoogleMeetPage = () => {
 
       <header className={styles.header}>
         <div className={styles.actions}>
-          <div className={styles.primaryRow}>
+          <div className={`${styles.primaryRow} ${!showMeetings ? styles.emptyPrimaryRow : ""}`}>
             {showMeetings && (
               <div className={styles.searchSlot}>
                 <Search
@@ -89,18 +89,6 @@ const GoogleMeetPage = () => {
                 />
               </div>
             )}
-            <button
-              type="button"
-              className={`${styles.btnSettings} ${activeView === "settings" ? styles.btnSettingsActive : ""}`}
-              title="الإعدادات"
-              aria-label="الإعدادات"
-              aria-pressed={activeView === "settings"}
-              onClick={() =>
-                setActiveView(activeView === "settings" ? listView : "settings")
-              }
-            >
-              <Settings2 size={16} />
-            </button>
           </div>
           <div className={styles.secondaryRow}>
             {showMeetings && (
@@ -119,6 +107,24 @@ const GoogleMeetPage = () => {
                   placeholder="المزامنة"
                   compact
                 />
+              </div>
+            )}
+            <button
+              type="button"
+              className={`${styles.btnSettings} ${activeView === "settings" ? styles.btnSettingsActive : ""}`}
+              title="الإعدادات"
+              aria-label="الإعدادات"
+              aria-pressed={activeView === "settings"}
+              onClick={() =>
+                setActiveView(activeView === "settings" ? listView : "settings")
+              }
+            >
+              <Settings2 size={16} />
+            </button>
+            {activeView === "settings" && (
+              <div className={styles.settingsTitleGroup}>
+                <h3 className={styles.failedTitle}>إخفاقات المزامنة</h3>
+                <span className={styles.count}>{failedMeetings.length}</span>
               </div>
             )}
             <button
@@ -194,11 +200,6 @@ const GoogleMeetPage = () => {
             )}
 
             <section className={styles.failedSection}>
-              <div className={styles.titleGroup}>
-                <h3 className={styles.failedTitle}>إخفاقات المزامنة</h3>
-                <span className={styles.count}>{failedMeetings.length}</span>
-              </div>
-
               {failedLoading ? (
                 <LoadingState compact />
               ) : failedMeetings.length === 0 ? (

@@ -11,6 +11,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     fullWidth?: boolean;
     icon?: ReactNode;
     iconPosition?: "left" | "right";
+    hideTextOnMobile?: boolean;
 }
 
 const Button = ({
@@ -21,6 +22,7 @@ const Button = ({
     fullWidth = false,
     icon,
     iconPosition = 'left',
+    hideTextOnMobile = false,
     disabled,
     className = '',
     ...rest
@@ -30,6 +32,7 @@ const Button = ({
         styles[variant],
         styles[size],
         fullWidth && styles.fullWidth,
+        hideTextOnMobile && styles.mobileIconOnly,
         className
     ].filter(Boolean).join(' ');
 
@@ -40,7 +43,7 @@ const Button = ({
             ) : (
                 <>
                     {icon && iconPosition === 'left' && <span className={styles.icon}>{icon}</span>}
-                    {children}
+                    <span className={hideTextOnMobile ? styles.mobileHiddenText : undefined}>{children}</span>
                     {icon && iconPosition === 'right' && <span className={styles.icon}>{icon}</span>}
                 </>
             )}
