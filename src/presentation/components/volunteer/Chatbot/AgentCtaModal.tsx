@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpLeft, Sparkles } from "lucide-react";
+import { ArrowUpLeft } from "lucide-react";
 import Modal from "@/presentation/components/state/Modal/Modal";
 import { CHAT_AGENT_CTA } from "@/presentation/constants";
 import styles from "./Chatbot.module.scss";
@@ -44,10 +44,6 @@ const AgentCtaModal = ({ open, onClose }: Props) => (
   <Modal isOpen={open} onClose={onClose} title={null} size="sm">
     <div className={styles.agentCta}>
       <div className={styles.agentHero}>
-        <span className={styles.agentBadge}>
-          <Sparkles size={12} />
-          {CHAT_AGENT_CTA.eyebrow}
-        </span>
         <CtaRobot />
       </div>
 

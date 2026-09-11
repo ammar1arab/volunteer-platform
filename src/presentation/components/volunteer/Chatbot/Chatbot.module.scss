@@ -903,30 +903,12 @@ $ink: #173524;
   display: grid;
   place-items: center;
   min-height: 11rem;
-  padding: 2.4rem 1rem 0.6rem;
+  padding: 1.4rem 1rem 0.6rem;
   overflow: hidden;
   background:
     radial-gradient(circle at 78% 18%, rgba($green, 0.38), transparent 40%),
     radial-gradient(circle at 18% 88%, rgba(#08281c, 0.85), transparent 48%),
     linear-gradient(155deg, #0d3425 0%, #167047 52%, #0a271c 100%);
-}
-
-.agentBadge {
-  position: absolute;
-  top: 1rem;
-  inset-inline-end: 1rem;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.3rem 0.6rem;
-  color: rgba($white, 0.94);
-  font-size: 0.62rem;
-  font-weight: 700;
-  border: 1px solid rgba($white, 0.18);
-  border-radius: $radius-full;
-  background: rgba($white, 0.12);
-  backdrop-filter: blur(10px);
 }
 
 .robotStage {
