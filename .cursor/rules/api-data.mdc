@@ -1,0 +1,7 @@
+---
+description: API routes, Zod contracts, core/infra data path, env safety
+globs: src/app/api/**/*.{ts,tsx},src/core/**/*.ts,src/infrastructure/**/*.ts,src/lib/**/*.ts
+alwaysApply: false
+---
+
+Read and follow [the canonical rule](../../.agents/rules/api-data.md).

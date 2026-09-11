@@ -21,7 +21,7 @@
   flex: 1;
   min-width: 0;
   padding: $sp-md $sp-lg;
-  overflow-x: hidden;
+  overflow-x: clip;
   overflow-y: visible;
 
   @media (max-width: 768px) {

@@ -1,0 +1,7 @@
+---
+description: Basmat clean-architecture layers and placement
+globs: src/**/*.{ts,tsx,scss}
+alwaysApply: false
+---
+
+Read and follow [the canonical rule](../../.agents/rules/architecture.md).

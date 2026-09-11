@@ -21,6 +21,7 @@ export { default as BirthDateInput } from "./base/BirthDateInput/BirthDateInput"
 export { default as Badge } from "./base/Badge/Badge";
 export { default as ActivityPresenterBadge } from "./activity/ActivityPresenterBadge/ActivityPresenterBadge";
 export { default as Dropdown } from "./base/Dropdown/Dropdown";
+export { default as Tooltip } from "./base/Tooltip/Tooltip";
 export { default as MultiSelectInput } from "./base/MultiSelectInput/MultiSelectInput";
 export { default as TimePickerInput } from "./base/TimePickerInput/TimePickerInput";
 export { default as Share } from "./base/Share/Share";

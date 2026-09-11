@@ -1,364 +1,212 @@
 "use client";
+
+import { History, RefreshCw, Send, Square, Trash2, X } from "lucide-react";
+import { FormEvent, useLayoutEffect, useRef, useState } from "react";
+import ConfirmDialog from "@/presentation/components/base/ConfirmDialog/ConfirmDialog";
+import Tooltip from "@/presentation/components/base/Tooltip/Tooltip";
+import EmptyState from "@/presentation/components/state/EmptyState/EmptyState";
+import LoadingState from "@/presentation/components/state/LoadingState/LoadingState";
+import { useChat } from "@/presentation/hooks";
 import {
-  useState,
-  useRef,
-  useCallback,
-  KeyboardEvent,
-} from "react";
-import {
-  Send,
-  ChevronDown,
-  X,
-  RotateCcw,
-  Bot,
-  Zap,
-  Award,
-  UserPlus,
-  HelpCircle,
-} from "lucide-react";
+  CHAT_ASSISTANT_NAME,
+  CHAT_MAX_INPUT,
+  CHAT_TEXT,
+  CHAT_TIPS
+} from "@/presentation/constants";
+import AgentCtaModal from "./AgentCtaModal";
+import BotLauncher from "./BotLauncher";
+import ChatConversation from "./ChatConversation";
+import ChatHeader from "./ChatHeader";
 import styles from "./Chatbot.module.scss";
-import { AiBotIcon } from "./AiBotIcon";
-
-
-interface Message {
-  id:      string;
-  role:    "user" | "assistant";
-  content: string;
-}
-
-
-const WELCOME: Message = {
-  id:      "welcome",
-  role:    "assistant",
-  content:
-    "مرحباً! 👋 أنا مساعدك في منصة **بصمات شبابية**.\nاسألني عن التسجيل، الأنشطة، الشهادات، أو أي شيء آخر — أنا هنا لأساعدك! ✨",
-};
-
-const SUGGESTIONS = [
-  { label: "كيف أنضم لنشاط؟",        Icon: Zap       },
-  { label: "كيف أحصل على شهادة؟",     Icon: Award     },
-  { label: "كيف أسجّل في المنصة؟",    Icon: UserPlus  },
-  { label: "ما هي أنواع الأنشطة؟",    Icon: HelpCircle },
-];
-
-
-function uid() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-}
-
-function renderContent(text: string) {
-  return text.split("\n").map((line, i, arr) => {
-    const parts = line.split(/(\*\*[^*]+\*\*)/g).map((seg, j) =>
-      seg.startsWith("**") && seg.endsWith("**")
-        ? <strong key={j}>{seg.slice(2, -2)}</strong>
-        : seg
-    );
-    return (
-      <span key={i}>
-        {parts}
-        {i < arr.length - 1 && <br />}
-      </span>
-    );
-  });
-}
-
 
 export default function Chatbot() {
-  const [isOpen,      setIsOpen]      = useState(false);
-  const [messages,    setMessages]    = useState<Message[]>([WELCOME]);
-  const [input,       setInput]       = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [hasUnread,   setHasUnread]   = useState(false);
-  const [particles,   setParticles]   = useState<{ id: number; x: number; y: number }[]>([]);
+  const [open, setOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [agentOpen, setAgentOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [input, setInput] = useState("");
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  const bottomRef    = useRef<HTMLDivElement>(null);
-  const inputRef     = useRef<HTMLInputElement>(null);
-  const abortRef     = useRef<AbortController | null>(null);
-  const particleRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chat = useChat(open);
 
-  const scrollToBottom = () => {
-    queueMicrotask(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }));
-  };
+  useLayoutEffect(() => {
+    const region = bottomRef.current?.parentElement;
+    if (region) region.scrollTop = region.scrollHeight;
+  }, [chat.messages, chat.sending]);
 
-  const spawnParticles = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const cx = rect.left + rect.width  / 2;
-      const cy = rect.top  + rect.height / 2;
-      setParticles(
-        Array.from({ length: 8 }, (_, i) => ({ id: Date.now() + i, x: cx, y: cy }))
-      );
-      if (particleRef.current) clearTimeout(particleRef.current);
-      particleRef.current = setTimeout(() => setParticles([]), 900);
-    },
-    []
-  );
-
-  const sendMessage = useCallback(
-    async (text: string) => {
-      const trimmed = text.trim();
-      if (!trimmed || isStreaming) return;
-
-      const userMsg: Message = { id: uid(), role: "user",      content: trimmed };
-      const botId  = uid();
-      const botMsg: Message  = { id: botId,  role: "assistant", content: ""     };
-
-      setMessages((prev) => [...prev, userMsg, botMsg]);
-      setInput("");
-      setIsStreaming(true);
-      scrollToBottom();
-
-      const apiHistory = [...messages, userMsg]
-        .filter((m) => m.id !== "welcome" && m.content.trim())
-        .map((m) => ({ role: m.role, content: m.content }));
-
-      try {
-        abortRef.current?.abort();
-        abortRef.current = new AbortController();
-
-        const res = await fetch("/api/chat", {
-          method:  "POST",
-          headers: { "Content-Type": "application/json" },
-          body:    JSON.stringify({ messages: apiHistory }),
-          signal:  abortRef.current.signal,
-        });
-
-        if (!res.ok || !res.body) throw new Error("API error");
-
-        const reader  = res.body.getReader();
-        const decoder = new TextDecoder();
-        let   acc = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          acc += decoder.decode(value, { stream: true });
-          const snap = acc;
-          setMessages((prev) =>
-            prev.map((m) => (m.id === botId ? { ...m, content: snap } : m))
-          );
-          scrollToBottom();
-        }
-
-        if (!isOpen) setHasUnread(true);
-      } catch (err) {
-        const aborted =
-          (err instanceof DOMException && err.name === "AbortError") ||
-          (err instanceof Error && err.name === "AbortError");
-        if (!aborted) {
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === botId
-                ? { ...m, content: "عذراً، حدث خطأ في الاتصال. يرجى المحاولة مجدداً. 🔄" }
-                : m
-            )
-          );
-        }
-      } finally {
-        setIsStreaming(false);
-      }
-    },
-    [isStreaming, messages, isOpen]
-  );
-
-  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); sendMessage(input); };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); }
-  };
-
-  const resetChat = () => {
-    abortRef.current?.abort();
-    setMessages([WELCOME]);
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    chat.send(input);
     setInput("");
-    setIsStreaming(false);
-    setTimeout(() => inputRef.current?.focus(), 100);
-  };
+  }
 
-  const showSuggestions = messages.length === 1 && messages[0].id === "welcome";
+  function startNewChat() {
+    chat.stop();
+    chat.newChat();
+    setHistoryOpen(false);
+    setInput("");
+  }
+
+  function confirmDelete() {
+    if (deleteId) chat.deleteChat(deleteId);
+    setDeleteId(null);
+  }
 
   return (
     <>
-
-      {particles.map((p) => (
-        <span
-          key={p.id}
-          className={styles.particle}
-          style={{ left: p.x, top: p.y }}
-        />
-      ))}
+      {!open && <BotLauncher thinking={chat.sending} onOpen={() => setOpen(true)} />}
 
       <div className={styles.root} dir="rtl">
+      {open && (
+        <section className={styles.window} role="dialog" aria-label={CHAT_ASSISTANT_NAME}>
+          <ChatHeader
+            remaining={chat.remaining}
+            limit={chat.limit}
+            models={chat.models}
+            preferredModel={chat.preferredModel}
+            historyOpen={historyOpen}
+            onModelChange={chat.setPreferredModel}
+            onOpenAgent={() => setAgentOpen(true)}
+            onToggleHistory={() => setHistoryOpen((value) => !value)}
+            onNewChat={startNewChat}
+            onMinimize={() => setOpen(false)}
+          />
 
-
-        {isOpen && (
-          <div
-            className={styles.window}
-            role="dialog"
-            aria-label="مساعد بصمات الذكي"
-            aria-modal="true"
-          >
-            <div className={styles.blob1} aria-hidden />
-            <div className={styles.blob2} aria-hidden />
-
-
-            <header className={styles.header}>
-              <div className={styles.headerLeft}>
-                <div className={styles.avatarRing}>
-                  <div className={styles.avatar}>
-                    <Bot size={18} strokeWidth={1.8} />
-                  </div>
-                  <span className={styles.onlinePulse} />
-                </div>
-                <div className={styles.headerText}>
-                  <p className={styles.botName}>مساعد بصمات شبابية</p>
-                  <p className={styles.botSub}>
-                    <span className={styles.onlineDot} />
-                    متاح الآن · ذكاء اصطناعي
-                  </p>
-                </div>
+          {historyOpen ? (
+            <div className={styles.messages}>
+              <div className={styles.historyHead}>
+                <strong>{CHAT_TEXT.historyTitle}</strong>
+                <small>{CHAT_TEXT.historyNote}</small>
               </div>
-              <div className={styles.headerActions}>
-                <button
-                  className={styles.iconBtn}
-                  onClick={resetChat}
-                  aria-label="بدء محادثة جديدة"
-                  title="بدء محادثة جديدة"
-                >
-                  <RotateCcw size={14} />
-                </button>
-                <button
-                  className={styles.iconBtn}
-                  onClick={() => setIsOpen(false)}
-                  aria-label="تصغير"
-                >
-                  <ChevronDown size={17} />
-                </button>
-              </div>
-            </header>
-
-
-            <div className={styles.messages} aria-live="polite">
-              {messages.map((msg, idx) => (
-                <div
-                  key={msg.id}
-                  className={`${styles.row} ${msg.role === "user" ? styles.userRow : styles.botRow}`}
-                  style={{ animationDelay: `${idx * 0.03}s` }}
-                >
-                  {msg.role === "assistant" && (
-                    <div className={styles.botAvatarSm} aria-hidden>
-                      <Bot size={13} strokeWidth={2} />
+              {chat.metaLoading ? (
+                <div className={styles.panelState}>
+                  <LoadingState compact text={CHAT_TEXT.historyLoading} />
+                </div>
+              ) : !chat.chats.length ? (
+                <div className={styles.panelState}>
+                  <EmptyState
+                    icon={History}
+                    title={CHAT_TEXT.historyEmptyTitle}
+                    message={CHAT_TEXT.historyEmpty}
+                  />
+                </div>
+              ) : (
+                <div className={styles.historyList}>
+                  {chat.chats.map((conversation) => (
+                    <div className={styles.historyRow} key={conversation.id}>
+                      <button
+                        type="button"
+                        disabled={chat.sending}
+                        className={`${styles.historyOpen} ${conversation.id === chat.activeId ? styles.historyOn : ""}`}
+                        onClick={() => {
+                          chat.selectChat(conversation.id);
+                          setHistoryOpen(false);
+                        }}
+                      >
+                        <span>{conversation.title}</span>
+                        <small>{conversation.messages.length} رسالة</small>
+                      </button>
+                      <Tooltip content={CHAT_TIPS.delete}>
+                        <button
+                          type="button"
+                          className={styles.historyDelete}
+                          disabled={chat.sending}
+                          aria-label={CHAT_TIPS.delete}
+                          onClick={() => setDeleteId(conversation.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </Tooltip>
                     </div>
-                  )}
-                  <div
-                    className={`${styles.bubble} ${
-                      msg.role === "user" ? styles.userBubble : styles.botBubble
-                    }`}
-                  >
-                    {msg.content === "" && msg.role === "assistant" ? (
-                      <span className={styles.typing} aria-label="يكتب...">
-                        <span /><span /><span />
-                      </span>
-                    ) : (
-                      renderContent(msg.content)
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {showSuggestions && (
-                <div className={styles.chips}>
-                  {SUGGESTIONS.map(({ label, Icon }, i) => (
-                    <button
-                      key={label}
-                      className={styles.chip}
-                      onClick={() => sendMessage(label)}
-                      disabled={isStreaming}
-                      style={{ animationDelay: `${0.15 + i * 0.07}s` }}
-                    >
-                      <Icon size={12} strokeWidth={2.2} />
-                      {label}
-                    </button>
                   ))}
                 </div>
               )}
-
-              <div ref={bottomRef} />
             </div>
-
-
-            <form className={styles.inputRow} onSubmit={handleSubmit} noValidate>
-              <div className={styles.inputWrap}>
-                <input
-                  ref={inputRef}
-                  className={styles.input}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="اكتب سؤالك هنا..."
-                  disabled={isStreaming}
-                  dir="auto"
-                  autoComplete="off"
-                  maxLength={500}
-                  autoFocus
-                  aria-label="رسالتك"
-                />
-                {isStreaming && (
-                  <span className={styles.streamDots} aria-hidden>
-                    <span /><span /><span />
-                  </span>
-                )}
-              </div>
-              <button
-                type="submit"
-                className={styles.sendBtn}
-                disabled={!input.trim() || isStreaming}
-                aria-label="إرسال"
-              >
-                <span className={styles.sendRipple} />
-                <Send size={15} />
-              </button>
-            </form>
-
-            <p className={styles.footerBrand}>
-              مدعوم بالذكاء الاصطناعي · بصمات شبابية ©
-            </p>
-          </div>
-        )}
-
-
-        <button
-          className={`${styles.fab} ${isOpen ? styles.fabOpen : ""}`}
-          onClick={(e) => {
-            if (!isOpen) {
-              spawnParticles(e);
-              setHasUnread(false);
-            }
-            setIsOpen((p) => !p);
-          }}
-          aria-label={isOpen ? "إغلاق المساعد" : "فتح المساعد الذكي"}
-          aria-expanded={isOpen}
-        >
-          {!isOpen && (
-            <>
-              <span className={`${styles.ring} ${styles.ring1}`} />
-              <span className={`${styles.ring} ${styles.ring2}`} />
-            </>
+          ) : (
+            <ChatConversation
+              messages={chat.messages}
+              pendingId={chat.pendingId}
+              sending={chat.sending}
+              outOfQuota={chat.outOfQuota}
+              onSend={chat.send}
+              bottomRef={bottomRef}
+            />
           )}
 
-          <span className={`${styles.fabIconWrap} ${isOpen ? styles.fabIconOpen : ""}`}>
-            {isOpen ? (
-              <X size={20} strokeWidth={2.5} />
-            ) : (
-              <AiBotIcon />
+          <form className={styles.composer} onSubmit={submit}>
+            <input
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder={chat.outOfQuota ? CHAT_TEXT.placeholderBlocked : CHAT_TEXT.placeholder}
+              disabled={chat.sending || historyOpen || chat.outOfQuota}
+              dir={input ? "auto" : "rtl"}
+              maxLength={CHAT_MAX_INPUT}
+              aria-label={CHAT_TEXT.placeholder}
+              enterKeyHint="send"
+            />
+            {chat.canRegenerate && !chat.sending && (
+              <Tooltip content={CHAT_TIPS.regenerate}>
+                <button
+                  type="button"
+                  className={styles.ghostBtn}
+                  onClick={chat.regenerate}
+                  aria-label={CHAT_TIPS.regenerate}
+                >
+                  <RefreshCw size={15} />
+                </button>
+              </Tooltip>
             )}
-          </span>
+            {chat.sending ? (
+              <Tooltip content={CHAT_TIPS.stop}>
+                <button
+                  type="button"
+                  className={styles.stopBtn}
+                  onClick={chat.stop}
+                  aria-label={CHAT_TIPS.stop}
+                >
+                  <Square size={14} />
+                </button>
+              </Tooltip>
+            ) : (
+              <Tooltip content={CHAT_TIPS.send}>
+                <button
+                  type="submit"
+                  disabled={!input.trim() || historyOpen || chat.outOfQuota}
+                  aria-label={CHAT_TIPS.send}
+                >
+                  <Send size={17} />
+                </button>
+              </Tooltip>
+            )}
+          </form>
+        </section>
+      )}
 
-          {!isOpen && hasUnread && (
-            <span className={styles.unreadBadge} aria-label="رسالة جديدة" />
-          )}
+      {open && (
+        <button
+          className={styles.closeLauncher}
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label={CHAT_TIPS.close}
+          aria-expanded={true}
+        >
+          <X size={22} />
         </button>
-      </div>
+      )}
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteId)}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+        title={CHAT_TEXT.deleteTitle}
+        message={CHAT_TEXT.deleteMessage}
+        confirmText={CHAT_TEXT.deleteConfirm}
+        cancelText={CHAT_TEXT.cancel}
+        variant="danger"
+      />
+
+      <AgentCtaModal open={agentOpen} onClose={() => setAgentOpen(false)} />
+    </div>
     </>
   );
 }

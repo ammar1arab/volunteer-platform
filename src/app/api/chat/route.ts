@@ -1,136 +1,125 @@
-import Groq from "groq-sdk";
-import { badRequest, checkRateLimit } from "@/lib/api-utils";
-import { SYSTEM_PROMPT } from "./systemPrompt";
+import { NextResponse } from "next/server";
+import { ok } from "@/core/application/dtos";
+import { badRequest, csrfCheck, toResponse } from "@/lib/api-utils";
+import { logger, toError } from "@/lib/utils";
+import { CHAT_REQUEST_BODY_MAX, chatRequestSchema } from "@/lib/chat/schemas";
+import {
+  FALLBACK_HELP,
+  listChatModels,
+  localAnswer,
+  normaliseMessages,
+  openReliableStream,
+} from "./chatRuntime";
+import { CHAT_DAILY_LIMIT, checkChatRateLimit, getChatQuota } from "./chatRateLimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-const MODEL_PRIMARY  = "llama-3.3-70b-versatile";
-const MODEL_FALLBACK = "llama-3.1-8b-instant";
+const RATE_LIMIT_MESSAGE =
+  "وصلت إلى حد الرسائل المتاح حالياً. جرّب لاحقاً، فهذا الحد يساعدنا على إدارة تكلفة الخدمة.";
 
-const STREAM_HEADERS = {
-  "Content-Type": "text/plain; charset=utf-8",
-  "Cache-Control": "no-cache, no-store",
-} as const;
-
-const MSG_RATE_LIMIT = "⏳ المساعد مشغول قليلاً، يرجى الانتظار لحظة والمحاولة مجدداً.";
-const MSG_ERROR      = "عذراً، حدث خطأ تقني. يرجى إعادة المحاولة. 🔄";
-
-interface ChatMessage {
-  role:    "user" | "assistant";
-  content: string;
+function quotaHeaders(remaining: number, limit: number) {
+  return { "X-Chat-Remaining": String(remaining), "X-Chat-Limit": String(limit) };
 }
 
-function isRateLimitError(err: Error): boolean {
-  const status = "status" in err && typeof err.status === "number" ? err.status : undefined;
-  const nestedType =
-    "error" in err &&
-    typeof err.error === "object" &&
-    err.error !== null &&
-    "type" in err.error &&
-    typeof err.error.type === "string"
-      ? err.error.type
-      : undefined;
-  return (
-    status === 429 ||
-    nestedType === "rate_limit_exceeded" ||
-    err.message.includes("429") ||
-    err.message.includes("rate_limit")
-  );
+function metaBody(remaining: number, limit: number) {
+  return {
+    remaining,
+    limit,
+    defaultModel: "auto" as const,
+    models: [{ id: "auto" as const, label: "Auto", available: true }, ...listChatModels()],
+  };
 }
 
-async function callGroq(
-  groq:     Groq,
-  model:    string,
-  messages: Groq.Chat.ChatCompletionMessageParam[]
-) {
-  return groq.chat.completions.create({
-    model,
-    messages,
-    max_tokens:  1024,
-    temperature: 0.7,
-    stream:      true,
+function textResponse(body: string, remaining: number, limit: number, source: string) {
+  return new Response(body, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache, no-store",
+      "X-AI-Source": source,
+      ...quotaHeaders(remaining, limit),
+    },
   });
 }
 
-function textStream(text: string): Response {
-  return new Response(text, { status: 200, headers: STREAM_HEADERS });
+export async function GET(req: Request): Promise<Response> {
+  try {
+    const { remaining, limit } = await getChatQuota(req);
+    return toResponse(ok(metaBody(remaining, limit)));
+  } catch (error) {
+    logger.error("Chat", "metaUnavailable", toError(error));
+    return toResponse(ok(metaBody(CHAT_DAILY_LIMIT, CHAT_DAILY_LIMIT)));
+  }
 }
 
 export async function POST(req: Request): Promise<Response> {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
-    console.error("[chat] GROQ_API_KEY is not set");
-    return textStream(MSG_ERROR);
+  const csrf = csrfCheck(req);
+  if (csrf) return csrf;
+
+  const length = Number(req.headers.get("content-length"));
+  if (Number.isFinite(length) && length > CHAT_REQUEST_BODY_MAX) {
+    return badRequest("أرسل سؤالاً صالحاً من فضلك.");
   }
 
+  const payload = await req.json().catch(() => null);
+  const parsed = chatRequestSchema.safeParse(payload);
+  const messages = normaliseMessages(parsed.success ? (parsed.data.messages ?? []) : []);
+  if (!messages.length) return badRequest("أرسل سؤالاً صالحاً من فضلك.");
 
-  const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  if (!checkRateLimit(`chat:${ip}`, 20, 60_000)) {
-    return textStream(MSG_RATE_LIMIT);
+  const quota = await checkChatRateLimit(req);
+  const headers = quotaHeaders(quota.remaining, quota.limit);
+
+  if (!quota.allowed) {
+    return NextResponse.json(
+      { success: false, error: { code: "RATE_LIMITED", message: RATE_LIMIT_MESSAGE } },
+      { status: 429, headers }
+    );
   }
 
-  const body = await req.json().catch(() => null) as { messages?: ChatMessage[] } | null;
-  if (!body) return badRequest("Invalid JSON body");
-
-  const messages = body.messages;
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return badRequest("No messages provided");
-  }
-
-  const validMessages = messages.filter(
-    (m) => m && typeof m.role === "string" && typeof m.content === "string" && m.content.trim()
-  );
-  if (validMessages.length === 0) return badRequest("No valid content");
-
-  const groq = new Groq({ apiKey });
-
-  const groqMessages: Groq.Chat.ChatCompletionMessageParam[] = [
-    { role: "system", content: SYSTEM_PROMPT },
-    ...validMessages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
-  ];
-
-
-  let streamResponse: Awaited<ReturnType<typeof callGroq>>;
-  let modelUsed = MODEL_PRIMARY;
+  const direct = localAnswer(messages.at(-1)?.content ?? "");
+  if (direct) return textResponse(direct, quota.remaining, quota.limit, "platform-faq");
 
   try {
-    streamResponse = await callGroq(groq, MODEL_PRIMARY, groqMessages);
-  } catch (primaryErr) {
-    if (!(primaryErr instanceof Error) || !isRateLimitError(primaryErr)) {
-      console.error("[chat] Groq error:", primaryErr);
-      return textStream(MSG_ERROR);
-    }
-    console.warn("[chat] Primary model rate limited, switching to fallback...");
-    try {
-      streamResponse = await callGroq(groq, MODEL_FALLBACK, groqMessages);
-      modelUsed      = MODEL_FALLBACK;
-    } catch (fallbackErr) {
-      console.error("[chat] Fallback model also failed:", fallbackErr);
-      return textStream(
-        fallbackErr instanceof Error && isRateLimitError(fallbackErr) ? MSG_RATE_LIMIT : MSG_ERROR
-      );
-    }
-  }
+    const { id, stream } = await openReliableStream(
+      messages,
+      parsed.success ? (parsed.data.preferredModel ?? "auto") : "auto"
+    );
+    const encoder = new TextEncoder();
 
-  console.info(`[chat] model=${modelUsed} ip=${ip}`);
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      const encoder = new TextEncoder();
-      try {
-        for await (const chunk of streamResponse) {
-          const text = chunk.choices[0]?.delta?.content;
-          if (text) controller.enqueue(encoder.encode(text));
+    const output = new ReadableStream({
+      async start(controller) {
+        let sent = false;
+        try {
+          for await (const chunk of stream) {
+            if (!chunk) continue;
+            sent = true;
+            controller.enqueue(encoder.encode(chunk));
+          }
+        } catch (error) {
+          logger.error("Chat", "streamIteration", toError(error));
+        } finally {
+          if (!sent) controller.enqueue(encoder.encode(FALLBACK_HELP));
+          controller.close();
         }
-      } catch (err) {
-        console.error("[chat] Stream error:", err);
-        controller.enqueue(encoder.encode("\n\n" + (err instanceof Error && isRateLimitError(err) ? MSG_RATE_LIMIT : MSG_ERROR)));
-      } finally {
-        controller.close();
-      }
-    },
-  });
+      },
+    });
 
-  return new Response(stream, { status: 200, headers: STREAM_HEADERS });
+    return new Response(output, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache, no-store",
+        "X-AI-Provider": id,
+        ...headers,
+      },
+    });
+  } catch (error) {
+    logger.error("Chat", "providersOffline", toError(error));
+    return NextResponse.json(
+      { success: false, error: { code: "ASSISTANT_OFFLINE", message: FALLBACK_HELP } },
+      { status: 503, headers }
+    );
+  }
 }

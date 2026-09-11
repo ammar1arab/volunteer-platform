@@ -1,0 +1,6 @@
+---
+description: Basmat always-on identity, stack, bans, and task workflow
+alwaysApply: true
+---
+
+Read and follow [the canonical rule](../../.agents/rules/00-project-core.md).

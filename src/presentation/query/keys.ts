@@ -53,5 +53,8 @@ export const queryKeys = {
     session: (activityId: string) => ["meetings", "session", activityId] as const,
     report: (activityId: string) => ["meetings", "report", activityId] as const,
     googleStatus: () => ["meetings", "google-status"] as const
+  },
+  chat: {
+    meta: () => ["chat", "meta"] as const
   }
 } as const;

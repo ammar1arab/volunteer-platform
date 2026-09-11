@@ -1,6 +1,6 @@
 "use client";
 import styles from "./Share.module.scss";
-import { X, Link2, Check } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
 import { useShare, type SharePayload } from "./Share.logic";
 import { createPortal } from "react-dom";
@@ -89,7 +89,6 @@ const Share = ({ trigger }: ShareProps) => {
             <div className={styles.divider} />
 
             <Button className={styles.copyBtn} variant="secondary" onClick={handleCopy} fullWidth>
-              {copied ? <Check size={15} /> : <Link2 size={15} />}
               {copied ? "تم نسخ الرابط!" : "نسخ رابط الصفحة"}
             </Button>
           </div>

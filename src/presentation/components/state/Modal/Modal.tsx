@@ -34,8 +34,8 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }: ModalProps) =>
           if (e.key === "Escape") onClose();
         }}
       >
-        <div className={styles.header}>
-          <h2 className={styles.title}>{title}</h2>
+        <div className={`${styles.header} ${title ? "" : styles.headerBare}`}>
+          {title ? <h2 className={styles.title}>{title}</h2> : <span />}
           <button title="Close" className={styles.closeBtn} onClick={onClose}>
             <X size={20} />
           </button>

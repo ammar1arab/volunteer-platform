@@ -4,7 +4,7 @@
 
 .root {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
+  grid-template-columns: minmax(0, 35%) minmax(0, 65%);
   gap: $sp-xl;
   align-items: flex-start;
 
@@ -22,14 +22,17 @@
 
 .preview {
   position: sticky;
-  top: 0;
-  height: calc(100vh - 32px);
+  top: calc(52px + #{$sp-md});
+  height: calc(100dvh - 52px - #{$sp-md} * 2);
   min-height: 500px;
+  width: 100%;
+  z-index: 5;
 
   @media (max-width: 1024px) {
     position: static;
     height: 600px;
     margin-top: $sp-md;
+    z-index: auto;
   }
 }
 

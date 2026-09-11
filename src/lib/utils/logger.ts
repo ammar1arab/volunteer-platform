@@ -47,6 +47,10 @@ const log = (level: LogLevel, scope: string, action: string, meta?: LogMeta): vo
   }
 };
 
+export function toError<T>(value: T): Error {
+  return value instanceof Error ? value : new Error(String(value));
+}
+
 export const logger: Logger = {
   info:  (scope, action, meta) => log("info",  scope, action, meta),
   warn:  (scope, action, meta) => log("warn",  scope, action, meta),

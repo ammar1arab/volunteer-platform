@@ -20,7 +20,7 @@ const Pagination = ({
   itemsPerPage,
   onPageChange,
   compact = false,
-  sticky = !compact
+  sticky = true
 }: Props) => {
   const {
     pageItems,

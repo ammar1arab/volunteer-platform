@@ -3,11 +3,16 @@ export * from "./uiHooks/usePasswordValidation";
 export * from "./uiHooks/useOtpTimer";
 export * from "./uiHooks/useConfirmDialog";
 export * from "./uiHooks/usePageReset";
+export * from "./uiHooks/useChatStore";
+export * from "./uiHooks/useBotDirector";
+export * from "./useLocalStorageState";
+export * from "./useSessionStorageState";
 
 export * from "./apiHooks/useAuth";
 export * from "./apiHooks/useUsers";
 export * from "./apiHooks/useUserDetails";
 export * from "./apiHooks/useActivities";
+export * from "./apiHooks/useChat";
 export * from "./apiHooks/useCertificates";
 export * from "./apiHooks/useActivityParticipations";
 export * from "./apiHooks/useFeaturedPosts";

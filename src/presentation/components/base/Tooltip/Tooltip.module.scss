@@ -1,0 +1,96 @@
+@use "@/presentation/styles/variables" as *;
+
+$tip-bg: #0d3321;
+
+.trigger {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+}
+
+.bubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5000;
+  max-width: min(17rem, calc(100vw - 1.5rem));
+  padding: 0.4rem 0.65rem;
+  color: rgba($white, 0.94);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.75;
+  text-align: center;
+  text-wrap: balance;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  border: 1px solid rgba($green, 0.35);
+  border-radius: $radius-md;
+  background: linear-gradient(150deg, $tip-bg, #14532d);
+  box-shadow:
+    0 0.5rem 1.5rem rgba($tip-bg, 0.28),
+    0 0 0 0.2rem rgba($green, 0.06);
+
+  &::after {
+    content: "";
+    position: absolute;
+    width: 0.45rem;
+    height: 0.45rem;
+    border: 1px solid rgba($green, 0.35);
+    background: $tip-bg;
+    transform: rotate(45deg);
+  }
+
+  &[data-ready="true"] {
+    visibility: visible;
+    animation: tipIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  &[data-placement="top"]::after {
+    bottom: -0.25rem;
+    left: calc(50% - 0.225rem);
+    border-top: 0;
+    border-left: 0;
+  }
+
+  &[data-placement="bottom"]::after {
+    top: -0.25rem;
+    left: calc(50% - 0.225rem);
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  &[data-placement="left"]::after {
+    top: calc(50% - 0.225rem);
+    right: -0.25rem;
+    border-bottom: 0;
+    border-left: 0;
+  }
+
+  &[data-placement="right"]::after {
+    top: calc(50% - 0.225rem);
+    left: -0.25rem;
+    border-top: 0;
+    border-right: 0;
+  }
+}
+
+@keyframes tipIn {
+  from {
+    opacity: 0;
+    translate: 0 0.25rem;
+    scale: 0.97;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble[data-ready="true"] {
+    animation: none;
+    opacity: 1;
+  }
+}

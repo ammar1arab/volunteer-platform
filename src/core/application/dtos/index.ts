@@ -169,6 +169,21 @@ export type {
 
 
 export type {
+  ChatRole,
+  ChatProviderId,
+  ChatMessageDto,
+  StoredChatMessageDto,
+  ChatConversationDto,
+  ChatModelOptionDto,
+  ChatQuotaDto,
+  ChatMetaDto,
+  ChatStoreDto,
+  SendChatMessageInput,
+  GetChatMetaResponse
+} from "./chat.dto";
+
+
+export type {
   MeetingIntegrationStatusDto,
   GetMeetingIntegrationStatusResponse,
   GetGoogleConnectUrlResponse,

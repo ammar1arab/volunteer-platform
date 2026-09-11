@@ -1,0 +1,6 @@
+---
+description: Stop only processes started for the current task
+alwaysApply: true
+---
+
+Read and follow [the canonical rule](../../.agents/rules/close-ports-when-done.md).

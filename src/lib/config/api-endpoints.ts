@@ -1,4 +1,7 @@
 export const API_ENDPOINTS = {
+  CHAT: {
+    BASE: "/api/chat"
+  },
   AUTH: {
     REGISTER: "/api/auth/register",
     SEND_OTP: "/api/auth/send-otp",

@@ -37,6 +37,7 @@
 }
 
 .modal {
+  position: relative;
   background: $bg;
   border-radius: $radius-lg;
   box-shadow: 0 20px 60px rgba($black, 0.3);
@@ -83,6 +84,29 @@
 
   @media (max-width: 640px) {
     padding: $sp-md;
+  }
+}
+
+.headerBare {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 2;
+  justify-content: flex-start;
+  padding: 0.75rem;
+  border-bottom: 0;
+  pointer-events: none;
+
+  .closeBtn {
+    pointer-events: auto;
+    color: rgba($white, 0.88);
+    background: rgba($black, 0.28);
+    backdrop-filter: blur(8px);
+
+    &:hover {
+      background: rgba($black, 0.42);
+      color: $white;
+    }
   }
 }
 

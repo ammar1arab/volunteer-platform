@@ -41,7 +41,7 @@ const MainPage = () => {
     loading, submitting, getActionButton
   } = useMainPage();
 
-  if (loading) return <LoadingState />;
+  if (loading) return <LoadingState viewport />;
 
   return (
     <div>

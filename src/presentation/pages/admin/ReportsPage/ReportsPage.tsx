@@ -3,7 +3,7 @@
 import { useState } from "react";
 import styles from "./ReportsPage.module.scss";
 import { useReportsPage } from "./ReportsPage.logic";
-import { StatsCard, SelectInput, Search, SystemLogsTable, ConfirmDialog, SharedDataModal, Button } from "@/presentation/components";
+import { StatsCard, SelectInput, Search, SystemLogsTable, ConfirmDialog, SharedDataModal, Button, Container } from "@/presentation/components";
 import { MODAL_CONFIGS } from "./ReportsModalsConfig";
 import { Activity, Users, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare, Trash2, ArrowRight } from "lucide-react";
 import { SystemLogStatus } from "@/core/domain/enums";
@@ -47,7 +47,7 @@ export default function ReportsPage() {
 
   if (showMobileTable) {
     return (
-      <div className={styles.mobileTablePage}>
+      <Container flush className={styles.mobileTablePage}>
         <div className={styles.mobileHeader}>
           <button className={styles.back} onClick={() => setShowMobileTable(false)}>
             <ArrowRight size={16} /> العودة
@@ -97,12 +97,12 @@ export default function ReportsPage() {
           cancelText="إلغاء"
           variant="danger"
         />
-      </div>
+      </Container>
     );
   }
 
   return (
-    <div className={styles.page}>
+    <Container flush className={styles.page}>
 
       <div className={styles.mobileOnly}>
         <Button 
@@ -187,6 +187,6 @@ export default function ReportsPage() {
         cancelText="إلغاء"
         variant="danger"
       />
-    </div>
+    </Container>
   );
 }
