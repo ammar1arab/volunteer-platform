@@ -4,11 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Award, Copy, HelpCircle, MapPin, Sparkles, UserPlus, Zap } from "lucide-react";
+import { Award, Check, Copy, HelpCircle, MapPin, Sparkles, UserPlus, Zap } from "lucide-react";
 import type { StoredChatMessageDto } from "@/core/application/dtos";
 import { DomainFeaturedPostCategory } from "@/core/domain/enums";
 import Tooltip from "@/presentation/components/base/Tooltip/Tooltip";
-import { useActivities } from "@/presentation/hooks";
+import { useActivities, useNow } from "@/presentation/hooks";
 import {
   CATEGORY_LABELS,
   CHAT_BOT_POSES,
@@ -51,7 +51,15 @@ const ChatConversation = ({
   const pathname = usePathname();
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [interest, setInterest] = useState<DomainFeaturedPostCategory | null>(null);
-  const [notice, setNotice] = useState("");
+  const [copied, setCopied] = useState({ id: "", at: 0, ok: true });
+  const clock = useNow(copied.at > 0);
+  const copiedLive = copied.at > 0 && clock - copied.at < 2000;
+  const copyLabel = (id: string) =>
+    copiedLive && copied.id === id
+      ? copied.ok
+        ? CHAT_TEXT.copied
+        : CHAT_TEXT.copyFailed
+      : CHAT_TIPS.copy;
   const { list: activities } = useActivities({ filter: "published", enabled: discoverOpen });
 
   const recommended = activities
@@ -100,19 +108,23 @@ const ChatConversation = ({
             )}
           </div>
           {message.role === "assistant" && message.content && !message.error && (
-            <Tooltip content={CHAT_TIPS.copy}>
+            <Tooltip content={copyLabel(message.id)}>
               <button
-                className={styles.copy}
+                className={`${styles.copy} ${copiedLive && copied.id === message.id && copied.ok ? styles.copyDone : ""}`}
                 type="button"
-                aria-label={CHAT_TIPS.copy}
+                aria-label={copyLabel(message.id)}
                 onClick={() =>
                   navigator.clipboard
                     .writeText(message.content)
-                    .then(() => setNotice(CHAT_TEXT.copied))
-                    .catch(() => setNotice(CHAT_TEXT.copyFailed))
+                    .then(() => setCopied({ id: message.id, at: Date.now(), ok: true }))
+                    .catch(() => setCopied({ id: message.id, at: Date.now(), ok: false }))
                 }
               >
-                <Copy size={13} />
+                {copiedLive && copied.id === message.id && copied.ok ? (
+                  <Check size={13} />
+                ) : (
+                  <Copy size={13} />
+                )}
               </button>
             </Tooltip>
           )}
@@ -211,11 +223,6 @@ const ChatConversation = ({
         </section>
       )}
 
-      {notice && (
-        <small className={styles.notice} role="status">
-          {notice}
-        </small>
-      )}
       <div ref={bottomRef} />
     </div>
   );

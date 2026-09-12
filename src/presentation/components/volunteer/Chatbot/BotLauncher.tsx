@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useTransform } from "framer-motion";
-import { CHAT_TIPS } from "@/presentation/constants";
+import { CHAT_BOT_TIP_MOMENTS, CHAT_TIPS } from "@/presentation/constants";
 import { useBotDirector, useBotPresence, useBotPromoTips } from "@/presentation/hooks";
 import BotAvatar from "./BotAvatar";
 import BotPromoChip from "./BotPromoChip";
@@ -15,8 +15,9 @@ interface Props {
 const BotLauncher = ({ thinking, onOpen }: Props) => {
   const { showTips } = useBotPresence();
   const bot = useBotDirector(true, thinking);
-  const tipsLive = showTips && bot.settled && !bot.asleep;
-  const promo = useBotPromoTips(tipsLive);
+  const promo = useBotPromoTips(showTips);
+  const moment = bot.docked && !bot.asleep && CHAT_BOT_TIP_MOMENTS.includes(bot.pose);
+  const showChip = showTips && !bot.asleep && (moment || (bot.settled && promo.visible));
   const scaleX = useTransform([bot.facing, bot.stretchX], ([face, stretch]: number[]) =>
     bot.reduced ? 1 : face * stretch
   );
@@ -58,7 +59,7 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
           </motion.span>
         </motion.button>
 
-        {tipsLive && <BotPromoChip tip={promo.tip} onOpenChat={openChat} />}
+        {showChip && <BotPromoChip tip={promo.tip} onOpenChat={openChat} />}
       </motion.div>
     </div>
   );

@@ -9,6 +9,9 @@ import {
   CHAT_ASSISTANT_NAME,
   CHAT_ASSISTANT_ROLE,
   CHAT_BOT_POSES,
+  CHAT_CTA_NUDGE_CYCLE_MS,
+  CHAT_CTA_NUDGE_FIRST_MS,
+  CHAT_CTA_NUDGE_SHOW_MS,
   CHAT_LOW_QUOTA,
   CHAT_TEXT,
   CHAT_TIPS
@@ -56,8 +59,8 @@ const ChatHeader = ({
   const openedAt = useRef(0);
   if (!openedAt.current && clock > 0) openedAt.current = clock;
   const age = openedAt.current ? clock - openedAt.current : 0;
-  const pulse = age % 68_000;
-  const ctaNudge = age >= 24_000 && pulse >= 24_000 && pulse < 27_500;
+  const due = age >= CHAT_CTA_NUDGE_FIRST_MS;
+  const ctaNudge = due && (age - CHAT_CTA_NUDGE_FIRST_MS) % CHAT_CTA_NUDGE_CYCLE_MS < CHAT_CTA_NUDGE_SHOW_MS;
 
   return (
     <header className={styles.header}>

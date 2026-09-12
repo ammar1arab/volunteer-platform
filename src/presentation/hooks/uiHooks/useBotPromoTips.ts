@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import type { ChatPromoKind } from "@/core/application/dtos";
 import { chatPromoPolishSchema } from "@/lib/chat/schemas";
 import {
-  CHAT_PROMO_ROTATE_MS,
+  CHAT_PROMO_CYCLE_MS,
+  CHAT_PROMO_FIRST_MS,
+  CHAT_PROMO_SHOW_MS,
   CHAT_PROMO_TIPS,
   type ChatPromoIcon,
   type ChatPromoTip
@@ -137,7 +139,13 @@ export function useBotPromoTips(enabled: boolean) {
   const magazines = useMonthlyMagazines({ activeOnly: true, enabled: live });
   const spotlights = useVolunteerSpotlight({ activeOnly: true, enabled: live });
   const now = useNow(live);
-  const tick = Math.max(0, Math.floor(now / CHAT_PROMO_ROTATE_MS));
+  const born = useRef(0);
+  if (live && now > 0 && !born.current) born.current = now;
+  const age = born.current ? now - born.current : 0;
+  const due = age >= CHAT_PROMO_FIRST_MS;
+  const elapsed = due ? age - CHAT_PROMO_FIRST_MS : 0;
+  const tick = Math.max(0, Math.floor(elapsed / CHAT_PROMO_CYCLE_MS));
+  const visible = due && elapsed % CHAT_PROMO_CYCLE_MS < CHAT_PROMO_SHOW_MS;
 
   const events = useMemo(
     () => (live ? eventTipsFromLists(activities.list, posts.list, magazines.list, spotlights.list) : []),
@@ -175,6 +183,7 @@ export function useBotPromoTips(enabled: boolean) {
     tip: {
       ...template,
       text: polish.data || template.text
-    }
+    },
+    visible
   };
 }

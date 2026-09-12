@@ -77,7 +77,7 @@ export const CHAT_TEXT = {
 export const CHAT_TIPS = {
   quota: "الرسائل المتبقية لك اليوم. نضع حداً يومياً لإدارة تكلفة الخدمة والحفاظ على جودتها.",
   cta: "اطلب AI Bot",
-  ctaNudge: "اطلب مساعداً ذكياً من عمّار",
+  ctaNudge: "Buy your AI bot",
   history: "محادثاتي",
   newChat: "محادثة جديدة",
   minimize: "تصغير النافذة",
@@ -166,7 +166,15 @@ export const CHAT_PROMO_TIPS: readonly ChatPromoTip[] = [
   }
 ];
 
-export const CHAT_PROMO_ROTATE_MS = 32000;
+export const CHAT_BOT_TIP_MOMENTS: readonly BotPose[] = ["invite", "wave", "greeting", "cheer"];
+
+export const CHAT_PROMO_FIRST_MS = 50_000;
+export const CHAT_PROMO_CYCLE_MS = 150_000;
+export const CHAT_PROMO_SHOW_MS = 7_000;
+
+export const CHAT_CTA_NUDGE_FIRST_MS = 120_000;
+export const CHAT_CTA_NUDGE_CYCLE_MS = 300_000;
+export const CHAT_CTA_NUDGE_SHOW_MS = 1_800;
 
 export type BotPresenceMode = "full" | "bot" | "hidden";
 

@@ -402,7 +402,8 @@ $ink: #173524;
   background: transparent;
   cursor: pointer;
 
-  &:hover {
+  &:hover,
+  &.copyDone {
     color: $green;
     background: rgba($green, 0.1);
   }
@@ -563,11 +564,6 @@ $ink: #173524;
     color: $text-tertiary;
     font-size: 0.68rem;
   }
-}
-
-.notice {
-  color: $text-tertiary;
-  font-size: 0.72rem;
 }
 
 .historyHead {
