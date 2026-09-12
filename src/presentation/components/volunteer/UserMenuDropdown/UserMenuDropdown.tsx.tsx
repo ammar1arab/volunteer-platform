@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Award, Bot, CalendarDays, EyeOff, LogOut, MessageCircle, User } from "lucide-react";
 import Tooltip from "@/presentation/components/base/Tooltip/Tooltip";
 import styles from "./UserMenuDropdown.module.scss";
-import { BOT_PRESENCE_OPTIONS, ROUTES } from "@/presentation/constants";
+import { BOT_PRESENCE_OPTIONS, CHAT_ASSISTANT_NAME, ROUTES } from "@/presentation/constants";
 import { useBotPresence } from "@/presentation/hooks";
 
 interface Props {
@@ -61,16 +61,18 @@ const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => 
           </Link>
         ))}
 
-        <div className={styles.item} role="group" aria-label="رفيق بصمات">
-          <span className={styles.itemIcon}>
-            <Bot size={15} />
-          </span>
-          <span>رفيق بصمات</span>
+        <div className={styles.botBlock} role="group" aria-label={CHAT_ASSISTANT_NAME}>
+          <div className={styles.botHead}>
+            <span className={styles.itemIcon}>
+              <Bot size={15} />
+            </span>
+            <span className={styles.botTitle}>{CHAT_ASSISTANT_NAME}</span>
+          </div>
           <div className={styles.botModes}>
             {BOT_PRESENCE_OPTIONS.map((option) => {
               const Icon = MODE_ICONS[option.id];
               return (
-                <Tooltip key={option.id} content={option.hint} side="bottom">
+                <Tooltip key={option.id} content={option.hint} side="top">
                   <button
                     type="button"
                     className={`${styles.botMode} ${mode === option.id ? styles.botModeOn : ""}`}
