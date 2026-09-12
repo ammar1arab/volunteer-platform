@@ -551,7 +551,6 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
     facing,
     stretchX,
     stretchY,
-    spin,
     fade,
     pose,
     asleep,
