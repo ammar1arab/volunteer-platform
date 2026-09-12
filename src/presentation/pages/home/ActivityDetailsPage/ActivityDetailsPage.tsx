@@ -76,7 +76,7 @@ const ActivityDetailsPage = () => {
     return <Button variant="primary" size="md" loading={submitting} onClick={handleJoin}>انضم الآن</Button>;
   };
 
-  if (loading) return <div className={styles.loadingContainer}><LoadingState /></div>;
+  if (loading) return <LoadingState />;
   if (error || !activity) return (
     <div className={styles.empty}>
       <p>{error || "النشاط غير موجود"}</p>

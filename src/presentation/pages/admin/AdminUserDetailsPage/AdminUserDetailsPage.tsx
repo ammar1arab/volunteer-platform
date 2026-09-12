@@ -268,7 +268,7 @@ const AdminUserDetailsPage = () => {
               <Dropdown items={filterItems} active={activeFilter} onChange={setActiveFilter} placeholder="الحالة" compact />
             </div>
 
-            {loadingActivities ? <LoadingState /> : activities.length === 0 ? (
+            {loadingActivities ? <LoadingState fill /> : activities.length === 0 ? (
               <EmptyState icon={Activity} message="لا توجد فرص" />
             ) : (
               <div className={styles.listWrapper}>

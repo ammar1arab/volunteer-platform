@@ -66,7 +66,7 @@ const FeaturedPostsPage = () => {
       </header>
 
       {isLoading ? (
-        <LoadingState />
+        <LoadingState fill />
       ) : filteredList.length === 0 ? (
         <EmptyState
           icon={FileImage}

@@ -8,11 +8,6 @@
   min-height: 100vh;
 }
 
-.loadingContainer {
-  @include flex-center;
-  min-height: 100vh;
-}
-
 .header {
   @include flex-col;
   gap: $sp-xs;

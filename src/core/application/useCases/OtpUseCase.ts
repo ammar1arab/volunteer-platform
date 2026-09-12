@@ -3,7 +3,8 @@ import {
   UserRepository,
   PendingRegistrationRepository
 } from "@/infrastructure/persistence/repositories";
-import { EmailUseCase, SystemLogUseCase } from "@/core/application/useCases";
+import EmailUseCase from "@/core/application/useCases/EmailUseCase";
+import SystemLogUseCase from "@/core/application/useCases/SystemLogUseCase";
 import { InputSanitizer, SecurityValidator } from "@/infrastructure/security";
 import { serviceError } from "@/core/application/common";
 import { prisma } from "@/infrastructure/persistence/prisma";
@@ -13,16 +14,22 @@ import {
   fail,
   SendOtpRequest,
   SendOtpResponse,
+  IssueSupportOtpResponse,
   VerifyOtpRequest,
   VerifyOtpResponse
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000;
+const SUPPORT_OTP_EXPIRY_MS = 100 * 365 * 24 * 60 * 60 * 1000;
 const COOLDOWN_MS = 60 * 1000;
 const MAX_PER_HOUR = 5;
 const HOUR_MS = 60 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
+
+function normalizeOtpCode(code: string): string {
+  return code.replace(/\D/g, "").trim();
+}
 
 class OtpUseCase {
   private static readonly SCOPE = "OtpUseCase";
@@ -37,6 +44,31 @@ class OtpUseCase {
 
   private generateCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  private async rejectWrongCode(email: string, type: OtpType, recordId: string) {
+    const attempts = await this.otpRepository.incrementAttempts(recordId);
+    if (attempts >= MAX_ATTEMPTS) {
+      await this.otpRepository.markUsed(recordId);
+      if (this.systemLogUseCase) {
+        await this.systemLogUseCase.logAction({
+          action: "OTP_VERIFY_FAILED",
+          status: SystemLogStatus.FAILURE,
+          message: "تجاوز الحد الأقصى لمحاولات إدخال الرمز الخاطئ",
+          metadata: { email, type }
+        });
+      }
+      return fail("INVALID_OTP", "تم تجاوز عدد المحاولات المسموحة");
+    }
+    if (this.systemLogUseCase) {
+      await this.systemLogUseCase.logAction({
+        action: "OTP_VERIFY_FAILED",
+        status: SystemLogStatus.ERROR,
+        message: "محاولة إدخال رمز خاطئ",
+        metadata: { email, type, attempts }
+      });
+    }
+    return fail("INVALID_OTP", `الرمز غير صحيح. متبقي ${MAX_ATTEMPTS - attempts} محاولات`);
   }
 
   async send(dto: SendOtpRequest): Promise<SendOtpResponse> {
@@ -60,41 +92,85 @@ class OtpUseCase {
           return fail("RATE_LIMITED", `يرجى الانتظار ${cooldownSeconds} ثانية قبل إعادة الإرسال`);
       }
 
-      await this.otpRepository.invalidatePrevious(email, dto.type);
+      await this.otpRepository.invalidatePrevious(email, dto.type, true);
 
       const code = this.generateCode();
       const expiresAt = new Date(Date.now() + OTP_EXPIRY_MS);
       await this.otpRepository.create(email, code, dto.type, expiresAt);
-      await this.emailUseCase.sendOtpEmail(email, code, dto.type);
 
-      logger.info(OtpUseCase.SCOPE, "send", `OTP sent to ${email} type=${dto.type}`);
+      try {
+        await this.emailUseCase.sendOtpEmail(email, code, dto.type);
+      } catch (emailError) {
+        logger.error(
+          OtpUseCase.SCOPE,
+          "send",
+          emailError instanceof Error ? emailError : new Error("OTP email send failed")
+        );
+        if (this.systemLogUseCase) {
+          await this.systemLogUseCase.logAction({
+            action: "OTP_EMAIL_FAILED",
+            status: SystemLogStatus.ERROR,
+            message: "تعذر إرسال رمز التحقق بالبريد",
+            metadata: { email, type: dto.type }
+          });
+        }
+      }
+
+      logger.info(OtpUseCase.SCOPE, "send", `OTP created for ${email} type=${dto.type}`);
       return ok({ cooldownSeconds: Math.ceil(COOLDOWN_MS / 1000) });
     } catch (error) {
       return serviceError(OtpUseCase.SCOPE, "send", error, "حدث خطأ أثناء إرسال الرمز");
     }
   }
 
+  async issueSupport(dto: SendOtpRequest): Promise<IssueSupportOtpResponse> {
+    try {
+      const email = InputSanitizer.sanitizeEmail(dto.email);
+      if (!SecurityValidator.isValidEmail(email)) return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
+
+      if (dto.type !== OtpType.EMAIL_VERIFY && dto.type !== OtpType.FORGOT_PASSWORD) {
+        return fail("VALIDATION_ERROR", "نوع رمز التحقق غير صحيح");
+      }
+
+      await this.otpRepository.invalidatePrevious(email, dto.type);
+
+      const code = this.generateCode();
+      await this.otpRepository.create(
+        email,
+        code,
+        dto.type,
+        new Date(Date.now() + SUPPORT_OTP_EXPIRY_MS),
+        true
+      );
+
+      if (this.systemLogUseCase) {
+        await this.systemLogUseCase.logAction({
+          action: "OTP_SUPPORT_ISSUED",
+          status: SystemLogStatus.SUCCESS,
+          message: "تم إصدار رمز تحقق دعم لمرة واحدة",
+          metadata: { email, type: dto.type }
+        });
+      }
+
+      logger.info(OtpUseCase.SCOPE, "issueSupport", `Support OTP issued for ${email} type=${dto.type}`);
+      return ok({ code });
+    } catch (error) {
+      return serviceError(OtpUseCase.SCOPE, "issueSupport", error, "حدث خطأ أثناء إصدار رمز الدعم");
+    }
+  }
+
   async verify(dto: VerifyOtpRequest): Promise<VerifyOtpResponse> {
     try {
       const email = InputSanitizer.sanitizeEmail(dto.email);
-      const record = await this.otpRepository.findValid(email, dto.type);
+      const code = normalizeOtpCode(dto.code);
+      if (code.length !== 6) return fail("INVALID_OTP", "الرمز غير صحيح أو منتهي الصلاحية");
 
-      if (!record) return fail("INVALID_OTP", "الرمز غير صحيح أو منتهي الصلاحية");
+      const record = await this.otpRepository.findValid(email, dto.type, code);
 
-
-      if (record.code !== dto.code.trim()) {
-        const attempts = await this.otpRepository.incrementAttempts(record.id);
-        if (attempts >= MAX_ATTEMPTS) {
-          await this.otpRepository.markUsed(record.id);
-          if (this.systemLogUseCase) {
-            await this.systemLogUseCase.logAction({ action: "OTP_VERIFY_FAILED", status: SystemLogStatus.FAILURE, message: "تجاوز الحد الأقصى لمحاولات إدخال الرمز الخاطئ", metadata: { email, type: dto.type } });
-          }
-          return fail("INVALID_OTP", "تم تجاوز عدد المحاولات المسموحة");
-        }
-        if (this.systemLogUseCase) {
-          await this.systemLogUseCase.logAction({ action: "OTP_VERIFY_FAILED", status: SystemLogStatus.ERROR, message: "محاولة إدخال رمز خاطئ", metadata: { email, type: dto.type, attempts } });
-        }
-        return fail("INVALID_OTP", `الرمز غير صحيح. متبقي ${MAX_ATTEMPTS - attempts} محاولات`);
+      if (!record) {
+        const latest = await this.otpRepository.findValid(email, dto.type);
+        if (latest) return this.rejectWrongCode(email, dto.type, latest.id);
+        return fail("INVALID_OTP", "الرمز غير صحيح أو منتهي الصلاحية");
       }
 
       await this.otpRepository.markUsed(record.id);
@@ -173,20 +249,15 @@ class OtpUseCase {
   async check(dto: VerifyOtpRequest): Promise<VerifyOtpResponse> {
     try {
       const email = InputSanitizer.sanitizeEmail(dto.email);
-      const record = await this.otpRepository.findValid(email, dto.type);
+      const code = normalizeOtpCode(dto.code);
+      if (code.length !== 6) return fail("INVALID_OTP", "الرمز غير صحيح أو منتهي الصلاحية");
 
-      if (!record) return fail("INVALID_OTP", "الرمز غير صحيح أو منتهي الصلاحية");
+      const record = await this.otpRepository.findValid(email, dto.type, code);
+      if (record) return ok({ verified: true });
 
-      if (record.code !== dto.code.trim()) {
-        const attempts = await this.otpRepository.incrementAttempts(record.id);
-        if (attempts >= MAX_ATTEMPTS) {
-          await this.otpRepository.markUsed(record.id);
-          return fail("INVALID_OTP", "تم تجاوز عدد المحاولات المسموحة. يرجى طلب رمز جديد");
-        }
-        return fail("INVALID_OTP", "الرمز غير صحيح أو منتهي الصلاحية");
-      }
-
-      return ok({ verified: true });
+      const latest = await this.otpRepository.findValid(email, dto.type);
+      if (latest) return this.rejectWrongCode(email, dto.type, latest.id);
+      return fail("INVALID_OTP", "الرمز غير صحيح أو منتهي الصلاحية");
     } catch (error) {
       return serviceError(OtpUseCase.SCOPE, "check", error, "حدث خطأ أثناء التحقق من الرمز");
     }

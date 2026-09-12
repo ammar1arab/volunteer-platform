@@ -43,6 +43,7 @@ export type {
   ResetPasswordResponse,
   SendOtpRequest,
   SendOtpResponse,
+  IssueSupportOtpResponse,
   VerifyOtpRequest,
   VerifyOtpResponse
 } from "./otp.dto";

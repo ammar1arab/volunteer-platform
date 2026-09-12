@@ -68,7 +68,7 @@ const VolunteerSpotlightPage = () => {
                 </div>
             </header>
             {isLoading ? (
-                <LoadingState />
+                <LoadingState fill />
             ) : filteredList.length === 0 ? (
                 <EmptyState
                     icon={Users}

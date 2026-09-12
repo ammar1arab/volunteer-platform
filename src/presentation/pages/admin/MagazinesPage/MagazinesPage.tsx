@@ -46,7 +46,7 @@ const MagazinesPage = () => {
       </header>
 
       {isLoading ? (
-        <LoadingState />
+        <LoadingState fill />
       ) : filteredByYear.length === 0 ? (
         <EmptyState
           icon={BookOpen}

@@ -52,7 +52,7 @@ const PermissionsPage = () => {
       </header>
 
       {loading ? (
-        <LoadingState />
+        <LoadingState fill />
       ) : admins.length === 0 ? (
         <EmptyState
           icon={Users}

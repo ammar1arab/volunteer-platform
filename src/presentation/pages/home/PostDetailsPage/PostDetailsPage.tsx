@@ -17,7 +17,7 @@ const PostDetailsPage = () => {
   const date = post?.publishedAt ? new Date(post.publishedAt) : null;
   const dateLabel = date ? `${date.getDate()} ${getMonthLabel(date.getMonth() + 1)} ${date.getFullYear()}` : null;
 
-  if (loading) return <div className={styles.loadingContainer}><LoadingState /></div>;
+  if (loading) return <LoadingState />;
 
   if (error || !post) return (
     <div className={styles.empty}>

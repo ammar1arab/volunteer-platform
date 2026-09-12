@@ -7,13 +7,7 @@ import { ActivityCard, LoadingState, Button, EmptyState } from "@/presentation/c
 const ActivitiesPublicPage = () => {
   const { activities, loading, submitting, getActionButton } = useActivitiesPublicPage();
 
-  if (loading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <LoadingState />
-      </div>
-    );
-  }
+  if (loading) return <LoadingState />;
 
   return (
     <div className={styles.container}>

@@ -142,7 +142,7 @@ const GoogleMeetPage = () => {
 
       {showMeetings &&
         (loadingMeetings ? (
-          <LoadingState />
+          <LoadingState fill />
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Video}
@@ -192,7 +192,7 @@ const GoogleMeetPage = () => {
 
       {activeView === "settings" &&
         (loadingSettings ? (
-          <LoadingState />
+          <LoadingState fill />
         ) : (
           <div className={styles.settings}>
             {integration?.lastError && (

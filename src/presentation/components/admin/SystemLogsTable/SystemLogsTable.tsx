@@ -15,7 +15,7 @@ interface Props {
 
 const SystemLogsTable: React.FC<Props> = ({ logs, isLoading, pagination, onPageChange }) => {
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState fill />;
   }
 
   if (!logs || logs.length === 0) {

@@ -12,7 +12,7 @@ const VolunteerSpotlightDetailsPage = () => {
   const router = useRouter();
   const { spotlight, loading, error } = useSpotlightDetails(useParams()?.id as string);
 
-  if (loading) return <div className={styles.loadingContainer}><LoadingState /></div>;
+  if (loading) return <LoadingState />;
 
   if (error || !spotlight) return (
     <div className={styles.empty}>

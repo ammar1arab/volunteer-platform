@@ -9,15 +9,24 @@
   width: 100%;
   min-height: 60vh;
   padding: clamp(2rem, 6vh, 4rem) 0;
-  
+
   &.compact {
     padding: $sp-md 0;
     min-height: auto;
     gap: $sp-sm;
   }
-}
 
-.viewport { box-sizing: border-box; min-height: calc(100dvh - var(--loading-top, 0px)); padding: 0; }
+  &.fill {
+    min-height: 16rem;
+    padding: $sp-xl 0;
+  }
+
+  &.viewport {
+    box-sizing: border-box;
+    min-height: calc(100dvh - var(--loading-top, 0px));
+    padding: 0;
+  }
+}
 
 .loader {
   position: relative;
@@ -41,7 +50,7 @@
   border-top-color: $green;
   border-right-color: rgba($green, 0.4);
   animation: spinOuter 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  
+
   .compact & {
     border-width: 1.5px;
   }

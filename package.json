@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap",
+    "otp": "tsx scripts/issue-support-otp.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",

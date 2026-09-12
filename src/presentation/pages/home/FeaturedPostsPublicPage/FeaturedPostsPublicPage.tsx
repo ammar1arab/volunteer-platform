@@ -16,9 +16,7 @@ const FeaturedPostsPublicPage = () => {
     handleSearch, handleSearchChange,
   } = useFeaturedPostsPublicPage();
 
-  if (loading) return (
-    <div className={styles.loadingContainer}><LoadingState /></div>
-  );
+  if (loading) return <LoadingState />;
 
   return (
     <div className={styles.container}>

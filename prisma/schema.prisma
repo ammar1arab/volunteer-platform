@@ -316,6 +316,7 @@ model OtpCode {
   usedAt    DateTime?
   createdAt DateTime  @default(now())
   attempts  Int       @default(0)
+  isSupport Boolean   @default(false)
 
   @@index([email, type])
   @@map("otp_codes")

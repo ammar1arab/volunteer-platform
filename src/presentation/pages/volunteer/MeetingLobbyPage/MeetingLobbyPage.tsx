@@ -16,7 +16,7 @@ const MeetingLobbyPage = () => {
 
   let body: ReactNode;
   if (view === "loading") {
-    body = <LoadingState />;
+    body = <LoadingState fill />;
   } else if (view === "notFound") {
     body = (
       <EmptyState

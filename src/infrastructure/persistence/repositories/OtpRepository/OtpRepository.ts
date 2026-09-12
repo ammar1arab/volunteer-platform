@@ -1,26 +1,46 @@
 import IOtpRepository, { OtpValidRow } from "./IOtpRepository";
-import { OtpType } from "@prisma/client";
+import { OtpType, Prisma } from "@prisma/client";
 import { prisma } from "@/infrastructure/persistence/prisma";
 
+const unusedValidWhere = (now: Date): Prisma.OtpCodeWhereInput => ({
+  usedAt: null,
+  OR: [{ isSupport: true }, { expiresAt: { gt: now } }],
+});
+
 class OtpRepository implements IOtpRepository {
-  async create(email: string, code: string, type: OtpType, expiresAt: Date): Promise<void> {
+  async create(
+    email: string,
+    code: string,
+    type: OtpType,
+    expiresAt: Date,
+    isSupport = false
+  ): Promise<void> {
     await prisma.otpCode.create({
-      data: { id: crypto.randomUUID(), email: email.toLowerCase(), code, type, expiresAt },
+      data: {
+        id: crypto.randomUUID(),
+        email: email.toLowerCase(),
+        code,
+        type,
+        expiresAt,
+        isSupport,
+      },
     });
   }
 
-  async findValid(email: string, type: OtpType): Promise<OtpValidRow | null> {
-    const row = await prisma.otpCode.findFirst({
+  async findValid(email: string, type: OtpType, code?: string): Promise<OtpValidRow | null> {
+    const now = new Date();
+    const rows = await prisma.otpCode.findMany({
       where: {
-        email:     email.toLowerCase(),
+        email: email.toLowerCase(),
         type,
-        usedAt:    null,
-        expiresAt: { gt: new Date() },
+        ...(code ? { code: code.trim() } : {}),
+        ...unusedValidWhere(now),
       },
       orderBy: { createdAt: "desc" },
-      select:  { id: true, code: true, expiresAt: true, attempts: true },
+      take: 8,
+      select: { id: true, code: true, expiresAt: true, attempts: true, isSupport: true },
     });
-    return row ?? null;
+    return rows.find((row) => row.isSupport) ?? rows[0] ?? null;
   }
 
   async markUsed(id: string): Promise<void> {
@@ -30,39 +50,45 @@ class OtpRepository implements IOtpRepository {
   async incrementAttempts(id: string): Promise<number> {
     const updated = await prisma.otpCode.update({
       where: { id },
-      data:  { attempts: { increment: 1 } },
+      data: { attempts: { increment: 1 } },
       select: { attempts: true },
     });
     return updated.attempts;
   }
 
-  async invalidatePrevious(email: string, type: OtpType): Promise<void> {
+  async invalidatePrevious(email: string, type: OtpType, keepSupport = false): Promise<void> {
     await prisma.otpCode.updateMany({
-      where: { email: email.toLowerCase(), type, usedAt: null },
-      data:  { usedAt: new Date() },
+      where: {
+        email: email.toLowerCase(),
+        type,
+        usedAt: null,
+        ...(keepSupport ? { isSupport: false } : {}),
+      },
+      data: { usedAt: new Date() },
     });
   }
 
   async countRecentByEmail(email: string, windowMs: number): Promise<number> {
     return prisma.otpCode.count({
-      where: { email: email.toLowerCase(), createdAt: { gt: new Date(Date.now() - windowMs) } },
+      where: {
+        email: email.toLowerCase(),
+        isSupport: false,
+        createdAt: { gt: new Date(Date.now() - windowMs) },
+      },
     });
   }
 
   async getLastSentAt(email: string, type: OtpType): Promise<Date | null> {
     const row = await prisma.otpCode.findFirst({
-      where:   { email: email.toLowerCase(), type },
+      where: { email: email.toLowerCase(), type, isSupport: false },
       orderBy: { createdAt: "desc" },
-      select:  { createdAt: true },
+      select: { createdAt: true },
     });
     return row?.createdAt ?? null;
   }
 
   async checkValid(email: string, code: string, type: OtpType): Promise<boolean> {
-    const row = await prisma.otpCode.findFirst({
-      where: { email: email.toLowerCase(), type, code, usedAt: null, expiresAt: { gt: new Date() } },
-      select: { id: true },
-    });
+    const row = await this.findValid(email, type, code);
     return !!row;
   }
 }

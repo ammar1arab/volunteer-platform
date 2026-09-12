@@ -316,7 +316,7 @@ const NotificationsPage = () => {
           </div>
 
           {loadingBroadcasts ? (
-            <LoadingState />
+            <LoadingState fill />
           ) : broadcasts.length === 0 ? (
             <EmptyState icon={Bell} message="لم يُرسل أي إشعار بعد" />
           ) : (

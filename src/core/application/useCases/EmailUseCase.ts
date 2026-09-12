@@ -38,12 +38,16 @@ class EmailUseCase {
 
   private async sendRawEmail(to: string, subject: string, html: string): Promise<void> {
     const resend = ResendClient.getInstance();
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: "بصمات شبابية <noreply@youthprints.online>",
+      replyTo: "support@youthprints.online",
       to,
       subject,
       html
     });
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
   }
 
   async sendOtpEmail(email: string, code: string, type: OtpType): Promise<void> {

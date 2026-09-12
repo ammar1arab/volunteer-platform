@@ -1,11 +1,18 @@
 import webpush from "web-push";
 import { prisma } from "@/infrastructure/persistence/prisma";
 
-webpush.setVapidDetails(
-  process.env.VAPID_MAILTO!,
-  process.env.VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!,
-);
+let vapidReady = false;
+
+function ensureVapid(): boolean {
+  if (vapidReady) return true;
+  const subject = process.env.VAPID_MAILTO;
+  const publicKey = process.env.VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  if (!subject || !publicKey || !privateKey) return false;
+  webpush.setVapidDetails(subject, publicKey, privateKey);
+  vapidReady = true;
+  return true;
+}
 
 export interface PushPayload {
   title: string;
@@ -20,6 +27,8 @@ async function cleanDead(endpoints: string[]): Promise<void> {
 }
 
 export async function sendPushToUser(userId: string, payload: PushPayload): Promise<void> {
+  if (!ensureVapid()) return;
+
   const subs = await prisma.pushSubscription.findMany({ where: { userId } });
   if (!subs.length) return;
 

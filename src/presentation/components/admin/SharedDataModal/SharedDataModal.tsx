@@ -177,7 +177,7 @@ export function SharedDataModal<T extends Record<string, any>>({
         )}
 
         {isLoading ? (
-          <LoadingState />
+          <LoadingState compact />
         ) : processedData.length === 0 ? (
           <EmptyState icon={Icon as any} title={emptyTitle} message={emptyMessage} />
         ) : customListRenderer ? (

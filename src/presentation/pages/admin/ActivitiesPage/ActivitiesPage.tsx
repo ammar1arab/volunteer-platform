@@ -42,7 +42,7 @@ const ActivitiesPage = () => {
           </div>
         </div>
       </header>
-      {loading ? <LoadingState /> : filtered.length === 0 ? (
+      {loading ? <LoadingState fill /> : filtered.length === 0 ? (
         <EmptyState icon={CalendarDays} message={appliedSearch ? "لا توجد نتائج للبحث" : "لم يتم العثور على أي فرص تطوعية"}
           action={{ label: "إضافة فرصة الآن", onClick: openCreateModal }} />
       ) : (

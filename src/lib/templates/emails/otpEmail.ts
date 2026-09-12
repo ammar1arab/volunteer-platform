@@ -40,7 +40,7 @@ export function buildOtpEmail(email: string, code: string, type: OtpType): strin
               <td align="center" style="background:#f0fdf4;padding:28px 16px;border-radius:8px;border:1.5px dashed ${green};">
                 <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#999;letter-spacing:1px;">رمز التحقق</p>
                 <p style="margin:0;font-size:40px;font-weight:800;color:${green};letter-spacing:12px;">${code}</p>
-                <p style="margin:8px 0 0;font-size:12px;color:#999;">صالح لمدة 5 دقائق فقط</p>
+                <p style="margin:8px 0 0;font-size:12px;color:#999;">صالح لمدة 5 دقائق. راجع البريد العشوائي إذا لم يصلك الرمز.</p>
               </td>
             </tr>
           </table>

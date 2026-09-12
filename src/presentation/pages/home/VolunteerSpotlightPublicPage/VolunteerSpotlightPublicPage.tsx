@@ -11,7 +11,7 @@ const VolunteerSpotlightPublicPage = () => {
     activeCity, setActiveCity, cityOptions,
   } = useVolunteerSpotlightPublicPage();
 
-  if (loading) return <div className={styles.loadingContainer}><LoadingState /></div>;
+  if (loading) return <LoadingState />;
 
   return (
     <div className={styles.container}>

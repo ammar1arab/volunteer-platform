@@ -67,7 +67,7 @@ const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients,
 
         <div className={styles.listWrap}>
           {loading ? (
-            <LoadingState />
+            <LoadingState compact />
           ) : filtered.length === 0 ? (
             <EmptyState icon={Users} message={search ? "لا توجد نتائج" : "لا يوجد مستقبلون"} />
           ) : (

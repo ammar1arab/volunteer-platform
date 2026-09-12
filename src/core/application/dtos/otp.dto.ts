@@ -22,6 +22,7 @@ export interface ResetPasswordRequest {
 }
 
 export type SendOtpResponse = Result<{ cooldownSeconds: number }>;
+export type IssueSupportOtpResponse = Result<{ code: string }>;
 export type VerifyOtpResponse = Result<{ verified: true; resetToken?: string }>;
 export type ForgotPasswordResponse = Result<{ cooldownSeconds: number }>;
 export type ResetPasswordResponse = Result<{ success: true }>;

@@ -60,7 +60,7 @@ const VerifyEmailContent = () => {
         </div>
 
         <div className={styles.support}>
-          <p>لم تستلم الرمز؟</p>
+          <p>لم تستلم الرمز؟ تحقق من البريد العشوائي أو اطلب إعادة الإرسال.</p>
           <div className={styles.supportLinks}>
             <a href="mailto:support@youthprints.online">support@youthprints.online</a>
             <span>·</span>

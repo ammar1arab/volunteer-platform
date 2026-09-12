@@ -65,7 +65,7 @@ const UserManagementPage = () => {
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       {loading ? (
-        <LoadingState />
+        <LoadingState fill />
       ) : isEmpty ? (
         <EmptyState icon={UsersIcon} message="لا يوجد مستخدمين" />
       ) : (
