@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { User, CalendarDays, Award, LogOut, Bot } from "lucide-react";
+import { Award, Bot, CalendarDays, EyeOff, LogOut, MessageCircle, User } from "lucide-react";
+import Tooltip from "@/presentation/components/base/Tooltip/Tooltip";
 import styles from "./UserMenuDropdown.module.scss";
 import { BOT_PRESENCE_OPTIONS, ROUTES, type BotPresenceMode } from "@/presentation/constants";
 import { useBotPresence } from "@/presentation/hooks/uiHooks/useBotPresence";
@@ -20,12 +21,14 @@ const LINKS = [
   { href: ROUTES.VOLUNTEER.CERTIFICATES, icon: <Award size={15} />, label: "شهاداتي" }
 ];
 
+const MODE_ICONS = {
+  full: MessageCircle,
+  bot: Bot,
+  hidden: EyeOff
+} as const;
+
 const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => {
   const { mode, setMode } = useBotPresence();
-
-  function choose(next: BotPresenceMode) {
-    setMode(next);
-  }
 
   return (
     <div className={styles.dropdown}>
@@ -57,30 +60,30 @@ const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => 
             <span>{link.label}</span>
           </Link>
         ))}
-      </div>
 
-      <div className={styles.divider} />
-
-      <div className={styles.botBlock} role="group" aria-label="رفيق بصمات">
-        <div className={styles.botHead}>
+        <div className={styles.item} role="group" aria-label="رفيق بصمات">
           <span className={styles.itemIcon}>
             <Bot size={15} />
           </span>
           <span>رفيق بصمات</span>
-        </div>
-        <div className={styles.botModes}>
-          {BOT_PRESENCE_OPTIONS.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              className={`${styles.botMode} ${mode === option.id ? styles.botModeOn : ""}`}
-              aria-pressed={mode === option.id}
-              title={option.hint}
-              onClick={() => choose(option.id)}
-            >
-              {option.label}
-            </button>
-          ))}
+          <div className={styles.botModes}>
+            {BOT_PRESENCE_OPTIONS.map((option) => {
+              const Icon = MODE_ICONS[option.id];
+              return (
+                <Tooltip key={option.id} content={option.hint} side="bottom">
+                  <button
+                    type="button"
+                    className={`${styles.botMode} ${mode === option.id ? styles.botModeOn : ""}`}
+                    aria-label={option.label}
+                    aria-pressed={mode === option.id}
+                    onClick={() => setMode(option.id as BotPresenceMode)}
+                  >
+                    <Icon size={14} />
+                  </button>
+                </Tooltip>
+              );
+            })}
+          </div>
         </div>
       </div>
 
