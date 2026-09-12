@@ -19,13 +19,9 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
   const bot = useBotDirector(true, thinking);
   const tipsLive = showTips && bot.settled && !bot.asleep;
   const promo = useBotPromoTips(tipsLive);
-  const scaleX = useTransform([bot.facing, bot.stretchX], ([face, stretch]: number[]) => face * stretch);
-  const rotate = useTransform([bot.tilt, bot.spin], ([tilt, spin]: number[]) =>
-    bot.reduced ? 0 : tilt + spin
-  );
+  const scaleX = useTransform(bot.facing, (face) => (bot.reduced ? 1 : face));
   const shadow = useTransform(bot.y, (value) => (value < -90 ? 0 : Math.max(0.22, 1 + value / 90)));
   const pointer = useTransform(bot.fade, (value) => (value < 0.35 ? "none" : "auto"));
-  const torch = bot.pose === "torch";
 
   function openChat() {
     if (bot.reduced) {
@@ -50,13 +46,9 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
         >
           <motion.span className={styles.botShadow} style={{ scale: shadow, opacity: shadow }} />
           <motion.span
-            className={`${styles.botBody} ${torch ? styles.botGlow : ""}`}
+            className={styles.botBody}
             data-asleep={bot.asleep ? "true" : "false"}
-            style={{
-              rotate: bot.reduced ? 0 : rotate,
-              scaleX: bot.reduced ? 1 : scaleX,
-              scaleY: bot.reduced ? 1 : bot.stretchY
-            }}
+            style={{ scaleX }}
           >
             <BotAvatar pose={bot.pose} poking={bot.poking} reduced={bot.reduced} asleep={bot.asleep} />
           </motion.span>

@@ -164,21 +164,8 @@ export const BOT_PRESENCE_OPTIONS: readonly {
 
 export const BOT_RIVE = {
   src: "/rive/basmat-agent.riv",
+  artboard: "mascot",
   stateMachine: "mascot",
   poseInput: "pose",
-  pokeTrigger: "poke",
-  poses: {
-    idle: 0,
-    run: 1,
-    invite: 2,
-    cheer: 3,
-    think: 4,
-    thinking: 5,
-    search: 6,
-    rest: 7,
-    torch: 8,
-    wave: 9,
-    greeting: 10,
-    success: 11
-  }
+  pokeTrigger: "poke"
 } as const;

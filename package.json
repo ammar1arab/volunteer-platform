@@ -9,7 +9,8 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "postbuild": "next-sitemap",
-    "otp": "tsx scripts/issue-support-otp.ts"
+    "otp": "tsx scripts/issue-support-otp.ts",
+    "rive:basmat": "node scripts/build-basmat-riv.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",
@@ -56,6 +57,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@prisma/client": "^6.19.0",
+    "@stevysmith/rive-generator": "^0.1.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^20",

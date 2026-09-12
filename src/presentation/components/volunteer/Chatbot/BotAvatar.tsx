@@ -1,10 +1,9 @@
 "use client";
 
-import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
+import { useRive } from "@rive-app/react-canvas";
 import { useRef, useState } from "react";
 import { BOT_RIVE } from "@/presentation/constants";
 import type { BotPose } from "@/presentation/hooks/uiHooks/useBotDirector";
-import { useFetchData } from "@/presentation/query";
 import styles from "./Chatbot.module.scss";
 
 export const BOT_POSES: Record<BotPose, string> = {
@@ -31,6 +30,12 @@ type Props = {
   asleep: boolean;
 };
 
+function clipName(pose: BotPose, poking: boolean, asleep: boolean) {
+  if (poking) return "poke";
+  if (asleep) return "rest";
+  return pose;
+}
+
 function PngFaces({ pose }: { pose: BotPose }) {
   return (
     <>
@@ -49,48 +54,36 @@ function PngFaces({ pose }: { pose: BotPose }) {
   );
 }
 
-function RiveFace({ pose, poking }: { pose: BotPose; poking: boolean }) {
+function RiveFace({ pose, poking, asleep }: { pose: BotPose; poking: boolean; asleep: boolean }) {
   const [failed, setFailed] = useState(false);
-  const poked = useRef(false);
+  const last = useRef("");
+  const clip = clipName(pose, poking, asleep);
   const { rive, RiveComponent } = useRive({
     src: BOT_RIVE.src,
-    stateMachine: BOT_RIVE.stateMachine,
+    artboard: BOT_RIVE.artboard,
     autoplay: true,
+    animations: clip,
     onLoadError: () => setFailed(true)
   });
-  const poseInput = useStateMachineInput(rive, BOT_RIVE.stateMachine, BOT_RIVE.poseInput);
-  const pokeInput = useStateMachineInput(rive, BOT_RIVE.stateMachine, BOT_RIVE.pokeTrigger);
 
-  if (poseInput) poseInput.value = BOT_RIVE.poses[pose];
-  if (poking && pokeInput && !poked.current) {
-    poked.current = true;
-    pokeInput.fire();
+  if (rive && last.current !== clip) {
+    last.current = clip;
+    rive.stop();
+    rive.play(clip);
   }
-  if (!poking) poked.current = false;
 
   if (failed) return <PngFaces pose={pose} />;
   return <RiveComponent className={`${styles.botFace} ${styles.botFaceOn}`} />;
 }
 
 const BotAvatar = ({ pose, poking, reduced, asleep }: Props) => {
-  const riveReady = useFetchData<boolean>({
-    queryKey: ["rive", BOT_RIVE.src],
-    request: async () => {
-      try {
-        const response = await fetch(BOT_RIVE.src, { method: "HEAD" });
-        return response.ok;
-      } catch {
-        return false;
-      }
-    },
-    options: { staleTime: 60 * 60_000, retry: false, refetchOnWindowFocus: false }
-  });
-
-  const useRiveFace = Boolean(riveReady.data) && !reduced;
-
   return (
     <>
-      {useRiveFace ? <RiveFace pose={pose} poking={poking} /> : <PngFaces pose={pose} />}
+      {reduced ? (
+        <PngFaces pose={pose} />
+      ) : (
+        <RiveFace pose={pose} poking={poking} asleep={asleep} />
+      )}
       {asleep && <span className={styles.zzz}>z</span>}
     </>
   );
