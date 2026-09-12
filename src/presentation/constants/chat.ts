@@ -170,7 +170,7 @@ export const CHAT_BOT_TIP_MOMENTS: readonly BotPose[] = ["invite", "wave", "gree
 
 export const CHAT_PROMO_FIRST_MS = 50_000;
 export const CHAT_PROMO_CYCLE_MS = 150_000;
-export const CHAT_PROMO_SHOW_MS = 7_000;
+export const CHAT_PROMO_SHOW_MS = 18_000;
 
 export const CHAT_CTA_NUDGE_FIRST_MS = 120_000;
 export const CHAT_CTA_NUDGE_CYCLE_MS = 300_000;

@@ -2,8 +2,9 @@
 
 import { motion, useTransform } from "framer-motion";
 import type { PointerEvent } from "react";
-import { CHAT_BOT_TIP_MOMENTS, CHAT_TIPS } from "@/presentation/constants";
-import { useBotDirector, useBotPresence, useBotPromoTips } from "@/presentation/hooks";
+import { useRef } from "react";
+import { CHAT_BOT_TIP_MOMENTS, CHAT_PROMO_SHOW_MS, CHAT_TIPS } from "@/presentation/constants";
+import { useBotDirector, useBotPresence, useBotPromoTips, useNow } from "@/presentation/hooks";
 import BotAvatar from "./BotAvatar";
 import BotPromoChip from "./BotPromoChip";
 import styles from "./Chatbot.module.scss";
@@ -18,7 +19,19 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
   const bot = useBotDirector(true, thinking);
   const promo = useBotPromoTips(showTips);
   const moment = bot.docked && !bot.asleep && CHAT_BOT_TIP_MOMENTS.includes(bot.pose);
-  const showChip = showTips && !bot.asleep && !bot.playing && (moment || (bot.settled && promo.visible));
+  const trigger = showTips && !bot.asleep && !bot.playing && (moment || (bot.settled && promo.visible));
+  const clock = useNow(showTips);
+  const shownAt = useRef(0);
+  const armed = useRef(true);
+  if (clock > 0) {
+    if (shownAt.current && clock - shownAt.current >= CHAT_PROMO_SHOW_MS) {
+      shownAt.current = 0;
+      armed.current = false;
+    }
+    if (trigger && armed.current && !shownAt.current) shownAt.current = clock;
+    if (!trigger) armed.current = true;
+  }
+  const showChip = showTips && !bot.asleep && !bot.playing && shownAt.current > 0;
   const scaleX = useTransform([bot.facing, bot.stretchX, bot.grow], ([face, stretch, pulse]: number[]) =>
     bot.reduced ? 1 : face * stretch * pulse
   );
