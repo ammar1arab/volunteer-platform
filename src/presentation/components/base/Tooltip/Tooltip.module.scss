@@ -26,68 +26,98 @@ $tip-bg: #0d3321;
   opacity: 0;
   border: 1px solid rgba($green, 0.35);
   border-radius: $radius-md;
-  background: linear-gradient(150deg, $tip-bg, #14532d);
+  background: $tip-bg;
   box-shadow:
     0 0.5rem 1.5rem rgba($tip-bg, 0.28),
     0 0 0 0.2rem rgba($green, 0.06);
 
+  &::before,
   &::after {
     content: "";
     position: absolute;
-    width: 0.45rem;
-    height: 0.45rem;
-    border: 1px solid rgba($green, 0.35);
-    background: $tip-bg;
-    transform: rotate(45deg);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-color: transparent;
   }
 
   &[data-ready="true"] {
     visibility: visible;
-    animation: tipIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: tipIn 0.16s ease-out forwards;
+  }
+
+  &[data-placement="top"]::before,
+  &[data-placement="bottom"]::before,
+  &[data-placement="top"]::after,
+  &[data-placement="bottom"]::after {
+    left: var(--arrow-x, 50%);
+    transform: translateX(-50%);
+  }
+
+  &[data-placement="left"]::before,
+  &[data-placement="right"]::before,
+  &[data-placement="left"]::after,
+  &[data-placement="right"]::after {
+    top: var(--arrow-y, 50%);
+    transform: translateY(-50%);
+  }
+
+  &[data-placement="top"]::before {
+    top: 100%;
+    border-width: 7px 6px 0;
+    border-top-color: rgba($green, 0.35);
   }
 
   &[data-placement="top"]::after {
-    bottom: -0.23rem;
-    left: var(--arrow-x, 50%);
-    margin-left: -0.225rem;
-    border-top: 0;
-    border-left: 0;
+    top: 100%;
+    border-width: 6px 5px 0;
+    border-top-color: $tip-bg;
+  }
+
+  &[data-placement="bottom"]::before {
+    bottom: 100%;
+    border-width: 0 6px 7px;
+    border-bottom-color: rgba($green, 0.35);
   }
 
   &[data-placement="bottom"]::after {
-    top: -0.23rem;
-    left: var(--arrow-x, 50%);
-    margin-left: -0.225rem;
-    border-right: 0;
-    border-bottom: 0;
+    bottom: 100%;
+    border-width: 0 5px 6px;
+    border-bottom-color: $tip-bg;
+  }
+
+  &[data-placement="left"]::before {
+    left: 100%;
+    border-width: 6px 0 6px 7px;
+    border-left-color: rgba($green, 0.35);
   }
 
   &[data-placement="left"]::after {
-    top: var(--arrow-y, 50%);
-    right: -0.23rem;
-    margin-top: -0.225rem;
-    border-bottom: 0;
-    border-left: 0;
+    left: 100%;
+    border-width: 5px 0 5px 6px;
+    border-left-color: $tip-bg;
+  }
+
+  &[data-placement="right"]::before {
+    right: 100%;
+    border-width: 6px 7px 6px 0;
+    border-right-color: rgba($green, 0.35);
   }
 
   &[data-placement="right"]::after {
-    top: var(--arrow-y, 50%);
-    left: -0.23rem;
-    margin-top: -0.225rem;
-    border-top: 0;
-    border-right: 0;
+    right: 100%;
+    border-width: 5px 6px 5px 0;
+    border-right-color: $tip-bg;
   }
 }
 
 @keyframes tipIn {
   from {
     opacity: 0;
-    translate: 0 0.25rem;
-    scale: 0.97;
+    scale: 0.98;
   }
   to {
     opacity: 1;
-    translate: 0 0;
     scale: 1;
   }
 }

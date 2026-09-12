@@ -17,9 +17,16 @@ type Props = {
 };
 
 const EDGE = 10;
-const ARROW = 10;
+const ARROW = 8;
 
-const Tooltip = ({ content, children, side = "top", offset = 10, delay = 220, open = false }: Props) => {
+const opposite: Record<TooltipSide, TooltipSide> = {
+  top: "bottom",
+  bottom: "top",
+  left: "right",
+  right: "left"
+};
+
+const Tooltip = ({ content, children, side = "top", offset = 9, delay = 220, open = false }: Props) => {
   const [hover, setHover] = useState<DOMRect | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const timerRef = useRef<number | null>(null);
@@ -49,32 +56,39 @@ const Tooltip = ({ content, children, side = "top", offset = 10, delay = 220, op
 
       const box = node.getBoundingClientRect();
       const { innerWidth: vw, innerHeight: vh } = window;
-      const fitsAbove = anchor.top - box.height - offset >= EDGE;
-      const fitsBelow = anchor.bottom + box.height + offset <= vh - EDGE;
+      const space = {
+        top: anchor.top - EDGE,
+        bottom: vh - anchor.bottom - EDGE,
+        left: anchor.left - EDGE,
+        right: vw - anchor.right - EDGE
+      };
+      const need = (placement: TooltipSide) =>
+        placement === "top" || placement === "bottom" ? box.height + offset : box.width + offset;
 
       let placement = side;
-      if (side === "top" && !fitsAbove) placement = "bottom";
-      if (side === "bottom" && !fitsBelow) placement = "top";
+      if (space[side] < need(side)) {
+        const flip = opposite[side];
+        placement = space[flip] >= space[side] ? flip : side;
+      }
 
-      const clamp = (value: number, size: number, max: number) =>
+      const fit = (value: number, size: number, max: number) =>
         Math.min(Math.max(value, EDGE), Math.max(EDGE, max - size - EDGE));
+      const pin = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
       const horizontal = placement === "left" || placement === "right";
       const left = horizontal
         ? placement === "left"
           ? anchor.left - box.width - offset
           : anchor.right + offset
-        : clamp(anchor.left + anchor.width / 2 - box.width / 2, box.width, vw);
+        : fit(anchor.left + anchor.width / 2 - box.width / 2, box.width, vw);
       const top = horizontal
-        ? clamp(anchor.top + anchor.height / 2 - box.height / 2, box.height, vh)
+        ? fit(anchor.top + anchor.height / 2 - box.height / 2, box.height, vh)
         : placement === "top"
           ? anchor.top - box.height - offset
           : anchor.bottom + offset;
 
-      const midX = anchor.left + anchor.width / 2 - left;
-      const midY = anchor.top + anchor.height / 2 - top;
-      const arrowX = Math.min(Math.max(midX, ARROW), box.width - ARROW);
-      const arrowY = Math.min(Math.max(midY, ARROW), box.height - ARROW);
+      const arrowX = pin(anchor.left + anchor.width / 2 - left, ARROW, box.width - ARROW);
+      const arrowY = pin(anchor.top + anchor.height / 2 - top, ARROW, box.height - ARROW);
 
       node.style.left = `${Math.round(left)}px`;
       node.style.top = `${Math.round(top)}px`;
@@ -102,7 +116,7 @@ const Tooltip = ({ content, children, side = "top", offset = 10, delay = 220, op
       {anchor &&
         mounted &&
         createPortal(
-          <div ref={place} role="tooltip" className={styles.bubble}>
+          <div ref={place} role="tooltip" className={styles.bubble} dir="ltr">
             {content}
           </div>,
           document.body
