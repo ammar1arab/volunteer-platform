@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { User, CalendarDays, Award, LogOut } from 'lucide-react';
-import styles from './UserMenuDropdown.module.scss';
-import { ROUTES } from '@/presentation/constants';
+import Link from "next/link";
+import Image from "next/image";
+import { User, CalendarDays, Award, LogOut, Bot } from "lucide-react";
+import styles from "./UserMenuDropdown.module.scss";
+import { BOT_PRESENCE_OPTIONS, ROUTES, type BotPresenceMode } from "@/presentation/constants";
+import { useBotPresence } from "@/presentation/hooks/uiHooks/useBotPresence";
 
 interface Props {
   userName: string;
@@ -14,30 +15,30 @@ interface Props {
 }
 
 const LINKS = [
-  { href: ROUTES.VOLUNTEER.PROFILE,     icon: <User size={15} />,         label: 'الملف الشخصي' },
-  { href: ROUTES.VOLUNTEER.ACTIVITIES,   icon: <CalendarDays size={15} />, label: 'فرصي التطوعية' },
-  { href: ROUTES.VOLUNTEER.CERTIFICATES, icon: <Award size={15} />,         label: 'شهاداتي' },
+  { href: ROUTES.VOLUNTEER.PROFILE, icon: <User size={15} />, label: "الملف الشخصي" },
+  { href: ROUTES.VOLUNTEER.ACTIVITIES, icon: <CalendarDays size={15} />, label: "فرصي التطوعية" },
+  { href: ROUTES.VOLUNTEER.CERTIFICATES, icon: <Award size={15} />, label: "شهاداتي" }
 ];
 
 const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => {
+  const { mode, setMode } = useBotPresence();
+
+  function choose(next: BotPresenceMode) {
+    setMode(next);
+  }
+
   return (
     <div className={styles.dropdown}>
-
-
-      <Link 
-        href={ROUTES.VOLUNTEER.PROFILE} 
-        className={styles.userInfoLink} 
-        onClick={onClose}
-      >
+      <Link href={ROUTES.VOLUNTEER.PROFILE} className={styles.userInfoLink} onClick={onClose}>
         <div className={styles.userInfo}>
           <div className={styles.avatarWrap}>
-            <Image 
-              src={avatarUrl!} 
-              alt={userName} 
-              width={38} 
-              height={38} 
-              className={styles.avatarImg} 
-              style={{ objectFit: 'cover' }}
+            <Image
+              src={avatarUrl!}
+              alt={userName}
+              width={38}
+              height={38}
+              className={styles.avatarImg}
+              style={{ objectFit: "cover" }}
             />
           </div>
           <div className={styles.userMeta}>
@@ -49,15 +50,9 @@ const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => 
 
       <div className={styles.divider} />
 
-
       <div className={styles.list}>
-        {LINKS.map(link => (
-          <Link 
-            key={link.href} 
-            href={link.href} 
-            className={styles.item}
-            onClick={onClose}
-          >
+        {LINKS.map((link) => (
+          <Link key={link.href} href={link.href} className={styles.item} onClick={onClose}>
             <span className={styles.itemIcon}>{link.icon}</span>
             <span>{link.label}</span>
           </Link>
@@ -66,12 +61,37 @@ const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => 
 
       <div className={styles.divider} />
 
+      <div className={styles.botBlock} role="group" aria-label="رفيق بصمات">
+        <div className={styles.botHead}>
+          <span className={styles.itemIcon}>
+            <Bot size={15} />
+          </span>
+          <span>رفيق بصمات</span>
+        </div>
+        <div className={styles.botModes}>
+          {BOT_PRESENCE_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className={`${styles.botMode} ${mode === option.id ? styles.botModeOn : ""}`}
+              aria-pressed={mode === option.id}
+              title={option.hint}
+              onClick={() => choose(option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.divider} />
 
       <button className={styles.logoutItem} onClick={onLogout}>
-        <span className={styles.itemIcon}><LogOut size={15} /></span>
+        <span className={styles.itemIcon}>
+          <LogOut size={15} />
+        </span>
         <span>تسجيل الخروج</span>
       </button>
-
     </div>
   );
 };

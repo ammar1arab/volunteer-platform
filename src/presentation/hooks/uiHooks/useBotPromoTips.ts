@@ -28,7 +28,7 @@ function stamp(value: string | Date | undefined) {
   return Number.isFinite(time) ? time : 0;
 }
 
-function clip(value: string, max = 42) {
+function clip(value: string, max = 28) {
   const text = value.trim();
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }
@@ -74,7 +74,7 @@ function eventTipsFromLists(
         "activity",
         activity.id,
         title,
-        `فرصة تطوعية جديدة: «${title}». يسعدنا انضمامك.`,
+        `فرصة جديدة: «${title}». انضم إلينا.`,
         "HeartHandshake",
         `/activities/${activity.id}`
       )
@@ -88,7 +88,7 @@ function eventTipsFromLists(
         "post",
         post.id,
         title,
-        `منشور جديد: «${title}». اطّلع على إنجازاتنا.`,
+        `منشور جديد: «${title}».`,
         "Newspaper",
         `/posts/${post.id}`
       )
@@ -102,7 +102,7 @@ function eventTipsFromLists(
         "magazine",
         magazine.id,
         title,
-        `صدر عدد جديد من مجلتنا: «${title}». لا يفوتك الاطلاع عليه.`,
+        `مجلتنا: «${title}». لا تفوّتها.`,
         "BookOpen",
         "/magazines"
       )
@@ -110,13 +110,13 @@ function eventTipsFromLists(
   }
   const spotlight = newest(spotlights, (row) => stamp(row.spotlightDate) || stamp(row.createdAt));
   if (spotlight) {
-    const name = clip(spotlight.name, 28);
+    const name = clip(spotlight.name, 22);
     tips.push(
       eventTip(
         "spotlight",
         spotlight.id,
         name,
-        `تسليط الضوء هذا الشهر على ${name}. تعرّف إلى قصته.`,
+        `تسليط الضوء على ${name}.`,
         "Sparkles",
         `/spotlight/${spotlight.id}`
       )
@@ -131,16 +131,17 @@ function pickTip(fixed: readonly ChatPromoTip[], events: BotPromoTip[], tick: nu
 }
 
 export function useBotPromoTips(enabled: boolean) {
-  const activities = useActivities({ filter: "published", enabled });
-  const posts = useFeaturedPosts({ activeOnly: true, enabled });
-  const magazines = useMonthlyMagazines({ activeOnly: true, enabled });
-  const spotlights = useVolunteerSpotlight({ activeOnly: true, enabled });
-  const now = useNow(enabled);
+  const live = enabled;
+  const activities = useActivities({ filter: "published", enabled: live });
+  const posts = useFeaturedPosts({ activeOnly: true, enabled: live });
+  const magazines = useMonthlyMagazines({ activeOnly: true, enabled: live });
+  const spotlights = useVolunteerSpotlight({ activeOnly: true, enabled: live });
+  const now = useNow(live);
   const tick = Math.max(0, Math.floor(now / CHAT_PROMO_ROTATE_MS));
 
   const events = useMemo(
-    () => eventTipsFromLists(activities.list, posts.list, magazines.list, spotlights.list),
-    [activities.list, posts.list, magazines.list, spotlights.list]
+    () => (live ? eventTipsFromLists(activities.list, posts.list, magazines.list, spotlights.list) : []),
+    [live, activities.list, posts.list, magazines.list, spotlights.list]
   );
 
   const template = pickTip(CHAT_PROMO_TIPS, events, tick);
@@ -164,7 +165,7 @@ export function useBotPromoTips(enabled: boolean) {
       }
     },
     options: {
-      enabled: enabled && Boolean(template.kind && template.sourceId),
+      enabled: live && Boolean(template.kind && template.sourceId),
       staleTime: 6 * 60 * 60 * 1000,
       retry: false
     }

@@ -1,5 +1,9 @@
+@use "sass:color";
 @use "@/presentation/styles/variables" as *;
 @use "@/presentation/styles/mixins" as *;
+
+$green-dark: color.adjust($green, $lightness: -8%);
+$ink: #173524;
 
 @keyframes dropIn {
   from { opacity: 0; transform: translateY(-6px) scale(0.97); }
@@ -134,4 +138,57 @@
 
   .itemIcon { color: $red; }
   &:hover { background: rgba($red, 0.06); }
+}
+
+.botBlock {
+  @include flex-col;
+  gap: $sp-xs;
+  padding: $sp-xs $sp-sm $sp-sm;
+}
+
+.botHead {
+  @include flex(row, center, flex-start, $sp-sm);
+  color: $text;
+  font-size: $font-sm;
+  font-weight: 700;
+}
+
+.botModes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 3px;
+  border-radius: $radius;
+  background: rgba($ink, 0.04);
+}
+
+.botMode {
+  min-height: 2rem;
+  padding: 0.35rem 0.2rem;
+  color: $text-muted;
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+  border: 0;
+  border-radius: calc(#{$radius} - 2px);
+  background: transparent;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    color: $text;
+    background: rgba($green, 0.08);
+  }
+}
+
+.botModeOn {
+  color: $white;
+  background: linear-gradient(135deg, $green-dark, $green);
+  box-shadow: 0 0.2rem 0.45rem rgba($green, 0.28);
+
+  &:hover {
+    color: $white;
+    background: linear-gradient(135deg, $green-dark, $green);
+  }
 }

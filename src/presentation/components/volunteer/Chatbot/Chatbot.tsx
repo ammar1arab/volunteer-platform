@@ -6,7 +6,7 @@ import ConfirmDialog from "@/presentation/components/base/ConfirmDialog/ConfirmD
 import Tooltip from "@/presentation/components/base/Tooltip/Tooltip";
 import EmptyState from "@/presentation/components/state/EmptyState/EmptyState";
 import LoadingState from "@/presentation/components/state/LoadingState/LoadingState";
-import { useChat } from "@/presentation/hooks";
+import { useChat, useBotPresence } from "@/presentation/hooks";
 import {
   CHAT_ASSISTANT_NAME,
   CHAT_MAX_INPUT,
@@ -26,6 +26,7 @@ export default function Chatbot() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { showBot } = useBotPresence();
 
   const chat = useChat(open);
 
@@ -54,7 +55,7 @@ export default function Chatbot() {
 
   return (
     <>
-      {!open && <BotLauncher thinking={chat.sending} onOpen={() => setOpen(true)} />}
+      {!open && showBot && <BotLauncher thinking={chat.sending} onOpen={() => setOpen(true)} />}
 
       <div className={styles.root} dir="rtl">
       {open && (

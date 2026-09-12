@@ -104,49 +104,63 @@ export const CHAT_PROMO_TIPS: readonly ChatPromoTip[] = [
   },
   {
     id: "activities",
-    text: "تصفّح الفرص التطوعية المتاحة، وشارك معنا.",
+    text: "فرص تطوعية بانتظارك. شارك معنا.",
     icon: "HeartHandshake",
     action: { type: "href", href: "/activities" }
   },
   {
     id: "profile",
-    text: "أكمل ملفك التطوعي ليظهر حضورك بوضوح.",
+    text: "أكمل ملفك التطوعي ليظهر حضورك.",
     icon: "UserRound",
     action: { type: "href", href: "/volunteer/profile" }
   },
   {
     id: "certificates",
-    text: "شهاداتك محفوظة في حسابك، ويمكنك الرجوع إليها في أي وقت.",
+    text: "شهاداتك محفوظة في حسابك.",
     icon: "Award",
     action: { type: "href", href: "/volunteer/certificates" }
   },
   {
     id: "magazines",
-    text: "لا يفوتك الاطلاع على مجلتنا الدورية.",
+    text: "اطّلع على مجلتنا الدورية.",
     icon: "BookOpen",
     action: { type: "href", href: "/magazines" }
   },
   {
     id: "posts",
-    text: "اطّلع على آخر منشوراتنا وإنجازات المنصة.",
+    text: "آخر منشوراتنا وإنجازات المنصة.",
     icon: "Newspaper",
     action: { type: "href", href: "/posts" }
   },
   {
     id: "spotlight",
-    text: "تعرّف إلى قصص المتطوعين المميزين هذا الشهر.",
+    text: "قصص متطوعين مميزين هذا الشهر.",
     icon: "Sparkles",
     action: { type: "href", href: "/spotlight" }
   },
   {
     id: "about",
-    text: "تعرّف إلى منصة بصمات شبابية ورسالتها.",
+    text: "تعرّف إلى بصمات شبابية ورسالتها.",
     icon: "CalendarDays",
     action: { type: "href", href: "/about" }
   }
 ];
 
-export const CHAT_PROMO_ROTATE_MS = 9000;
+export const CHAT_PROMO_ROTATE_MS = 32000;
+
+export type BotPresenceMode = "full" | "bot" | "hidden";
+
+export const BOT_PRESENCE_KEY = "basmat-bot-presence";
+
+export const BOT_PRESENCE_OPTIONS: readonly {
+  id: BotPresenceMode;
+  label: string;
+  hint: string;
+}[] = [
+  { id: "full", label: "مع الدعوات", hint: "الروبوت مع رسائل قصيرة" },
+  { id: "bot", label: "روبوت فقط", hint: "بدون رسائل دعوة" },
+  { id: "hidden", label: "إخفاء", hint: "إخفاء رفيق بصمات" }
+];
 
 export const BOT_RIVE = {
   src: "/rive/basmat-agent.riv",

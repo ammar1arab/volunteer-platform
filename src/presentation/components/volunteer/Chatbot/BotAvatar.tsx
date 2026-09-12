@@ -4,7 +4,7 @@ import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
 import { useRef, useState } from "react";
 import { BOT_RIVE } from "@/presentation/constants";
 import type { BotPose } from "@/presentation/hooks/uiHooks/useBotDirector";
-import { queryKeys, useFetchData } from "@/presentation/query";
+import { useFetchData } from "@/presentation/query";
 import styles from "./Chatbot.module.scss";
 
 export const BOT_POSES: Record<BotPose, string> = {
@@ -73,18 +73,24 @@ function RiveFace({ pose, poking }: { pose: BotPose; poking: boolean }) {
 }
 
 const BotAvatar = ({ pose, poking, reduced, asleep }: Props) => {
-  const riveFile = useFetchData<boolean>({
-    queryKey: queryKeys.chat.promo("rive", BOT_RIVE.src),
+  const riveReady = useFetchData<boolean>({
+    queryKey: ["rive", BOT_RIVE.src],
     request: async () => {
-      const response = await fetch(BOT_RIVE.src, { method: "HEAD" });
-      return response.ok;
+      try {
+        const response = await fetch(BOT_RIVE.src, { method: "HEAD" });
+        return response.ok;
+      } catch {
+        return false;
+      }
     },
-    options: { staleTime: 60 * 60_000, retry: false }
+    options: { staleTime: 60 * 60_000, retry: false, refetchOnWindowFocus: false }
   });
+
+  const useRiveFace = Boolean(riveReady.data) && !reduced;
 
   return (
     <>
-      {riveFile.data && !reduced ? <RiveFace pose={pose} poking={poking} /> : <PngFaces pose={pose} />}
+      {useRiveFace ? <RiveFace pose={pose} poking={poking} /> : <PngFaces pose={pose} />}
       {asleep && <span className={styles.zzz}>z</span>}
     </>
   );

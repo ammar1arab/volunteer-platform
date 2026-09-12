@@ -2,6 +2,7 @@
 
 import { motion, useTransform } from "framer-motion";
 import { useBotDirector } from "@/presentation/hooks/uiHooks/useBotDirector";
+import { useBotPresence } from "@/presentation/hooks/uiHooks/useBotPresence";
 import { useBotPromoTips } from "@/presentation/hooks/uiHooks/useBotPromoTips";
 import { CHAT_TIPS } from "@/presentation/constants";
 import BotAvatar from "./BotAvatar";
@@ -14,8 +15,10 @@ type Props = {
 };
 
 const BotLauncher = ({ thinking, onOpen }: Props) => {
+  const { showTips } = useBotPresence();
   const bot = useBotDirector(true, thinking);
-  const promo = useBotPromoTips(!bot.asleep);
+  const tipsLive = showTips && bot.settled && !bot.asleep;
+  const promo = useBotPromoTips(tipsLive);
   const scaleX = useTransform([bot.facing, bot.stretchX], ([face, stretch]: number[]) => face * stretch);
   const rotate = useTransform([bot.tilt, bot.spin], ([tilt, spin]: number[]) =>
     bot.reduced ? 0 : tilt + spin
@@ -34,7 +37,10 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
 
   return (
     <div className={styles.stage}>
-      <motion.div className={styles.actor} style={{ x: bot.x, y: bot.y, opacity: bot.fade, pointerEvents: pointer }}>
+      <motion.div
+        className={styles.actor}
+        style={{ x: bot.x, y: bot.y, opacity: bot.fade, pointerEvents: pointer }}
+      >
         <motion.button
           type="button"
           className={styles.launcher}
@@ -56,7 +62,7 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
           </motion.span>
         </motion.button>
 
-        {!bot.asleep && <BotPromoChip tip={promo.tip} onOpenChat={openChat} />}
+        {tipsLive && <BotPromoChip tip={promo.tip} onOpenChat={openChat} />}
       </motion.div>
     </div>
   );
