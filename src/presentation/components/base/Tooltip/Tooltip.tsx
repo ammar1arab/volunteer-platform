@@ -13,12 +13,14 @@ type Props = {
   side?: TooltipSide;
   offset?: number;
   delay?: number;
+  open?: boolean;
 };
 
 const EDGE = 10;
+const ARROW = 10;
 
-const Tooltip = ({ content, children, side = "top", offset = 9, delay = 220 }: Props) => {
-  const [anchor, setAnchor] = useState<DOMRect | null>(null);
+const Tooltip = ({ content, children, side = "top", offset = 10, delay = 220, open = false }: Props) => {
+  const [hover, setHover] = useState<DOMRect | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const timerRef = useRef<number | null>(null);
   const mounted = useIsClient();
@@ -26,7 +28,7 @@ const Tooltip = ({ content, children, side = "top", offset = 9, delay = 220 }: P
   const hide = useCallback(() => {
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
     timerRef.current = null;
-    setAnchor(null);
+    setHover(null);
   }, []);
 
   const show = useCallback(() => {
@@ -34,9 +36,12 @@ const Tooltip = ({ content, children, side = "top", offset = 9, delay = 220 }: P
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(() => {
       const rect = triggerRef.current?.getBoundingClientRect();
-      if (rect) setAnchor(rect);
+      if (rect) setHover(rect);
     }, delay);
   }, [delay]);
+
+  const live = open ? triggerRef.current?.getBoundingClientRect() ?? null : null;
+  const anchor = hover ?? live;
 
   const place = useCallback(
     (node: HTMLDivElement | null) => {
@@ -66,8 +71,15 @@ const Tooltip = ({ content, children, side = "top", offset = 9, delay = 220 }: P
           ? anchor.top - box.height - offset
           : anchor.bottom + offset;
 
+      const midX = anchor.left + anchor.width / 2 - left;
+      const midY = anchor.top + anchor.height / 2 - top;
+      const arrowX = Math.min(Math.max(midX, ARROW), box.width - ARROW);
+      const arrowY = Math.min(Math.max(midY, ARROW), box.height - ARROW);
+
       node.style.left = `${Math.round(left)}px`;
       node.style.top = `${Math.round(top)}px`;
+      node.style.setProperty("--arrow-x", `${Math.round(arrowX)}px`);
+      node.style.setProperty("--arrow-y", `${Math.round(arrowY)}px`);
       node.dataset.placement = placement;
       node.dataset.ready = "true";
     },

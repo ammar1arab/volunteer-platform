@@ -58,6 +58,7 @@ export const CHAT_TEXT = {
 export const CHAT_TIPS = {
   quota: "الرسائل المتبقية لك اليوم. نضع حداً يومياً لإدارة تكلفة الخدمة والحفاظ على جودتها.",
   cta: "اطلب AI Bot",
+  ctaNudge: "اطلب مساعداً ذكياً من عمّار",
   history: "محادثاتي",
   newChat: "محادثة جديدة",
   minimize: "تصغير النافذة",

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { ChevronDown, History, RotateCcw, Sparkles } from "lucide-react";
+import { useRef } from "react";
 import type { ChatModelOptionDto, ChatProviderId } from "@/core/application/dtos";
 import Tooltip from "@/presentation/components/base/Tooltip/Tooltip";
 import {
@@ -11,6 +12,7 @@ import {
   CHAT_TEXT,
   CHAT_TIPS
 } from "@/presentation/constants";
+import { useNow } from "@/presentation/query";
 import ChatModelSelect from "./ChatModelSelect";
 import styles from "./Chatbot.module.scss";
 
@@ -49,6 +51,12 @@ const ChatHeader = ({
   const selectedModel = models.some((model) => model.id === preferredModel)
     ? preferredModel
     : "auto";
+  const clock = useNow(true);
+  const openedAt = useRef(0);
+  if (!openedAt.current && clock > 0) openedAt.current = clock;
+  const age = openedAt.current ? clock - openedAt.current : 0;
+  const pulse = age % 68_000;
+  const ctaNudge = age >= 24_000 && pulse >= 24_000 && pulse < 27_500;
 
   return (
     <header className={styles.header}>
@@ -124,7 +132,7 @@ const ChatHeader = ({
             </span>
           </Tooltip>
 
-          <Tooltip content={CHAT_TIPS.cta} side="bottom">
+          <Tooltip content={CHAT_TIPS.ctaNudge} side="bottom" open={ctaNudge}>
             <button
               type="button"
               className={styles.ctaIcon}
