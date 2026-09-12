@@ -48,3 +48,17 @@ export type SendChatMessageInput = {
 };
 
 export type GetChatMetaResponse = Result<ChatMetaDto>;
+
+export type ChatPromoKind = "activity" | "post" | "magazine" | "spotlight";
+
+export type ChatPromoPolishRequest = {
+  kind: ChatPromoKind;
+  id: string;
+  title: string;
+};
+
+export type ChatPromoPolishDto = {
+  text: string;
+};
+
+export type PolishChatPromoResponse = Result<ChatPromoPolishDto>;

@@ -3,6 +3,9 @@ import type {
   ChatConversationDto,
   ChatMessageDto,
   ChatMetaDto,
+  ChatPromoKind,
+  ChatPromoPolishDto,
+  ChatPromoPolishRequest,
   ChatProviderId,
   ChatStoreDto,
   StoredChatMessageDto,
@@ -99,6 +102,18 @@ export const redisPipelineSchema = z.array(
   z.object({ result: z.union([z.number(), z.string()]).optional() })
 );
 
+export const chatPromoKindSchema = z.enum(["activity", "post", "magazine", "spotlight"]);
+
+export const chatPromoPolishRequestSchema = z.object({
+  kind: chatPromoKindSchema,
+  id: z.string().min(1).max(80),
+  title: z.string().min(1).max(160),
+});
+
+export const chatPromoPolishSchema = z.object({
+  text: z.string().min(1).max(180),
+});
+
 type Matches<TSchema extends z.ZodType, TDto> = z.infer<TSchema> extends TDto ? true : false;
 
 type SchemasMatchDtos = [
@@ -108,6 +123,9 @@ type SchemasMatchDtos = [
   Matches<typeof conversationsSchema, ChatConversationDto[]>,
   Matches<typeof chatMetaSchema, ChatMetaDto>,
   Matches<typeof chatStoreSchema, ChatStoreDto>,
+  Matches<typeof chatPromoKindSchema, ChatPromoKind>,
+  Matches<typeof chatPromoPolishRequestSchema, ChatPromoPolishRequest>,
+  Matches<typeof chatPromoPolishSchema, ChatPromoPolishDto>,
 ] extends true[]
   ? true
   : never;

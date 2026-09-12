@@ -55,6 +55,7 @@ export const queryKeys = {
     googleStatus: () => ["meetings", "google-status"] as const
   },
   chat: {
-    meta: () => ["chat", "meta"] as const
+    meta: () => ["chat", "meta"] as const,
+    promo: (kind: string, id: string) => ["chat", "promo", kind, id] as const
   }
 } as const;

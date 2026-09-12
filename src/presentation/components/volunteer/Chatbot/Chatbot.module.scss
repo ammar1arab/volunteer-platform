@@ -782,13 +782,22 @@ $ink: #173524;
   -webkit-tap-highlight-color: transparent;
 }
 
-.launcher {
+.actor {
   position: absolute;
   left: calc(0.85rem + env(safe-area-inset-left));
   bottom: calc(0.85rem + env(safe-area-inset-bottom));
   z-index: 2;
-  pointer-events: auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  pointer-events: none;
   will-change: transform;
+}
+
+.launcher {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .closeLauncher {
@@ -852,25 +861,35 @@ $ink: #173524;
 }
 
 .promo {
-  position: absolute;
-  left: calc(0.85rem + env(safe-area-inset-left) + clamp(52px, 14vw, 72px) + 0.35rem);
-  bottom: calc(1.05rem + env(safe-area-inset-bottom));
+  position: relative;
   z-index: 1;
   display: inline-flex;
   direction: rtl;
   align-items: center;
+  gap: 0.4rem;
   max-width: min(16rem, calc(100vw - 7rem));
+  margin-bottom: 0.2rem;
   padding: 0.5rem 0.75rem;
   color: $white;
   font: inherit;
   font-size: 0.74rem;
   font-weight: 700;
+  line-height: 1.35;
+  text-align: start;
   border: 0;
   border-radius: $radius-full;
   background: linear-gradient(135deg, $green-dark, $green);
   cursor: pointer;
   pointer-events: auto;
   animation: enter $transition;
+
+  span {
+    min-width: 0;
+  }
+
+  svg {
+    flex: 0 0 auto;
+  }
 
   &::after {
     content: "";

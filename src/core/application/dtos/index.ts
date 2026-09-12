@@ -180,7 +180,11 @@ export type {
   ChatMetaDto,
   ChatStoreDto,
   SendChatMessageInput,
-  GetChatMetaResponse
+  GetChatMetaResponse,
+  ChatPromoKind,
+  ChatPromoPolishRequest,
+  ChatPromoPolishDto,
+  PolishChatPromoResponse
 } from "./chat.dto";
 
 

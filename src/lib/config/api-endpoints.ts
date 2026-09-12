@@ -1,6 +1,7 @@
 export const API_ENDPOINTS = {
   CHAT: {
-    BASE: "/api/chat"
+    BASE: "/api/chat",
+    PROMO: "/api/chat/promo"
   },
   AUTH: {
     REGISTER: "/api/auth/register",

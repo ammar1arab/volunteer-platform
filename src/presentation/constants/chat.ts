@@ -14,8 +14,27 @@ export const CHAT_WELCOME: StoredChatMessageDto = {
     "أهلاً بك 👋 أنا **رفيق بصمات**. اسألني عن التسجيل أو الأنشطة أو الشهادات، وأستطيع مساعدتك في أي سؤال آخر أيضاً."
 };
 
+export type ChatPromoIcon =
+  | "Smile"
+  | "HeartHandshake"
+  | "Award"
+  | "UserRound"
+  | "CalendarDays"
+  | "BookOpen"
+  | "Sparkles"
+  | "Newspaper";
+
+export type ChatPromoAction = { type: "chat" } | { type: "href"; href: string };
+
+export type ChatPromoTip = {
+  id: string;
+  text: string;
+  icon: ChatPromoIcon;
+  action: ChatPromoAction;
+};
+
 export const CHAT_TEXT = {
-  promo: "أهلاً بك، كيف أقدر أساعدك؟",
+  promo: "أهلاً بك. كيف يمكنني مساعدتك؟",
   placeholder: "اكتب سؤالك هنا",
   placeholderBlocked: "انتهت رسائل اليوم",
   historyTitle: "محادثاتي",
@@ -75,3 +94,77 @@ export const CHAT_PAGE_PROMPTS: ReadonlyArray<[string, string]> = [
 ];
 
 export const CHAT_PAGE_PROMPT_FALLBACK = "أنا في منصة بصمات. من أين تنصحني أن أبدأ؟";
+
+export const CHAT_PROMO_TIPS: readonly ChatPromoTip[] = [
+  {
+    id: "welcome",
+    text: "أهلاً بك. كيف يمكنني مساعدتك؟",
+    icon: "Smile",
+    action: { type: "chat" }
+  },
+  {
+    id: "activities",
+    text: "تصفّح الفرص التطوعية المتاحة، وشارك معنا.",
+    icon: "HeartHandshake",
+    action: { type: "href", href: "/activities" }
+  },
+  {
+    id: "profile",
+    text: "أكمل ملفك التطوعي ليظهر حضورك بوضوح.",
+    icon: "UserRound",
+    action: { type: "href", href: "/volunteer/profile" }
+  },
+  {
+    id: "certificates",
+    text: "شهاداتك محفوظة في حسابك، ويمكنك الرجوع إليها في أي وقت.",
+    icon: "Award",
+    action: { type: "href", href: "/volunteer/certificates" }
+  },
+  {
+    id: "magazines",
+    text: "لا يفوتك الاطلاع على مجلتنا الدورية.",
+    icon: "BookOpen",
+    action: { type: "href", href: "/magazines" }
+  },
+  {
+    id: "posts",
+    text: "اطّلع على آخر منشوراتنا وإنجازات المنصة.",
+    icon: "Newspaper",
+    action: { type: "href", href: "/posts" }
+  },
+  {
+    id: "spotlight",
+    text: "تعرّف إلى قصص المتطوعين المميزين هذا الشهر.",
+    icon: "Sparkles",
+    action: { type: "href", href: "/spotlight" }
+  },
+  {
+    id: "about",
+    text: "تعرّف إلى منصة بصمات شبابية ورسالتها.",
+    icon: "CalendarDays",
+    action: { type: "href", href: "/about" }
+  }
+];
+
+export const CHAT_PROMO_ROTATE_MS = 9000;
+
+export const BOT_RIVE = {
+  src: "/rive/basmat-agent.riv",
+  stateMachine: "mascot",
+  poseInput: "pose",
+  pokeTrigger: "poke",
+  poses: {
+    idle: 0,
+    run: 1,
+    invite: 2,
+    cheer: 3,
+    think: 4,
+    thinking: 5,
+    search: 6,
+    rest: 7,
+    torch: 8,
+    wave: 9,
+    greeting: 10,
+    success: 11
+  }
+} as const;

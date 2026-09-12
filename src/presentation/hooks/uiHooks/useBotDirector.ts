@@ -92,6 +92,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
   const [pose, setPose] = useState<BotPose>("idle");
   const [asleep, setAsleep] = useState(false);
   const [docked, setDocked] = useState(true);
+  const [poking, setPoking] = useState(false);
 
   const store = useRef({
     phase: "idle" as Phase,
@@ -153,6 +154,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
     next.onPoke = null;
     fade.set(1);
     spin.set(0);
+    setPoking(false);
     rest("idle", rand(1.8, 3.6));
   }, [fade, rest, spin, x, y]);
 
@@ -173,6 +175,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
       next.jumpBase = finite(y.get(), HOME);
       next.thinking = false;
       setDocked(false);
+      setPoking(true);
       fade.set(1);
       spin.set(0);
       setMood("cheer");
@@ -518,6 +521,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
           const done = next.onPoke;
           next.onPoke = null;
           spin.set(0);
+          setPoking(false);
           rest("idle", 0.2);
           done?.();
         }
@@ -535,5 +539,5 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
     }
   });
 
-  return { x, y, tilt, facing, stretchX, stretchY, spin, fade, pose, asleep, docked, reduced, poke };
+  return { x, y, tilt, facing, stretchX, stretchY, spin, fade, pose, asleep, docked, poking, reduced, poke };
 }

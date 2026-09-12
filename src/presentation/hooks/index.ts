@@ -5,6 +5,7 @@ export * from "./uiHooks/useConfirmDialog";
 export * from "./uiHooks/usePageReset";
 export * from "./uiHooks/useChatStore";
 export * from "./uiHooks/useBotDirector";
+export * from "./uiHooks/useBotPromoTips";
 export * from "./useLocalStorageState";
 export * from "./useSessionStorageState";
 
