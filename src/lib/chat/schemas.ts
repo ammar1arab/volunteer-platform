@@ -102,6 +102,8 @@ export const redisPipelineSchema = z.array(
   z.object({ result: z.union([z.number(), z.string()]).optional() })
 );
 
+export const botPresenceModeSchema = z.enum(["full", "bot", "hidden"]);
+
 export const chatPromoKindSchema = z.enum(["activity", "post", "magazine", "spotlight"]);
 
 export const chatPromoPolishRequestSchema = z.object({

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ChatPromoIcon } from "@/presentation/constants";
-import type { BotPromoTip } from "@/presentation/hooks/uiHooks/useBotPromoTips";
+import type { BotPromoTip } from "@/presentation/hooks";
 import styles from "./Chatbot.module.scss";
 
 const ICONS: Record<ChatPromoIcon, LucideIcon> = {

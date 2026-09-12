@@ -840,6 +840,7 @@ $ink: #173524;
   opacity: 0;
   pointer-events: none;
   user-select: none;
+  transition: opacity 0.2s ease;
 }
 
 .botFaceOn {
@@ -1228,8 +1229,10 @@ $ink: #173524;
   .robotSpark,
   .robotCorePulse,
   .robotFloor,
-  .zzz {
+  .zzz,
+  .botFace {
     animation: none;
+    transition: none;
   }
 
   .modelMenu {

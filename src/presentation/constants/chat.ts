@@ -7,6 +7,25 @@ export const CHAT_HISTORY_WINDOW = 6;
 export const CHAT_DEFAULT_LIMIT = 50;
 export const CHAT_LOW_QUOTA = 10;
 
+export const CHAT_BOT_POSES = {
+  idle: "/images/basmat-agent-idle.png",
+  run: "/images/basmat-agent-run.png",
+  invite: "/images/basmat-agent-invite.png",
+  cheer: "/images/basmat-agent-cheer.png",
+  think: "/images/basmat-agent-think.png",
+  thinking: "/images/basmat-agent-thinking.png",
+  search: "/images/basmat-agent-search.png",
+  rest: "/images/basmat-agent-rest.png",
+  torch: "/images/basmat-agent-torch.png",
+  wave: "/images/basmat-agent-wave.png",
+  greeting: "/images/basmat-agent-greeting.png",
+  success: "/images/basmat-agent-success.png"
+} as const;
+
+export type BotPose = keyof typeof CHAT_BOT_POSES;
+
+export const CHAT_BOT_POSE_KEYS = Object.keys(CHAT_BOT_POSES) as BotPose[];
+
 export const CHAT_WELCOME: StoredChatMessageDto = {
   id: "welcome",
   role: "assistant",
@@ -163,10 +182,3 @@ export const BOT_PRESENCE_OPTIONS: readonly {
   { id: "hidden", label: "إخفاء", hint: "إخفاء رفيق بصمات" }
 ];
 
-export const BOT_RIVE = {
-  src: "/rive/basmat-agent.riv",
-  artboard: "mascot",
-  stateMachine: "mascot",
-  poseInput: "pose",
-  pokeTrigger: "poke"
-} as const;

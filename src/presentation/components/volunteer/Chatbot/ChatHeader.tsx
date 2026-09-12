@@ -8,6 +8,7 @@ import Tooltip from "@/presentation/components/base/Tooltip/Tooltip";
 import {
   CHAT_ASSISTANT_NAME,
   CHAT_ASSISTANT_ROLE,
+  CHAT_BOT_POSES,
   CHAT_LOW_QUOTA,
   CHAT_TEXT,
   CHAT_TIPS
@@ -63,7 +64,7 @@ const ChatHeader = ({
       <div className={styles.identity}>
         <Image
           className={styles.avatar}
-          src="/images/basmat-agent-greeting.png"
+          src={CHAT_BOT_POSES.greeting}
           alt=""
           width={60}
           height={60}

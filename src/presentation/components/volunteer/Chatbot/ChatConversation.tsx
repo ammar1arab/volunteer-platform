@@ -11,6 +11,7 @@ import Tooltip from "@/presentation/components/base/Tooltip/Tooltip";
 import { useActivities } from "@/presentation/hooks";
 import {
   CATEGORY_LABELS,
+  CHAT_BOT_POSES,
   CHAT_PAGE_PROMPTS,
   CHAT_PAGE_PROMPT_FALLBACK,
   CHAT_SUGGESTIONS,
@@ -71,8 +72,8 @@ const ChatConversation = ({
               className={styles.messageAvatar}
               src={
                 pendingId === message.id
-                  ? "/images/basmat-agent-thinking.png"
-                  : "/images/basmat-agent-success.png"
+                  ? CHAT_BOT_POSES.thinking
+                  : CHAT_BOT_POSES.success
               }
               alt=""
               width={32}

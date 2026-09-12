@@ -1,25 +1,25 @@
 "use client";
 
 import { motion, useTransform } from "framer-motion";
-import { useBotDirector } from "@/presentation/hooks/uiHooks/useBotDirector";
-import { useBotPresence } from "@/presentation/hooks/uiHooks/useBotPresence";
-import { useBotPromoTips } from "@/presentation/hooks/uiHooks/useBotPromoTips";
 import { CHAT_TIPS } from "@/presentation/constants";
+import { useBotDirector, useBotPresence, useBotPromoTips } from "@/presentation/hooks";
 import BotAvatar from "./BotAvatar";
 import BotPromoChip from "./BotPromoChip";
 import styles from "./Chatbot.module.scss";
 
-type Props = {
+interface Props {
   thinking: boolean;
   onOpen: () => void;
-};
+}
 
 const BotLauncher = ({ thinking, onOpen }: Props) => {
   const { showTips } = useBotPresence();
   const bot = useBotDirector(true, thinking);
   const tipsLive = showTips && bot.settled && !bot.asleep;
   const promo = useBotPromoTips(tipsLive);
-  const scaleX = useTransform(bot.facing, (face) => (bot.reduced ? 1 : face));
+  const scaleX = useTransform([bot.facing, bot.stretchX], ([face, stretch]: number[]) =>
+    bot.reduced ? 1 : face * stretch
+  );
   const shadow = useTransform(bot.y, (value) => (value < -90 ? 0 : Math.max(0.22, 1 + value / 90)));
   const pointer = useTransform(bot.fade, (value) => (value < 0.35 ? "none" : "auto"));
 
@@ -46,11 +46,15 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
         >
           <motion.span className={styles.botShadow} style={{ scale: shadow, opacity: shadow }} />
           <motion.span
-            className={styles.botBody}
+            className={`${styles.botBody} ${bot.pose === "torch" ? styles.botGlow : ""}`}
             data-asleep={bot.asleep ? "true" : "false"}
-            style={{ scaleX }}
+            style={{
+              rotate: bot.reduced ? 0 : bot.tilt,
+              scaleX,
+              scaleY: bot.reduced ? 1 : bot.stretchY
+            }}
           >
-            <BotAvatar pose={bot.pose} poking={bot.poking} reduced={bot.reduced} asleep={bot.asleep} />
+            <BotAvatar pose={bot.pose} asleep={bot.asleep} />
           </motion.span>
         </motion.button>
 

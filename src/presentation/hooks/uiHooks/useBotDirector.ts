@@ -2,20 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAnimationFrame, useMotionValue, useReducedMotion } from "framer-motion";
+import type { BotPose } from "@/presentation/constants";
 
-export type BotPose =
-  | "idle"
-  | "run"
-  | "invite"
-  | "cheer"
-  | "think"
-  | "thinking"
-  | "search"
-  | "rest"
-  | "torch"
-  | "wave"
-  | "greeting"
-  | "success";
+export type { BotPose };
 
 type Phase =
   | "idle"
@@ -512,8 +501,8 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
         next.timer -= dt;
         const u = 1 - Math.max(0, next.timer) / POKE_TIME;
         y.set(next.jumpBase - Math.sin(Math.PI * u) * 34);
-        spin.set(u * 360);
-        tilt.set(Math.sin(u * Math.PI * 2) * 12);
+        spin.set(0);
+        tilt.set(Math.sin(u * Math.PI * 2) * 8);
         stretchY.set(1 + Math.sin(Math.PI * u) * 0.1);
         if (!next.pokeFlipped && u > 0.48) {
           next.pokeFlipped = true;

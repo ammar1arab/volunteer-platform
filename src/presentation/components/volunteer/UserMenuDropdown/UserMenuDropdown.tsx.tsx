@@ -5,8 +5,8 @@ import Image from "next/image";
 import { Award, Bot, CalendarDays, EyeOff, LogOut, MessageCircle, User } from "lucide-react";
 import Tooltip from "@/presentation/components/base/Tooltip/Tooltip";
 import styles from "./UserMenuDropdown.module.scss";
-import { BOT_PRESENCE_OPTIONS, ROUTES, type BotPresenceMode } from "@/presentation/constants";
-import { useBotPresence } from "@/presentation/hooks/uiHooks/useBotPresence";
+import { BOT_PRESENCE_OPTIONS, ROUTES } from "@/presentation/constants";
+import { useBotPresence } from "@/presentation/hooks";
 
 interface Props {
   userName: string;
@@ -76,7 +76,7 @@ const UserMenuDropdown = ({ userName, avatarUrl, onLogout, onClose }: Props) => 
                     className={`${styles.botMode} ${mode === option.id ? styles.botModeOn : ""}`}
                     aria-label={option.label}
                     aria-pressed={mode === option.id}
-                    onClick={() => setMode(option.id as BotPresenceMode)}
+                    onClick={() => setMode(option.id)}
                   >
                     <Icon size={14} />
                   </button>
