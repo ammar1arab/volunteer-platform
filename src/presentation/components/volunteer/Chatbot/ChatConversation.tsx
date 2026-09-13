@@ -69,7 +69,7 @@ const ChatConversation = ({
   const showNextSteps = !sending && !isFresh && messages.some((message) => message.role === "user");
 
   return (
-    <div className={styles.messages} aria-live="polite">
+    <div className={`${styles.messages} ${sending ? styles.messagesBusy : ""}`} aria-live="polite">
       {messages.map((message) => (
         <div
           className={`${styles.message} ${message.role === "user" ? styles.user : styles.assistant}`}
@@ -81,7 +81,7 @@ const ChatConversation = ({
               src={
                 pendingId === message.id
                   ? CHAT_BOT_POSES.thinking
-                  : CHAT_BOT_POSES.success
+                  : CHAT_BOT_POSES.bust
               }
               alt=""
               width={32}

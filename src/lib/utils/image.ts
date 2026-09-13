@@ -61,10 +61,10 @@ export const revokeImagePreview = (url: string) => URL.revokeObjectURL(url);
 
 
 const FALLBACK_IMAGES: Record<string, string> = {
-  [Gender.MALE]: "/images/male.png",
-  [Gender.FEMALE]: "/images/female.png",
-  "ذكر": "/images/male.png",
-  "أنثى": "/images/female.png",
+  [Gender.MALE]: "/images/avatars/male.png",
+  [Gender.FEMALE]: "/images/avatars/female.png",
+  "ذكر": "/images/avatars/male.png",
+  "أنثى": "/images/avatars/female.png",
 };
 
 export const getFallbackProfileImage = (
@@ -72,9 +72,9 @@ export const getFallbackProfileImage = (
   gender?: Gender | string | null
 ): string => {
   if (profilePictureUrl) return profilePictureUrl;
-  return gender && FALLBACK_IMAGES[gender] 
-    ? FALLBACK_IMAGES[gender] 
-    : "/images/gender.png";
+  return gender && FALLBACK_IMAGES[gender]
+    ? FALLBACK_IMAGES[gender]
+    : "/images/avatars/unspecified.png";
 };
 
 export const processImageForUpload = async (

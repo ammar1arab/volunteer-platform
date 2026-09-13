@@ -2,9 +2,8 @@
 
 import { motion, useTransform } from "framer-motion";
 import type { PointerEvent } from "react";
-import { useRef } from "react";
-import { CHAT_BOT_TIP_MOMENTS, CHAT_PROMO_SHOW_MS, CHAT_TIPS } from "@/presentation/constants";
-import { useBotDirector, useBotPresence, useBotPromoTips, useNow } from "@/presentation/hooks";
+import { useBotDirector, useBotPresence, useBotPromoTips } from "@/presentation/hooks";
+import { CHAT_TIPS } from "@/presentation/constants";
 import BotAvatar from "./BotAvatar";
 import BotPromoChip from "./BotPromoChip";
 import styles from "./Chatbot.module.scss";
@@ -17,26 +16,22 @@ interface Props {
 const BotLauncher = ({ thinking, onOpen }: Props) => {
   const { showTips } = useBotPresence();
   const bot = useBotDirector(true, thinking);
-  const promo = useBotPromoTips(showTips);
-  const moment = bot.docked && !bot.asleep && CHAT_BOT_TIP_MOMENTS.includes(bot.pose);
-  const trigger = showTips && !bot.asleep && !bot.playing && (moment || (bot.settled && promo.visible));
-  const clock = useNow(showTips);
-  const shownAt = useRef(0);
-  const armed = useRef(true);
-  if (clock > 0) {
-    if (shownAt.current && clock - shownAt.current >= CHAT_PROMO_SHOW_MS) {
-      shownAt.current = 0;
-      armed.current = false;
-    }
-    if (trigger && armed.current && !shownAt.current) shownAt.current = clock;
-    if (!trigger) armed.current = true;
-  }
-  const showChip = showTips && !bot.asleep && !bot.playing && shownAt.current > 0;
+  const promo = useBotPromoTips(showTips, {
+    settled: bot.settled,
+    asleep: bot.asleep,
+    playing: bot.playing,
+    docked: bot.docked,
+    pose: bot.pose,
+    thinking
+  });
   const scaleX = useTransform([bot.facing, bot.stretchX, bot.grow], ([face, stretch, pulse]: number[]) =>
     bot.reduced ? 1 : face * stretch * pulse
   );
   const scaleY = useTransform([bot.stretchY, bot.grow], ([stretch, pulse]: number[]) =>
     bot.reduced ? 1 : stretch * pulse
+  );
+  const turn = useTransform([bot.tilt, bot.spin], ([lean, twirl]: number[]) =>
+    bot.reduced ? 0 : lean + twirl
   );
   const shadow = useTransform(bot.y, (value) => (value < -90 ? 0 : Math.max(0.22, 1 + value / 90)));
   const pointer = useTransform(bot.fade, (value) => (value < 0.35 ? "none" : "auto"));
@@ -84,6 +79,7 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
           onPointerMove={drag}
           onPointerUp={up}
           onPointerCancel={(event) => up(event, false)}
+          onDoubleClick={() => bot.goHome()}
           onClick={(event) => {
             if (event.detail === 0) openChat();
           }}
@@ -93,7 +89,7 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
             className={`${styles.botBody} ${bot.pose === "torch" ? styles.botGlow : ""}`}
             data-asleep={bot.asleep ? "true" : "false"}
             style={{
-              rotate: bot.reduced ? 0 : bot.tilt,
+              rotate: turn,
               scaleX,
               scaleY
             }}
@@ -102,7 +98,7 @@ const BotLauncher = ({ thinking, onOpen }: Props) => {
           </motion.span>
         </motion.button>
 
-        {showChip && <BotPromoChip tip={promo.tip} onOpenChat={openChat} />}
+        {promo.visible && <BotPromoChip tip={promo.tip} onOpenChat={openChat} />}
       </motion.div>
     </div>
   );

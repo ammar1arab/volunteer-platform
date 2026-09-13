@@ -67,7 +67,7 @@ const ChatHeader = ({
       <div className={styles.identity}>
         <Image
           className={styles.avatar}
-          src={CHAT_BOT_POSES.greeting}
+          src={CHAT_BOT_POSES.bust}
           alt=""
           width={60}
           height={60}

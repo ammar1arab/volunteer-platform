@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAnimationFrame, useMotionValue, useReducedMotion } from "framer-motion";
-import type { BotPose } from "@/presentation/constants";
+import { CHAT_BOT_JOURNEYS, type BotPose } from "@/presentation/constants";
 
 export type { BotPose };
 
@@ -26,7 +26,11 @@ type Phase =
   | "wiggle"
   | "hold"
   | "drag"
-  | "toss";
+  | "toss"
+  | "park"
+  | "journey"
+  | "look"
+  | "flip";
 
 type Leg = "out" | "wait" | "back" | "hide" | "enter";
 
@@ -52,10 +56,12 @@ const finite = (value: number, fallback: number) => (Number.isFinite(value) ? va
 const ease = (u: number) => u * u * (3 - 2 * u);
 
 const PLAY: Phase[] = ["hold", "drag", "toss"];
+const PARK_POSES: BotPose[] = ["idle", "read", "plant", "rest"];
+const REST_POSES: BotPose[] = ["invite", "cheer", "idea", "laugh", "snack"];
 
 export function botSize() {
-  if (typeof window === "undefined") return 64;
-  return Math.round(clamp(window.innerWidth * 0.14, 52, 72));
+  if (typeof window === "undefined") return 80;
+  return Math.round(clamp(window.innerWidth * 0.16, 68, 96));
 }
 
 function bounds() {
@@ -110,6 +116,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
   const [settled, setSettled] = useState(true);
   const [poking, setPoking] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [parked, setParked] = useState(false);
 
   const store = useRef({
     phase: "idle" as Phase,
@@ -147,7 +154,12 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
     orbitY: 0,
     orbitR: 48,
     orbitA: 0,
-    samples: [] as Sample[]
+    samples: [] as Sample[],
+    journeyId: Math.floor(Date.now() / 17) % CHAT_BOT_JOURNEYS.length,
+    journeyI: 0,
+    journeyOn: true,
+    journeyStarted: false,
+    parked: false
   });
 
   const setMood = useCallback((nextPose: BotPose, sleeping = false) => {
@@ -191,10 +203,13 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
     next.targetY = HOME;
     next.jumpBase = HOME;
     next.onPoke = null;
+    next.parked = false;
+    next.journeyOn = false;
     fade.set(1);
     spin.set(0);
     setPoking(false);
     setPlaying(false);
+    setParked(false);
     rest("idle", rand(3.2, 6.5));
   }, [fade, rest, spin, x, y]);
 
@@ -206,6 +221,11 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
         return;
       }
       if (next.phase === "poke" || PLAY.includes(next.phase)) return;
+      if (next.parked) {
+        goHome();
+        done?.();
+        return;
+      }
       next.phase = "poke";
       next.age = 0;
       next.timer = POKE_TIME;
@@ -220,7 +240,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
       spin.set(0);
       setMood("cheer");
     },
-    [fade, live, setMood, spin, y]
+    [fade, goHome, live, setMood, spin, y]
   );
 
   const grab = useCallback(
@@ -239,12 +259,15 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
       next.samples = [{ t: performance.now(), x: next.startX, y: next.startY }];
       next.thinking = false;
       next.onPoke = null;
+      next.parked = false;
+      next.journeyOn = false;
       fade.set(1);
       grow.set(1);
       setPlaying(true);
       setPoking(false);
       setAsleep(false);
       setSettled(false);
+      setParked(false);
       setMood("invite");
     },
     [fade, grow, live, setMood, x, y]
@@ -288,8 +311,19 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
     next.vx = flung.vx;
     next.vy = flung.vy;
     if (Math.hypot(next.vx, next.vy) < THROW) {
+      next.phase = "park";
+      next.parked = true;
+      next.age = 0;
+      next.timer = 0;
+      next.vx = 0;
+      next.vy = 0;
+      next.dragged = false;
       setPlaying(false);
-      rest("cheer", 1.3, "greet");
+      setParked(true);
+      setMood(PARK_POSES[Math.floor(Math.random() * PARK_POSES.length)]);
+      tilt.set(0);
+      stretchX.set(1);
+      stretchY.set(1);
       return true;
     }
     next.phase = "toss";
@@ -297,7 +331,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
     next.timer = 3.6;
     setMood("cheer");
     return true;
-  }, [rest, setMood]);
+  }, [rest, setMood, stretchX, stretchY, tilt]);
 
   useEffect(() => {
     const track = (event: PointerEvent) => {
@@ -337,14 +371,14 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
         next.jumpBase = finite(next.jumpBase, HOME);
         fade.set(1);
         spin.set(0);
-        setMood(Math.random() < 0.5 ? "think" : "thinking");
+        setMood(Math.random() < 0.55 ? "ponder" : "thinking");
       } else if (!thinking && next.thinking) {
         next.thinking = false;
         next.phase = "cheer";
         next.age = 0;
         next.timer = 1.8;
         next.jumpBase = finite(next.jumpBase, HOME);
-        setMood(Math.random() < 0.28 ? "torch" : Math.random() < 0.5 ? "cheer" : "success");
+        setMood(Math.random() < 0.4 ? "celebrate" : Math.random() < 0.5 ? "thumbs" : "success");
       } else {
         next.thinking = thinking;
       }
@@ -360,6 +394,16 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
     if (near || busy) next.calm = 0;
     else if (next.phase === "idle") next.calm += dt;
 
+    if (next.journeyOn && !next.journeyStarted && !next.thinking && next.phase === "idle") {
+      const beat = CHAT_BOT_JOURNEYS[next.journeyId][0];
+      next.journeyStarted = true;
+      next.phase = "journey";
+      next.journeyI = 0;
+      next.age = 0;
+      next.timer = beat.hold;
+      setMood(beat.pose);
+    }
+
     const longTrip =
       next.phase === "tour" ||
       next.phase === "move" ||
@@ -372,6 +416,10 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
       next.phase === "glide";
     if (
       !busy &&
+      next.phase !== "park" &&
+      next.phase !== "journey" &&
+      next.phase !== "look" &&
+      next.phase !== "flip" &&
       next.age > (longTrip ? 22 : 12) &&
       !["idle", "sleep", "think", "poke"].includes(next.phase)
     ) {
@@ -385,8 +433,8 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
       const dx = next.targetX - hereX;
       const dy = next.targetY - hereY;
       const dist = Math.hypot(dx, dy);
-      const step = next.speed * dt;
-      if (dist <= step + 1.6) {
+      const damp = 1 - Math.exp(-dt * clamp(next.speed / 38, 3.2, 8.4));
+      if (dist <= 2.4) {
         x.set(next.targetX);
         y.set(next.targetY);
         next.jumpBase = next.targetY;
@@ -396,14 +444,14 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
         return true;
       }
       facing.set(dx < -1 ? -1 : 1);
-      const nx = hereX + (dx / dist) * step;
-      const ny = hereY + (dy / dist) * step;
+      const nx = hereX + dx * damp;
+      const ny = hereY + dy * damp;
       x.set(nx);
       y.set(ny);
       next.jumpBase = ny;
-      tilt.set(dx < 0 ? -11 : 11);
-      stretchY.set(1.05 + Math.abs(Math.sin(next.bob * 11)) * 0.04);
-      stretchX.set(0.95);
+      tilt.set(dx < 0 ? -8 : 8);
+      stretchY.set(1.04 + Math.abs(Math.sin(next.bob * 9)) * 0.045);
+      stretchX.set(0.96);
       return false;
     };
 
@@ -431,7 +479,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
       if (next.pulseT > 0) {
         next.pulseT -= dt;
         const u = 1 - Math.max(0, next.pulseT) / 1.7;
-        grow.set(1 + Math.sin(Math.PI * u) * 0.14);
+        grow.set(1 + Math.sin(Math.PI * u) * 0.09);
       } else {
         grow.set(1);
       }
@@ -443,15 +491,22 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
       case "idle": {
         const ground = Math.abs(hereX) < 28 && Math.abs(next.jumpBase) < 28 ? HOME : next.jumpBase;
         next.jumpBase = ground;
-        y.set(ground + Math.sin(next.bob * 2.05) * 3);
-        tilt.set(Math.sin(next.bob * 0.75) * 2.2 + lean);
-        stretchY.set(1 + Math.sin(next.bob * 2.05) * 0.022);
-        stretchX.set(1 - Math.sin(next.bob * 2.05) * 0.018);
+        y.set(ground + Math.sin(next.bob * 1.85) * 2.2);
+        tilt.set(Math.sin(next.bob * 0.7) * 1.8 + lean);
+        stretchY.set(1 + Math.sin(next.bob * 1.85) * 0.018);
+        stretchX.set(1 - Math.sin(next.bob * 1.85) * 0.014);
         if (next.calm > SLEEP_AFTER) {
           rest("rest", 0, "sleep");
           break;
         }
-        if (near && Math.random() < 0.01) {
+        if (near && Math.random() < 0.018) {
+          next.phase = "look";
+          next.age = 0;
+          next.timer = rand(1.1, 1.7);
+          setMood(Math.random() < 0.55 ? "point" : "wave");
+          break;
+        }
+        if (near && Math.random() < 0.004) {
           startMove(box.peekX, HOME, DASH, "run", "shy");
           break;
         }
@@ -459,15 +514,21 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
         next.timer -= dt;
         if (next.timer > 0) break;
         const roll = Math.random();
-        if (roll < 0.12) startMove(rand(10, box.maxX * 0.7), HOME, WALK, "run", "move");
-        else if (roll < 0.22) {
+        if (roll < 0.1) startMove(rand(10, box.maxX * 0.7), HOME, WALK, "run", "move");
+        else if (roll < 0.18) {
+          next.phase = "flip";
+          next.age = 0;
+          next.jumpT = 0;
+          next.jumpBase = ground;
+          setMood("jump");
+        } else if (roll < 0.28) {
           next.phase = "jump";
           next.age = 0;
           next.jumpT = 0;
           next.jumpBase = ground;
           next.hops = Math.random() < 0.45 ? 2 : 1;
-          setMood(next.hops > 1 ? "success" : "idle");
-        } else if (roll < 0.32) rest(Math.random() < 0.5 ? "wave" : "greeting", 1.5, "greet");
+          setMood(next.hops > 1 ? "jump" : "celebrate");
+        } else if (roll < 0.36) rest(Math.random() < 0.5 ? "wave" : "greeting", 1.5, "greet");
         else if (roll < 0.4) startMove(box.peekX, HOME, DASH, "run", "peek");
         else if (roll < 0.48) startMove(box.topX, box.topY, DASH, "run", "tour");
         else if (roll < 0.56) startMove(box.sitX, box.sitY, WALK, "run", "sit");
@@ -488,7 +549,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
           next.glideDur = rand(1.4, 2.1);
           startMove(rand(16, box.maxX * 0.72), HOME, WALK, "invite", "glide");
         } else if (roll < 0.94) rest("wave", rand(1.1, 1.6), "wiggle");
-        else rest(Math.random() < 0.5 ? "invite" : "cheer", rand(2.8, 4.8));
+        else rest(REST_POSES[Math.floor(Math.random() * REST_POSES.length)], rand(2.8, 4.8));
         break;
       }
       case "move": {
@@ -548,7 +609,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
           stretchY.set(1.16 - arc * 0.18);
           stretchX.set(0.88 + arc * 0.14);
           tilt.set(arc * 10);
-          spin.set(next.hops > 1 ? arc * 18 : 0);
+          spin.set(next.hops > 1 ? arc * 26 : arc * 8);
         } else if (t < 1) {
           y.set(next.jumpBase + 2);
           stretchY.set(0.86);
@@ -612,7 +673,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
           next.leg = "wait";
           next.timer = rand(2.4, 4.2);
           next.jumpBase = next.targetY;
-          setMood("rest");
+          setMood(PARK_POSES[Math.floor(Math.random() * PARK_POSES.length)]);
         } else {
           rest("idle", rand(3.2, 5.4));
         }
@@ -720,6 +781,53 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
         }
         break;
       }
+      case "journey": {
+        next.timer -= dt;
+        y.set(next.jumpBase + Math.sin(next.bob * 2.1) * 2.4);
+        tilt.set(Math.sin(next.bob * 1.1) * 3 + lean);
+        if (next.timer > 0) break;
+        next.journeyI += 1;
+        const beats = CHAT_BOT_JOURNEYS[next.journeyId];
+        if (next.journeyI >= beats.length) {
+          next.journeyOn = false;
+          rest("idle", rand(3.2, 6));
+          break;
+        }
+        const beat = beats[next.journeyI];
+        next.timer = beat.hold;
+        setMood(beat.pose);
+        break;
+      }
+      case "park": {
+        y.set(next.jumpBase + Math.sin(next.bob * 1.2) * 2);
+        tilt.set(Math.sin(next.bob * 0.65) * 2 + lean * 0.4);
+        stretchY.set(1 + Math.sin(next.bob * 1.2) * 0.015);
+        stretchX.set(1 - Math.sin(next.bob * 1.2) * 0.012);
+        break;
+      }
+      case "look": {
+        next.timer -= dt;
+        facing.set(Number.isFinite(next.pointerX) && next.pointerX < centreX ? -1 : 1);
+        y.set(next.jumpBase + Math.sin(next.bob * 2) * 2);
+        tilt.set(lean * 1.15);
+        if (next.timer <= 0) rest("idle", rand(2.8, 4.8));
+        break;
+      }
+      case "flip": {
+        next.jumpT += dt;
+        const t = clamp(next.jumpT / 0.84, 0, 1);
+        const arc = Math.sin(Math.PI * t);
+        y.set(next.jumpBase - 56 * arc);
+        spin.set(t * 360);
+        stretchY.set(1.08 - arc * 0.12);
+        stretchX.set(0.9 + arc * 0.12);
+        if (t >= 1) {
+          spin.set(0);
+          y.set(next.jumpBase);
+          rest("celebrate", 1.3, "greet");
+        }
+        break;
+      }
       case "hold": {
         stretchY.set(0.95);
         stretchX.set(1.04);
@@ -757,6 +865,7 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
         next.jumpBase = ny;
         facing.set(next.vx < 0 ? -1 : 1);
         tilt.set(clamp(next.vx * 0.018, -24, 24));
+        spin.set(clamp(next.vx * 0.05, -42, 42));
         stretchX.set(1.1);
         stretchY.set(0.9);
         const slow = Math.hypot(next.vx, next.vy) < 95 && ny > -10;
@@ -774,7 +883,12 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
       !busy &&
       Math.abs(finite(x.get(), HOME)) < 22 &&
       Math.abs(finite(y.get(), HOME)) < 30 &&
-      (next.phase === "idle" || next.phase === "greet" || next.phase === "sleep" || next.phase === "think");
+      (next.phase === "idle" ||
+        next.phase === "greet" ||
+        next.phase === "sleep" ||
+        next.phase === "think" ||
+        next.phase === "look" ||
+        next.phase === "park");
     if (next.docked !== parked) {
       next.docked = parked;
       setDocked(parked);
@@ -788,6 +902,8 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
         next.phase === "sleep" ||
         next.phase === "think" ||
         next.phase === "cheer" ||
+        next.phase === "park" ||
+        next.phase === "look" ||
         next.phase === "wiggle" ||
         (next.phase === "sit" && next.leg === "wait") ||
         (next.phase === "parade" && next.leg === "wait"));
@@ -806,16 +922,19 @@ export function useBotDirector(enabled: boolean, thinking: boolean) {
     stretchY,
     fade,
     grow,
+    spin,
     pose,
     asleep,
     docked,
     settled,
     poking,
     playing,
+    parked,
     reduced,
     poke,
     grab,
     move,
-    release
+    release,
+    goHome
   };
 }

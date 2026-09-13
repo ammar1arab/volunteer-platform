@@ -8,23 +8,131 @@ export const CHAT_DEFAULT_LIMIT = 50;
 export const CHAT_LOW_QUOTA = 10;
 
 export const CHAT_BOT_POSES = {
-  idle: "/images/basmat-agent-idle.png",
-  run: "/images/basmat-agent-run.png",
-  invite: "/images/basmat-agent-invite.png",
-  cheer: "/images/basmat-agent-cheer.png",
-  think: "/images/basmat-agent-think.png",
-  thinking: "/images/basmat-agent-thinking.png",
-  search: "/images/basmat-agent-search.png",
-  rest: "/images/basmat-agent-rest.png",
-  torch: "/images/basmat-agent-torch.png",
-  wave: "/images/basmat-agent-wave.png",
-  greeting: "/images/basmat-agent-greeting.png",
-  success: "/images/basmat-agent-success.png"
+  idle: "/images/agent/idle.png",
+  run: "/images/agent/run.png",
+  invite: "/images/agent/invite.png",
+  cheer: "/images/agent/cheer.png",
+  think: "/images/agent/think.png",
+  thinking: "/images/agent/thinking.png",
+  search: "/images/agent/search.png",
+  rest: "/images/agent/rest.png",
+  torch: "/images/agent/torch.png",
+  wave: "/images/agent/wave.png",
+  greeting: "/images/agent/greeting.png",
+  success: "/images/agent/success.png",
+  bust: "/images/agent/bust.png",
+  worried: "/images/agent/worried.png",
+  plant: "/images/agent/plant.png",
+  thumbs: "/images/agent/thumbs.png",
+  "thumbs-close": "/images/agent/thumbs-close.png",
+  read: "/images/agent/read.png",
+  idea: "/images/agent/idea.png",
+  point: "/images/agent/point.png",
+  jump: "/images/agent/jump.png",
+  celebrate: "/images/agent/celebrate.png",
+  snack: "/images/agent/snack.png",
+  laugh: "/images/agent/laugh.png",
+  ponder: "/images/agent/ponder.png",
+  shy: "/images/agent/shy.png"
 } as const;
 
 export type BotPose = keyof typeof CHAT_BOT_POSES;
 
 export const CHAT_BOT_POSE_KEYS = Object.keys(CHAT_BOT_POSES) as BotPose[];
+
+export type BotJourneyBeat = {
+  pose: BotPose;
+  hold: number;
+};
+
+export const CHAT_BOT_JOURNEYS: readonly (readonly BotJourneyBeat[])[] = [
+  [
+    { pose: "jump", hold: 0.9 },
+    { pose: "celebrate", hold: 1.2 },
+    { pose: "thumbs", hold: 1.4 },
+    { pose: "idle", hold: 1.8 }
+  ],
+  [
+    { pose: "shy", hold: 1.2 },
+    { pose: "wave", hold: 1.3 },
+    { pose: "invite", hold: 1.6 },
+    { pose: "idle", hold: 1.6 }
+  ],
+  [
+    { pose: "plant", hold: 2.4 },
+    { pose: "thumbs", hold: 1.2 },
+    { pose: "wave", hold: 1.2 }
+  ],
+  [
+    { pose: "read", hold: 2.6 },
+    { pose: "idea", hold: 1.4 },
+    { pose: "point", hold: 1.5 },
+    { pose: "idle", hold: 1.4 }
+  ],
+  [
+    { pose: "snack", hold: 2.2 },
+    { pose: "laugh", hold: 1.3 },
+    { pose: "idle", hold: 1.6 }
+  ],
+  [
+    { pose: "ponder", hold: 1.8 },
+    { pose: "idea", hold: 1.3 },
+    { pose: "thumbs-close", hold: 1.4 }
+  ],
+  [
+    { pose: "search", hold: 1.4 },
+    { pose: "point", hold: 1.3 },
+    { pose: "invite", hold: 1.5 }
+  ],
+  [
+    { pose: "greeting", hold: 1.2 },
+    { pose: "wave", hold: 1.2 },
+    { pose: "celebrate", hold: 1.3 },
+    { pose: "idle", hold: 1.5 }
+  ],
+  [
+    { pose: "worried", hold: 1.4 },
+    { pose: "ponder", hold: 1.3 },
+    { pose: "idea", hold: 1.3 },
+    { pose: "thumbs", hold: 1.4 }
+  ],
+  [
+    { pose: "torch", hold: 1.3 },
+    { pose: "run", hold: 0.8 },
+    { pose: "jump", hold: 0.9 },
+    { pose: "success", hold: 1.4 }
+  ],
+  [
+    { pose: "rest", hold: 1.8 },
+    { pose: "read", hold: 2 },
+    { pose: "idle", hold: 1.4 }
+  ],
+  [
+    { pose: "laugh", hold: 1.2 },
+    { pose: "cheer", hold: 1.2 },
+    { pose: "idle", hold: 1.4 }
+  ],
+  [
+    { pose: "point", hold: 1.3 },
+    { pose: "invite", hold: 1.5 },
+    { pose: "thumbs", hold: 1.3 }
+  ],
+  [
+    { pose: "shy", hold: 1.4 },
+    { pose: "laugh", hold: 1.2 },
+    { pose: "wave", hold: 1.3 }
+  ],
+  [
+    { pose: "snack", hold: 1.8 },
+    { pose: "plant", hold: 2 },
+    { pose: "idle", hold: 1.4 }
+  ],
+  [
+    { pose: "idea", hold: 1.3 },
+    { pose: "celebrate", hold: 1.3 },
+    { pose: "thumbs-close", hold: 1.4 }
+  ]
+];
 
 export const CHAT_WELCOME: StoredChatMessageDto = {
   id: "welcome",
@@ -166,11 +274,29 @@ export const CHAT_PROMO_TIPS: readonly ChatPromoTip[] = [
   }
 ];
 
-export const CHAT_BOT_TIP_MOMENTS: readonly BotPose[] = ["invite", "wave", "greeting", "cheer"];
+export const CHAT_BOT_TIP_MOMENTS: readonly BotPose[] = [
+  "invite",
+  "wave",
+  "greeting",
+  "cheer",
+  "idea",
+  "point",
+  "thumbs",
+  "laugh"
+];
 
-export const CHAT_PROMO_FIRST_MS = 50_000;
-export const CHAT_PROMO_CYCLE_MS = 150_000;
-export const CHAT_PROMO_SHOW_MS = 18_000;
+export const CHAT_PROMO_PAGE_TIPS: ReadonlyArray<[string, string]> = [
+  ["/activities", "activities"],
+  ["/volunteer/certificates", "certificates"],
+  ["/volunteer/profile", "profile"],
+  ["/magazines", "magazines"],
+  ["/posts", "posts"],
+  ["/spotlight", "spotlight"],
+  ["/about", "about"]
+];
+
+export const CHAT_PROMO_GAP_MS = 20_000;
+export const CHAT_PROMO_SHOW_MS = 12_000;
 
 export const CHAT_CTA_NUDGE_FIRST_MS = 120_000;
 export const CHAT_CTA_NUDGE_CYCLE_MS = 300_000;

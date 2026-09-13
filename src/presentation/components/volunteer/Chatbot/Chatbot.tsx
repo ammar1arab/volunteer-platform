@@ -191,7 +191,7 @@ export default function Chatbot() {
           aria-label={CHAT_TIPS.close}
           aria-expanded={true}
         >
-          <X size={22} />
+          <X size={18} />
         </button>
       )}
 

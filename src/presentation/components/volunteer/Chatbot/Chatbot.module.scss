@@ -55,6 +55,13 @@ $ink: #173524;
   }
 }
 
+@keyframes ctaGlow {
+  50% {
+    opacity: 0.55;
+    transform: scale(1.03);
+  }
+}
+
 .root {
   position: fixed;
   z-index: $z-fixed;
@@ -94,7 +101,7 @@ $ink: #173524;
   border-radius: $radius-2xl;
   background: $surface;
   box-shadow: 0 1.2rem 3.5rem rgba($black, 0.15);
-  animation: enter $transition;
+  animation: enter 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .header {
@@ -373,6 +380,8 @@ $ink: #173524;
 }
 
 .messages {
+  @include chatAura;
+  --chat-aura-pad: 2px;
   display: grid;
   align-content: start;
   gap: 0.7rem;
@@ -384,6 +393,15 @@ $ink: #173524;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   background: linear-gradient(180deg, #f6fbf7, $white 34%);
+}
+
+.messagesBusy {
+  --chat-aura-pad: 3px;
+
+  &::before {
+    opacity: 1;
+    animation-duration: 5.2s;
+  }
 }
 
 .message {
@@ -814,31 +832,6 @@ $ink: #173524;
   pointer-events: none;
 }
 
-.launcher,
-.closeLauncher {
-  display: grid;
-  width: clamp(52px, 14vw, 72px);
-  height: clamp(52px, 14vw, 72px);
-  padding: 0;
-  place-items: center;
-  color: $green;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.launcher {
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-
-  &[data-playing="true"] {
-    cursor: grabbing;
-  }
-}
-
 .actor {
   position: absolute;
   left: calc(0.85rem + env(safe-area-inset-left));
@@ -853,18 +846,53 @@ $ink: #173524;
   will-change: transform;
 }
 
+.launcher,
+.closeLauncher {
+  display: grid;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .launcher {
   position: relative;
   z-index: 2;
+  width: clamp(68px, 16vw, 96px);
+  height: clamp(68px, 16vw, 96px);
+  color: $green;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
   pointer-events: auto;
+
+  &[data-playing="true"] {
+    cursor: grabbing;
+  }
 }
 
 .closeLauncher {
-  justify-self: left;
-  border-radius: $radius-full;
+  justify-self: start;
+  width: 3rem;
+  height: 3rem;
   color: $white;
+  border-radius: $radius-full;
   background: $green;
-  box-shadow: 0 0.4rem 1rem rgba($green, 0.28);
+  box-shadow: 0 0.35rem 0.85rem rgba($green, 0.28);
+  touch-action: manipulation;
+  animation: enter 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0.45rem 1rem rgba($green, 0.36);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
 }
 
 .botShadow {
@@ -898,7 +926,7 @@ $ink: #173524;
   opacity: 0;
   pointer-events: none;
   user-select: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.32s ease;
 }
 
 .botFaceOn {
@@ -941,7 +969,7 @@ $ink: #173524;
   background: linear-gradient(135deg, $green-dark, $green);
   cursor: pointer;
   pointer-events: auto;
-  animation: enter $transition;
+  animation: promoIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 
   span {
     display: -webkit-box;
@@ -966,8 +994,28 @@ $ink: #173524;
 }
 
 .agentCta {
+  position: relative;
+  isolation: isolate;
   display: grid;
   gap: 1rem;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 1.6rem;
+    background:
+      radial-gradient(circle at 18% 16%, rgba($green, 0.32), transparent 44%),
+      radial-gradient(circle at 86% 78%, rgba($red, 0.18), transparent 48%);
+    animation: ctaGlow 4.8s ease-in-out infinite;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 .agentHero {
@@ -1221,6 +1269,13 @@ $ink: #173524;
   }
 }
 
+@keyframes promoIn {
+  from {
+    opacity: 0;
+    transform: translateX(-0.5rem) scale(0.94);
+  }
+}
+
 @keyframes message {
   from {
     opacity: 0;
@@ -1266,8 +1321,11 @@ $ink: #173524;
   .window,
   .window::before,
   .agentModal::before,
+  .messages::before,
+  .agentCta::after,
   .message,
   .promo,
+  .closeLauncher,
   .typing i,
   .robotBody,
   .robotArmLeft,
