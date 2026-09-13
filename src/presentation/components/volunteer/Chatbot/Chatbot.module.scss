@@ -6,55 +6,6 @@ $green-deep: color.adjust($green, $lightness: -13%);
 $green-dark: color.adjust($green, $lightness: -8%);
 $ink: #173524;
 
-@property --chat-aura-angle {
-  syntax: "<angle>";
-  inherits: false;
-  initial-value: 0deg;
-}
-
-@mixin chatAura {
-  --chat-aura-pad: 2px;
-  position: relative;
-  isolation: isolate;
-  border-color: transparent;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    border-radius: inherit;
-    padding: var(--chat-aura-pad);
-    pointer-events: none;
-    opacity: 0.95;
-    animation: chatAuraSpin 9s linear infinite;
-    background: conic-gradient(
-      from var(--chat-aura-angle),
-      $black 0deg,
-      $red 70deg,
-      $green 140deg,
-      $black 210deg,
-      $red 280deg,
-      $green 330deg,
-      $black 360deg
-    );
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-  }
-}
-
-@keyframes chatAuraSpin {
-  to {
-    --chat-aura-angle: 360deg;
-  }
-}
-
 @keyframes ctaGlow {
   50% {
     opacity: 0.55;
@@ -90,14 +41,13 @@ $ink: #173524;
 }
 
 .window {
-  @include chatAura;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   width: min(25rem, calc(100vw - 2rem));
   height: min(38.75rem, calc(100dvh - 8rem));
   min-width: 0;
   overflow: hidden;
-  border: 1px solid transparent;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: $radius-2xl;
   background: $surface;
   box-shadow: 0 1.2rem 3.5rem rgba($black, 0.15);
@@ -380,8 +330,6 @@ $ink: #173524;
 }
 
 .messages {
-  @include chatAura;
-  --chat-aura-pad: 2px;
   display: grid;
   align-content: start;
   gap: 0.7rem;
@@ -396,12 +344,6 @@ $ink: #173524;
 }
 
 .messagesBusy {
-  --chat-aura-pad: 3px;
-
-  &::before {
-    opacity: 1;
-    animation-duration: 5.2s;
-  }
 }
 
 .message {
@@ -988,7 +930,6 @@ $ink: #173524;
 }
 
 .agentModal {
-  @include chatAura;
   border-radius: 2rem !important;
   overflow: hidden;
 }
@@ -1319,9 +1260,6 @@ $ink: #173524;
 
 @media (prefers-reduced-motion: reduce) {
   .window,
-  .window::before,
-  .agentModal::before,
-  .messages::before,
   .agentCta::after,
   .message,
   .promo,
