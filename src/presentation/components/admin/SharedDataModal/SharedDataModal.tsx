@@ -14,9 +14,7 @@ export interface Column<T> {
   sortValue?: (item: T) => string | number;
 }
 
-interface Props<T> {
-  isOpen: boolean;
-  onClose: () => void;
+export interface SharedDataModalConfig<T extends { id?: string | number }> {
   title: string;
   icon: LucideIcon;
   fetchUrl: string;
@@ -29,6 +27,16 @@ interface Props<T> {
   customListRenderer?: (data: T[]) => React.ReactNode;
   defaultSortKey?: string;
   defaultSortOrder?: "asc" | "desc";
+}
+
+interface SharedModalSuccess<T> {
+  success?: boolean;
+  data?: Record<string, T[]> | T[];
+}
+
+interface Props<T extends { id?: string | number }> extends SharedDataModalConfig<T> {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function SharedDataModal<T extends { id?: string | number }>({
@@ -57,8 +65,9 @@ export function SharedDataModal<T extends { id?: string | number }>({
     request: async () => {
       const res = await fetch(fetchUrl);
       if (!res.ok) throw new Error("Failed to fetch data");
-      const json = await res.json();
-      const raw = json.data?.[dataKey] ?? json.data ?? [];
+      const json = (await res.json()) as SharedModalSuccess<T>;
+      const body = json.data;
+      const raw = Array.isArray(body) ? body : body?.[dataKey] ?? [];
       return { items: Array.isArray(raw) ? raw : [] };
     },
   });

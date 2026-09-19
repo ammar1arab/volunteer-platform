@@ -36,13 +36,23 @@ export default function AnalyticsPage() {
         ))}
       </div>
 
-      {activeModal && (
-        <SharedDataModal
-          key={activeModal}
-          isOpen
-          onClose={() => setActiveModal(null)}
-          {...ANALYTICS_MODAL_CONFIGS[activeModal]}
-        />
+      {activeModal === "users" && (
+        <SharedDataModal key="users" isOpen onClose={() => setActiveModal(null)} {...ANALYTICS_MODAL_CONFIGS.users} />
+      )}
+      {activeModal === "activities" && (
+        <SharedDataModal key="activities" isOpen onClose={() => setActiveModal(null)} {...ANALYTICS_MODAL_CONFIGS.activities} />
+      )}
+      {activeModal === "pending" && (
+        <SharedDataModal key="pending" isOpen onClose={() => setActiveModal(null)} {...ANALYTICS_MODAL_CONFIGS.pending} />
+      )}
+      {activeModal === "activityViews" && (
+        <SharedDataModal key="activityViews" isOpen onClose={() => setActiveModal(null)} {...ANALYTICS_MODAL_CONFIGS.activityViews} />
+      )}
+      {activeModal === "postViews" && (
+        <SharedDataModal key="postViews" isOpen onClose={() => setActiveModal(null)} {...ANALYTICS_MODAL_CONFIGS.postViews} />
+      )}
+      {activeModal === "magazineDownloads" && (
+        <SharedDataModal key="magazineDownloads" isOpen onClose={() => setActiveModal(null)} {...ANALYTICS_MODAL_CONFIGS.magazineDownloads} />
       )}
     </Container>
   );

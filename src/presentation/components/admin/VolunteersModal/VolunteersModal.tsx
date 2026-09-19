@@ -5,7 +5,7 @@ import { useState } from "react";
 import { AttendanceStatus, ActivityStatus } from "@/core/domain/enums";
 import {
   Modal, LoadingState, EmptyState, ConfirmDialog, ToastContainer,
-  CompleteActivityProgress, ExportUsersButton, Pagination, Button, UserList
+  CompleteActivityProgress, ExportUsersButton, Pagination, Button, UserList, compactUserListMeta
 } from "@/presentation/components";
 import { getCityLabel, getAttendanceStatusLabel } from "@/presentation/constants";
 import { useCompleteActivity } from "@/presentation/hooks";
@@ -198,10 +198,10 @@ const VolunteersModal = ({
                     phone: volunteer.phone,
                     avatarUrl: volunteer.profilePictureUrl || undefined,
                     gender: volunteer.gender || undefined,
-                    meta: [
+                    meta: compactUserListMeta([
                       volunteer.city ? { value: getCityLabel(volunteer.city), icon: MapPin } : null,
                       volunteer.dateOfBirth ? { value: `${calculateAge(volunteer.dateOfBirth)} سنة`, icon: Calendar } : null,
-                    ].filter(Boolean) as any,
+                    ]),
                     action: (
                       <div className={styles.volunteerActions}>
                         {canReject && (

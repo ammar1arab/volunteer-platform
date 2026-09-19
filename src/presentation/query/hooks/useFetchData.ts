@@ -9,7 +9,7 @@ import {
 import { useRef } from "react";
 import { isNotFoundError } from "../utils/errors";
 
-export interface UseFetchDataOptions {
+export interface UseFetchDataOptions<TData> {
   enabled?: boolean;
   staleTime?: number;
   gcTime?: number;
@@ -17,7 +17,7 @@ export interface UseFetchDataOptions {
   refetchOnWindowFocus?: boolean;
   refetchOnMount?: boolean | "always";
   refetchOnReconnect?: boolean;
-  refetchInterval?: number | false | ((query: { state: { data: unknown } }) => number | false);
+  refetchInterval?: number | false | ((query: { state: { data: TData | undefined } }) => number | false);
   refetchIntervalInBackground?: boolean;
   cacheEnabled?: boolean;
   keepPrevious?: boolean;
@@ -26,7 +26,7 @@ export interface UseFetchDataOptions {
 export interface UseFetchDataParams<TData> {
   queryKey: QueryKey;
   request: () => Promise<TData>;
-  options?: UseFetchDataOptions;
+  options?: UseFetchDataOptions<TData>;
   callback?: (data: TData) => void;
   errorCallback?: (error: Error) => void;
 }

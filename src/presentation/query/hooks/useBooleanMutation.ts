@@ -7,13 +7,14 @@ import { getErrorMessage } from "../utils/errors";
 
 export function useBooleanMutation<
   TVariables,
-  TData extends object | void | boolean | string | number | null = object | void | boolean | string | number | null
+  TData extends object | void | boolean | string | number | null = object | void | boolean | string | number | null,
+  TContext = void
 >(params: {
   request: (variables: TVariables) => Promise<TData>;
   invalidateQueries?: QueryKey | QueryKey[];
   fallbackError?: string;
-  onMutate?: (variables: TVariables) => unknown | Promise<unknown>;
-  onError?: (error: Error, variables: TVariables, context: unknown) => void;
+  onMutate?: (variables: TVariables) => TContext | Promise<TContext>;
+  onError?: (error: Error, variables: TVariables, context: TContext | undefined) => void;
 }) {
   const [error, setError] = useState("");
   const requestRef = useRef(params.request);
@@ -26,7 +27,7 @@ export function useBooleanMutation<
     []
   );
 
-  const mutation = useApiMutation<TData, TVariables>({
+  const mutation = useApiMutation<TData, TVariables, TContext>({
     request: stableRequest,
     invalidateQueries: params.invalidateQueries,
     onMutate: params.onMutate,

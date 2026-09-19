@@ -15,6 +15,14 @@ export interface UserListMeta {
   label?: string;
 }
 
+export function compactUserListMeta(items: Array<UserListMeta | null | undefined>): UserListMeta[] {
+  const meta: UserListMeta[] = [];
+  for (const item of items) {
+    if (item) meta.push(item);
+  }
+  return meta;
+}
+
 export interface UserListDto {
   id: string;
   name: string;

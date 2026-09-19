@@ -17,12 +17,19 @@ const SCOPES = [
   "https://www.googleapis.com/auth/meetings.space.readonly"
 ];
 
-function describeGoogleError(error: unknown): string {
-  if (!error || typeof error !== "object") return String(error);
-  const err = error as {
-    message?: string;
-    response?: { status?: number; data?: { error?: string; error_description?: string } };
+interface GoogleApiError {
+  message?: string;
+  response?: {
+    status?: number;
+    data?: { error?: string; error_description?: string };
   };
+}
+
+function isGoogleApiError(value: object): value is GoogleApiError {
+  return "message" in value || "response" in value;
+}
+
+function formatGoogleApiError(err: GoogleApiError): string {
   const data = err.response?.data;
   return [
     err.message,
@@ -32,6 +39,14 @@ function describeGoogleError(error: unknown): string {
   ]
     .filter(Boolean)
     .join(" | ");
+}
+
+function describeGoogleError(error: Error | object | string): string {
+  if (typeof error === "string") return error;
+  if (error instanceof Error && isGoogleApiError(error)) return formatGoogleApiError(error);
+  if (error instanceof Error) return error.message;
+  if (isGoogleApiError(error)) return formatGoogleApiError(error);
+  return "Google request failed";
 }
 
 class GoogleMeetingProvider implements IMeetingProvider {
@@ -81,7 +96,7 @@ class GoogleMeetingProvider implements IMeetingProvider {
     try {
       await client.revokeToken(refreshToken);
     } catch (error) {
-      logger.warn(SCOPE, "revokeToken", describeGoogleError(error));
+      logger.warn(SCOPE, "revokeToken", error instanceof Error ? describeGoogleError(error) : String(error));
     }
   }
 
@@ -102,7 +117,7 @@ class GoogleMeetingProvider implements IMeetingProvider {
     try {
       ({ tokens } = await client.getToken(code));
     } catch (error) {
-      const detail = describeGoogleError(error);
+      const detail = error instanceof Error ? describeGoogleError(error) : String(error);
       logger.error(SCOPE, "exchangeCode.getToken", detail);
       throw new Error(`Google token exchange failed: ${detail}`);
     }
@@ -137,7 +152,7 @@ class GoogleMeetingProvider implements IMeetingProvider {
       });
       return { refreshToken: tokens.refresh_token ?? null, email, scopes };
     } catch (error) {
-      const detail = describeGoogleError(error);
+      const detail = error instanceof Error ? describeGoogleError(error) : String(error);
       logger.error(SCOPE, "exchangeCode.userinfo", detail);
       throw new Error(`Google userinfo failed: ${detail}`);
     }

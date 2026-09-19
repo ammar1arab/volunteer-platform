@@ -33,16 +33,8 @@ export const useActivities = (opts?: { filter?: ActivitiesFilter; enabled?: bool
       keepPrevious: true,
       refetchInterval: (query) => {
         const rows = query.state.data;
-        if (!Array.isArray(rows)) return false;
-        return rows.some(
-          (row) =>
-            row &&
-            typeof row === "object" &&
-            "meetingSyncStatus" in row &&
-            (row as ActivityDto).meetingSyncStatus === MeetingSyncStatus.PENDING
-        )
-          ? 5000
-          : false;
+        if (!rows) return false;
+        return rows.some((row) => row.meetingSyncStatus === MeetingSyncStatus.PENDING) ? 5000 : false;
       }
     }
   });

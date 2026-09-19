@@ -54,6 +54,7 @@ export { default as AdminMagazineCard } from "./admin/AdminMagazineCard/AdminMag
 export { default as VolunteersModal } from "./admin/VolunteersModal/VolunteersModal";
 export { UserList } from "./admin/UserList/UserList";
 export type { UserListDto, UserListMeta } from "./admin/UserList/UserList";
+export { compactUserListMeta } from "./admin/UserList/UserList";
 
 export { default as ParticipationRequestItem } from "./admin/ParticipationRequestItem/ParticipationRequestItem";
 export { default as StatsCard } from "./admin/StatsCard/StatsCard";

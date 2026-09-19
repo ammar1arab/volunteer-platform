@@ -114,7 +114,7 @@ export const useMeetingActions = () => {
     fallbackError: "فشل بدء الاتصال بـ Google"
   });
 
-  const disconnectMutation = useBooleanMutation<void>({
+  const disconnectMutation = useBooleanMutation<void, { disconnected: boolean }, GoogleIntegrationStatusDto | undefined>({
     request: async () => unwrapResult(await meetingsApi.disconnectGoogle()),
     invalidateQueries: [queryKeys.meetings.googleStatus(), queryKeys.meetings.all],
     fallbackError: "فشل قطع الاتصال",
@@ -127,9 +127,7 @@ export const useMeetingActions = () => {
       return prev;
     },
     onError: (_error, _variables, prev) => {
-      if (prev && typeof prev === "object") {
-        statusCache.updateData(prev as GoogleIntegrationStatusDto);
-      }
+      if (prev) statusCache.updateData(prev);
     }
   });
 
