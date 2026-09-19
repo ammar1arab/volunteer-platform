@@ -1,4 +1,4 @@
-import { R2StorageService } from "@/infrastructure/external";
+import { R2StorageService } from "@/infrastructure/external/cloudFlare";
 import { InputSanitizer } from "@/infrastructure/security";
 import { MonthlyMagazineRepository } from "@/infrastructure/persistence/repositories";
 

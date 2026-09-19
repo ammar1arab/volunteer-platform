@@ -1,5 +1,5 @@
 import { VolunteerProfileRepository } from "@/infrastructure/persistence/repositories";
-import { R2StorageService } from "@/infrastructure/external";
+import { R2StorageService } from "@/infrastructure/external/cloudFlare";
 import { serviceError, guard } from "@/core/application/common";
 import { InputSanitizer } from "@/infrastructure/security";
 import { toVolunteerProfileDto } from "@/core/application/mappers";

@@ -1,4 +1,4 @@
-import { R2StorageService, GoogleMeetingProvider } from "@/infrastructure/external";
+import { R2StorageService } from "@/infrastructure/external/cloudFlare";
 import {
   UserRepository,
   VolunteerProfileRepository,
@@ -113,6 +113,5 @@ export const providers = {
       new ActivityPresenterRepository(),
       new ActivityParticipationRepository(),
       new UserRepository(),
-      new GoogleMeetingProvider(),
     ),
 };

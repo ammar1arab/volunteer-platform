@@ -12,7 +12,6 @@ import {
   touchMeetingGate
 } from "@/core/application/meetings/meetingGateStore";
 import { createJitsiEmbed } from "@/core/application/meetings/jitsiEmbed";
-import { GoogleMeetingProvider } from "@/infrastructure/external";
 import { encrypt, decrypt } from "@/infrastructure/security";
 import { MeetingIntegration } from "@/core/domain/entities";
 import { serviceError, guard } from "@/core/application/common";
@@ -68,8 +67,16 @@ class MeetingUseCase {
     private presenterRepository: ActivityPresenterRepository,
     private participationRepository: ActivityParticipationRepository,
     private userRepository: UserRepository,
-    private meetingProvider: IMeetingProvider = new GoogleMeetingProvider()
+    private meetingProvider?: IMeetingProvider
   ) {}
+
+  private async provider(): Promise<IMeetingProvider> {
+    if (!this.meetingProvider) {
+      const { default: GoogleMeetingProvider } = await import("@/infrastructure/external/google/GoogleMeetingProvider");
+      this.meetingProvider = new GoogleMeetingProvider();
+    }
+    return this.meetingProvider;
+  }
 
   private toStatusDto(integration: MeetingIntegration | null) {
     if (!integration || integration.status === MeetingIntegrationStatus.DISCONNECTED) {
@@ -294,7 +301,7 @@ class MeetingUseCase {
         }),
         "utf8"
       ).toString("base64url");
-      const url = this.meetingProvider.getAuthUrl(state, resolvedRedirect);
+      const url = (await this.provider()).getAuthUrl(state, resolvedRedirect);
       return ok({ url, state });
     } catch (error) {
       return serviceError(MeetingUseCase.SCOPE, "getConnectUrl", error, "تعذر إنشاء رابط الربط");
@@ -310,7 +317,7 @@ class MeetingUseCase {
       guard(code, "رمز التفويض مطلوب");
       guard(connectedById, "معرّف المستخدم مطلوب");
 
-      const exchanged = await this.meetingProvider.exchangeCode(code, redirectUri);
+      const exchanged = await (await this.provider()).exchangeCode(code, redirectUri);
       const existing = await this.integrationRepository.findByProvider(MeetingUseCase.PROVIDER);
       const refreshToken =
         exchanged.refreshToken ||
@@ -363,7 +370,7 @@ class MeetingUseCase {
       const encrypted = integration.encryptedRefreshToken?.trim();
       if (encrypted) {
         try {
-          await this.meetingProvider.revokeToken(decrypt(encrypted));
+          await (await this.provider()).revokeToken(decrypt(encrypted));
         } catch (error) {
           logger.warn(
             MeetingUseCase.SCOPE,
@@ -459,7 +466,7 @@ class MeetingUseCase {
           }
 
           const attendees = await this.collectAttendees(activity.id);
-          await this.meetingProvider.syncAttendees(
+          await (await this.provider()).syncAttendees(
             refreshToken,
             integration.calendarId,
             props.externalMeetingId,
@@ -470,7 +477,7 @@ class MeetingUseCase {
         }
 
         if (operation.type === MeetingSyncOperationType.CREATE) {
-          const result = await this.meetingProvider.createMeeting(
+          const result = await (await this.provider()).createMeeting(
             refreshToken,
             integration.calendarId,
             input
@@ -478,14 +485,14 @@ class MeetingUseCase {
           activity.attachProvisionedMeeting(result);
         } else if (operation.type === MeetingSyncOperationType.UPDATE) {
           if (!props.externalMeetingId) {
-            const result = await this.meetingProvider.createMeeting(
+            const result = await (await this.provider()).createMeeting(
               refreshToken,
               integration.calendarId,
               input
             );
             activity.attachProvisionedMeeting(result);
           } else {
-            const result = await this.meetingProvider.updateMeeting(
+            const result = await (await this.provider()).updateMeeting(
               refreshToken,
               integration.calendarId,
               props.externalMeetingId,
@@ -495,7 +502,7 @@ class MeetingUseCase {
           }
         } else if (operation.type === MeetingSyncOperationType.CANCEL) {
           if (props.externalMeetingId) {
-            await this.meetingProvider.cancelMeeting(
+            await (await this.provider()).cancelMeeting(
               refreshToken,
               integration.calendarId,
               props.externalMeetingId
@@ -938,7 +945,7 @@ class MeetingUseCase {
 
       let providerResult;
       try {
-        providerResult = await this.meetingProvider.importReport(
+        providerResult = await (await this.provider()).importReport(
           refreshToken,
           meetingCode,
           windowStart.toISOString(),

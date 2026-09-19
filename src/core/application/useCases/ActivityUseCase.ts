@@ -8,7 +8,7 @@ import {
 import { InputSanitizer } from "@/infrastructure/security";
 import { prisma } from "@/infrastructure/persistence/prisma";
 import { Activity, ActivityPresenter } from "@/core/domain/entities";
-import { R2StorageService } from "@/infrastructure/external";
+import { R2StorageService } from "@/infrastructure/external/cloudFlare";
 import { serviceError, guard, guardRange } from "@/core/application/common";
 import { toActivityDto, toActivityDtoList } from "@/core/application/mappers";
 import { SystemLogUseCase } from "@/core/application/useCases";

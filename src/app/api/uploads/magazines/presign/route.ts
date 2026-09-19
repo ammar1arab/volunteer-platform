@@ -1,6 +1,6 @@
 import { ok } from "@/core/application/dtos";
 import { UserRole } from "@/core/domain/enums";
-import { R2StorageService } from "@/infrastructure/external";
+import { R2StorageService } from "@/infrastructure/external/cloudFlare";
 import { requireAuth, toResponse } from "@/lib/api-utils";
 
 export const runtime = "nodejs";

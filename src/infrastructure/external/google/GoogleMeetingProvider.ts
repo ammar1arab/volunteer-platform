@@ -1,4 +1,7 @@
-import { google } from "googleapis";
+import { calendar } from "@googleapis/calendar";
+import { meet } from "@googleapis/meet";
+import { oauth2 } from "@googleapis/oauth2";
+import { OAuth2Client } from "google-auth-library";
 import type {
   IMeetingProvider,
   MeetingAttendeeInput,
@@ -64,7 +67,7 @@ class GoogleMeetingProvider implements IMeetingProvider {
     if (!clientId || !clientSecret) {
       throw new Error("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are required");
     }
-    return new google.auth.OAuth2(clientId, clientSecret, this.resolveRedirectUri(redirectUri));
+    return new OAuth2Client(clientId, clientSecret, this.resolveRedirectUri(redirectUri));
   }
 
   private async authWithRefreshToken(refreshToken: string) {
@@ -135,8 +138,8 @@ class GoogleMeetingProvider implements IMeetingProvider {
 
     client.setCredentials(tokens);
     try {
-      const oauth2 = google.oauth2({ version: "v2", auth: client });
-      const me = await oauth2.userinfo.get();
+      const oauthClient = oauth2({ version: "v2", auth: client });
+      const me = await oauthClient.userinfo.get();
       const email = me.data.email;
       if (!email) throw new Error("Unable to resolve Google account email");
 
@@ -220,8 +223,8 @@ class GoogleMeetingProvider implements IMeetingProvider {
     input: ProvisionMeetingInput
   ): Promise<ProvisionMeetingResult> {
     const auth = await this.authWithRefreshToken(refreshToken);
-    const calendar = google.calendar({ version: "v3", auth });
-    const response = await calendar.events.insert({
+    const calendarClient = calendar({ version: "v3", auth });
+    const response = await calendarClient.events.insert({
       calendarId,
       conferenceDataVersion: 1,
       requestBody: this.toEventBody(input)
@@ -236,8 +239,8 @@ class GoogleMeetingProvider implements IMeetingProvider {
     input: ProvisionMeetingInput
   ): Promise<ProvisionMeetingResult> {
     const auth = await this.authWithRefreshToken(refreshToken);
-    const calendar = google.calendar({ version: "v3", auth });
-    const response = await calendar.events.patch({
+    const calendarClient = calendar({ version: "v3", auth });
+    const response = await calendarClient.events.patch({
       calendarId,
       eventId: externalMeetingId,
       conferenceDataVersion: 1,
@@ -257,11 +260,11 @@ class GoogleMeetingProvider implements IMeetingProvider {
 
   async cancelMeeting(refreshToken: string, calendarId: string, externalMeetingId: string): Promise<void> {
     const auth = await this.authWithRefreshToken(refreshToken);
-    const calendar = google.calendar({ version: "v3", auth });
+    const calendarClient = calendar({ version: "v3", auth });
     try {
-      await calendar.events.delete({ calendarId, eventId: externalMeetingId });
+      await calendarClient.events.delete({ calendarId, eventId: externalMeetingId });
     } catch {
-      await calendar.events.patch({
+      await calendarClient.events.patch({
         calendarId,
         eventId: externalMeetingId,
         requestBody: { status: "cancelled" }
@@ -276,8 +279,8 @@ class GoogleMeetingProvider implements IMeetingProvider {
     attendees: MeetingAttendeeInput[]
   ): Promise<void> {
     const auth = await this.authWithRefreshToken(refreshToken);
-    const calendar = google.calendar({ version: "v3", auth });
-    await calendar.events.patch({
+    const calendarClient = calendar({ version: "v3", auth });
+    await calendarClient.events.patch({
       calendarId,
       eventId: externalMeetingId,
       requestBody: {
@@ -297,8 +300,8 @@ class GoogleMeetingProvider implements IMeetingProvider {
   ): Promise<MeetingReportResult> {
     try {
       const auth = await this.authWithRefreshToken(refreshToken);
-      const meet = google.meet({ version: "v2", auth });
-      const list = await meet.conferenceRecords.list({
+      const meetClient = meet({ version: "v2", auth });
+      const list = await meetClient.conferenceRecords.list({
         filter: `space.meeting_code = "${meetingCode}" AND start_time >= "${windowStart}" AND start_time <= "${windowEnd}"`
       });
 
@@ -307,7 +310,7 @@ class GoogleMeetingProvider implements IMeetingProvider {
         return { conferenceId: null, startedAt: null, endedAt: null, participants: [] };
       }
 
-      const participantsResp = await meet.conferenceRecords.participants.list({
+      const participantsResp = await meetClient.conferenceRecords.participants.list({
         parent: record.name,
         pageSize: 100
       });
@@ -320,7 +323,7 @@ class GoogleMeetingProvider implements IMeetingProvider {
         let lastLeftAt: string | null = null;
 
         try {
-          const sessions = await meet.conferenceRecords.participants.participantSessions.list({
+          const sessions = await meetClient.conferenceRecords.participants.participantSessions.list({
             parent: participant.name,
             pageSize: 100
           });

@@ -9,7 +9,8 @@ import {
   CATEGORY_OPTIONS,
   MEETING_PLATFORM_OPTIONS,
 } from "@/presentation/constants/labels";
-import { Modal, SelectInput, BirthDateInput, TimePickerInput, LocationPicker, MultiSelectInput, MeetingStatusBadge } from "@/presentation/components";
+import { Modal, SelectInput, BirthDateInput, TimePickerInput, MultiSelectInput, MeetingStatusBadge } from "@/presentation/components";
+import dynamic from "next/dynamic";
 import PresenterPicker from "@/presentation/components/admin/PresenterPicker/PresenterPicker";
 import { Upload, AlertTriangle } from "lucide-react";
 import {
@@ -37,6 +38,8 @@ type Props = {
   onImageUpload: (file: File) => Promise<string | null>;
   isSubmitting: boolean;
 };
+
+const LocationPicker = dynamic(() => import("@/presentation/components/base/LocationPicker/LocationPicker"), { ssr: false });
 
 const ActivityModal = ({ isOpen, onClose, mode, initialData, onSubmit, onImageUpload, isSubmitting }: Props) => {
   const { form, preview, uploading, setForm, handleImage, handleSubmit } =

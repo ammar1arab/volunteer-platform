@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/infrastructure/auth/config";
 import { unauthorized, badRequest, apiError } from "@/lib/api-utils";
-import { R2StorageService } from "@/infrastructure/external";
+import { R2StorageService } from "@/infrastructure/external/cloudFlare";
 
 export const runtime = "nodejs";
 

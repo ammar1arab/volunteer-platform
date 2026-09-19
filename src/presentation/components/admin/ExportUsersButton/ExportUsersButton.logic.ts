@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import * as XLSX from "xlsx";
 
 interface Column {
   key: string;
@@ -34,7 +33,8 @@ export const useExportUsersButton = (data: ExcelExportRow[], allColumns: Column[
     setSelectedColumns([]);
   }, []);
 
-  const exportToExcel = useCallback(() => {
+  const exportToExcel = useCallback(async () => {
+    const XLSX = await import("xlsx");
     const columns = allColumns.filter(col => selectedColumns.includes(col.key));
     
     const exportData = data.map((item) => {

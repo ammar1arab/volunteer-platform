@@ -2,7 +2,7 @@ import { CertificateRepository } from "@/infrastructure/persistence/repositories
 import { ActivityRepository } from "@/infrastructure/persistence/repositories";
 import { ActivityParticipationRepository } from "@/infrastructure/persistence/repositories";
 import { NotificationRepository } from "@/infrastructure/persistence/repositories";
-import { CertificateGeneratorService, R2StorageService } from "@/infrastructure/external";
+import { R2StorageService } from "@/infrastructure/external/cloudFlare";
 import { serviceError, guard } from "@/core/application/common";
 import { toCertificateDto } from "@/core/application/mappers";
 import { ActivityStatus, AttendanceStatus, CertificateStatus, NotificationType, SystemLogStatus } from "@/core/domain/enums";
@@ -99,6 +99,7 @@ class CertificateUseCase {
       if (existing?.status === CertificateStatus.COMPLETED && existing.pngUrl)
         return fail("CONFLICT", "الشهادة صادرة مسبقاً");
 
+      const { default: CertificateGeneratorService } = await import("@/infrastructure/external/certificate/CertificateGeneratorService");
       const pngBuffer = await new CertificateGeneratorService().generatePNG({
         volunteerName: volunteer.fullName,
         activityTitle: activity.title,
