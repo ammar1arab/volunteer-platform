@@ -46,6 +46,6 @@ export const ROUTES = {
 } as const;
 
 export function redirectByRole(role?: UserRole): string {
-  if (role === UserRole.ADMIN) return ROUTES.ADMIN.FEATURED_POSTS;
+  if (role === UserRole.ADMIN) return ROUTES.ADMIN.ANALYTICS;
   return ROUTES.VOLUNTEER.PROFILE;
 }
