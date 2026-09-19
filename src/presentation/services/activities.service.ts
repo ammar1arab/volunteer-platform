@@ -12,7 +12,8 @@ import type {
   CancelActivityResponse,
   RestoreActivityResponse,
   GetActivityVolunteersResponse,
-  CompleteActivityResponse
+  CompleteActivityResponse,
+  IssueCertificateResponse
 } from "@/core/application/dtos";
 
 export const activityApi = {
@@ -27,5 +28,7 @@ export const activityApi = {
   cancel: (id: string) => apiClient.post<CancelActivityResponse>(API_ENDPOINTS.ACTIVITIES.CANCEL(id)),
   restore: (id: string) => apiClient.post<RestoreActivityResponse>(API_ENDPOINTS.ACTIVITIES.RESTORE(id)),
   complete: (id: string) => apiClient.post<CompleteActivityResponse>(API_ENDPOINTS.ACTIVITIES.COMPLETE(id)),
-  getVolunteers: (id: string) => apiClient.get<GetActivityVolunteersResponse>(API_ENDPOINTS.ACTIVITIES.VOLUNTEERS(id))
+  getVolunteers: (id: string) => apiClient.get<GetActivityVolunteersResponse>(API_ENDPOINTS.ACTIVITIES.VOLUNTEERS(id)),
+  issueCertificate: (id: string, userId: string) =>
+    apiClient.post<IssueCertificateResponse>(API_ENDPOINTS.ACTIVITIES.CERTIFICATES(id), { userId })
 };

@@ -4,7 +4,7 @@ import { authOptions } from "@/infrastructure/auth/config";
 import { apiError, badRequest, unauthorized } from "@/lib/api-utils";
 import { providers } from "@/lib/providers";
 import { logger } from "@/lib/utils";
-import { UserRole } from "@/core/domain/enums";
+import { UserRole, audienceTargetError } from "@/core/domain/enums";
 import { prisma } from "@/infrastructure/persistence/prisma";
 
 export async function GET(req: NextRequest) {
@@ -37,13 +37,8 @@ export async function GET(req: NextRequest) {
       if (session.user.role !== UserRole.ADMIN) return unauthorized();
       const target = params.get("target") ?? "ALL";
       const targetValue = params.get("targetValue") ?? undefined;
-      if (!["ALL", "CITY", "GENDER", "HOURS", "USERS", "ACTIVITY_PENDING", "ACTIVITY_APPROVED"].includes(target))
-        return badRequest("نوع الاستهداف غير صحيح");
-      if ((target === "CITY" || target === "GENDER") && !targetValue) return badRequest("القيمة مطلوبة");
-      if (target === "HOURS" && (!targetValue || isNaN(parseFloat(targetValue))))
-        return badRequest("قيمة الساعات غير صحيحة");
-      if ((target === "ACTIVITY_PENDING" || target === "ACTIVITY_APPROVED") && !targetValue)
-        return badRequest("يجب اختيار نشاط");
+      const previewError = audienceTargetError(target, targetValue);
+      if (previewError) return badRequest(previewError);
       logger.info("notifications", "GET preview", `adminId=${session.user.id} target=${target}`);
       const result = await providers.notification().previewTargets(target, targetValue);
       return Response.json(result);
@@ -66,16 +61,12 @@ export async function POST(req: NextRequest) {
     const { title, message, target, targetValue, link, userIds } = body ?? {};
 
     if (!title?.trim() || !message?.trim() || !target) return badRequest("البيانات ناقصة");
-    if (!["ALL", "CITY", "GENDER", "HOURS", "USERS", "ACTIVITY_PENDING", "ACTIVITY_APPROVED"].includes(target))
-      return badRequest("نوع الاستهداف غير صحيح");
-    if ((target === "CITY" || target === "GENDER") && !targetValue && !userIds?.length)
-      return badRequest("القيمة مطلوبة");
-    if (target === "HOURS" && (!targetValue || isNaN(parseFloat(targetValue))))
-      return badRequest("قيمة الساعات غير صحيحة");
-    if ((target === "ACTIVITY_PENDING" || target === "ACTIVITY_APPROVED") && !targetValue)
-      return badRequest("يجب اختيار نشاط");
-    if (target === "USERS" && (!Array.isArray(userIds) || !userIds.length))
-      return badRequest("يجب تحديد مستخدم واحد على الأقل");
+    const sendError = audienceTargetError(
+      target,
+      targetValue,
+      Array.isArray(userIds) ? userIds : undefined
+    );
+    if (sendError) return badRequest(sendError);
 
     let targetUserIds: string[] = [];
 

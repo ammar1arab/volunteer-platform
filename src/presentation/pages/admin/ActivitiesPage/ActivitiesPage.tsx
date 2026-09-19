@@ -4,7 +4,7 @@ import { useActivitiesPage, FILTERS, STATUS_MAP } from "./ActivitiesPage.logic";
 
 import { ActivityStatus, ActivityType } from "@/core/domain/enums";
 import { LoadingState, EmptyState, ToastContainer, AdminActivityCard, Pagination, ActivityModal, VolunteersModal, ConfirmDialog, Dropdown, Search, Badge, Button } from "@/presentation/components";
-import { Plus, Edit2, Trash2, CalendarDays, Send, Ban, UsersIcon, RotateCcw } from "lucide-react";
+import { Plus, Edit2, Trash2, CalendarDays, Send, Ban, RotateCcw } from "lucide-react";
 import { getActivityTypeLabel } from "@/presentation/constants";
 import { formatDate } from "@/lib/utils";
 
@@ -74,7 +74,6 @@ const ActivitiesPage = () => {
                       )}
 
                       <button className={styles.btnInfo} title="عرض المتطوعين" onClick={() => handleViewVolunteers(activity)}>
-                        <UsersIcon size={14} />
                         <Badge variant="info">{activity.currentVolunteers}</Badge>
                       </button>
 

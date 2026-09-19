@@ -8,3 +8,4 @@
 - Report cause, result, verification, and material limitations. Never claim a write succeeded before checking its postcondition.
 - No automatic commits, pushes, deploys, or outbound messages merely because a rule suggests them. Follow the user's request and the current host's capabilities.
 - Permanent memory is versioned project guidance. Never save credentials or one-time destructive authorization there.
+- Stop only servers, watchers, or tunnels you started for the current task. Leave the user's existing terminals alone unless they ask otherwise.

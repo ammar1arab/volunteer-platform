@@ -1,6 +1,6 @@
 import type { DefaultSession, DefaultUser } from "next-auth";
 import type { JWT as DefaultJWT } from "next-auth/jwt";
-import type { UserRole } from "@/core/domain/enums";
+import type { UserRole, Gender } from "@/core/domain/enums";
 
 declare module "next-auth" {
   interface Session {
@@ -8,6 +8,7 @@ declare module "next-auth" {
       id: string;
       role: UserRole;
       profilePictureUrl: string | null;
+      gender: Gender | null;
       isSuperAdmin: boolean;
       permissions: string[];
       tokenVersion: number;
@@ -17,6 +18,7 @@ declare module "next-auth" {
   interface User extends DefaultUser {
     role: UserRole;
     profilePictureUrl: string | null;
+    gender: Gender | null;
     isSuperAdmin: boolean;
     permissions: string[];
     tokenVersion: number;
@@ -28,6 +30,7 @@ declare module "next-auth/jwt" {
     id: string;
     role: UserRole;
     profilePictureUrl: string | null;
+    gender: Gender | null;
     isSuperAdmin: boolean;
     permissions: string[];
     tokenVersion: number;

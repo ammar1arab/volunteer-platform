@@ -1,5 +1,6 @@
 ---
 description: How to verify changes for Basmat
+globs: src/**/*.{ts,tsx,scss}
 alwaysApply: false
 ---
 

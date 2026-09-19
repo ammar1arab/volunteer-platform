@@ -29,6 +29,7 @@ export const API_ENDPOINTS = {
     RESTORE: (id: string) => `/api/activities/${id}/restore`,
     COMPLETE: (id: string) => `/api/activities/${id}/complete`,
     VOLUNTEERS: (id: string) => `/api/activities/${id}/volunteers`,
+    CERTIFICATES: (id: string) => `/api/activities/${id}/certificates`,
     PUBLISHED: "/api/activities?filter=published",
     VIEW: (id: string) => `/api/activities/${id}/view`
   },

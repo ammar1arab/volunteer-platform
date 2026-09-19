@@ -18,5 +18,11 @@ export interface CertificateWithTotalHoursDto {
   totalHours: number;
 }
 
+export interface IssuedCertificateDto {
+  certificateId: string;
+  emailSent: boolean;
+}
+
 export type GetUserCertificatesResponse = Result<CertificateWithTotalHoursDto>;
 export type GetCertificateByIdResponse = Result<{ certificate: CertificateDto }>;
+export type IssueCertificateResponse = Result<IssuedCertificateDto>;

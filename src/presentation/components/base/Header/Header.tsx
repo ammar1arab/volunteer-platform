@@ -30,6 +30,7 @@ interface ActionsProps {
   userName: string;
   userInitial: string;
   avatarUrl: string | null;
+  gender: string | null;
   openMenu: OpenMenu;
   wrapperRef: React.RefObject<HTMLDivElement | null>;
   onToggle: (menu: OpenMenu) => void;
@@ -39,10 +40,10 @@ interface ActionsProps {
 }
 
 const VolunteerActions = ({
-  isLoading, isVolunteer, userName, userInitial, avatarUrl,
+  isLoading, isVolunteer, userName, userInitial, avatarUrl, gender,
   openMenu, wrapperRef, onToggle, onClose, onLogout, mobile = false,
 }: ActionsProps) => {
-  const displayImage = getFallbackProfileImage(avatarUrl);
+  const displayImage = getFallbackProfileImage(avatarUrl, gender);
   if (isLoading) return <div className={styles.authPlaceholder} />;
 
   if (!isVolunteer) {
@@ -116,6 +117,7 @@ const Header = () => {
   const userName = session?.user?.name ?? '';
   const userInitial = userName.charAt(0).toUpperCase() || 'أ';
   const avatarUrl = session?.user?.profilePictureUrl ?? null;
+  const gender = session?.user?.gender ?? null;
 
   const toggle = (menu: OpenMenu) => {
     setMenuOpen(false);
@@ -132,7 +134,7 @@ const Header = () => {
   if (isVolunteerMeetingPath(pathname) || pathname === '/signin' || pathname === '/signup') return null;
 
   const sharedProps: ActionsProps = {
-    isLoading, isVolunteer, userName, userInitial, avatarUrl,
+    isLoading, isVolunteer, userName, userInitial, avatarUrl, gender,
     openMenu,
     onToggle: toggle,
     onClose: () => setOpenMenu(null),

@@ -12,9 +12,13 @@ export interface CreateNotificationInput {
 export interface TargetedUserRow {
   id:     string;
   name:   string;
+  email?: string;
   city:   string | null;
   gender: string | null;
   hours?: number;
+  phone?: string;
+  avatarUrl?: string;
+  certifications?: number;
 }
 
 export interface BroadcastRecipientRow {

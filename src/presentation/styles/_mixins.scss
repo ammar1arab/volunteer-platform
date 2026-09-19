@@ -151,6 +151,16 @@
   }
 }
 
+@mixin control-height($h: $control-h) {
+  box-sizing: border-box;
+  height: $h;
+  min-height: $h;
+  max-height: $h;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1;
+}
+
 @mixin btn {
   display: inline-flex;
   align-items: center;

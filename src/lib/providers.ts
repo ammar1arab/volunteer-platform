@@ -69,7 +69,8 @@ export const providers = {
       new ActivityParticipationRepository(),
       new MeetingSyncOperationRepository(),
       new ActivityPresenterRepository(),
-      makeSystemLogUseCase()
+      makeSystemLogUseCase(),
+      new CertificateRepository()
     ),
 
   participation: () =>
@@ -91,6 +92,9 @@ export const providers = {
       new CertificateRepository(),
       new ActivityRepository(),
       new ActivityParticipationRepository(),
+      new NotificationRepository(),
+      makeEmailUseCase(),
+      makeSystemLogUseCase(),
     ),
 
   notification: () => new NotificationUseCase(new NotificationRepository()),

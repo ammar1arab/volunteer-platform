@@ -110,6 +110,7 @@ export interface ActivityVolunteerDto {
   gender?: string | null;
   attendanceStatus: AttendanceStatus;
   volunteerHours: number | null;
+  hasCertificate: boolean;
 }
 
 export type GetActivityVolunteersResponse = Result<{ volunteers: ActivityVolunteerDto[] }>;

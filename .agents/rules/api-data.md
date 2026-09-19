@@ -2,7 +2,7 @@
 
 ## Route handlers
 
-- Validate body/query with Zod before use
+- Validate body/query with Zod, or reuse an existing named contract (`audienceTargetError`, sibling parse helpers). Do not add a third validation style next to an existing one.
 - Return stable error codes/messages consistent with siblings
 - Keep secrets in server env only (`GROQ_API_KEY`, `GEMINI_API_KEY`, Redis, auth, storage)
 - Prefer streaming plain text for chat; JSON for structured errors

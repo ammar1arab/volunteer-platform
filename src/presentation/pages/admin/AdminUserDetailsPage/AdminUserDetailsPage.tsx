@@ -4,11 +4,11 @@ import { useAdminUserDetailsPage } from "./AdminUserDetailsPage.logic";
 import Link from "next/link";
 import {
   LoadingState, EmptyState, ProfileHeader, StatsCard, Dropdown,
-  ActivityItem, ToastContainer, Pagination, ExportUsersButton, ConfirmDialog, EditableField, Button
+  ActivityItem, ToastContainer, Pagination, ExportUsersButton, ConfirmDialog, EditableField, Button, SupportOtpModal
 } from "@/presentation/components";
 import {
   ArrowRight, Activity, CheckCircle, Clock, XCircle,
-  Mail, Phone, User, Trash2,
+  Mail, Phone, User, Trash2, KeyRound,
   ToggleLeft, ToggleRight, MapPin, Calendar, User2, Hash, GraduationCap, Briefcase, Award,
 } from "lucide-react";
 import {
@@ -70,6 +70,9 @@ const AdminUserDetailsPage = () => {
     editingField, isSaving, startEditing, cancelEditing, updateFieldValue, saveField,
     confirmToggleActive, isTogglingActive, showToggleConfirm, setShowToggleConfirm,
     deleteUser, isDeleting, showDeleteConfirm, setShowDeleteConfirm,
+    showSupportOtp, openSupportOtp, closeSupportOtp,
+    supportOtpType, changeSupportOtpType, supportOtpCode,
+    supportOtpLoading, supportOtpError, reissueSupportOtp,
   } = useAdminUserDetailsPage();
 
   if (status === "loading" || loadingUser) return <LoadingState />;
@@ -119,11 +122,34 @@ const AdminUserDetailsPage = () => {
         variant="danger"
       />
 
+      <SupportOtpModal
+        isOpen={showSupportOtp}
+        onClose={closeSupportOtp}
+        userName={user.fullName}
+        userEmail={user.email}
+        type={supportOtpType}
+        onTypeChange={changeSupportOtpType}
+        code={supportOtpCode}
+        loading={supportOtpLoading}
+        error={supportOtpError}
+        onReissue={reissueSupportOtp}
+      />
+
       <div className={styles.header}>
         <Link href={ROUTES.ADMIN.USERS} className={styles.back}>
           <ArrowRight size={16} /> العودة
         </Link>
         <div className={styles.actions}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={openSupportOtp}
+            icon={<KeyRound size={14} />}
+            hideTextOnMobile
+            aria-label="OTP"
+          >
+            OTP
+          </Button>
           <Button
             variant={user.isActive ? "danger" : "primary"}
             size="sm"
@@ -148,7 +174,7 @@ const AdminUserDetailsPage = () => {
           >
             حذف
           </Button>
-          <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export Excel" hideTextOnMobile />
+          <ExportUsersButton data={exportData} columns={EXPORT_COLUMNS} buttonText="Export" hideTextOnMobile />
         </div>
       </div>
 

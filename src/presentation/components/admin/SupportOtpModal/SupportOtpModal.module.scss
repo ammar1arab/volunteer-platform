@@ -1,0 +1,87 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.wrapper {
+  @include flex-col;
+  gap: $sp-md;
+  align-items: stretch;
+  padding-bottom: $sp-sm;
+}
+
+.header {
+  @include flex-col;
+  align-items: center;
+  gap: $sp-xs;
+  text-align: center;
+}
+
+.icon {
+  color: $green;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-sm;
+  color: $text;
+}
+
+.email {
+  margin: 0;
+  font-size: $font-xs;
+  color: $text-muted;
+  direction: ltr;
+}
+
+.typeRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-xs;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 3px;
+  background: $surface-hover;
+}
+
+.typeBtn {
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $text-muted;
+  cursor: pointer;
+  transition: $transition;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.typeActive {
+  background: $bg;
+  color: $green;
+  box-shadow: $shadow;
+}
+
+.error {
+  padding: $sp-sm $sp-md;
+  border-radius: $radius;
+  background: rgba($red, 0.08);
+  color: $red;
+  font-size: $font-sm;
+  text-align: center;
+}
+
+.hint {
+  margin: 0;
+  text-align: center;
+  font-size: $font-xs;
+  color: $text-muted;
+}
+
+.actions {
+  @include flex(row, center, center, $sp-sm);
+  flex-wrap: wrap;
+}

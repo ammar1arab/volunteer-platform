@@ -44,7 +44,7 @@ class OtpRepository implements IOtpRepository {
   }
 
   async markUsed(id: string): Promise<void> {
-    await prisma.otpCode.update({ where: { id }, data: { usedAt: new Date() } });
+    await prisma.otpCode.delete({ where: { id } });
   }
 
   async incrementAttempts(id: string): Promise<number> {

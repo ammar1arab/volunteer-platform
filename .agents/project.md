@@ -8,7 +8,7 @@ This is the project-specific entry point when adapting shared agent rules.
 - Stack: Next.js App Router, React 19, TypeScript strict, Prisma + PostgreSQL, NextAuth, TanStack Query, Sass modules, Zod, Groq/Gemini/OpenRouter for chat.
 - Data path: Prisma repositories -> use cases/DTOs -> API routes or presentation hooks -> UI.
 - UI: `src/presentation/components` + pages; Arabic RTL first; Sass modules beside components.
-- Source rules: `.agents/rules`. Source skills: `.agents/skills` when present. Other editor files are adapters.
+- Source rules: `.agents/rules`. Source skills: `.agents/skills`. Other editor files are adapters.
 - Package commands: `npm run dev`, `npm run build`, `npm run lint` from repo root.
 - Runtime browser: configured IronBee only. If unavailable, disclose the gap and finish permitted source checks.
 - Commit/push/deploy only when requested. Stop only processes started for the current task.

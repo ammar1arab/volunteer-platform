@@ -1,6 +1,13 @@
 export * from "./AdminPermission";
 export { UserRole } from "./UserRole";
-export { Gender } from "./Gender";
+export { Gender, isGender } from "./Gender";
+export {
+  AUDIENCE_TARGETS,
+  isAudienceTarget,
+  audienceTargetNeedsValue,
+  audienceTargetError
+} from "./AudienceTarget";
+export type { AudienceTarget } from "./AudienceTarget";
 export { EducationLevel } from "./EducationLevel";
 export { JordanianCity, isJordanianCity } from "./JordanianCity";
 export { DayOfWeek } from "./DayOfWeek";

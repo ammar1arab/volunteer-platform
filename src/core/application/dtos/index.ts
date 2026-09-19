@@ -80,8 +80,10 @@ export type {
 export type {
   CertificateDto,
   CertificateWithTotalHoursDto,
+  IssuedCertificateDto,
   GetCertificateByIdResponse,
-  GetUserCertificatesResponse
+  GetUserCertificatesResponse,
+  IssueCertificateResponse
 } from "./certificate.dto";
 
 

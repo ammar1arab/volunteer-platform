@@ -1,12 +1,14 @@
 # Canonical rule index
 
-Always read [project context](../project.md), [core](00-project-core.md), [architecture](architecture.md), and [efficiency](agent-efficiency.md).
+Always: [project profile](../project.md), [core](00-project-core.md), [efficiency](agent-efficiency.md).
 
-For touched areas, load only the relevant rules:
+Load only what the task touches:
 
-- [API contracts](api-data.md)
-- [Verification](verification.md)
-- [Runtime tooling](ironbee-devtools-use.md) via `.cursor/rules/ironbee-devtools-use.mdc`
-- [Portable instructions](portable-guidance.md) when maintaining agent assets
+- [Architecture](architecture.md) when changing `src/`
+- [API contracts](api-data.md) when changing routes, DTOs, or repositories
+- [Verification](verification.md) when implementing or checking runtime behavior
+- [IronBee](ironbee-devtools-use.md) via `.cursor/rules/ironbee-devtools-use.mdc`
+- [Portable instructions](portable-guidance.md) when editing `.agents` or `.cursor`
+- Skills: read [the catalog](../README.md), then only the matching skill
 
-Cursor files under `.cursor/rules` are discovery adapters to these documents.
+Cursor files under `.cursor/rules` and `.cursor/skills` are discovery adapters.

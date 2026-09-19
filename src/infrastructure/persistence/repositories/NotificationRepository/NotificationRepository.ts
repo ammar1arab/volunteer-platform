@@ -8,8 +8,8 @@ import { prisma } from "@/infrastructure/persistence/prisma";
 import { Notification } from "@/core/domain/entities";
 import { NotificationType } from "@/core/domain/enums";
 import type { NotificationMetadata } from "@/core/domain/interfaces";
-import { JordanianCity, Gender } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
+import { findAudienceUsers } from "@/infrastructure/persistence/audience/findAudienceUsers";
 
 const KEEP_PER_USER = 50;
 
@@ -167,120 +167,7 @@ class NotificationRepository implements INotificationRepository {
   }
 
   async findTargetedUsers(target: string, targetValue?: string, userIds?: string[]): Promise<TargetedUserRow[]> {
-    const profileSelect = { city: true, gender: true, totalVolunteerHours: true } as const;
-
-    if (target === "ALL") {
-      const rows = await prisma.user.findMany({
-        where: { role: "VOLUNTEER", isActive: true },
-        select: { id: true, fullName: true, volunteerProfile: { select: profileSelect } }
-      });
-      return rows.map((r) => ({
-        id: r.id,
-        name: r.fullName,
-        city: r.volunteerProfile?.city ?? null,
-        gender: r.volunteerProfile?.gender ?? null,
-        hours: r.volunteerProfile?.totalVolunteerHours ?? 0
-      }));
-    }
-
-    if (target === "CITY") {
-      const rows = await prisma.volunteerProfile.findMany({
-        where: { city: targetValue as JordanianCity, isActive: true },
-        select: {
-          userId: true,
-          city: true,
-          gender: true,
-          totalVolunteerHours: true,
-          user: { select: { fullName: true } }
-        }
-      });
-      return rows.map((r) => ({
-        id: r.userId,
-        name: r.user.fullName,
-        city: r.city ?? null,
-        gender: r.gender ?? null,
-        hours: r.totalVolunteerHours ?? 0
-      }));
-    }
-
-    if (target === "GENDER") {
-      const rows = await prisma.volunteerProfile.findMany({
-        where: { gender: targetValue as Gender, isActive: true },
-        select: {
-          userId: true,
-          city: true,
-          gender: true,
-          totalVolunteerHours: true,
-          user: { select: { fullName: true } }
-        }
-      });
-      return rows.map((r) => ({
-        id: r.userId,
-        name: r.user.fullName,
-        city: r.city ?? null,
-        gender: r.gender ?? null,
-        hours: r.totalVolunteerHours ?? 0
-      }));
-    }
-
-    if (target === "HOURS") {
-      const minHours = parseFloat(targetValue ?? "0");
-      const rows = await prisma.volunteerProfile.findMany({
-        where: { totalVolunteerHours: { gte: minHours }, isActive: true },
-        select: {
-          userId: true,
-          city: true,
-          gender: true,
-          totalVolunteerHours: true,
-          user: { select: { fullName: true } }
-        }
-      });
-      return rows.map((r) => ({
-        id: r.userId,
-        name: r.user.fullName,
-        city: r.city ?? null,
-        gender: r.gender ?? null,
-        hours: r.totalVolunteerHours ?? 0
-      }));
-    }
-
-    if (target === "USERS" && userIds?.length) {
-      const rows = await prisma.user.findMany({
-        where: { id: { in: userIds }, isActive: true },
-        select: { id: true, fullName: true, volunteerProfile: { select: profileSelect } }
-      });
-      return rows.map((r) => ({
-        id: r.id,
-        name: r.fullName,
-        city: r.volunteerProfile?.city ?? null,
-        gender: r.volunteerProfile?.gender ?? null,
-        hours: r.volunteerProfile?.totalVolunteerHours ?? 0
-      }));
-    }
-
-    if (target === "ACTIVITY_PENDING" || target === "ACTIVITY_APPROVED") {
-      if (!targetValue) return [];
-      const status = target === "ACTIVITY_PENDING" ? "PENDING" : "APPROVED";
-      const rows = await prisma.activityParticipation.findMany({
-        where: { activityId: targetValue, status },
-        include: {
-          volunteer: {
-            include: {
-              volunteerProfile: { select: profileSelect }
-            }
-          }
-        }
-      });
-      return rows.map((r) => ({
-        id: r.volunteerId,
-        name: r.volunteer.fullName,
-        city: r.volunteer.volunteerProfile?.city ?? null,
-        gender: r.volunteer.volunteerProfile?.gender ?? null,
-        hours: r.volunteer.volunteerProfile?.totalVolunteerHours ?? 0
-      }));
-    }
-
-    return [];
+    return findAudienceUsers({ target, targetValue, userIds });
   }
 }
 

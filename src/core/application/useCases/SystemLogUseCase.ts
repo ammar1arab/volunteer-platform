@@ -14,7 +14,7 @@ class SystemLogUseCase {
     action: string;
     status: SystemLogStatus;
     message?: string;
-    metadata?: Record<string, unknown> | null;
+    metadata?: Prisma.InputJsonValue | null;
     userId?: string;
   }) {
     try {
@@ -22,7 +22,7 @@ class SystemLogUseCase {
         action: data.action,
         status: data.status,
         message: data.message,
-        metadata: data.metadata as Prisma.InputJsonValue,
+        metadata: data.metadata ?? undefined,
         userId: data.userId,
       });
     } catch (error) {

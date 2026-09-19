@@ -2,9 +2,8 @@ import React from "react";
 import styles from "./SystemLogsTable.module.scss";
 import { Pagination, EmptyState, LoadingState, SystemLogBadge } from "@/presentation/components";
 import { formatFullDateTime } from "@/lib/utils/date";
-import { SystemLogStatus } from "@/core/domain/enums";
 import { Activity } from "lucide-react";
-import type { SystemLog, PaginationData } from "@/presentation/pages/admin/ReportsPage/ReportsPage.logic";
+import type { SystemLog, PaginationData } from "@/presentation/types/reports";
 
 interface Props {
   logs: SystemLog[];

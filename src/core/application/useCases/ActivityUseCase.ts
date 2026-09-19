@@ -2,6 +2,7 @@ import {
   ActivityRepository,
   ActivityParticipationRepository,
   ActivityPresenterRepository,
+  CertificateRepository,
   MeetingSyncOperationRepository
 } from "@/infrastructure/persistence/repositories";
 import { InputSanitizer } from "@/infrastructure/security";
@@ -60,7 +61,8 @@ class ActivityUseCase {
     private participationRepository: ActivityParticipationRepository,
     private syncOperationRepository: MeetingSyncOperationRepository = new MeetingSyncOperationRepository(),
     private presenterRepository: ActivityPresenterRepository = new ActivityPresenterRepository(),
-    private systemLogUseCase?: SystemLogUseCase
+    private systemLogUseCase?: SystemLogUseCase,
+    private certificateRepository: CertificateRepository = new CertificateRepository()
   ) {
     this.storageService = new R2StorageService();
   }
@@ -131,12 +133,7 @@ class ActivityUseCase {
     return enriched;
   }
 
-  /**
-   * Upsert PRIMARY presenter for an activity.
-   * - `undefined`: leave unchanged
-   * - `null` / `""`: deactivate current primary
-   * - string id: set as active PRIMARY
-   */
+
   private async upsertPrimaryPresenter(
     activityId: string,
     primaryPresenterId: string | null | undefined
@@ -545,7 +542,11 @@ class ActivityUseCase {
   async getVolunteers(activityId: string): Promise<GetActivityVolunteersResponse> {
     try {
       guard(activityId, "معرّف النشاط مطلوب");
-      const volunteers = await this.participationRepository.findApprovedVolunteers(activityId);
+      const [volunteers, issuedUserIds] = await Promise.all([
+        this.participationRepository.findApprovedVolunteers(activityId),
+        this.certificateRepository.findIssuedUserIds(activityId)
+      ]);
+      const issued = new Set(issuedUserIds);
 
       const items: ActivityVolunteerDto[] = volunteers.map((v) => ({
         participationId: v.participationId,
@@ -558,7 +559,8 @@ class ActivityUseCase {
         dateOfBirth: v.dateOfBirth?.toISOString() ?? null,
         gender: v.gender,
         attendanceStatus: v.attendanceStatus,
-        volunteerHours: v.volunteerHours
+        volunteerHours: v.volunteerHours,
+        hasCertificate: issued.has(v.id)
       }));
 
       logger.info(ActivityUseCase.SCOPE, "getVolunteers", `Found ${items.length} for: ${activityId}`);

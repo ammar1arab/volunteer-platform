@@ -89,6 +89,12 @@ export const formatFullDateTime = (date: Date | string): string => {
   }).format(d).toUpperCase();
 };
 
+/** Date style printed on the issued certificate image, e.g. "2026 / 9 / 19". */
+export const formatCertificateDate = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return `${d.getFullYear()} / ${d.getMonth() + 1} / ${d.getDate()}`;
+};
+
 export const formatTime = (date: Date | string): string => {
   const d = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("en-US", {

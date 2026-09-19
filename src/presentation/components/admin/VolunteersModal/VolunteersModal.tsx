@@ -2,18 +2,16 @@
 import styles from "./VolunteersModal.module.scss";
 import { useVolunteersModal } from "./VolunteersModal.logic";
 import { useState } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { AttendanceStatus, ActivityStatus } from "@/core/domain/enums";
 import {
   Modal, LoadingState, EmptyState, ConfirmDialog, ToastContainer,
   CompleteActivityProgress, ExportUsersButton, Pagination, Button, UserList
 } from "@/presentation/components";
-import { ROUTES, getCityLabel, getAttendanceStatusLabel } from "@/presentation/constants";
+import { getCityLabel, getAttendanceStatusLabel } from "@/presentation/constants";
 import { useCompleteActivity } from "@/presentation/hooks";
 import {
   MapPin, Calendar, Users as UsersIcon, Archive, Check, X,
-  AlertTriangle, UserMinus, Database, Cpu, Upload, Mail, Search,
+  AlertTriangle, UserMinus, Database, Cpu, Upload, Mail, Search, Award,
 } from "lucide-react";
 
 type Props = {
@@ -71,6 +69,7 @@ const VolunteersModal = ({
   const {
     volunteers, allVolunteers, filteredCount, exportData,
     loading, rejecting, confirmStep, attendanceWarning, unmarkedCount,
+    missingCertificatesCount, issuingUserId, issueCertificate,
     meetSuggestions,
     unmatchedMeetCount,
     pendingMeetSuggestionsCount,
@@ -86,13 +85,13 @@ const VolunteersModal = ({
   );
 
   const { state: completeState, startAnimation, reset: resetComplete } = useCompleteActivity();
-  const router        = useRouter();
   const isCompleted   = activityStatus === ActivityStatus.COMPLETED;
   const canComplete   = activityStatus === ActivityStatus.PUBLISHED && !!onComplete;
   const canReject     = activityStatus === ActivityStatus.PUBLISHED;
   const attendedCount = allVolunteers.filter(v => v.attendanceStatus === AttendanceStatus.ATTENDED).length;
 
   const [rejectTarget, setRejectTarget] = useState<{ participationId: string; name: string } | null>(null);
+  const [certTarget, setCertTarget] = useState<{ userId: string; name: string } | null>(null);
 
   const handleFinalComplete = () => {
     if (!onComplete) return;
@@ -186,6 +185,7 @@ const VolunteersModal = ({
                   const absent    = volunteer.attendanceStatus === AttendanceStatus.ABSENT;
                   const unmarked  = volunteer.attendanceStatus === AttendanceStatus.NOT_MARKED;
                   const isRejecting = rejecting === volunteer.participationId;
+                  const isIssuing = issuingUserId === volunteer.id;
                   const suggestion = meetSuggestions.get(volunteer.id);
                   const suggestedMinutes = suggestion
                     ? Math.max(1, Math.round(suggestion.attendedSeconds / 60))
@@ -197,6 +197,7 @@ const VolunteersModal = ({
                     email: volunteer.email || "",
                     phone: volunteer.phone,
                     avatarUrl: volunteer.profilePictureUrl || undefined,
+                    gender: volunteer.gender || undefined,
                     meta: [
                       volunteer.city ? { value: getCityLabel(volunteer.city), icon: MapPin } : null,
                       volunteer.dateOfBirth ? { value: `${calculateAge(volunteer.dateOfBirth)} سنة`, icon: Calendar } : null,
@@ -258,6 +259,25 @@ const VolunteersModal = ({
                             {attended && <span className={styles.resultAttended}><Check size={11} /> حضر</span>}
                             {absent   && <span className={styles.resultAbsent}><X size={11} /> غائب</span>}
                             {unmarked && <span className={styles.notMarked}>{getAttendanceStatusLabel(AttendanceStatus.NOT_MARKED)}</span>}
+                            {attended && volunteer.hasCertificate && (
+                              <span className={styles.certIssued}><Award size={11} /> صادرة</span>
+                            )}
+                            {attended && !volunteer.hasCertificate && (
+                              <button
+                                type="button"
+                                className={`${styles.certBtn} ${styles.certBtnMissing}`}
+                                disabled={isIssuing}
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setCertTarget({ userId: volunteer.id, name: volunteer.fullName });
+                                }}
+                                title="إصدار الشهادة"
+                                aria-label={`إصدار شهادة ${volunteer.fullName}`}
+                              >
+                                <Award size={12} />
+                                <span>{isIssuing ? "جارٍ الإصدار..." : "إصدار الشهادة"}</span>
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
@@ -284,6 +304,9 @@ const VolunteersModal = ({
               )}
               {!isCompleted && unmarkedCount > 0 && (
                 <span className={styles.countWarn}> · {unmarkedCount} لم يُسجَّل</span>
+              )}
+              {isCompleted && missingCertificatesCount > 0 && (
+                <span className={styles.countWarn}> · {missingCertificatesCount} بدون شهادة</span>
               )}
             </p>
             {canComplete && (
@@ -332,6 +355,20 @@ const VolunteersModal = ({
         confirmText="إزالة"
         cancelText="إلغاء"
         variant="danger"
+      />
+
+      <ConfirmDialog
+        isOpen={!!certTarget}
+        onClose={() => setCertTarget(null)}
+        onConfirm={() => {
+          if (certTarget) void issueCertificate(certTarget.userId, certTarget.name);
+          setCertTarget(null);
+        }}
+        title="إصدار الشهادة"
+        message={`سيتم إنشاء شهادة "${certTarget?.name}" وإرسالها إلى الملف الشخصي والإشعار والبريد.`}
+        confirmText="إصدار الشهادة"
+        cancelText="إلغاء"
+        variant="primary"
       />
 
       <ConfirmDialog

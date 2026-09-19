@@ -19,9 +19,13 @@ const AdminTopbar = ({ onMenuClick, isMenuOpen }: Props) => {
   const title =
     pathname === ROUTES.ADMIN.PERMISSIONS || pathname.startsWith(`${ROUTES.ADMIN.PERMISSIONS}/`)
       ? "إدارة الصلاحيات"
-      : requiredPermission
-        ? getPermissionLabel(requiredPermission)
-        : "لوحة التحكم";
+      : pathname === ROUTES.ADMIN.ANALYTICS || pathname.startsWith(`${ROUTES.ADMIN.ANALYTICS}/`)
+        ? "الإحصائيات"
+        : pathname === ROUTES.ADMIN.LOGS || pathname.startsWith(`${ROUTES.ADMIN.LOGS}/`)
+          ? "سجل النظام"
+          : requiredPermission
+            ? getPermissionLabel(requiredPermission)
+            : "لوحة التحكم";
 
   return (
     <header className={styles.bar}>

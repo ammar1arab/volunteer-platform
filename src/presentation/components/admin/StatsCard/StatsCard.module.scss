@@ -5,44 +5,30 @@
   @include card;
   display: flex;
   align-items: center;
-  gap: $sp-md;
-  padding: $sp-md;
+  gap: $sp-sm;
+  padding: $sp-sm $sp-md;
   background: $surface;
   border-radius: $radius-lg;
-  min-height: 88px;
+  min-height: 72px;
   border: 1px solid $border;
-  box-shadow: 0 8px 20px rgba($black, 0.035);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: $shadow;
+  transition: background 0.2s ease, border-color 0.2s ease;
   position: relative;
   overflow: hidden;
 
   @media (max-width: $bp-sm) {
-    gap: $sp-sm;
+    gap: $sp-xs;
     padding: $sp-sm;
+    min-height: 64px;
   }
 
   &.clickable {
     cursor: pointer;
-    
+
     &:hover {
       background: $surface-hover;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba($black, 0.08);
+      border-color: rgba($black, 0.12);
     }
-    
-    &:active {
-      transform: translateY(1px);
-    }
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 3px;
-    border-radius: 0 $radius-lg $radius-lg 0;
   }
 }
 
@@ -50,24 +36,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: $radius-md;
   flex-shrink: 0;
   color: $white;
-  z-index: 1;
 
   @media (max-width: $bp-sm) {
-    width: 2.4rem;
-    height: 2.4rem;
+    width: 2rem;
+    height: 2rem;
   }
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: $sp-xs;
-  z-index: 1;
+  gap: 2px;
   flex: 1;
   min-width: 0;
 }
@@ -83,7 +67,7 @@
 }
 
 .value {
-  font-size: $font-xl;
+  font-size: $font-lg;
   font-weight: 700;
   line-height: 1;
   color: $text;
@@ -92,24 +76,24 @@
   flex-shrink: 0;
 
   @media (max-width: $bp-sm) {
-    font-size: $font-lg;
+    font-size: $font-md;
   }
 }
 
 .skeletonValue {
-  height: 24px;
-  width: 60px;
+  height: 20px;
+  width: 52px;
   border-radius: 6px;
   @include skeleton-loading;
 }
 
-.primary { .iconWrapper { background: $blue; } &::after { background: $blue; } }
-.success { .iconWrapper { background: $green; } &::after { background: $green; } }
-.warning { .iconWrapper { background: $yellow; } &::after { background: $yellow; } }
-.danger  { .iconWrapper { background: $red; } &::after { background: $red; } }
-.info    { .iconWrapper { background: $text-secondary; } &::after { background: $text-secondary; } }
-.violet  { .iconWrapper { background: #8b5cf6; } &::after { background: #8b5cf6; } }
-.pink    { .iconWrapper { background: #ec4899; } &::after { background: #ec4899; } }
-.orange  { .iconWrapper { background: #f97316; } &::after { background: #f97316; } }
-.teal    { .iconWrapper { background: #14b8a6; } &::after { background: #14b8a6; } }
-.indigo  { .iconWrapper { background: #6366f1; } &::after { background: #6366f1; } }
+.primary { .iconWrapper { background: $blue; } }
+.success { .iconWrapper { background: $green; } }
+.warning { .iconWrapper { background: $yellow; } }
+.danger  { .iconWrapper { background: $red; } }
+.info    { .iconWrapper { background: $text-secondary; } }
+.violet  { .iconWrapper { background: #8b5cf6; } }
+.pink    { .iconWrapper { background: #ec4899; } }
+.orange  { .iconWrapper { background: #f97316; } }
+.teal    { .iconWrapper { background: #14b8a6; } }
+.indigo  { .iconWrapper { background: #6366f1; } }

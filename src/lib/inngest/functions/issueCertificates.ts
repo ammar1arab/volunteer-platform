@@ -1,31 +1,10 @@
 import * as Sentry from "@sentry/nextjs";
-import { prisma } from "@/infrastructure/persistence/prisma";
-import { R2StorageService, ResendClient, CertificateGeneratorService } from "@/infrastructure/external";
+import { AttendanceStatus } from "@/core/domain/enums";
 import { inngest } from "@/lib/inngest/client";
-import { buildCertificateEmail } from "@/lib/templates";
+import { providers } from "@/lib/providers";
 import { logger } from "@/lib/utils";
-import { ROUTES } from "@/presentation/constants";
 
 const SCOPE = "issueCertificates";
-
-interface VolunteerData {
-  userId: string;
-  fullName: string;
-  email: string;
-  gender: "MALE" | "FEMALE" | null;
-}
-
-interface UploadedVolunteer {
-  userId: string;
-  fullName: string;
-  email: string;
-  pngUrl: string;
-}
-
-function toDate(date: Date): string {
-  const d = new Date(date);
-  return `${d.getFullYear()} / ${d.getMonth() + 1} / ${d.getDate()}`;
-}
 
 export const issueCertificates = inngest.createFunction(
   {
@@ -38,166 +17,51 @@ export const issueCertificates = inngest.createFunction(
     const { activityId } = event.data as { activityId: string };
     logger.info(SCOPE, "start", `activityId=${activityId}`);
 
-    const { activity, volunteers } = await step.run("fetch-data", async () => {
-      const activityData = await prisma.activity.findUnique({
-        where: { id: activityId },
-        select: { id: true, title: true, date: true, durationHours: true }
-      });
+    const attendedIds = await step.run("fetch-attended", async () => {
+      const result = await providers.activity().getVolunteers(activityId);
+      if (!result.success) throw new Error(result.error.message);
 
-      if (!activityData) throw new Error(`Activity not found: ${activityId}`);
+      const ids = result.data.volunteers
+        .filter((volunteer) => volunteer.attendanceStatus === AttendanceStatus.ATTENDED && !volunteer.hasCertificate)
+        .map((volunteer) => volunteer.id);
 
-      const participations = await prisma.activityParticipation.findMany({
-        where: { activityId, attendanceStatus: "ATTENDED" },
-        include: {
-          volunteer: {
-            select: {
-              id: true,
-              fullName: true,
-              email: true,
-              volunteerProfile: { select: { gender: true } }
-            }
-          }
-        }
-      });
-
-      const volunteers: VolunteerData[] = participations.map((p) => ({
-        userId: p.volunteerId,
-        fullName: p.volunteer.fullName,
-        email: p.volunteer.email,
-        gender: p.volunteer.volunteerProfile?.gender as "MALE" | "FEMALE" | null
-      }));
-
-      logger.info(SCOPE, "fetch-data", `Found ${volunteers.length} attended for activityId=${activityId}`);
-      return { activity: activityData, volunteers };
+      logger.info(SCOPE, "fetch-attended", `Found ${ids.length} attended for activityId=${activityId}`);
+      return ids;
     });
 
-    if (!volunteers.length) {
+    if (!attendedIds.length) {
       logger.info(SCOPE, "no-volunteers", `Skipping activityId=${activityId}`);
       return { issued: 0 };
     }
 
-    const activityDate = toDate(new Date(activity.date));
-    const issueDate = toDate(new Date());
+    let issued = 0;
 
-    const results = await Promise.all(
-      volunteers.map((v) =>
-        step.run(`generate-upload-${v.userId}`, async () => {
-          try {
-            const generator = new CertificateGeneratorService();
-            const storage = new R2StorageService();
-
-            const pngBuffer = await generator.generatePNG({
-              volunteerName: v.fullName,
-              activityTitle: activity.title,
-              activityDate,
-              durationHours: activity.durationHours,
-              issueDate,
-              certificateId: `${activityId}-${v.userId}`,
-              gender: v.gender
-            });
-
-            const pngRes = await storage.upload(pngBuffer, "certificates", `${v.userId}-${activityId}.png`);
-
-            if (!pngRes.success) throw new Error(`R2 upload failed for userId=${v.userId}`);
-
-            logger.info(SCOPE, `generate-upload-${v.userId}`, `Done: ${v.fullName}`);
-            return { userId: v.userId, fullName: v.fullName, email: v.email, pngUrl: pngRes.url! };
-          } catch (err) {
-            Sentry.withScope((s) => {
-              s.setTag("inngest.function", "issue-certificates");
-              s.setTag("activityId", activityId);
-              s.setTag("volunteerId", v.userId);
-              s.setContext("volunteer", { userId: v.userId, fullName: v.fullName, email: v.email });
-              s.setContext("activity", { id: activityId, title: activity.title });
-              Sentry.captureException(err instanceof Error ? err : new Error(String(err)));
-            });
-            logger.warn(SCOPE, `generate-upload-${v.userId}`, `Failed: ${err}`);
-            return null;
-          }
-        })
-      )
-    );
-
-    const uploaded = results.filter((r): r is UploadedVolunteer => r !== null);
-
-    logger.info(
-      SCOPE,
-      "generate-upload-complete",
-      `success=${uploaded.length} failed=${volunteers.length - uploaded.length} total=${volunteers.length}`
-    );
-
-    if (!uploaded.length) {
-      logger.warn(SCOPE, "all-failed", `No certificates generated for activityId=${activityId}`);
-      return { issued: 0 };
-    }
-
-    await step.run("save-to-db", async () => {
-      const uploadedWithIds = uploaded.map((u) => ({
-        ...u,
-        certificateId: crypto.randomUUID()
-      }));
-
-      await prisma.$transaction([
-        prisma.certificate.createMany({
-          data: uploadedWithIds.map((u) => ({
-            id: u.certificateId,
-            userId: u.userId,
-            activityId,
-            pngUrl: u.pngUrl,
-            status: "COMPLETED"
-          })),
-          skipDuplicates: true
-        }),
-        prisma.notification.createMany({
-          data: uploadedWithIds.map((u) => ({
-            userId: u.userId,
-            type: "CERTIFICATE_ISSUED" as const,
-            title: "شهادتك التطوعية جاهزة",
-            message: `أحسنت! شهادة مشاركتك في نشاط "${activity.title}" أصبحت جاهزة. يمكنك الاطلاع عليها الآن.`,
-            metadata: { certificateId: u.certificateId }
-          }))
-        })
-      ]);
-
-      logger.info(SCOPE, "save-to-db", `Saved ${uploadedWithIds.length} certificates + notifications`);
-    });
-
-    await step.run("send-push", async () => {
-      const { sendPushToMany } = await import("@/lib/webpush");
-      void sendPushToMany(
-        uploaded.map((u) => u.userId),
-        {
-          title: "شهادتك التطوعية جاهزة",
-          body: `صدرت شهادة مشاركتك في نشاط "${activity.title}"`,
-          url: ROUTES.VOLUNTEER.CERTIFICATES,
-          tag: `cert-${activityId}`
-        }
+    for (const userId of attendedIds) {
+      const result = await step.run(`issue-${userId}`, () =>
+        providers.certificate().issueForVolunteer(activityId, userId)
       );
-    });
 
-    await step.run("send-emails", async () => {
-      const resend = ResendClient.getInstance();
-      const BATCH_SIZE = 100;
-
-      for (let i = 0; i < uploaded.length; i += BATCH_SIZE) {
-        const batch = uploaded.slice(i, i + BATCH_SIZE);
-        await resend.batch.send(
-          batch.map((u) => ({
-            from: "certificates@youthprints.online",
-            to: u.email,
-            subject: `شهادتك التطوعية جاهزة - ${activity.title}`,
-            html: buildCertificateEmail(u.fullName, activity.title, u.pngUrl)
-          }))
-        );
-        logger.info(SCOPE, "send-emails", `Sent batch ${Math.floor(i / BATCH_SIZE) + 1}: ${batch.length} emails`);
+      if (result.success) {
+        issued += 1;
+        continue;
       }
-    });
+
+      if (result.error.code === "CONFLICT") continue;
+
+      Sentry.withScope((scope) => {
+        scope.setTag("inngest.function", "issue-certificates");
+        scope.setTag("activityId", activityId);
+        scope.setTag("volunteerId", userId);
+        Sentry.captureMessage(`Certificate issue failed: ${result.error.message}`);
+      });
+      logger.warn(SCOPE, `issue-${userId}`, `Failed: ${result.error.code} ${result.error.message}`);
+    }
 
     logger.info(
       SCOPE,
       "complete",
-      `Issued ${uploaded.length}/${volunteers.length} certificates for activityId=${activityId}`
+      `Issued ${issued}/${attendedIds.length} certificates for activityId=${activityId}`
     );
-    return { issued: uploaded.length };
+    return { issued };
   }
 );

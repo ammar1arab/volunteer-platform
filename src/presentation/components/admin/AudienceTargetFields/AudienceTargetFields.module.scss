@@ -1,0 +1,113 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.field {
+  @include flex-col;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+}
+
+.input {
+  @include input;
+  width: 100%;
+}
+
+.usersHeader {
+  @include flex-between;
+}
+
+.selectedBadge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba($green, 0.12);
+  color: $green;
+  border-radius: $radius-full;
+  padding: 0.1rem 0.55rem;
+}
+
+.userSearchWrap {
+  position: relative;
+
+  .searchIcon {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+    pointer-events: none;
+  }
+}
+
+.userSearchInput {
+  @include input;
+  font-size: $font-sm;
+  padding-right: 2rem;
+  width: 100%;
+}
+
+.volunteersLoading {
+  height: 80px;
+  @include flex-center;
+}
+
+.userList {
+  border-radius: $radius;
+  @include flex-col;
+  overflow: hidden;
+}
+
+.userItem {
+  @include flex(row, center, flex-start, $sp-sm);
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid $border;
+  transition: background $transition;
+  min-height: 44px;
+  min-width: 0;
+  overflow: hidden;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba($green, 0.04);
+  }
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid $border;
+  flex-shrink: 0;
+  @include flex-center;
+  transition: all $transition;
+}
+
+.checkboxActive {
+  background: $green;
+  border-color: $green;
+  color: #fff;
+}
+
+.userName {
+  font-size: 0.72rem;
+  color: $text;
+  @include truncate;
+  flex: 1;
+  min-width: 0;
+}
+
+.noResults {
+  font-size: $font-sm;
+  color: $text-muted;
+  text-align: center;
+  padding: $sp-md;
+  margin: 0;
+}

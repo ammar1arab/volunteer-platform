@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { UserRole } from "@/core/domain/enums";
+import { useState, useCallback, useMemo } from "react";
+import { UserRole, audienceTargetNeedsValue, type AudienceTarget } from "@/core/domain/enums";
 import { useAuth, useToast } from "@/presentation/hooks";
-import type { EmailAlias, EmailRecipientDto } from "@/core/application/dtos";
-import { emailApi } from "@/presentation/services/email.service";
+import type { EmailAlias, EmailRecipientDto, EmailRecipientFilters } from "@/core/application/dtos";
+import { emailApi } from "@/presentation/services";
 import { CITY_OPTIONS, GENDER_OPTIONS } from "@/presentation/constants";
+import { useAudienceTargetFields } from "@/presentation/hooks/useAudienceTargetFields";
 
-export type EmailTarget       = "ALL" | "CITY" | "GENDER";
+export type EmailTarget       = AudienceTarget;
 export type ExperienceFilter  = "all" | "yes" | "no";
 
 export const ALIAS_OPTIONS = [
@@ -15,12 +16,6 @@ export const ALIAS_OPTIONS = [
   { value: "support@youthprints.online",      label: "support@youthprints.online"      },
   { value: "noreply@youthprints.online",      label: "noreply@youthprints.online"      },
   { value: "certificates@youthprints.online", label: "certificates@youthprints.online" },
-];
-
-export const TARGET_OPTIONS = [
-  { value: "ALL",    label: "جميع المتطوعين" },
-  { value: "CITY",   label: "حسب المدينة"   },
-  { value: "GENDER", label: "حسب الجنس"     },
 ];
 
 export const VARS = [
@@ -76,12 +71,12 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
     body:        "مرحباً {اسم_المتطوع}،\n\nهذا تذكير بنشاطك التطوعي القادم مع بصمات شبابية.\n\n[أضف تفاصيل النشاط والموعد]\n\nللاستفسار: support@youthprints.online",
   },
   {
-  id:          "welcome",
-  label:       "ترحيب",
-  description: "استقبال متطوع جديد",
-  subject:     "أهلاً بك في بصمات شبابية يا {اسم_المتطوع}",
-  body:        "مرحباً {اسم_المتطوع}،\n\nيسعدنا انضمامك لعائلة بصمات الشبابية!\n\nأنت الآن جزء من مجتمع من المتطوعين المتميزين الذين يصنعون فرقاً حقيقياً.\n\nابدأ رحلتك بتصفح الفرص التطوعية المتاحة وسجّل في النشاط الذي يناسب اهتماماتك.\n\nنتطلع للقائك!",
-},
+    id:          "welcome",
+    label:       "ترحيب",
+    description: "استقبال متطوع جديد",
+    subject:     "أهلاً بك في بصمات شبابية يا {اسم_المتطوع}",
+    body:        "مرحباً {اسم_المتطوع}،\n\nيسعدنا انضمامك لعائلة بصمات الشبابية!\n\nأنت الآن جزء من مجتمع من المتطوعين المتميزين الذين يصنعون فرقاً حقيقياً.\n\nابدأ رحلتك بتصفح الفرص التطوعية المتاحة وسجّل في النشاط الذي يناسب اهتماماتك.\n\nنتطلع للقائك!",
+  },
 ];
 
 export { CITY_OPTIONS, GENDER_OPTIONS };
@@ -131,6 +126,9 @@ export function useEmailsPageLogic() {
   const [showConfirm,    setShowConfirm]  = useState(false);
   const [loadingPreview, setLoading]      = useState(false);
   const [isSending,      setIsSending]    = useState(false);
+  const audience = useAudienceTargetFields(form.target, "filters.admin.emails", {
+    verifiedOnly: true
+  });
 
   const setField = useCallback(<K extends keyof EmailForm>(key: K, value: EmailForm[K]) => {
     setFormState((p) => ({
@@ -138,7 +136,8 @@ export function useEmailsPageLogic() {
       [key]: value,
       ...(key === "target" ? { targetValue: "", genderFilter: "", cityFilter: "" } : {}),
     }));
-  }, []);
+    if (key === "target") audience.resetDirectSelection();
+  }, [audience.resetDirectSelection]);
 
   const applyTemplate = useCallback((templateId: string) => {
     const t = EMAIL_TEMPLATES.find((tmpl) => tmpl.id === templateId);
@@ -146,7 +145,10 @@ export function useEmailsPageLogic() {
     setFormState((p) => ({ ...p, templateId, subject: t.subject, body: t.body }));
   }, []);
 
-  const buildFilters = useCallback(() => {
+  const buildFilters = useCallback((): EmailRecipientFilters => {
+    if (form.target === "USERS") {
+      return { target: "USERS", userIds: [...audience.directSelectedIds] };
+    }
     const interestsArr = form.interests.trim()
       ? form.interests.split(",").map((s) => s.trim()).filter(Boolean)
       : undefined;
@@ -158,23 +160,58 @@ export function useEmailsPageLogic() {
       targetValue:    form.targetValue   || undefined,
       genderFilter:   form.genderFilter  || undefined,
       cityFilter:     form.cityFilter    || undefined,
-      minHours:       form.minHours      ? Number(form.minHours) : undefined,
+      minHours:       form.target === "HOURS" ? undefined : form.minHours ? Number(form.minHours) : undefined,
       minAge:         form.minAge        ? Number(form.minAge)   : undefined,
       maxAge:         form.maxAge        ? Number(form.maxAge)   : undefined,
       interests:      interestsArr,
       hasExperience:  hasExp,
     };
-  }, [form]);
+  }, [form, audience.directSelectedIds]);
+
+  const isTargetValid = useMemo(() => {
+    if (audienceTargetNeedsValue(form.target) && !form.targetValue) return false;
+    if (form.target === "HOURS" && Number.isNaN(parseFloat(form.targetValue))) return false;
+    if (form.target === "USERS" && !audience.directSelectedIds.size) return false;
+    return true;
+  }, [form.target, form.targetValue, audience.directSelectedIds.size]);
 
   const handlePreview = useCallback(async () => {
     if (!form.subject.trim() || !form.body.trim()) {
       showToast("يرجى إدخال العنوان والمحتوى", "error");
       return;
     }
+    if (!isTargetValid) {
+      showToast("يرجى إكمال حقول الاستهداف", "error");
+      return;
+    }
+    if (form.target === "USERS") {
+      const selected = audience.allVolunteers
+        .filter((v) => audience.directSelectedIds.has(v.id) && v.email)
+        .map((v): EmailRecipientDto => ({
+          id: v.id,
+          name: v.name,
+          email: v.email ?? "",
+          city: v.city,
+          gender: v.gender,
+          hours: v.hours ?? 0,
+          phone: v.phone,
+          avatarUrl: v.avatarUrl,
+          certifications: v.certifications
+        }));
+      if (!selected.length) {
+        showToast("لا يوجد متطوعون يطابقون هذا الاستهداف", "error");
+        return;
+      }
+      setPreviewUsers(selected);
+      setSelectedIds(new Set(selected.map((u) => u.id)));
+      setShowPreview(true);
+      return;
+    }
     setLoading(true);
     try {
-      const res   = await emailApi.previewRecipients(buildFilters());
-      const users = (res as { data?: { recipients?: EmailRecipientDto[] } })?.data?.recipients ?? [];
+      const res = await emailApi.previewRecipients(buildFilters());
+      if (!res.success) throw new Error(res.error.message);
+      const users = res.data.recipients;
       if (!users.length) {
         showToast("لا يوجد متطوعون يطابقون هذا الاستهداف", "error");
         return;
@@ -187,7 +224,7 @@ export function useEmailsPageLogic() {
     } finally {
       setLoading(false);
     }
-  }, [form, buildFilters, showToast]);
+  }, [form, buildFilters, showToast, isTargetValid, audience.allVolunteers, audience.directSelectedIds]);
 
   const toggleUser = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -217,9 +254,10 @@ export function useEmailsPageLogic() {
         recipientIds: [...selectedIds],
         activityLink: form.activityLink.trim() || undefined,
       });
-      const sent = (res as { data?: { sent?: number } })?.data?.sent ?? 0;
-      showToast(`تم الإرسال بنجاح لـ ${sent} متطوع`, "success");
+      if (!res.success) throw new Error(res.error.message);
+      showToast(`تم الإرسال بنجاح لـ ${res.data.sent} متطوع`, "success");
       setFormState(EMPTY_FORM);
+      audience.resetDirectSelection();
       setShowPreview(false);
       setPreviewUsers([]);
       setSelectedIds(new Set());
@@ -228,7 +266,7 @@ export function useEmailsPageLogic() {
     } finally {
       setIsSending(false);
     }
-  }, [form, buildFilters, selectedIds, showToast]);
+  }, [form, buildFilters, selectedIds, showToast, audience.resetDirectSelection]);
 
   const closePreview = useCallback(() => {
     setShowPreview(false);
@@ -241,7 +279,7 @@ export function useEmailsPageLogic() {
   return {
     status,
     form,
-    isFormValid: form.subject.trim().length > 0 && form.body.trim().length > 0,
+    isFormValid: form.subject.trim().length > 0 && form.body.trim().length > 0 && isTargetValid,
     hasActivityLinkVar,
     previewUsers, selectedIds,
     showPreview, showConfirm,
@@ -250,5 +288,6 @@ export function useEmailsPageLogic() {
     setField, applyTemplate,
     handlePreview, toggleUser, toggleAll,
     setShowConfirm, handleSend, closePreview,
+    audience,
   };
 }

@@ -14,11 +14,24 @@ export const PERMISSION_ROUTE_MAP = {
   MANAGE_EMAILS:        ROUTES.ADMIN.EMAILS,
   MANAGE_USERS:         ROUTES.ADMIN.USERS,
   MANAGE_MEETINGS:      ROUTES.ADMIN.GOOGLE_MEET,
-  MANAGE_REPORTS:       ROUTES.ADMIN.REPORTS,
+  MANAGE_REPORTS:       ROUTES.ADMIN.ANALYTICS,
 } as const satisfies Record<AdminPermission, string>;
 
+const MANAGE_REPORTS_ROUTES = [
+  ROUTES.ADMIN.ANALYTICS,
+  ROUTES.ADMIN.LOGS,
+  ROUTES.ADMIN.REPORTS,
+] as const;
+
 export function getRequiredPermission(pathname: string): AdminPermission | undefined {
+  for (const route of MANAGE_REPORTS_ROUTES) {
+    if (pathname === route || pathname.startsWith(`${route}/`)) {
+      return "MANAGE_REPORTS";
+    }
+  }
+
   for (const permission of ADMIN_PERMISSIONS) {
+    if (permission === "MANAGE_REPORTS") continue;
     const route = PERMISSION_ROUTE_MAP[permission];
     if (pathname === route || pathname.startsWith(`${route}/`)) {
       return permission;

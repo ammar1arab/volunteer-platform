@@ -9,7 +9,6 @@
 
 .controls {
   @include flex(row, center, space-between, $sp-sm);
-  flex-wrap: nowrap;
   position: sticky;
   top: 0;
   z-index: 2;
@@ -17,15 +16,16 @@
   padding-bottom: 2px;
 
   @media (max-width: 640px) {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: $sp-sm;
 
     .search {
-      flex: 1 1 100%;
       min-width: 0;
     }
 
-    button {
-      width: 100%;
+    > button {
+      width: auto;
     }
   }
 }
@@ -33,6 +33,11 @@
 .search {
   flex: 1;
   min-width: 180px;
+
+  > * {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .customList {
@@ -128,12 +133,11 @@
 .mobileSort {
   display: none;
   gap: 6px;
-  overflow-x: auto;
   padding-bottom: 2px;
 
   button {
     @include flex(row, center, center, 4px);
-    flex: 0 0 auto;
+    min-height: 32px;
     padding: 6px 9px;
     border: 1px solid $border;
     border-radius: $radius;
@@ -150,7 +154,8 @@
   }
 
   @media (max-width: 768px) {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   }
 }
 

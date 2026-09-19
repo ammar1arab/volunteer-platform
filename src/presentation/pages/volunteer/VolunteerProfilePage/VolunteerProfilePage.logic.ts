@@ -113,12 +113,15 @@ export function useProfilePage() {
     setError(null);
     try {
       await saveMutation.mutateAsync(editingField);
+      if (editingField.field === "gender") {
+        await updateSession({ gender: editingField.value });
+      }
       showSuccess("تم الحفظ بنجاح");
       setEditingField(null);
     } catch (err) {
       setError(getErrorMessage(err instanceof Error ? err : String(err), "حدث خطأ أثناء الحفظ"));
     }
-  }, [editingField, saveMutation, showSuccess]);
+  }, [editingField, saveMutation, showSuccess, updateSession]);
 
   const handleProfilePictureUpload = useCallback(
     async (file: File) => {

@@ -1,10 +1,10 @@
 import IUserRepository from "./IUserRespository";
-import type { Prisma, User as PrismaUser } from "@prisma/client";
+import type { User as PrismaUser } from "@prisma/client";
 import { prisma } from "@/infrastructure/persistence/prisma";
 import { User } from "@/core/domain/entities";
 import { UserRole } from "@/core/domain/enums";
-import { JordanianCity, Gender } from "@prisma/client";
 import type { EmailRecipientDto, EmailRecipientFilters } from "@/core/application/dtos";
+import { findAudienceUsers } from "@/infrastructure/persistence/audience/findAudienceUsers";
 
 class UserRepository implements IUserRepository {
   private mapToEntity(data: PrismaUser): User {
@@ -80,52 +80,7 @@ class UserRepository implements IUserRepository {
   }
 
   async findEmailRecipients(filters: EmailRecipientFilters): Promise<EmailRecipientDto[]> {
-    const now = new Date();
-    const profileWhere: Prisma.VolunteerProfileWhereInput = { isActive: true };
-
-    if (filters.target === "CITY" && filters.targetValue) profileWhere.city = filters.targetValue as JordanianCity;
-    if (filters.target === "GENDER" && filters.targetValue) profileWhere.gender = filters.targetValue as Gender;
-    if (filters.genderFilter) profileWhere.gender = filters.genderFilter as Gender;
-    if (filters.cityFilter) profileWhere.city = filters.cityFilter as JordanianCity;
-    if (filters.minHours) profileWhere.totalVolunteerHours = { gte: filters.minHours };
-    if (filters.hasExperience !== undefined) profileWhere.hasVolunteerExperience = filters.hasExperience;
-
-    const dobFilter: Prisma.DateTimeFilter = {};
-    if (filters.minAge) dobFilter.lte = new Date(now.getFullYear() - filters.minAge, now.getMonth(), now.getDate());
-    if (filters.maxAge) dobFilter.gte = new Date(now.getFullYear() - filters.maxAge, now.getMonth(), now.getDate());
-    if (Object.keys(dobFilter).length) profileWhere.dateOfBirth = dobFilter;
-
-    if (filters.interests?.length) {
-      profileWhere.OR = [{ interests: { hasSome: filters.interests } }, { skills: { hasSome: filters.interests } }];
-    }
-
-    const rows = await prisma.user.findMany({
-      where: { role: UserRole.VOLUNTEER, isActive: true, volunteerProfile: profileWhere },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        phone: true,
-        volunteerProfile: {
-          select: { city: true, gender: true, totalVolunteerHours: true, profilePictureUrl: true }
-        },
-        _count: {
-          select: { certificates: true }
-        }
-      }
-    });
-
-    return rows.map((r) => ({
-      id: r.id,
-      name: r.fullName,
-      email: r.email,
-      phone: r.phone,
-      city: r.volunteerProfile?.city ?? null,
-      gender: r.volunteerProfile?.gender ?? null,
-      hours: r.volunteerProfile?.totalVolunteerHours ?? 0,
-      avatarUrl: r.volunteerProfile?.profilePictureUrl ?? undefined,
-      certifications: r._count?.certificates ?? 0
-    }));
+    return findAudienceUsers({ ...filters, requireVerifiedEmail: true });
   }
 }
 

@@ -72,8 +72,15 @@ export const getFallbackProfileImage = (
   gender?: Gender | string | null
 ): string => {
   if (profilePictureUrl) return profilePictureUrl;
-  return gender && FALLBACK_IMAGES[gender]
-    ? FALLBACK_IMAGES[gender]
+  const key = typeof gender === "string" ? gender.trim().toUpperCase() : gender;
+  const normalized =
+    key === "MALE" || key === "ذكر"
+      ? Gender.MALE
+      : key === "FEMALE" || key === "أنثى"
+        ? Gender.FEMALE
+        : gender;
+  return normalized && FALLBACK_IMAGES[normalized]
+    ? FALLBACK_IMAGES[normalized]
     : "/images/avatars/unspecified.png";
 };
 

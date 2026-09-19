@@ -9,6 +9,7 @@ export * from "./uiHooks/useBotPromoTips";
 export * from "./uiHooks/useBotPresence";
 export * from "./useLocalStorageState";
 export * from "./useSessionStorageState";
+export * from "./useAudienceTargetFields";
 
 export * from "./apiHooks/useAuth";
 export * from "./apiHooks/useUsers";

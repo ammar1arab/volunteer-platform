@@ -1,18 +1,15 @@
 "use client";
 import styles from "./NotificationsPage.module.scss";
-import { useMemo } from "react";
 import {
   Send, Bell, Users, MapPin, User2, Clock, UserCheck,
-  Eye, Trash2, Search, CheckSquare, Hourglass, BadgeCheck,
+  Eye, Trash2, Hourglass, BadgeCheck,
 } from "lucide-react";
 import {
-  LoadingState, EmptyState, ToastContainer, SelectInput,
-  Button, NotificationPreviewModal, ConfirmDialog, Pagination, BroadcastRecipientsModal, UserList
+  LoadingState, EmptyState, ToastContainer,
+  Button, NotificationPreviewModal, ConfirmDialog, Pagination, BroadcastRecipientsModal,
+  AudienceTargetFields
 } from "@/presentation/components";
-import {
-  useNotificationsPageLogic,
-  CITY_OPTIONS, TARGET_OPTIONS, GENDER_OPTIONS
-} from "./NotificationsPage.logic";
+import { useNotificationsPageLogic } from "./NotificationsPage.logic";
 import { formatDate } from "@/lib/utils/date";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
 import type { BroadcastDto } from "@/core/application/dtos";
@@ -33,13 +30,11 @@ const getTargetLabel = (b: BroadcastDto, activityTitleMap: Map<string, string>) 
   if (b.target === "CITY") return getCityLabel(b.targetValue as JordanianCity);
   if (b.target === "GENDER") return getGenderLabel(b.targetValue as Gender);
   if (b.target === "HOURS") return `أكثر من ${b.targetValue} ساعة`;
-  if (b.target === "ACTIVITY_PENDING") return `طلبات معلقة — ${activityTitleMap.get(b.targetValue ?? "") ?? "نشاط"}`;
-  if (b.target === "ACTIVITY_APPROVED") return `مقبولون في — ${activityTitleMap.get(b.targetValue ?? "") ?? "نشاط"}`;
+  if (b.target === "ACTIVITY_PENDING") return `طلبات معلقة - ${activityTitleMap.get(b.targetValue ?? "") ?? "نشاط"}`;
+  if (b.target === "ACTIVITY_APPROVED") return `مقبولون في - ${activityTitleMap.get(b.targetValue ?? "") ?? "نشاط"}`;
   if (b.target === "USERS") return "اختيار يدوي";
   return b.targetValue ?? "";
 };
-
-const VOLUNTEERS_PER_PAGE = 8;
 
 const NotificationsPage = () => {
   const {
@@ -52,30 +47,15 @@ const NotificationsPage = () => {
     setField, handleSubmit, toggleUser, toggleAll,
     setShowConfirm, handleSendConfirmed, closePreview,
     showClearConfirm, setShowClearConfirm, handleClearBroadcasts,
-    filteredVolunteers, loadingVolunteers,
-    volunteerSearch, setVolunteerSearch,
-    volunteersPage, setVolunteersPage,
-    directSelectedIds, toggleDirectUser, toggleAllDirect,
     recipientsState, openRecipientsModal, closeRecipientsModal,
     showDeleteConfirm, deletingId,
     requestDeleteBroadcast, cancelDeleteBroadcast, confirmDeleteBroadcast,
-    activityOptions, activityTitleMap, loadingActivities,
+    audience, activityTitleMap,
   } = useNotificationsPageLogic();
-
-  const paginatedVolunteers = useMemo(
-    () => filteredVolunteers.slice(
-      (volunteersPage - 1) * VOLUNTEERS_PER_PAGE,
-      volunteersPage * VOLUNTEERS_PER_PAGE
-    ),
-    [filteredVolunteers, volunteersPage]
-  );
 
   if (status === "loading") return <LoadingState />;
 
   const isSubmitting = submitStatus === "loading";
-  const allDirectVisible =
-    filteredVolunteers.length > 0 &&
-    filteredVolunteers.every(v => directSelectedIds.has(v.id));
 
   return (
     <>
@@ -143,134 +123,14 @@ const NotificationsPage = () => {
               />
             </div>
 
-            <div className={styles.field}>
-              <SelectInput
-                label="الاستهداف"
-                value={form.target}
-                options={TARGET_OPTIONS}
-                onChange={val => setField("target", val)}
-                disabled={isSubmitting || loadingPreview}
-              />
-            </div>
-
-            {form.target === "CITY" && (
-              <div className={styles.field}>
-                <SelectInput
-                  label="المدينة"
-                  value={form.targetValue ?? ""}
-                  options={[{ value: "", label: "اختر مدينة" }, ...CITY_OPTIONS]}
-                  onChange={val => setField("targetValue", val)}
-                  disabled={isSubmitting || loadingPreview}
-                />
-              </div>
-            )}
-
-            {form.target === "GENDER" && (
-              <div className={styles.field}>
-                <SelectInput
-                  label="الجنس"
-                  value={form.targetValue ?? ""}
-                  options={[{ value: "", label: "اختر" }, ...GENDER_OPTIONS]}
-                  onChange={val => setField("targetValue", val)}
-                  disabled={isSubmitting || loadingPreview}
-                />
-              </div>
-            )}
-
-            {form.target === "HOURS" && (
-              <div className={styles.field}>
-                <label className={styles.label}>الحد الأدنى من الساعات</label>
-                <input
-                  type="number"
-                  min={0}
-                  step={0.5}
-                  className={styles.input}
-                  value={form.targetValue ?? ""}
-                  onChange={e => setField("targetValue", e.target.value)}
-                  disabled={isSubmitting || loadingPreview}
-                />
-              </div>
-            )}
-
-            {(form.target === "ACTIVITY_PENDING" || form.target === "ACTIVITY_APPROVED") && (
-              <div className={styles.field}>
-                <SelectInput
-                  label="النشاط"
-                  value={form.targetValue ?? ""}
-                  options={[{ value: "", label: "اختر نشاطاً" }, ...activityOptions]}
-                  onChange={val => setField("targetValue", val)}
-                  disabled={isSubmitting || loadingPreview || loadingActivities}
-                />
-              </div>
-            )}
-
-            {form.target === "USERS" && (
-              <div className={styles.field}>
-                <div className={styles.usersHeader}>
-                  <label className={styles.label}>اختر المتطوعين</label>
-                  {directSelectedIds.size > 0 && (
-                    <span className={styles.selectedBadge}>{directSelectedIds.size} محدد</span>
-                  )}
-                </div>
-
-                <div className={styles.userSearchWrap}>
-                  <Search size={13} className={styles.searchIcon} />
-                  <input
-                    type="text"
-                    className={styles.userSearchInput}
-                    value={volunteerSearch}
-                    onChange={e => setVolunteerSearch(e.target.value)}
-                    placeholder="ابحث بالاسم..."
-                    disabled={loadingVolunteers}
-                  />
-                </div>
-
-                {loadingVolunteers ? (
-                  <div className={styles.volunteersLoading}><LoadingState compact /></div>
-                ) : (
-                  <>
-                    <div className={styles.userList}>
-                      {filteredVolunteers.length > 0 && (
-                        <div className={styles.userItem} onClick={toggleAllDirect}>
-                          <span className={`${styles.checkbox} ${allDirectVisible ? styles.checkboxActive : ""}`}>
-                            {allDirectVisible && <CheckSquare size={11} />}
-                          </span>
-                          <span className={styles.userName}>
-                            تحديد الكل ({filteredVolunteers.length})
-                          </span>
-                        </div>
-                      )}
-                      
-                      {filteredVolunteers.length === 0 ? (
-                        <p className={styles.noResults}>لا توجد نتائج</p>
-                      ) : (
-                        <UserList
-                          users={paginatedVolunteers.map(v => ({
-                            id: v.id,
-                            name: v.name,
-                            email: (v as any).email || "",
-                            meta: [
-                              v.hours !== undefined ? { value: `${v.hours} ساعة` } : null
-                            ].filter(Boolean) as any
-                          }))}
-                          layout="list"
-                          selectable
-                          selectedIds={directSelectedIds}
-                          onToggleUser={toggleDirectUser}
-                        />
-                      )}
-                    </div>
-
-                    <Pagination
-                      currentPage={volunteersPage}
-                      totalItems={filteredVolunteers.length}
-                      itemsPerPage={VOLUNTEERS_PER_PAGE}
-                      onPageChange={setVolunteersPage}
-                    />
-                  </>
-                )}
-              </div>
-            )}
+            <AudienceTargetFields
+              target={form.target}
+              targetValue={form.targetValue ?? ""}
+              disabled={isSubmitting || loadingPreview}
+              onTargetChange={(val) => setField("target", val)}
+              onTargetValueChange={(val) => setField("targetValue", val)}
+              fields={audience}
+            />
 
             <div className={styles.field}>
               <label className={styles.label}>

@@ -24,7 +24,7 @@ const StatsCard = ({ icon: Icon, value, title, label, variant = "primary", loadi
       tabIndex={onClick ? 0 : undefined}
     >
       <div className={styles.iconWrapper}>
-        <Icon size={26} strokeWidth={1.75} />
+        <Icon size={22} strokeWidth={1.75} />
       </div>
       <div className={styles.content}>
         <span className={styles.label}>{displayLabel}</span>

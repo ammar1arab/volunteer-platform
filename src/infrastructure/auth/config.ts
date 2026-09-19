@@ -2,7 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { providers } from "@/lib/providers";
 import { ROUTES } from "@/presentation/constants/routes";
-import { UserRole } from "@/core/domain/enums";
+import { UserRole, type Gender } from "@/core/domain/enums";
 import { prisma } from "@/infrastructure/persistence/prisma";
 
 export const authOptions: NextAuthOptions = {
@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
         const [profile, dbUser] = await Promise.all([
           prisma.volunteerProfile.findUnique({
             where:  { userId: user.id },
-            select: { profilePictureUrl: true },
+            select: { profilePictureUrl: true, gender: true },
           }),
           prisma.user.findUnique({
             where:  { id: user.id },
@@ -44,6 +44,7 @@ export const authOptions: NextAuthOptions = {
           name:              user.fullName,
           role:              user.role as UserRole,
           profilePictureUrl: profile?.profilePictureUrl ?? null,
+          gender:            (profile?.gender as Gender | null) ?? null,
           isSuperAdmin:      dbUser?.isSuperAdmin  ?? false,
           permissions:       dbUser?.permissions   ?? [],
           tokenVersion:      dbUser?.tokenVersion  ?? 0,
@@ -59,13 +60,19 @@ export const authOptions: NextAuthOptions = {
         token.email             = user.email;
         token.role              = user.role as UserRole;
         token.profilePictureUrl = user.profilePictureUrl ?? null;
+        token.gender            = user.gender ?? null;
         token.isSuperAdmin      = user.isSuperAdmin;
         token.permissions       = user.permissions;
         token.tokenVersion      = user.tokenVersion;
       }
 
-      if (trigger === "update" && sessionUpdate?.profilePictureUrl !== undefined) {
-        token.profilePictureUrl = sessionUpdate.profilePictureUrl;
+      if (trigger === "update") {
+        if (sessionUpdate?.profilePictureUrl !== undefined) {
+          token.profilePictureUrl = sessionUpdate.profilePictureUrl;
+        }
+        if (sessionUpdate?.gender !== undefined) {
+          token.gender = sessionUpdate.gender;
+        }
       }
 
       if (token.id) {
@@ -91,6 +98,7 @@ export const authOptions: NextAuthOptions = {
             id: "",
             role: UserRole.VOLUNTEER,
             profilePictureUrl: null,
+            gender: null,
             isSuperAdmin: false,
             permissions: [],
             tokenVersion: 0
@@ -103,6 +111,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email             = typeof token.email === "string" ? token.email : "";
         session.user.role              = token.role as UserRole;
         session.user.profilePictureUrl = (token.profilePictureUrl as string) ?? null;
+        session.user.gender            = (token.gender as Gender | null) ?? null;
         session.user.isSuperAdmin      = token.isSuperAdmin as boolean;
         session.user.permissions       = token.permissions as string[];
         session.user.tokenVersion      = token.tokenVersion as number;

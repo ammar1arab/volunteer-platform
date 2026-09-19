@@ -72,16 +72,11 @@
 
 @mixin create-btn {
   @include btn-primary;
+  @include control-height;
   gap: $sp-xs;
   white-space: nowrap;
   flex-shrink: 0;
-  height: 36px;
-  min-height: 36px;
-  max-height: 36px;
-  box-sizing: border-box;
-  padding-top: 0;
-  padding-bottom: 0;
-  line-height: 1;
+  padding-inline: $sp-md;
 
   @media (max-width: 640px) {
     font-size: $font-xs;

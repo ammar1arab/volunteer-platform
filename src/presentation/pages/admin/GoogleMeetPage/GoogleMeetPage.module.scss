@@ -90,9 +90,9 @@
 
 .btnSettings {
   @include action-btn;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: $control-h;
+  height: $control-h;
+  min-width: $control-h;
   color: $text-muted;
   flex-shrink: 0;
 

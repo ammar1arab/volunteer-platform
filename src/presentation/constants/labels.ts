@@ -44,7 +44,7 @@ export const PERMISSION_LABELS: Record<AdminPermission, string> = {
   MANAGE_EMAILS: "إدارة الإيميلات",
   MANAGE_USERS: "إدارة المستخدمين",
   MANAGE_MEETINGS: "إدارة الاجتماعات",
-  MANAGE_REPORTS: "سجل النظام والتقارير"
+  MANAGE_REPORTS: "الإحصائيات وسجل النظام"
 };
 
 export const GENDER_LABELS: Record<Gender, string> = {
@@ -137,6 +137,14 @@ export const HOST_ASSIGNED_NOTIFICATION_KIND = "host_assigned";
 export const HOST_ASSIGNED_NOTIFICATION_TITLE = "تم تعيينك كمدرب";
 export const hostAssignedNotificationMessage = (activityTitle: string) =>
   `تم تعيينك مدربًا لنشاط "${activityTitle}". يمكنك فتح قاعة الاجتماع وقبول المشاركين.`;
+
+export const CERTIFICATE_READY_TITLE = "شهادتك التطوعية جاهزة";
+export const certificateReadyMessage = (activityTitle: string) =>
+  `أحسنت! شهادة مشاركتك في نشاط "${activityTitle}" أصبحت جاهزة. يمكنك الاطلاع عليها الآن.`;
+export const certificateReadyPushBody = (activityTitle: string) =>
+  `صدرت شهادة مشاركتك في نشاط "${activityTitle}"`;
+export const certificateEmailSubject = (activityTitle: string) =>
+  `شهادتك التطوعية جاهزة - ${activityTitle}`;
 
 export const CITY_LABELS: Record<JordanianCity, string> = {
   [JordanianCity.AMMAN]: "عمّان",
@@ -240,6 +248,16 @@ export const EDUCATION_LEVEL_OPTIONS = Object.entries(EDUCATION_LEVEL_LABELS).ma
   label
 }));
 export const CITY_OPTIONS = Object.entries(CITY_LABELS).map(([value, label]) => ({ value, label }));
+
+export const AUDIENCE_TARGET_OPTIONS = [
+  { value: "ALL", label: "جميع المتطوعين" },
+  { value: "CITY", label: "حسب المدينة" },
+  { value: "GENDER", label: "حسب الجنس" },
+  { value: "HOURS", label: "حسب ساعات التطوع" },
+  { value: "ACTIVITY_PENDING", label: "أصحاب الطلبات المعلقة لنشاط" },
+  { value: "ACTIVITY_APPROVED", label: "المتطوعون المقبولون في نشاط" },
+  { value: "USERS", label: "اختيار يدوي" }
+];
 export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 export const DAY_OPTIONS = Object.entries(DAY_LABELS).map(([value, label]) => ({ value, label }));
 

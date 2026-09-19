@@ -1,7 +1,7 @@
 "use client";
 import styles from "./NotificationPreviewModal.module.scss";
 import { useMemo } from "react";
-import { Users, MapPin, User2, Check, Clock } from "lucide-react";
+import { Users, MapPin, User2, Check, Clock, Award } from "lucide-react";
 import { Modal, ConfirmDialog, EmptyState, Pagination, UserList } from "@/presentation/components";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { PreviewUserDto } from "@/core/application/dtos";
@@ -22,7 +22,7 @@ interface Props {
   onClose:         () => void;
 }
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 20;
 
 const NotificationPreviewModal = ({
   isOpen, users, selectedIds, isSending, showConfirm,
@@ -65,12 +65,13 @@ const NotificationPreviewModal = ({
                   name: u.name,
                   email: u.email || "",
                   phone: u.phone,
+                  gender: u.gender ?? undefined,
                   avatarUrl: u.avatarUrl,
                   meta: [
                     u.city ? { value: getCityLabel(u.city as JordanianCity), icon: MapPin } : null,
                     u.gender ? { value: getGenderLabel(u.gender as Gender), icon: User2 } : null,
                     u.hours !== undefined && u.hours > 0 ? { value: `${u.hours} ساعة`, icon: Clock } : null,
-                    u.certifications ? { value: `${u.certifications} شهادة`, icon: require("lucide-react").Award } : null,
+                    u.certifications ? { value: `${u.certifications} شهادة`, icon: Award } : null,
                   ].filter(Boolean) as any
                 }))}
                 layout="list"
@@ -86,7 +87,7 @@ const NotificationPreviewModal = ({
             totalItems={users.length}
             itemsPerPage={ITEMS_PER_PAGE}
             onPageChange={setCurrentPage}
-            compact
+            sticky={false}
           />
 
           <div className={styles.footer}>

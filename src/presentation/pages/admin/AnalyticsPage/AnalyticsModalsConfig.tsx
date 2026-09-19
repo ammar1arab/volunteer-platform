@@ -1,9 +1,8 @@
-import React from "react";
-import { Users, Activity, Clock, ShieldAlert, Eye, FileText, Download, ActivitySquare } from "lucide-react";
-import { Badge, SystemLogBadge, UserList } from "@/presentation/components";
+import { Users, Activity, Clock, Eye, FileText, Download, MapPin, Clock as ClockIcon } from "lucide-react";
+import { Badge, UserList } from "@/presentation/components";
 import { formatDate } from "@/lib/utils/date";
 import type { Column } from "@/presentation/components/admin/SharedDataModal/SharedDataModal";
-import { ActivityStatus, SystemLogStatus } from "@/core/domain/enums";
+import { ActivityStatus } from "@/core/domain/enums";
 import { getActivityStatusLabel } from "@/presentation/constants";
 
 export const USERS_COLUMNS: Column<any>[] = [
@@ -14,11 +13,14 @@ export const USERS_COLUMNS: Column<any>[] = [
 
 export const ACTIVITIES_COLUMNS: Column<any>[] = [
   { key: "title", header: "عنوان النشاط", accessor: (a) => a.title, sortable: true, sortValue: (a) => a.title },
-  { key: "status", header: "الحالة", accessor: (a) => (
+  {
+    key: "status",
+    header: "الحالة",
+    accessor: (a) => (
       <Badge variant={a.status === ActivityStatus.PUBLISHED ? "success" : a.status === ActivityStatus.DRAFT ? "warning" : "danger"}>
         {getActivityStatusLabel(a.status)}
       </Badge>
-    ) 
+    ),
   },
   { key: "date", header: "تاريخ النشاط", accessor: (a) => formatDate(a.date), sortable: true, sortValue: (a) => new Date(a.date).getTime() },
 ];
@@ -29,14 +31,7 @@ export const PENDING_REQUESTS_COLUMNS: Column<any>[] = [
   { key: "date", header: "تاريخ الطلب", accessor: (r) => formatDate(r.createdAt), sortable: true, sortValue: (r) => new Date(r.createdAt).getTime() },
 ];
 
-export const SYSTEM_LOGS_COLUMNS: Column<any>[] = [
-  { key: "action", header: "الحدث", accessor: (l) => l.action, sortable: true, sortValue: (l) => l.action },
-  { key: "user", header: "المستخدم", accessor: (l) => l.user?.fullName || "نظام", sortable: true, sortValue: (l) => l.user?.fullName || "نظام" },
-  { key: "status", header: "الحالة", accessor: (l) => <SystemLogBadge status={l.status} /> },
-  { key: "date", header: "التاريخ", accessor: (l) => formatDate(l.createdAt), sortable: true, sortValue: (l) => new Date(l.createdAt).getTime() },
-];
-
-export const MODAL_CONFIGS: Record<string, any> = {
+export const ANALYTICS_MODAL_CONFIGS: Record<string, any> = {
   users: {
     title: "إحصائيات المستخدمين",
     icon: Users,
@@ -53,15 +48,16 @@ export const MODAL_CONFIGS: Record<string, any> = {
           email: u.email,
           phone: u.phone,
           avatarUrl: u.avatarUrl,
+          gender: u.gender ?? u.volunteerProfile?.gender,
           role: u.role,
           meta: [
-            u.city ? { value: u.city, icon: require("lucide-react").MapPin } : null,
-            { value: formatDate(u.createdAt), icon: require("lucide-react").Clock }
-          ].filter(Boolean) as any
+            u.city ? { value: u.city, icon: MapPin } : null,
+            { value: formatDate(u.createdAt), icon: ClockIcon },
+          ].filter(Boolean) as any,
         }))}
         layout="list"
       />
-    )
+    ),
   },
   activities: {
     title: "إحصائيات الأنشطة",
@@ -80,15 +76,6 @@ export const MODAL_CONFIGS: Record<string, any> = {
     columns: PENDING_REQUESTS_COLUMNS,
     emptyTitle: "لا توجد طلبات معلقة",
     emptyMessage: "جميع طلبات المشاركة تم التعامل معها بنجاح.",
-  },
-  errors: {
-    title: "أخطاء النظام",
-    icon: ShieldAlert,
-    fetchUrl: "/api/reports/logs?limit=50&status=ERROR",
-    dataKey: "logs",
-    columns: SYSTEM_LOGS_COLUMNS,
-    emptyTitle: "لا توجد أخطاء",
-    emptyMessage: "النظام يعمل بكفاءة ولا توجد أخطاء مسجلة حالياً.",
   },
   activityViews: {
     title: "مشاهدات الأنشطة",
@@ -123,13 +110,6 @@ export const MODAL_CONFIGS: Record<string, any> = {
     emptyTitle: "لا يوجد تحميلات",
     emptyMessage: "لم يتم تحميل أي أعداد بعد.",
   },
-  operations: {
-    title: "عمليات النظام",
-    icon: ActivitySquare,
-    fetchUrl: "/api/reports/logs?limit=50",
-    dataKey: "logs",
-    columns: SYSTEM_LOGS_COLUMNS,
-    emptyTitle: "لا يوجد عمليات",
-    emptyMessage: "لا توجد عمليات مسجلة في النظام.",
-  },
 };
+
+export type AnalyticsModalId = "users" | "activities" | "pending" | "activityViews" | "postViews" | "magazineDownloads";

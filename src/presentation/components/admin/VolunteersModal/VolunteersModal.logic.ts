@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useMemo } from "react";
-import type { ActivityVolunteerDto } from "@/core/application/dtos";
+import type { ActivityVolunteerDto, IssuedCertificateDto } from "@/core/application/dtos";
 import { activityApi, participationApi, meetingsApi } from "@/presentation/services";
 import { AttendanceStatus, Gender, MeetingAttendeeMatchStatus } from "@/core/domain/enums";
 import { useToast } from "@/presentation/hooks";
@@ -12,6 +12,7 @@ import {
   getErrorMessage,
   queryKeys,
   unwrapResult,
+  useApiMutation,
   useFetchData
 } from "@/presentation/query";
 
@@ -32,7 +33,7 @@ const EMPTY_DRAFT: AttendanceDraft = {
 
 const attendanceDraftKey = (activityId: string) => `draft.admin.attendance.${activityId}`;
 
-const VOLUNTEERS_PER_PAGE = 15;
+const VOLUNTEERS_PER_PAGE = 20;
 const SUGGEST_ATTENDED_SECONDS = 60;
 
 function applyAttendanceOverrides(
@@ -73,6 +74,7 @@ export const useVolunteersModal = (
   );
   const [completing, setCompleting] = useState(false);
   const [rejecting, setRejecting] = useState<string | null>(null);
+  const [issuingUserId, setIssuingUserId] = useState<string | null>(null);
   const [rejectedIds, setRejectedIds] = useState<string[]>([]);
   const [confirmStep, setConfirmStep] = useState<0 | 1 | 2>(0);
   const [attendanceWarning, setAttendanceWarning] = useState(false);
@@ -223,6 +225,32 @@ export const useVolunteersModal = (
     showToast(`تم تطبيق ${applied} اقتراح حضور من Meet`, "success");
   }, [volunteers, meetSuggestions, setDraft, showToast]);
 
+  const issueCertificateMutation = useApiMutation<IssuedCertificateDto, string>({
+    request: async (userId) => unwrapResult(await activityApi.issueCertificate(activityId, userId)),
+    invalidateQueries: queryKeys.activities.volunteers(activityId)
+  });
+  const issueCertificateAsync = issueCertificateMutation.mutateAsync;
+
+  const issueCertificate = useCallback(
+    async (userId: string, volunteerName: string) => {
+      setIssuingUserId(userId);
+      try {
+        const { emailSent } = await issueCertificateAsync(userId);
+        showToast(
+          emailSent
+            ? `تم إصدار شهادة ${volunteerName} وإرسالها بالبريد`
+            : `تم إصدار شهادة ${volunteerName}، لكن تعذّر إرسال البريد`,
+          emailSent ? "success" : "info"
+        );
+      } catch (err) {
+        showToast(getErrorMessage(err instanceof Error ? err : String(err), "تعذّر إصدار الشهادة"), "error");
+      } finally {
+        setIssuingUserId(null);
+      }
+    },
+    [issueCertificateAsync, showToast]
+  );
+
   const rejectVolunteer = useCallback(
     async (participationId: string, volunteerName: string) => {
       setRejecting(participationId);
@@ -315,6 +343,12 @@ export const useVolunteersModal = (
     [volunteers]
   );
 
+  const missingCertificatesCount = useMemo(
+    () =>
+      volunteers.filter((v) => v.attendanceStatus === AttendanceStatus.ATTENDED && !v.hasCertificate).length,
+    [volunteers]
+  );
+
   const exportData = useMemo(
     () =>
       volunteers.map((v) => ({
@@ -344,6 +378,9 @@ export const useVolunteersModal = (
     confirmStep,
     attendanceWarning,
     unmarkedCount,
+    missingCertificatesCount,
+    issuingUserId,
+    issueCertificate,
     meetSuggestions,
     unmatchedMeetCount,
     pendingMeetSuggestionsCount: pendingMeetSuggestions.length,

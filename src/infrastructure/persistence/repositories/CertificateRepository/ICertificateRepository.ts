@@ -12,6 +12,12 @@ interface ICertificateRepository {
   findByUserId(userId: string): Promise<Certificate[]>;
 
   findById(id: string): Promise<Certificate | null>;
+
+  findIssuedUserIds(activityId: string): Promise<string[]>;
+
+  findByUserAndActivity(userId: string, activityId: string): Promise<Certificate | null>;
+
+  saveIssued(data: { userId: string; activityId: string; pngUrl: string }): Promise<Certificate>;
 }
 
 export default ICertificateRepository;

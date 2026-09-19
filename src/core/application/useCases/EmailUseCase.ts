@@ -10,10 +10,12 @@ import {
   GetEmailRecipientsResponse,
   SendBulkEmailApiResponse
 } from "@/core/application/dtos";
-import { buildOtpEmail } from "@/lib/templates/emails";
+import { buildOtpEmail, buildCertificateEmail } from "@/lib/templates/emails";
+import { certificateEmailSubject } from "@/presentation/constants";
 import { OtpType } from "@prisma/client";
 
 const BATCH_SIZE = 100;
+const CERTIFICATE_SENDER = "شهادات بصمات شبابية <certificates@youthprints.online>";
 
 function chunkArray<T>(arr: T[], size: number): T[][] {
   const result: T[][] = [];
@@ -36,10 +38,15 @@ class EmailUseCase {
     }
   }
 
-  private async sendRawEmail(to: string, subject: string, html: string): Promise<void> {
+  private async sendRawEmail(
+    to: string,
+    subject: string,
+    html: string,
+    from = "بصمات شبابية <noreply@youthprints.online>"
+  ): Promise<void> {
     const resend = ResendClient.getInstance();
     const result = await resend.emails.send({
-      from: "بصمات شبابية <noreply@youthprints.online>",
+      from,
       replyTo: "support@youthprints.online",
       to,
       subject,
@@ -61,15 +68,28 @@ class EmailUseCase {
     await this.sendRawEmail(email, subject, html);
   }
 
+  async sendCertificateEmail(
+    to: string,
+    volunteerName: string,
+    activityTitle: string,
+    pngUrl: string
+  ): Promise<void> {
+    await this.sendRawEmail(
+      to,
+      certificateEmailSubject(activityTitle),
+      buildCertificateEmail(volunteerName, activityTitle, pngUrl),
+      CERTIFICATE_SENDER
+    );
+  }
+
   async sendBulk(input: SendBulkEmailInput): Promise<SendBulkEmailApiResponse> {
     try {
       guard(input.subject, "العنوان مطلوب");
       guard(input.body, "المحتوى مطلوب");
 
-      const allRecipients = await this.userRepo.findEmailRecipients(input.filters);
       const recipients = input.recipientIds?.length
-        ? allRecipients.filter((r) => input.recipientIds!.includes(r.id))
-        : allRecipients;
+        ? await this.userRepo.findEmailRecipients({ target: "USERS", userIds: input.recipientIds })
+        : await this.userRepo.findEmailRecipients(input.filters);
 
       if (!recipients.length) return ok({ sent: 0 });
 

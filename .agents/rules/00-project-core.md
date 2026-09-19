@@ -4,23 +4,11 @@
 
 **بصمات شبابية** (`volunteer-platform`) connects volunteers in Jordan with in-person and remote activities, profiles, hours tracking, certificates, and admin operations.
 
-## Stack
-
-| Layer | Choice |
-|-------|--------|
-| Web / API | Next.js App Router under `src/app` |
-| Domain | `src/core` (entities, enums, DTOs, use cases) |
-| Infra | `src/infrastructure` (Prisma, email, storage, meetings) |
-| UI | `src/presentation` (pages, components, hooks, query) |
-| Styling | Sass modules next to components |
-| Data | TanStack Query + presentation hooks |
-| Validation | Zod for wire/storage shapes |
-| Auth | NextAuth |
-| Package manager | npm at repo root |
+Stack, commands, and layer map live in [project.md](../project.md).
 
 ## Absolute constraints
 
-- Prefer **no `any` and no `unknown`**. Parse with Zod or narrow to named types, DTOs, Prisma models, or discriminated unions. For `catch`, narrow with `instanceof` / typed helpers immediately - do not annotate values as `any` or `unknown`.
+- Prefer **no `any` and no `unknown`**. Parse with Zod, an existing named contract, or a named DTO/Prisma/discriminated type. For `catch`, narrow with `instanceof` / typed helpers immediately.
 - Prefer **no new `useEffect`** when a handler, query hook, or existing sibling pattern fits.
 - Prefer **no code comments** unless naming cannot make the logic clear.
 - Never use the em dash character. Use a normal hyphen `-`.

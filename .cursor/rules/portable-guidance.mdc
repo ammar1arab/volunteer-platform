@@ -1,0 +1,7 @@
+---
+description: Keep agent rules and skills portable; edit canonical .agents files
+globs: .agents/**/*,.cursor/**/*,AGENTS.md
+alwaysApply: false
+---
+
+Read and follow [the canonical rule](../../.agents/rules/portable-guidance.md).

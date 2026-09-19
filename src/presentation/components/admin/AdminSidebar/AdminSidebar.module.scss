@@ -109,6 +109,15 @@ $row: 36px;
   gap: 2px;
 }
 
+.navItem {
+  width: 100%;
+
+  > span {
+    display: block;
+    width: 100%;
+  }
+}
+
 .link {
   display: flex;
   align-items: center;

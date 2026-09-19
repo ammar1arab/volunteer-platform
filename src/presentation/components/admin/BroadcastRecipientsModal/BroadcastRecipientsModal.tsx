@@ -1,7 +1,7 @@
 "use client";
 import styles from "./BroadcastRecipientsModal.module.scss";
 import { useMemo } from "react";
-import { Search, MapPin, User2, Clock, Users } from "lucide-react";
+import { Search, MapPin, User2, Clock, Users, Award } from "lucide-react";
 import { Modal, EmptyState, LoadingState, Pagination, UserList } from "@/presentation/components";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import type { BroadcastRecipientDto } from "@/core/application/dtos";
@@ -16,7 +16,7 @@ interface Props {
   loading:        boolean;
 }
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 20;
 
 const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients, loading }: Props) => {
   const [search, setSearch] = useSessionStorageState(
@@ -78,13 +78,14 @@ const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients,
                 name: r.name,
                 email: r.email || "",
                 phone: r.phone,
+                gender: r.gender ?? undefined,
                 avatarUrl: r.avatarUrl,
                 meta: [
                   r.city ? { value: getCityLabel(r.city as JordanianCity), icon: MapPin } : null,
                   r.gender ? { value: getGenderLabel(r.gender as Gender), icon: User2 } : null,
                   r.hours > 0 ? { value: `${r.hours} ساعة`, icon: Clock } : null,
-                  r.certifications ? { value: `${r.certifications} شهادة`, icon: require("lucide-react").Award } : null,
-                ].filter(Boolean) as any[]
+                  r.certifications ? { value: `${r.certifications} شهادة`, icon: Award } : null,
+                ].filter(Boolean) as { value: string; icon: typeof MapPin }[],
               }))}
             />
           )}
@@ -95,7 +96,7 @@ const BroadcastRecipientsModal = ({ isOpen, onClose, broadcastTitle, recipients,
           totalItems={filtered.length}
           itemsPerPage={ITEMS_PER_PAGE}
           onPageChange={setCurrentPage}
-          compact
+          sticky={false}
         />
 
       </div>

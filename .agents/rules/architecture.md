@@ -31,3 +31,7 @@ AGENTS.md                Agent entry overview
 - Use `@/` path aliases
 - Presentation may use core DTOs/enums; it must not import infrastructure internals that siblings avoid
 - API routes may use core + infrastructure; keep provider-specific chat runtime next to the route when it is route-local
+
+## Shared audience targeting
+
+Admin notifications and bulk emails resolve recipients through `AudienceTarget` and `findAudienceUsers`. Do not add a second audience resolver.

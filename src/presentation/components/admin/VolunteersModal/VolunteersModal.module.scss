@@ -191,19 +191,33 @@
 }
 
 .volunteerActions {
-  @include flex-col;
-  align-items: flex-end;
-  gap: $sp-xs;
-  
+  @include flex(row, center, flex-end, $sp-xs);
+  flex-wrap: wrap;
+
   @include sm {
-    align-items: flex-start;
+    justify-content: flex-start;
     width: 100%;
+
+    .removeBtn {
+      order: 1;
+    }
+
+    .attendanceRow {
+      order: 2;
+    }
+
+    .meetSuggest {
+      order: 3;
+      flex: 1 1 100%;
+      margin-top: 0;
+      justify-content: center;
+    }
   }
 }
 
 .attendanceRow {
   @include flex(row, center, flex-start, $sp-xs);
-  margin-top: 4px;
+  flex-shrink: 0;
 }
 
 .attendBtn {
@@ -316,7 +330,45 @@
 
 .attendanceResult {
   @include flex(row, center, flex-start, $sp-xs);
+  flex-wrap: wrap;
   margin-top: 4px;
+}
+
+.certIssued {
+  @include flex(row, center, center, 4px);
+  font-size: $font-xs;
+  font-weight: 600;
+  color: $green;
+}
+
+.certBtn {
+  @include flex(row, center, center, 5px);
+  padding: 4px 8px;
+  border-radius: $radius;
+  border: 1px solid rgba($green, 0.28);
+  background: rgba($green, 0.06);
+  color: $green;
+  font-size: $font-xs;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    background: rgba($green, 0.12);
+    border-color: $green;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.certBtnMissing {
+  border-color: rgba($yellow, 0.4);
+  background: rgba($yellow, 0.1);
+  color: $text;
 }
 
 .resultAttended {
@@ -420,6 +472,17 @@
 
   @media (max-width: $bp-sm) {
     gap: $sp-xs;
+
+    .searchWrap {
+      flex: 1 1 100%;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .genderFilter {
+      flex: 1;
+      min-width: 0;
+    }
   }
 }
 

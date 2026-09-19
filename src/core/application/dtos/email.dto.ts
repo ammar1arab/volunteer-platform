@@ -1,3 +1,4 @@
+import type { AudienceTarget } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 
 export type EmailAlias =
@@ -6,11 +7,12 @@ export type EmailAlias =
   | "noreply@youthprints.online"
   | "certificates@youthprints.online";
 
-export type EmailTarget = "ALL" | "CITY" | "GENDER";
+export type EmailTarget = AudienceTarget;
 
 export interface EmailRecipientFilters {
   target:          EmailTarget;
   targetValue?:    string;
+  userIds?:        string[];
   genderFilter?:   string;
   cityFilter?:     string;
   minHours?:       number;

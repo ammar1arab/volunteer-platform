@@ -1,17 +1,15 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { UserRole } from "@/core/domain/enums";
-import { useAuth, useToast, usePageReset } from "@/presentation/hooks";
+import { UserRole, audienceTargetNeedsValue } from "@/core/domain/enums";
+import { useAuth, useToast } from "@/presentation/hooks";
 import type {
   BroadcastDto,
   BroadcastRecipientDto,
   PreviewUserDto,
-  SendCustomNotificationInput,
-  UserAnalyticsDto
+  SendCustomNotificationInput
 } from "@/core/application/dtos";
-import { userApi, notificationApi, activityApi } from "@/presentation/services";
-import { CITY_OPTIONS, GENDER_OPTIONS } from "@/presentation/constants";
+import { notificationApi } from "@/presentation/services";
 import { relativeTime } from "@/lib/utils";
 import {
   getErrorMessage,
@@ -21,6 +19,7 @@ import {
   useFetchData
 } from "@/presentation/query";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
+import { useAudienceTargetFields } from "@/presentation/hooks/useAudienceTargetFields";
 
 type SubmitStatus = "idle" | "loading";
 
@@ -34,17 +33,7 @@ const EMPTY_FORM: SendCustomNotificationInput = {
 
 const BROADCASTS_PER_PAGE = 5;
 
-export const TARGET_OPTIONS = [
-  { value: "ALL", label: "جميع المتطوعين" },
-  { value: "CITY", label: "حسب المدينة" },
-  { value: "GENDER", label: "حسب الجنس" },
-  { value: "HOURS", label: "حسب ساعات التطوع" },
-  { value: "ACTIVITY_PENDING", label: "أصحاب الطلبات المعلقة لنشاط" },
-  { value: "ACTIVITY_APPROVED", label: "المتطوعون المقبولون في نشاط" },
-  { value: "USERS", label: "اختيار يدوي" }
-];
-
-export { CITY_OPTIONS, GENDER_OPTIONS, relativeTime };
+export { relativeTime };
 
 interface RecipientsState {
   open: boolean;
@@ -54,16 +43,6 @@ interface RecipientsState {
   loading: boolean;
 }
 
-interface ActivityFilterData {
-  activities: { id: string; title: string }[];
-  pending: Set<string>;
-  approved: Set<string>;
-}
-
-interface ActivityFilterApiResponse {
-  data?: { pending?: string[]; approved?: string[] };
-}
-
 const INITIAL_RECIPIENTS: RecipientsState = {
   open: false,
   broadcastId: null,
@@ -71,20 +50,6 @@ const INITIAL_RECIPIENTS: RecipientsState = {
   recipients: [],
   loading: false
 };
-
-function mapVolunteerPreview(u: UserAnalyticsDto): PreviewUserDto {
-  return {
-    id: u.id,
-    name: u.fullName,
-    email: u.email,
-    phone: u.phone,
-    avatarUrl: u.volunteerProfile?.profilePictureUrl || undefined,
-    certifications: u.stats?.certificatesCount ?? 0,
-    city: u.volunteerProfile?.city ?? null,
-    gender: u.volunteerProfile?.gender ?? null,
-    hours: u.stats?.totalHours ?? 0
-  };
-}
 
 export function useNotificationsPageLogic() {
   const { status } = useAuth({ requireRole: UserRole.ADMIN });
@@ -102,50 +67,16 @@ export function useNotificationsPageLogic() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [volunteerSearch, setVolunteerSearchState] = useSessionStorageState(
-    "filters.admin.notifications.volunteerSearch",
-    ""
-  );
-  const [volunteersPage, setVolunteersPage] = useState(1);
-  const setVolunteerSearch = usePageReset(setVolunteerSearchState, setVolunteersPage);
-  const [directSelectedIds, setDirectSelectedIds] = useState<Set<string>>(new Set());
   const [recipientsState, setRecipientsState] = useState<RecipientsState>(INITIAL_RECIPIENTS);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const audience = useAudienceTargetFields(form.target, "filters.admin.notifications");
+
   const broadcastsQuery = useFetchData<BroadcastDto[]>({
     queryKey: queryKeys.notifications.broadcasts(),
     request: async () => unwrapResult(await notificationApi.getBroadcasts()).broadcasts
-  });
-
-  const volunteersQuery = useFetchData<PreviewUserDto[]>({
-    queryKey: [...queryKeys.users.list(), "volunteers-preview"],
-    request: async () => {
-      const users = unwrapResult(await userApi.getAll()).users;
-      return users
-        .filter((u) => u.role === UserRole.VOLUNTEER && u.isActive)
-        .map(mapVolunteerPreview);
-    },
-    options: { enabled: form.target === "USERS" }
-  });
-
-  const activitiesQuery = useFetchData<ActivityFilterData>({
-    queryKey: queryKeys.notifications.activityFilter(),
-    request: async () => {
-      const [actRes, filterRes] = await Promise.all([
-        activityApi.getPublished(),
-        fetch("/api/notifications?activityFilter=1").then(
-          (r) => r.json() as Promise<ActivityFilterApiResponse>
-        )
-      ]);
-      const activities = unwrapResult(actRes).activities.map((a) => ({ id: a.id, title: a.title }));
-      return {
-        activities,
-        pending: new Set(filterRes?.data?.pending ?? []),
-        approved: new Set(filterRes?.data?.approved ?? [])
-      };
-    }
   });
 
   const clearBroadcastsMutation = useApiMutation<{ success: boolean }, void>({
@@ -164,38 +95,11 @@ export function useNotificationsPageLogic() {
   });
 
   const broadcasts = broadcastsQuery.data ?? [];
-  const allVolunteers = volunteersQuery.data ?? [];
-  const allActivities = activitiesQuery.data?.activities ?? [];
-  const activityIdsWithPending = activitiesQuery.data?.pending ?? new Set<string>();
-  const activityIdsWithApproved = activitiesQuery.data?.approved ?? new Set<string>();
 
   const paginatedBroadcasts = useMemo(() => {
     const start = (broadcastsPage - 1) * BROADCASTS_PER_PAGE;
     return broadcasts.slice(start, start + BROADCASTS_PER_PAGE);
   }, [broadcasts, broadcastsPage]);
-
-  const activityOptions = useMemo(() => {
-    const filterSet =
-      form.target === "ACTIVITY_PENDING"
-        ? activityIdsWithPending
-        : form.target === "ACTIVITY_APPROVED"
-          ? activityIdsWithApproved
-          : null;
-
-    return allActivities
-      .filter((a) => !filterSet || filterSet.has(a.id))
-      .map((a) => ({ value: a.id, label: a.title }));
-  }, [allActivities, form.target, activityIdsWithPending, activityIdsWithApproved]);
-
-  const activityTitleMap = useMemo(
-    () => new Map(allActivities.map((a) => [a.id, a.title])),
-    [allActivities]
-  );
-
-  const filteredVolunteers = useMemo(() => {
-    const q = volunteerSearch.trim().toLowerCase();
-    return q ? allVolunteers.filter((v) => v.name.toLowerCase().includes(q)) : allVolunteers;
-  }, [allVolunteers, volunteerSearch]);
 
   const setField = useCallback((name: string, value: string) => {
     setFormState((p) => ({
@@ -203,44 +107,17 @@ export function useNotificationsPageLogic() {
       [name]: value,
       ...(name === "target" ? { targetValue: "" } : {})
     }));
-    if (name === "target") {
-      setDirectSelectedIds(new Set());
-      setVolunteerSearch("");
-    }
-  }, []);
-
-  const toggleDirectUser = useCallback((id: string) => {
-    setDirectSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  }, []);
-
-  const toggleAllDirect = useCallback(() => {
-    setDirectSelectedIds((prev) => {
-      const visibleIds = filteredVolunteers.map((v) => v.id);
-      const allSelected = visibleIds.every((id) => prev.has(id));
-      const next = new Set(prev);
-      allSelected
-        ? visibleIds.forEach((id) => next.delete(id))
-        : visibleIds.forEach((id) => next.add(id));
-      return next;
-    });
-  }, [filteredVolunteers]);
+    if (name === "target") audience.resetDirectSelection();
+  }, [audience.resetDirectSelection]);
 
   const isFormInvalid = useMemo(() => {
     if (!form.title.trim() || !form.message.trim()) return true;
-    if (
-      ["CITY", "GENDER", "ACTIVITY_PENDING", "ACTIVITY_APPROVED"].includes(form.target) &&
-      !form.targetValue
-    )
+    if (audienceTargetNeedsValue(form.target) && !form.targetValue) return true;
+    if (form.target === "HOURS" && (!form.targetValue || Number.isNaN(parseFloat(form.targetValue))))
       return true;
-    if (form.target === "HOURS" && (!form.targetValue || isNaN(parseFloat(form.targetValue))))
-      return true;
-    if (form.target === "USERS" && !directSelectedIds.size) return true;
+    if (form.target === "USERS" && !audience.directSelectedIds.size) return true;
     return false;
-  }, [form, directSelectedIds.size]);
+  }, [form, audience.directSelectedIds.size]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -248,9 +125,9 @@ export function useNotificationsPageLogic() {
       if (isFormInvalid) return;
 
       if (form.target === "USERS") {
-        const selected = allVolunteers.filter((v) => directSelectedIds.has(v.id));
+        const selected = audience.allVolunteers.filter((v) => audience.directSelectedIds.has(v.id));
         setPreviewUsers(selected);
-        setSelectedIds(new Set(directSelectedIds));
+        setSelectedIds(new Set(audience.directSelectedIds));
         setShowPreview(true);
         return;
       }
@@ -273,7 +150,7 @@ export function useNotificationsPageLogic() {
         setLoadingPreview(false);
       }
     },
-    [form, isFormInvalid, allVolunteers, directSelectedIds, showToast]
+    [form, isFormInvalid, audience.allVolunteers, audience.directSelectedIds, showToast]
   );
 
   const toggleUser = useCallback((id: string) => {
@@ -304,8 +181,7 @@ export function useNotificationsPageLogic() {
       });
       showToast(`تم إرسال الإشعار لـ ${sent} متطوع`, "success");
       setFormState(EMPTY_FORM);
-      setDirectSelectedIds(new Set());
-      setVolunteerSearch("");
+      audience.resetDirectSelection();
       setShowPreview(false);
       setPreviewUsers([]);
       setSelectedIds(new Set());
@@ -315,7 +191,7 @@ export function useNotificationsPageLogic() {
     } finally {
       setSubmitStatus("idle");
     }
-  }, [form, selectedIds, sendMutation, showToast]);
+  }, [form, selectedIds, sendMutation, showToast, audience.resetDirectSelection]);
 
   const closePreview = useCallback(() => {
     setShowPreview(false);
@@ -417,16 +293,7 @@ export function useNotificationsPageLogic() {
     showClearConfirm,
     setShowClearConfirm,
     handleClearBroadcasts,
-    allVolunteers,
-    filteredVolunteers,
-    loadingVolunteers: volunteersQuery.isLoading,
-    volunteerSearch,
-    setVolunteerSearch,
-    volunteersPage,
-    setVolunteersPage,
-    directSelectedIds,
-    toggleDirectUser,
-    toggleAllDirect,
+    audience,
     recipientsState: {
       ...recipientsState,
       recipients: recipientsQuery.data ?? recipientsState.recipients,
@@ -440,8 +307,6 @@ export function useNotificationsPageLogic() {
     requestDeleteBroadcast,
     cancelDeleteBroadcast,
     confirmDeleteBroadcast,
-    activityOptions,
-    activityTitleMap,
-    loadingActivities: activitiesQuery.isLoading
+    activityTitleMap: audience.activityTitleMap
   };
 }

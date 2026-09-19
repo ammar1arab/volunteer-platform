@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Modal, LoadingState, EmptyState, Pagination, Search, Button } from "@/presentation/components";
-import { Download, ArrowUpDown, ArrowUp, ArrowDown, LucideIcon } from "lucide-react";
+import { Download, ArrowUpDown, ArrowUp, ArrowDown, type LucideIcon } from "lucide-react";
 import { useFetchData } from "@/presentation/hooks";
 import styles from "./SharedDataModal.module.scss";
 
@@ -18,7 +18,7 @@ interface Props<T> {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  icon: LucideIcon | React.ElementType;
+  icon: LucideIcon;
   fetchUrl: string;
   dataKey: string;
   columns: Column<T>[];
@@ -31,7 +31,7 @@ interface Props<T> {
   defaultSortOrder?: "asc" | "desc";
 }
 
-export function SharedDataModal<T extends Record<string, any>>({
+export function SharedDataModal<T extends { id?: string | number }>({
   isOpen,
   onClose,
   title,
@@ -42,7 +42,7 @@ export function SharedDataModal<T extends Record<string, any>>({
   emptyTitle,
   emptyMessage,
   exportFileName = "export",
-  itemsPerPage = 8,
+  itemsPerPage = 20,
   customListRenderer,
   defaultSortKey,
   defaultSortOrder = "asc",
@@ -67,20 +67,20 @@ export function SharedDataModal<T extends Record<string, any>>({
     let result = [...(data?.items || [])];
 
     if (searchTerm) {
-      const lowerSearch = searchTerm.toLowerCase();
-      result = result.filter((item) =>
-        Object.values(item).some(
-          (val) => val && String(val).toLowerCase().includes(lowerSearch)
-        )
-      );
+      const normalizedSearch = searchTerm.trim().toLocaleLowerCase("ar");
+      result = result.filter((item) => {
+        const searchableItem = JSON.stringify(item);
+        return searchableItem?.toLocaleLowerCase("ar").includes(normalizedSearch) ?? false;
+      });
     }
 
     if (sortKey) {
       const col = columns.find((c) => c.key === sortKey);
-      if (col && col.sortValue) {
+      const sortValue = col?.sortValue;
+      if (sortValue) {
         result.sort((a, b) => {
-          const valA = col.sortValue!(a);
-          const valB = col.sortValue!(b);
+          const valA = sortValue(a);
+          const valB = sortValue(b);
           if (valA < valB) return sortOrder === "asc" ? -1 : 1;
           if (valA > valB) return sortOrder === "asc" ? 1 : -1;
           return 0;
@@ -179,7 +179,7 @@ export function SharedDataModal<T extends Record<string, any>>({
         {isLoading ? (
           <LoadingState compact />
         ) : processedData.length === 0 ? (
-          <EmptyState icon={Icon as any} title={emptyTitle} message={emptyMessage} />
+          <EmptyState icon={Icon} title={emptyTitle} message={emptyMessage} />
         ) : customListRenderer ? (
           <div className={styles.customList}>{customListRenderer(paginatedData)}</div>
         ) : (
@@ -206,7 +206,7 @@ export function SharedDataModal<T extends Record<string, any>>({
                 </thead>
                 <tbody>
                   {paginatedData.map((item, idx) => (
-                    <tr key={item.id || idx}>
+                    <tr key={item.id ?? idx}>
                       {columns.map((col) => (
                         <td key={col.key}>{col.accessor(item)}</td>
                       ))}
@@ -218,7 +218,7 @@ export function SharedDataModal<T extends Record<string, any>>({
 
             <div className={styles.mobileCards}>
               {paginatedData.map((item, idx) => (
-                <article key={item.id || idx} className={styles.itemCard}>
+                <article key={item.id ?? idx} className={styles.itemCard}>
                   {columns.map((col, colIdx) => (
                     <div
                       key={col.key}
@@ -240,7 +240,7 @@ export function SharedDataModal<T extends Record<string, any>>({
             totalItems={processedData.length}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
-            sticky
+            sticky={false}
           />
         )}
       </div>

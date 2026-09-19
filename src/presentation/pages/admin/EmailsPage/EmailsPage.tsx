@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import styles from "./EmailsPage.module.scss";
-import { Send, MapPin, Clock } from "lucide-react";
+import { Send, MapPin, Clock, Award, User2 } from "lucide-react";
 import {
   LoadingState,
   ToastContainer,
@@ -12,12 +12,13 @@ import {
   ConfirmDialog,
   EmailPreviewPane,
   Badge,
-  UserList
+  UserList,
+  AudienceTargetFields
 } from "@/presentation/components";
+import type { UserListMeta } from "@/presentation/components";
 import {
   useEmailsPageLogic,
   ALIAS_OPTIONS,
-  TARGET_OPTIONS,
   CITY_OPTIONS,
   GENDER_OPTIONS,
   VARS,
@@ -56,7 +57,8 @@ const EmailsPage = () => {
     toggleAll,
     setShowConfirm,
     handleSend,
-    closePreview
+    closePreview,
+    audience
   } = useEmailsPageLogic();
 
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -204,32 +206,16 @@ const EmailsPage = () => {
               </div>
             </div>
             <div className={styles.stepBody}>
-              <SelectInput
-                label="الاستهداف الأساسي"
-                value={form.target}
-                options={TARGET_OPTIONS}
-                onChange={(val) => setField("target", val as EmailForm["target"])}
-                disabled={isSending}
+              <AudienceTargetFields
+                target={form.target}
+                targetValue={form.targetValue}
+                disabled={isSending || loadingPreview}
+                onTargetChange={(val) => setField("target", val)}
+                onTargetValueChange={(val) => setField("targetValue", val)}
+                fields={audience}
               />
-              {form.target === "CITY" && (
-                <SelectInput
-                  label="المدينة"
-                  value={form.targetValue}
-                  options={[{ value: "", label: "اختر مدينة" }, ...CITY_OPTIONS]}
-                  onChange={(val) => setField("targetValue", val)}
-                  disabled={isSending}
-                />
-              )}
-              {form.target === "GENDER" && (
-                <SelectInput
-                  label="الجنس"
-                  value={form.targetValue}
-                  options={[{ value: "", label: "اختر" }, ...GENDER_OPTIONS]}
-                  onChange={(val) => setField("targetValue", val)}
-                  disabled={isSending}
-                />
-              )}
 
+              {form.target !== "USERS" && (
               <div className={styles.extraFilters}>
                 <span className={styles.extraFiltersLabel}>فيلترات إضافية</span>
 
@@ -286,6 +272,7 @@ const EmailsPage = () => {
                 </div>
 
                 <div className={styles.filters}>
+                  {form.target !== "HOURS" && (
                   <div className={styles.field}>
                     <label className={styles.fieldLabel}>
                       حد أدنى للساعات <span className={styles.optional}>اختياري</span>
@@ -299,6 +286,7 @@ const EmailsPage = () => {
                       disabled={isSending}
                     />
                   </div>
+                  )}
                   <div className={styles.field}>
                     <label className={styles.fieldLabel}>
                       الخبرة التطوعية <span className={styles.optional}>اختياري</span>
@@ -321,7 +309,7 @@ const EmailsPage = () => {
 
                 <div className={styles.field}>
                   <label className={styles.fieldLabel}>
-                    الاهتمامات / المهارات <span className={styles.optional}>اختياري — OR</span>
+                    الاهتمامات / المهارات <span className={styles.optional}>اختياري - OR</span>
                   </label>
                   <input
                     className={styles.input}
@@ -332,6 +320,7 @@ const EmailsPage = () => {
                   <span className={styles.inputHint}>اكتب اهتمامات مفصولة بفاصلة · مثال: صحة,تعليم,بيئة</span>
                 </div>
               </div>
+              )}
             </div>
           </div>
 
@@ -382,19 +371,22 @@ const EmailsPage = () => {
 
           <div className={styles.modalList}>
             <UserList
-              users={previewUsers.map((u: EmailRecipientDto) => ({
-                id: u.id,
-                name: u.name,
-                email: u.email,
-                phone: u.phone,
-                avatarUrl: u.avatarUrl,
-                meta: [
-                  u.city ? { value: getCityLabel(u.city as JordanianCity), icon: MapPin } : null,
-                  u.gender ? { value: getGenderLabel(u.gender as Gender), icon: require("lucide-react").User2 } : null,
-                  { value: `${Math.round(u.hours)} ساعة`, icon: Clock },
-                  u.certifications ? { value: `${u.certifications} شهادة`, icon: require("lucide-react").Award } : null
-                ].filter(Boolean) as import("@/presentation/components/admin/UserList/UserList").UserListMeta[]
-              }))}
+              users={previewUsers.map((u: EmailRecipientDto) => {
+                const meta: UserListMeta[] = [];
+                if (u.city) meta.push({ value: getCityLabel(u.city as JordanianCity), icon: MapPin });
+                if (u.gender) meta.push({ value: getGenderLabel(u.gender as Gender), icon: User2 });
+                meta.push({ value: `${Math.round(u.hours)} ساعة`, icon: Clock });
+                if (u.certifications) meta.push({ value: `${u.certifications} شهادة`, icon: Award });
+                return {
+                  id: u.id,
+                  name: u.name,
+                  email: u.email,
+                  phone: u.phone,
+                  gender: u.gender ?? undefined,
+                  avatarUrl: u.avatarUrl,
+                  meta
+                };
+              })}
               layout="list"
               selectable
               selectedIds={selectedIds}

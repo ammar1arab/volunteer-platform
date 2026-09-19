@@ -1,3 +1,3 @@
 # Process ownership
 
-Stop only servers, watchers, or tunnels you started for the current task. Leave the user's existing terminals alone unless they ask otherwise.
+This rule lives in [agent-efficiency.md](agent-efficiency.md). Stop only processes you started for the current task.

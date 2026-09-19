@@ -1,10 +1,6 @@
-import { ReportsPage } from "@/presentation/pages";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "التقارير والإحصائيات",
-};
+import { redirect } from "next/navigation";
+import { ROUTES } from "@/presentation/constants";
 
 export default function Page() {
-  return <ReportsPage />;
+  redirect(ROUTES.ADMIN.ANALYTICS);
 }

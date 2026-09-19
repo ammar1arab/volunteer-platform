@@ -14,6 +14,7 @@
   overflow: hidden;
   white-space: nowrap;
   flex-shrink: 0;
+  box-sizing: border-box;
 
   &:disabled {
     cursor: not-allowed;
@@ -103,17 +104,20 @@
 }
 
 .sm {
-  padding: $sp-xs $sp-sm;
+  @include control-height(32px);
+  padding-inline: $sp-sm;
   font-size: $font-xs;
 }
 
 .md {
-  padding: $sp-sm $sp-lg;
+  @include control-height;
+  padding-inline: $sp-lg;
   font-size: $font-sm;
 }
 
 .lg {
-  padding: $sp-md $sp-xl;
+  @include control-height(44px);
+  padding-inline: $sp-xl;
   font-size: $font-md;
 }
 
@@ -127,9 +131,9 @@
 
 .mobileIconOnly {
   @media (max-width: $bp-sm) {
-    width: 36px;
-    min-width: 36px;
-    height: 36px;
+    width: $control-h;
+    min-width: $control-h;
+    @include control-height;
     padding: 0;
   }
 }

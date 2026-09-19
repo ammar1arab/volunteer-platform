@@ -40,7 +40,7 @@ const EXPORT_COLUMNS = [
 ];
 
 const ExportBtn = ({ data }: { data: ExcelExportRow[] }) => (
-  <ExportUsersButton data={data} columns={EXPORT_COLUMNS} buttonText="Export Excel" />
+  <ExportUsersButton data={data} columns={EXPORT_COLUMNS} buttonText="Export" />
 );
 
 const UserManagementPage = () => {

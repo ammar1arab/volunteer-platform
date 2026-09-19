@@ -9,6 +9,7 @@ export * from "./featuredPost.service";
 export * from "./volunteerSpotlight.service";
 export * from "./monthlyMagazine.service";
 export * from "./notification.service";
+export * from "./email.service";
 export * from "./chat.service";
 export * from "./upload.service";
 export * from "./meetings.service";

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { UserAnalyticsDto } from "@/core/application/dtos";
 
-export const PRESENTER_PAGE_SIZE = 8;
+export const PRESENTER_PAGE_SIZE = 20;
 
 export const usePresenterPicker = (volunteers: UserAnalyticsDto[]) => {
   const [query, setQuery] = useState("");

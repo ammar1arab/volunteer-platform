@@ -1,4 +1,4 @@
-import { NotificationType } from "@/core/domain/enums";
+import { NotificationType, type AudienceTarget } from "@/core/domain/enums";
 import type { Result } from "./base.dto";
 import type { NotificationMetadata } from "@/core/domain/interfaces";
 
@@ -65,7 +65,7 @@ export interface PreviewUsersDto {
 export interface SendCustomNotificationInput {
   title: string;
   message: string;
-  target: "ALL" | "CITY" | "GENDER" | "HOURS" | "USERS" | "ACTIVITY_PENDING" | "ACTIVITY_APPROVED";
+  target: AudienceTarget;
   targetValue?: string;
   link?: string;
   userIds?: string[];
