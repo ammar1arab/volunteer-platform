@@ -21,7 +21,6 @@ export const useAnalyticsStats = (range: ReportRange) => {
     queryKey: queryKeys.reports.stats(range),
     request: async () => unwrapResult(await reportsApi.getStats(range)),
     options: {
-      keepPrevious: true,
       staleTime: 30_000,
       gcTime: 5 * 60_000,
       retry: 1,
@@ -33,7 +32,7 @@ export const useAnalyticsStats = (range: ReportRange) => {
 
   return {
     stats: statsQuery.data,
-    isLoadingStats: statsQuery.isLoading && !statsQuery.data,
+    isLoadingStats: statsQuery.isLoading,
     isRefreshing: statsQuery.isFetching && !!statsQuery.data,
     statsError: statsQuery.error,
     refetchStats: statsQuery.refetch

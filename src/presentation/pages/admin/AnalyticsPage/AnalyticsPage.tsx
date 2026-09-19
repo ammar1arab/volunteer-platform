@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReportRange } from "@/presentation/types/reports";
-import { Container, EmptyState } from "@/presentation/components";
+import { Container, EmptyState, LoadingState } from "@/presentation/components";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { WifiOff } from "lucide-react";
 import { COPY } from "./AnalyticsCopy";
@@ -14,6 +14,14 @@ import styles from "./AnalyticsPage.module.scss";
 export default function AnalyticsPage() {
   const [range, setRange] = useSessionStorageState<ReportRange>("filters.admin.analytics.range", "30d");
   const { stats, isLoadingStats, statsError, refetchStats } = useAnalyticsStats(range);
+
+  if (isLoadingStats) {
+    return (
+      <Container flush className={styles.page}>
+        <LoadingState />
+      </Container>
+    );
+  }
 
   if (statsError && !stats) {
     return (
@@ -35,7 +43,7 @@ export default function AnalyticsPage() {
         range={range}
         onRangeChange={setRange}
         totals={buildTotals(stats)}
-        loading={isLoadingStats}
+        loading={false}
       />
 
       {statsError && stats ? (
@@ -47,7 +55,7 @@ export default function AnalyticsPage() {
         </p>
       ) : null}
 
-      <AnalyticsPulse items={buildPulse(stats)} loading={isLoadingStats} />
+      <AnalyticsPulse items={buildPulse(stats)} loading={false} />
 
       <AnalyticsCharts
         dailyPulse={stats?.dailyPulse ?? []}
@@ -68,7 +76,7 @@ export default function AnalyticsPage() {
         rafiq={stats?.rafiq ?? { turns: 0, members: 0, guests: 0, tokens: 0, models: [] }}
         system={stats?.system ?? { operations: 0, errors: 0, byStatus: [], hourly: [], daily: [], latestAt: null }}
         chartDays={stats?.chartDays ?? 30}
-        loading={isLoadingStats}
+        loading={false}
       />
     </Container>
   );
