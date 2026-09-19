@@ -229,6 +229,25 @@ function JourneyCurve({ points, accept, attend }: { points: DailyPulse[]; accept
   );
 }
 
+function RegistrationJourney({ funnel }: { funnel?: JoinFunnel }) {
+  if (!funnel) return <ChartEmpty />;
+  const stages = [
+    { label: "طلبات الانضمام", value: funnel.requested, color: PURPLE },
+    { label: "طلبات مقبولة", value: funnel.approved, color: TEAL },
+    { label: "حضور مسجل", value: funnel.attended, color: PINK }
+  ];
+  return (
+    <div className={styles.journeyFlow}>
+      {stages.map((stage, index) => (
+        <div key={stage.label} className={styles.journeyStage} style={{ "--stage": stage.color } as CSSProperties}>
+          <span>{index + 1}</span><strong>{formatNumber(stage.value)}</strong><small>{stage.label}</small>
+          {index < stages.length - 1 ? <i aria-hidden="true">←</i> : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function RankedBars({ rows, empty = COPY.emptyChart }: { rows: ChartRow[]; empty?: string }) {
   if (!rows.length) return <ChartEmpty message={empty} />;
   const maximum = Math.max(...rows.map((row) => row.value), 1);
@@ -564,6 +583,7 @@ function TrafficWaveChart({
 }) {
   const points = trafficWavePoints(traffic.daily);
   const totalVisitors = traffic.guests + traffic.members;
+  const devices = traffic.devices.filter((device) => device.key !== "tablet");
 
   return (
     <div className={styles.wavePanel}>
@@ -576,7 +596,7 @@ function TrafficWaveChart({
           <span className={styles.waveStatSub}>خلال {formatNumber(chartDays)} يوماً</span>
         </div>
         <div className={styles.waveStatCard}>
-          <span className={styles.waveStatLabel}>بدون حساب</span>
+          <span className={styles.waveStatLabel}>زوار</span>
           <span className={styles.waveStatVal} style={{ color: TEAL }}>
             {formatNumber(traffic.guests)}
           </span>
@@ -585,7 +605,7 @@ function TrafficWaveChart({
           </span>
         </div>
         <div className={styles.waveStatCard}>
-          <span className={styles.waveStatLabel}>أعضاء بحسابات</span>
+          <span className={styles.waveStatLabel}>متطوعون</span>
           <span className={styles.waveStatVal} style={{ color: PURPLE }}>
             {formatNumber(traffic.members)}
           </span>
@@ -596,10 +616,10 @@ function TrafficWaveChart({
         <div className={styles.waveStatCard}>
           <span className={styles.waveStatLabel}>الجهاز الأكثر</span>
           <span className={styles.waveStatVal} style={{ color: BLUE }}>
-            {traffic.devices[0] ? DEVICE_LABELS[traffic.devices[0].key as keyof typeof DEVICE_LABELS] || traffic.devices[0].key : "—"}
+            {devices[0] ? DEVICE_LABELS[devices[0].key as keyof typeof DEVICE_LABELS] || devices[0].key : "—"}
           </span>
           <span className={styles.waveStatSub}>
-            {traffic.devices[0] ? `${formatNumber(traffic.devices[0].count)} زيارة` : "بانتظار البيانات"}
+            {devices[0] ? `${formatNumber(devices[0].count)} زيارة` : "بانتظار البيانات"}
           </span>
         </div>
       </div>
@@ -637,7 +657,7 @@ function TrafficWaveChart({
               <Area
                 type="monotone"
                 dataKey="guests"
-                name="زوار بدون تسجيل"
+                name="زوار"
                 stroke={TEAL}
                 strokeWidth={2.5}
                 fill="url(#trafficGuestsGrad)"
@@ -648,7 +668,7 @@ function TrafficWaveChart({
               <Area
                 type="monotone"
                 dataKey="members"
-                name="أعضاء مسجلين"
+                name="متطوعون"
                 stroke={PURPLE}
                 strokeWidth={2.5}
                 fill="url(#trafficMembersGrad)"
@@ -670,7 +690,7 @@ function TrafficWaveChart({
             {SOURCE_LABELS[s.key as keyof typeof SOURCE_LABELS] || s.key}: <strong>{formatNumber(s.count)}</strong>
           </span>
         ))}
-        {traffic.devices.map((d) => (
+        {devices.map((d) => (
           <span key={d.key} className={styles.wavePill}>
             {DEVICE_LABELS[d.key as keyof typeof DEVICE_LABELS] || d.key}: <strong>{formatNumber(d.count)}</strong>
           </span>
@@ -967,15 +987,11 @@ export default function AnalyticsCharts({
       </Panel>
 
       <Panel title={COPY.panels.conversion} subtitle={COPY.panels.conversionSub}>
-        {conversions.length ? (
-          <JourneyCurve points={dailyPulse} accept={conversions[0].value} attend={conversions[1].value} />
-        ) : (
-          <ChartEmpty />
-        )}
+        <JourneyCurve points={dailyPulse} accept={conversions[0]?.value ?? 0} attend={conversions[1]?.value ?? 0} />
       </Panel>
 
       <Panel title={COPY.panels.journey} subtitle={COPY.panels.journeySub}>
-        <ColumnChart rows={funnelRows(funnel)} />
+        <RegistrationJourney funnel={funnel} />
       </Panel>
 
       <Panel title={COPY.panels.outcomes} subtitle={COPY.panels.outcomesSub}>
