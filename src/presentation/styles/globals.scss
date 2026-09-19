@@ -1,8 +1,6 @@
 @use "@/presentation/styles/_variables" as *;
 @use "@/presentation/styles/_mixins" as *;
 
-@tailwind components;
-@tailwind utilities;
 
 @import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap");
 
@@ -240,8 +238,5 @@ textarea {
   }
 }
 
-.recharts-wrapper * {
-  outline: none !important;
-}
 
 

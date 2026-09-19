@@ -71,41 +71,26 @@ function Panel({
   title,
   subtitle,
   wide,
-  className = "",
-  dark = false,
   children
 }: {
   title: string;
   subtitle?: string;
   wide?: boolean;
-  className?: string;
-  dark?: boolean;
   children: ReactNode;
 }) {
   return (
-    <section className={`flex flex-col min-w-0 p-6 overflow-visible border rounded-2xl shadow-sm transition-all duration-300 ${dark ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-white border-slate-200 hover:shadow-md hover:border-slate-300'} ${wide ? "col-span-full" : ""} ${className}`}>
-      <header className="mb-6">
-        <h2 className={`m-0 text-lg font-bold ${dark ? 'text-white' : 'text-slate-900'}`}>{title}</h2>
-        {subtitle ? <p className={`mt-1 text-sm ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{subtitle}</p> : null}
+    <section className={`${styles.panel} ${wide ? styles.wide : ""}`}>
+      <header>
+        <h2>{title}</h2>
+        {subtitle ? <p>{subtitle}</p> : null}
       </header>
-      <div className="flex-1 min-h-[200px]">
-        {children}
-      </div>
+      {children}
     </section>
   );
 }
 
 function ChartEmpty({ message = COPY.emptyChart }: { message?: string }) {
   return <EmptyState compact icon={ChartColumn} message={message} />;
-}
-
-function ChartLoading() {
-  return (
-    <div className={styles.loadingState} role="status" aria-live="polite">
-      <span className={styles.loadingDot} />
-      <span>جاري تحميل مؤشرات التحليلات...</span>
-    </div>
-  );
 }
 
 function ChartTooltip({
@@ -364,7 +349,7 @@ function CityAgeRadial({ rows }: { rows: CityAgeCount[] }) {
               key={age.key}
               role="button"
               tabIndex={0}
-              style={{ cursor: "pointer" }}
+              style={{ cursor: "pointer", outline: "none" }}
               aria-pressed={active}
               onClick={() => setSelectedKey(age.key)}
               onKeyDown={(event) => {
@@ -382,6 +367,7 @@ function CityAgeRadial({ rows }: { rows: CityAgeCount[] }) {
                 rx="10"
                 fill={active ? age.color : "#fff"}
                 stroke={age.color}
+                style={{ outline: "none" }}
               />
               <circle cx={ageX - 70} cy={ageYs[index]} r="4" fill={active ? "#fff" : age.color} />
               <text x={ageX - 58} y={ageYs[index] + 4} fill={active ? "#fff" : "#111827"} fontSize="12">
@@ -456,13 +442,13 @@ function GradientPie({ id, rows, center, hint }: { id: string; rows: ChartRow[];
   );
 }
 
-function StatGrid({ rows, dark = false }: { rows: Array<{ label: string; value: string }>; dark?: boolean }) {
+function StatGrid({ rows }: { rows: Array<{ label: string; value: string }> }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div className={styles.statGrid}>
       {rows.map((row) => (
-        <div key={row.label} className={`p-4 rounded-xl border ${dark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
-          <span className={`block text-xs ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{row.label}</span>
-          <strong className={`block mt-1 text-lg font-bold tabular-nums ${dark ? 'text-white' : 'text-slate-900'}`}>{row.value}</strong>
+        <div key={row.label}>
+          <span>{row.label}</span>
+          <strong>{row.value}</strong>
         </div>
       ))}
     </div>
@@ -542,7 +528,16 @@ export default function AnalyticsCharts({
   loading: boolean;
 }) {
   if (loading) {
-    return <div className={styles.loadingPanel}><ChartLoading /></div>;
+    return (
+      <div className={styles.grid}>
+        <div className={`${styles.panel} ${styles.wide} ${styles.skeleton}`} />
+        <div className={`${styles.panel} ${styles.skeleton}`} />
+        <div className={`${styles.panel} ${styles.skeleton}`} />
+        <div className={`${styles.panel} ${styles.wide} ${styles.skeleton}`} />
+        <div className={`${styles.panel} ${styles.skeleton}`} />
+        <div className={`${styles.panel} ${styles.skeleton}`} />
+      </div>
+    );
   }
 
   const points = dailyPoints(dailyPulse);
@@ -561,248 +556,211 @@ export default function AnalyticsCharts({
   const systemStatus = logRows(system.byStatus);
 
   return (
-    <div className="flex flex-col gap-10 w-full pb-10">
-      
-      {/* SECTION 1: CORE METRICS & DAILY PULSE */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
-        <div className="lg:col-span-2">
-          <Panel title={COPY.panels.daily} subtitle={COPY.panels.dailySub(formatNumber(chartDays))} wide className="h-full">
-            {points.length ? (
-              <div className={`${styles.chart} h-[320px]`} dir="ltr">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={points} margin={{ top: 12, right: 8, left: 4, bottom: 0 }} tabIndex={-1}>
-                    <defs>
-                      <linearGradient id="volunteerGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stopColor={GREEN} stopOpacity=".75" />
-                        <stop offset="1" stopColor={GREEN} stopOpacity=".08" />
-                      </linearGradient>
-                      <linearGradient id="requestGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stopColor={PURPLE} stopOpacity=".62" />
-                        <stop offset="1" stopColor={PURPLE} stopOpacity=".08" />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid stroke="rgba(0,0,0,.06)" vertical={false} />
-                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} minTickGap={24} />
-                    <YAxis
-                      allowDecimals={false}
-                      axisLine={false}
-                      tickLine={false}
-                      width={Y_AXIS.width}
-                      tick={Y_AXIS.tick}
-                    />
-                    <Tooltip content={<ChartTooltip />} />
-                    <Area
-                      dataKey="requests"
-                      name="طلبات"
-                      stroke={PURPLE}
-                      strokeWidth={2}
-                      fill="url(#requestGradient)"
-                      dot={false}
-                      isAnimationActive={false}
-                    />
-                    <Area
-                      dataKey="volunteers"
-                      name="متطوعون"
-                      stroke={GREEN}
-                      strokeWidth={3}
-                      fill="url(#volunteerGradient)"
-                      dot={false}
-                      isAnimationActive={false}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <ChartEmpty message={COPY.emptyDaily} />
-            )}
-          </Panel>
-        </div>
-
-        <div className="lg:col-span-1 flex flex-col gap-6">
-          <Panel title={COPY.panels.recentDays} subtitle={COPY.panels.recentDaysSub}>
-            <GroupedWeek points={dailyPulse} />
-          </Panel>
-          <Panel title={COPY.panels.conversion} subtitle={COPY.panels.conversionSub}>
-            {conversions.length ? (
-              <JourneyCurve points={dailyPulse} accept={conversions[0].value} attend={conversions[1].value} />
-            ) : (
-              <ChartEmpty />
-            )}
-          </Panel>
-        </div>
-      </div>
-
-      {/* SECTION 2: DEMOGRAPHICS BENTO */}
-      <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 lg:p-8">
-        <h3 className="text-2xl font-bold text-slate-900 mb-6">الديموغرافيا والمناطق</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          <Panel title={COPY.panels.gender} subtitle={COPY.panels.genderSub}>
-            <GradientPie id="genderPie" rows={genders} center={formatNumber(genderTotal)} hint="متطوع" />
-          </Panel>
-          <Panel title={COPY.panels.ages} subtitle={COPY.panels.agesSub}>
-            <SlimAgeBars rows={ageRows(ageGroups)} />
-          </Panel>
-          <Panel title={COPY.panels.education} subtitle={COPY.panels.educationSub}>
-            <GradientPie
-              id="educationPie"
-              rows={educationRows(educationBands)}
-              center={formatNumber(educationBands.reduce((sum, row) => sum + row.count, 0))}
-              hint="ملف"
-            />
-          </Panel>
-          <Panel title={COPY.panels.cities} subtitle={COPY.panels.citiesSub}>
-            <ColumnChart rows={cityRows(topCities)} />
-          </Panel>
-          
-          <div className="xl:col-span-4">
-            <Panel title={COPY.panels.cityAge} subtitle={COPY.panels.cityAgeSub}>
-              <CityAgeRadial rows={cityAge} />
-            </Panel>
+    <div className={styles.grid}>
+      <Panel title={COPY.panels.daily} subtitle={COPY.panels.dailySub(formatNumber(chartDays))} wide>
+        {points.length ? (
+          <div className={`${styles.chart} ${styles.chartTall}`} dir="ltr">
+            <ResponsiveContainer width="100%" height={270}>
+              <AreaChart data={points} margin={{ top: 12, right: 8, left: 4, bottom: 0 }} tabIndex={-1}>
+                <defs>
+                  <linearGradient id="volunteerGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor={GREEN} stopOpacity=".75" />
+                    <stop offset="1" stopColor={GREEN} stopOpacity=".08" />
+                  </linearGradient>
+                  <linearGradient id="requestGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor={PURPLE} stopOpacity=".62" />
+                    <stop offset="1" stopColor={PURPLE} stopOpacity=".08" />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="rgba(0,0,0,.06)" vertical={false} />
+                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} minTickGap={24} />
+                <YAxis
+                  allowDecimals={false}
+                  axisLine={false}
+                  tickLine={false}
+                  width={Y_AXIS.width}
+                  tick={Y_AXIS.tick}
+                />
+                <Tooltip content={<ChartTooltip />} />
+                <Area
+                  dataKey="requests"
+                  name="طلبات"
+                  stroke={PURPLE}
+                  strokeWidth={2}
+                  fill="url(#requestGradient)"
+                  dot={false}
+                  isAnimationActive={false}
+                />
+                <Area
+                  dataKey="volunteers"
+                  name="متطوعون"
+                  stroke={GREEN}
+                  strokeWidth={3}
+                  fill="url(#volunteerGradient)"
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
-        </div>
-      </div>
+        ) : (
+          <ChartEmpty message={COPY.emptyDaily} />
+        )}
+      </Panel>
 
-      {/* SECTION 3: ACTIVITIES & FUNNEL */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Panel title={COPY.panels.journey} subtitle={COPY.panels.journeySub}>
-          <ColumnChart rows={funnelRows(funnel)} />
-        </Panel>
-        <Panel title={COPY.panels.outcomes} subtitle={COPY.panels.outcomesSub}>
-          <ColumnChart rows={outcomeRows(requestOutcomes)} />
-        </Panel>
-        <Panel title={COPY.panels.attendance} subtitle={COPY.panels.attendanceSub}>
-          <ColumnChart rows={attendanceRows(attendance)} />
-        </Panel>
-      </div>
+      <Panel title={COPY.panels.recentDays} subtitle={COPY.panels.recentDaysSub}>
+        <GroupedWeek points={dailyPulse} />
+      </Panel>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Panel title={COPY.panels.activityStatus} subtitle={COPY.panels.activityStatusSub}>
-          <ColumnChart rows={activityStatusRows(activityStatuses)} />
-        </Panel>
-        <Panel title={COPY.panels.activityType} subtitle={COPY.panels.activityTypeSub}>
-          <ColumnChart rows={activityTypeRows(activityTypes)} />
-        </Panel>
-      </div>
+      <Panel title={COPY.panels.conversion} subtitle={COPY.panels.conversionSub}>
+        {conversions.length ? (
+          <JourneyCurve points={dailyPulse} accept={conversions[0].value} attend={conversions[1].value} />
+        ) : (
+          <ChartEmpty />
+        )}
+      </Panel>
 
-      {/* SECTION 4: ENGAGEMENT & PLATFORM */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Panel title={COPY.panels.content} subtitle={COPY.panels.contentSub} className="lg:col-span-1">
-          <StatGrid
-            rows={[
-              { label: "مشاهدات الأنشطة", value: formatCount(content.activityViews) },
-              { label: "المقالات", value: formatCount(content.posts) },
-              { label: "مشاهدات المقالات", value: formatCount(content.postViews) },
-              { label: "أعداد المجلة", value: formatCount(content.magazines) },
-              { label: "تحميلات المجلة", value: formatCount(content.magazineDownloads) },
-              { label: "تسليط الضوء", value: formatCount(content.spotlights) }
-            ]}
-          />
-        </Panel>
-        
-        <Panel title={COPY.panels.visitors} subtitle={COPY.panels.visitorsSub} className="lg:col-span-1">
-          <StatGrid
-            rows={[
-              { label: "الزوار بدون تسجيل", value: formatCount(traffic.guests) },
-              {
-                label: "الجوال / الكمبيوتر / اللوحي",
-                value: joinedCounts(traffic.devices, DEVICE_LABELS) || "لا تتوافر بيانات بعد"
-              },
-              {
-                label: "Google / إنستغرام / فيسبوك",
-                value: joinedCounts(traffic.sources, SOURCE_LABELS) || "لا تتوافر بيانات بعد"
-              }
-            ]}
-          />
-        </Panel>
+      <Panel title={COPY.panels.journey} subtitle={COPY.panels.journeySub}>
+        <ColumnChart rows={funnelRows(funnel)} />
+      </Panel>
 
-        <Panel title={COPY.panels.rafiq} subtitle={COPY.panels.rafiqSub} className="lg:col-span-1">
-          <StatGrid
-            rows={[
-              { label: "الأسئلة", value: formatCount(rafiq.turns) },
-              {
-                label: "من سأل",
-                value: `حساب ${formatCount(rafiq.members)} · ضيف ${formatCount(rafiq.guests)}`
-              },
-              {
-                label: "النماذج",
-                value: joinedCounts(rafiq.models, RAFIQ_MODEL_LABELS) || "لا تتوافر بيانات بعد"
-              },
-              { label: "التوكنز", value: formatCount(rafiq.tokens) }
-            ]}
-          />
-        </Panel>
-      </div>
+      <Panel title={COPY.panels.outcomes} subtitle={COPY.panels.outcomesSub}>
+        <ColumnChart rows={outcomeRows(requestOutcomes)} />
+      </Panel>
 
-      {/* SECTION 5: COMMUNICATIONS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Panel title={COPY.panels.notifications} subtitle={COPY.panels.notificationsSub}>
-          <div className="mb-4">
+      <Panel title={COPY.panels.gender} subtitle={COPY.panels.genderSub}>
+        <GradientPie id="genderPie" rows={genders} center={formatNumber(genderTotal)} hint="متطوع" />
+      </Panel>
+
+      <Panel title={COPY.panels.ages} subtitle={COPY.panels.agesSub}>
+        <SlimAgeBars rows={ageRows(ageGroups)} />
+      </Panel>
+
+      <Panel title={COPY.panels.cityAge} subtitle={COPY.panels.cityAgeSub} wide>
+        <CityAgeRadial rows={cityAge} />
+      </Panel>
+
+      <Panel title={COPY.panels.education} subtitle={COPY.panels.educationSub}>
+        <GradientPie
+          id="educationPie"
+          rows={educationRows(educationBands)}
+          center={formatNumber(educationBands.reduce((sum, row) => sum + row.count, 0))}
+          hint="ملف"
+        />
+      </Panel>
+
+      <Panel title={COPY.panels.cities} subtitle={COPY.panels.citiesSub}>
+        <ColumnChart rows={cityRows(topCities)} />
+      </Panel>
+
+      <Panel title={COPY.panels.activityStatus} subtitle={COPY.panels.activityStatusSub}>
+        <ColumnChart rows={activityStatusRows(activityStatuses)} />
+      </Panel>
+
+      <Panel title={COPY.panels.activityType} subtitle={COPY.panels.activityTypeSub}>
+        <ColumnChart rows={activityTypeRows(activityTypes)} />
+      </Panel>
+
+      <Panel title={COPY.panels.attendance} subtitle={COPY.panels.attendanceSub}>
+        <ColumnChart rows={attendanceRows(attendance)} />
+      </Panel>
+
+      <Panel title={COPY.panels.content} subtitle={COPY.panels.contentSub}>
+        <StatGrid
+          rows={[
+            { label: "مشاهدات الأنشطة", value: formatCount(content.activityViews) },
+            { label: "المقالات", value: formatCount(content.posts) },
+            { label: "مشاهدات المقالات", value: formatCount(content.postViews) },
+            { label: "أعداد المجلة", value: formatCount(content.magazines) },
+            { label: "تحميلات المجلة", value: formatCount(content.magazineDownloads) },
+            { label: "تسليط الضوء", value: formatCount(content.spotlights) }
+          ]}
+        />
+      </Panel>
+
+      <Panel title={COPY.panels.visitors} subtitle={COPY.panels.visitorsSub}>
+        <StatGrid
+          rows={[
+            { label: "الزوار بدون تسجيل", value: formatCount(traffic.guests) },
+            {
+              label: "الجوال / الكمبيوتر / اللوحي",
+              value: joinedCounts(traffic.devices, DEVICE_LABELS) || "ما في بعد"
+            },
+            {
+              label: "Google / إنستغرام / فيسبوك",
+              value: joinedCounts(traffic.sources, SOURCE_LABELS) || "ما في بعد"
+            }
+          ]}
+        />
+      </Panel>
+
+      <Panel title={COPY.panels.rafiq} subtitle={COPY.panels.rafiqSub}>
+        <StatGrid
+          rows={[
+            { label: "الأسئلة", value: formatCount(rafiq.turns) },
+            {
+              label: "من سأل",
+              value: `حساب ${formatCount(rafiq.members)} · ضيف ${formatCount(rafiq.guests)}`
+            },
+            {
+              label: "النماذج",
+              value: joinedCounts(rafiq.models, RAFIQ_MODEL_LABELS) || "ما في بعد"
+            },
+            { label: "التوكنز", value: formatCount(rafiq.tokens) }
+          ]}
+        />
+      </Panel>
+
+      {attendeeRows.length ? (
+        <Panel title={COPY.panels.match} subtitle={COPY.panels.matchSub}>
+          <ColumnChart rows={attendeeRows} />
+        </Panel>
+      ) : null}
+
+      <Panel title={COPY.panels.notifications} subtitle={COPY.panels.notificationsSub}>
+        <StatGrid
+          rows={[
+            { label: "إشعارات الفترة", value: formatCount(comms.notifications) },
+            { label: "غير مقروءة الآن", value: formatCount(comms.unread) }
+          ]}
+        />
+        <ColumnChart rows={noticeRows} />
+      </Panel>
+
+      <Panel title={COPY.panels.emails} subtitle={COPY.panels.emailsSub}>
+        <ColumnChart rows={mailRows} empty="ما في إيميلات تحقق أو استعادة في هذه الفترة" />
+      </Panel>
+
+      <Panel title={COPY.panels.load} subtitle={COPY.panels.loadSub} wide>
+        <LoadWave rows={dayLoad} total={system.operations} />
+      </Panel>
+
+      <Panel title={COPY.panels.health} subtitle={COPY.panels.healthSub}>
+        <StatGrid
+          rows={[
+            { label: "قاعدة البيانات", value: "متصلة" },
+            { label: "الموقع", value: "يعمل" },
+            { label: "آخر عملية", value: system.latestAt ? formatDateTime(system.latestAt) : "ما في بعد" },
+            { label: "نسبة الأخطاء", value: `${formatNumber(percent(system.errors, system.operations))}%` }
+          ]}
+        />
+      </Panel>
+
+      <Panel title={COPY.panels.system} subtitle={COPY.panels.systemSub}>
+        {system.operations ? (
+          <>
             <StatGrid
               rows={[
-                { label: "إشعارات الفترة", value: formatCount(comms.notifications) },
-                { label: "غير مقروءة الآن", value: formatCount(comms.unread) }
+                { label: "عمليات", value: formatCount(system.operations) },
+                { label: "أخطاء", value: formatCount(system.errors) }
               ]}
             />
-          </div>
-          <ColumnChart rows={noticeRows} />
-        </Panel>
-        <div className="flex flex-col gap-6">
-          <Panel title={COPY.panels.emails} subtitle={COPY.panels.emailsSub} className="flex-1">
-            <ColumnChart rows={mailRows} empty="لا توجد رسائل تحقق أو استعادة خلال هذه الفترة" />
-          </Panel>
-          {attendeeRows.length ? (
-            <Panel title={COPY.panels.match} subtitle={COPY.panels.matchSub}>
-              <ColumnChart rows={attendeeRows} />
-            </Panel>
-          ) : null}
-        </div>
-      </div>
-
-      {/* SECTION 6: SYSTEM HEALTH (DARK MODE BENTO) */}
-      <div className="bg-slate-900 rounded-3xl p-6 lg:p-8 text-white shadow-xl mt-4">
-        <h3 className="text-2xl font-bold text-white mb-6">صحة النظام والأداء</h3>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Panel title={COPY.panels.load} subtitle={COPY.panels.loadSub} dark>
-              <LoadWave rows={dayLoad} total={system.operations} />
-            </Panel>
-          </div>
-          
-          <div className="lg:col-span-1 flex flex-col gap-6">
-            <Panel title={COPY.panels.health} subtitle={COPY.panels.healthSub} dark>
-              <StatGrid
-                dark
-                rows={[
-                  { label: "قاعدة البيانات", value: "متصلة" },
-                  { label: "الموقع", value: "يعمل" },
-                  { label: "آخر عملية", value: system.latestAt ? formatDateTime(system.latestAt) : "لا تتوافر بيانات بعد" },
-                  { label: "نسبة الأخطاء", value: `${formatNumber(percent(system.errors, system.operations))}%` }
-                ]}
-              />
-            </Panel>
-            
-            <Panel title={COPY.panels.system} subtitle={COPY.panels.systemSub} dark>
-              {system.operations ? (
-                <>
-                  <div className="mb-4">
-                    <StatGrid
-                      dark
-                      rows={[
-                        { label: "عمليات", value: formatCount(system.operations) },
-                        { label: "أخطاء", value: formatCount(system.errors) }
-                      ]}
-                    />
-                  </div>
-                  <ColumnChart rows={systemStatus} empty={COPY.emptySystem} />
-                </>
-              ) : (
-                <ChartEmpty message={COPY.emptySystem} />
-              )}
-            </Panel>
-          </div>
-        </div>
-      </div>
-
+            <ColumnChart rows={systemStatus} empty={COPY.emptySystem} />
+          </>
+        ) : (
+          <ChartEmpty message={COPY.emptySystem} />
+        )}
+      </Panel>
     </div>
   );
 }

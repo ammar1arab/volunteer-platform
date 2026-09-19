@@ -3,11 +3,6 @@ import type { ReportRange } from "@/presentation/types/reports";
 export const RANGE_OPTIONS: Array<{ value: ReportRange; label: string }> = [
   { value: "7d", label: "7 أيام" },
   { value: "30d", label: "30 يوماً" },
-import type { ReportRange } from "@/presentation/types/reports";
-
-export const RANGE_OPTIONS: Array<{ value: ReportRange; label: string }> = [
-  { value: "7d", label: "7 أيام" },
-  { value: "30d", label: "30 يوماً" },
   { value: "90d", label: "90 يوماً" },
   { value: "all", label: "الكل" }
 ];

@@ -10,33 +10,33 @@
 
 .panel {
   min-width: 0;
-  padding: 1.5rem;
+  padding: $sp-md;
   overflow: visible;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  background: $white;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  transition: box-shadow $transition, border-color $transition;
+  border: 1px solid rgba($green, .14);
+  border-radius: $radius-lg;
+  background: linear-gradient(145deg, $white, #f6fbf8);
+  transition: border-color $transition;
 
-  &:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  }
+  &:hover { border-color: rgba($green, .32); }
 
-  header { margin-bottom: 1.5rem; }
+  header { margin-bottom: $sp-md; }
 
   h2 {
     margin: 0;
-    color: #0f172a;
-    font-size: 1.125rem;
-    font-weight: 600;
+    color: $black;
+    font-size: $font-md;
+    font-weight: 800;
   }
 
   p {
-    margin: 0.25rem 0 0;
-    color: #64748b;
-    font-size: 0.875rem;
+    margin: $sp-xs 0 0;
+    color: $text-secondary;
+    font-size: $font-sm;
   }
 }
+
+.panel:nth-child(3n + 2) { background: linear-gradient(145deg, $white, #f7f6ff); }
+.panel:nth-child(3n + 3) { background: linear-gradient(145deg, $white, #f3fbff); }
 
 
 .wide { grid-column: 1 / -1; }
@@ -77,12 +77,37 @@
 
 .radialWrap {
   overflow: hidden;
+
+  svg {
+    outline: none;
+    &:focus,
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  g,
+  rect,
+  text,
+  circle {
+    outline: none !important;
+    &:focus,
+    &:focus-visible {
+      outline: none !important;
+    }
+  }
 }
 
 .radial {
   display: block;
   width: 100%;
   height: 320px;
+  outline: none;
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
 }
 
 .stackSplit {
@@ -349,9 +374,16 @@
     align-content: center;
     min-height: 54px;
     padding: $sp-sm $sp-md;
-    border: 1px solid rgba($green, .12);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: $radius-md;
-    background: linear-gradient(135deg, rgba($white, .95), rgba($green, .06));
+    background: $white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: border-color $transition, box-shadow $transition;
+
+    &:hover {
+      border-color: rgba(0, 0, 0, 0.12);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
   }
 
   span, strong { display: block; }

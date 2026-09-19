@@ -24,14 +24,14 @@ import type { CityAgeCount, CityCount, DailyPulse, GenderCount, JoinFunnel, Name
 import { formatShortDate } from "@/lib/utils/date";
 import { formatNumber } from "@/lib/utils/text";
 
-export const GREEN = "#10b981"; // Tremor emerald-500
-export const TEAL = "#14b8a6"; // Tremor teal-500
-export const PURPLE = "#6366f1"; // Tremor indigo-500
-export const PINK = "#f43f5e"; // Tremor rose-500
-export const BLUE = "#3b82f6"; // Tremor blue-500
-export const AMBER = "#f59e0b"; // Tremor amber-500
-export const RED = "#ef4444"; // Tremor red-500
-export const INK = "#0f172a"; // Tremor slate-900
+export const GREEN = "#22c55e";
+export const TEAL = "#14d4c4";
+export const PURPLE = "#8b5cf6";
+export const PINK = "#fb4b8d";
+export const BLUE = "#3b82f6";
+export const AMBER = "#f59e0b";
+export const RED = "#ef4444";
+export const INK = "#111111";
 
 export const AGE_ORDER = ["under18", "18_24", "25_34", "35_plus"] as const;
 export const AGE_LABELS: Record<string, string> = {
