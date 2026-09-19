@@ -296,7 +296,9 @@ export function getAudienceTargetSummary(
 export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 export const DAY_OPTIONS = Object.entries(DAY_LABELS).map(([value, label]) => ({ value, label }));
 
-export const LANGUAGE_SUGGESTIONS = ["العربية", "الإنجليزية", "الفرنسية", "الألمانية", "التركية"];
+export const LANGUAGE_SUGGESTIONS = [
+  "العربية", "الإنجليزية", "الفرنسية", "الألمانية", "التركية", "الإسبانية", "الروسية", "الكورية", "الصينية"
+];
 export const VOLUNTEER_TYPE_SUGGESTIONS = [
   "تعليمي",
   "صحي",
@@ -304,10 +306,21 @@ export const VOLUNTEER_TYPE_SUGGESTIONS = [
   "اجتماعي",
   "تقني",
   "فعاليات",
-  "إغاثة"
+  "إغاثة",
+  "إعلامي",
+  "رياضي",
+  "ثقافي",
+  "ميداني",
+  "عن بُعد"
 ];
-export const SKILL_SUGGESTIONS = ["تنظيم فعاليات", "تصوير", "كتابة محتوى", "تصميم", "قيادة فرق", "ترجمة"];
-export const INTEREST_SUGGESTIONS = ["شباب", "تعليم", "بيئة", "صحة", "ريادة", "ثقافة"];
+export const SKILL_SUGGESTIONS = [
+  "تنظيم فعاليات", "تصوير", "كتابة محتوى", "تصميم", "قيادة فرق", "ترجمة", "التواصل", "إدارة المشاريع",
+  "التسويق الرقمي", "البرمجة", "تحليل البيانات", "الإسعافات الأولية", "التدريب", "العلاقات العامة"
+];
+export const INTEREST_SUGGESTIONS = [
+  "شباب", "تعليم", "بيئة", "صحة", "ريادة", "ثقافة", "تمكين المرأة", "الأطفال", "ذوو الإعاقة", "التكنولوجيا",
+  "الفنون", "الرياضة", "الإغاثة", "التنمية المجتمعية", "حقوق الإنسان"
+];
 
 function suggestionOptions(values: string[]) {
   return values.map((value) => ({ value, label: value }));

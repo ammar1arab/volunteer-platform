@@ -133,7 +133,7 @@ function ProfileTagsCard({
             <div className={styles.suggestions}>
               {suggestions
                 .filter((s) => !current.includes(s))
-                .slice(0, 6)
+                .slice(0, 12)
                 .map((s) => (
                   <button key={s} type="button" className={styles.suggestion} onClick={() => add(s)} disabled={isSaving}>
                     {s}
