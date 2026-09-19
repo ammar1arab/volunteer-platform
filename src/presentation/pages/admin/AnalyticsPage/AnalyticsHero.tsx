@@ -45,12 +45,6 @@ export default function AnalyticsHero({
           </li>
         ))}
       </ul>
-      {pendingRequests > 0 ? (
-        <p className={styles.pendingAlert} role="status">
-          <span className={styles.pendingDot} aria-hidden="true" />
-          {pendingRequests} طلباً بانتظار المراجعة
-        </p>
-      ) : null}
     </section>
   );
 }
