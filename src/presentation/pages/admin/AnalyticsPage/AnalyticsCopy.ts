@@ -8,7 +8,7 @@ export const RANGE_OPTIONS: Array<{ value: ReportRange; label: string }> = [
 ];
 
 export const COPY = {
-  title: "إحصاءات بصمات",
+  title: "إحصائيات منصة بصمات شبابية",
   loadingHint: "جاري جمع مؤشرات المبادرة...",
   errorTitle: "تعذر تحميل الإحصائيات",
   errorMessage: "لم نتمكن من قراءة البيانات حالياً. يمكنك إعادة المحاولة دون فقدان مسار الصفحة.",

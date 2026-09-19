@@ -39,10 +39,9 @@
 }
 
 .heroMain {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @include flex(column, center, center, .45rem);
   gap: $sp-md;
+  text-align: center;
 }
 
 .hero h1 {
@@ -59,18 +58,20 @@
 }
 
 .heroStats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .55rem .9rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 40rem);
+  justify-self: center;
+  gap: .65rem 1.25rem;
   margin: 0;
   padding: .15rem 0 0;
   list-style: none;
 }
 
 .heroStats li {
-  display: flex;
-  align-items: baseline;
-  gap: .35rem;
+  @include flex(column, center, center, .1rem);
+  min-width: 0;
+  text-align: center;
 }
 
 .heroStats strong {
@@ -228,7 +229,7 @@
 
 @media (max-width: 700px) {
   .hero { gap: .55rem; padding: .7rem .75rem; }
-  .heroMain { align-items: stretch; flex-direction: column; gap: .55rem; }
+  .heroMain { gap: .55rem; }
   .hero h1 { font-size: $font-md; }
   .hero p {
     display: block;
@@ -238,8 +239,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .heroStats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem .5rem; padding: 0; }
-  .heroStats li { display: block; min-width: 0; }
+  .heroStats { gap: .4rem .5rem; padding: 0; }
+  .heroStats li { min-width: 0; }
   .heroStats strong { display: block; font-size: $font-sm; }
   .heroStats span { display: block; overflow: hidden; font-size: .62rem; text-overflow: ellipsis; white-space: nowrap; }
   .pendingAlert { justify-self: center; margin-top: .1rem; font-size: .64rem; }
