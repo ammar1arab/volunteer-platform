@@ -191,8 +191,15 @@
 }
 
 @media (max-width: 700px) {
-  .heroMain { align-items: stretch; flex-direction: column; }
-  .range { width: 100%; justify-content: center; }
-  .range button { flex: 1; }
+  .hero { gap: .55rem; padding: .7rem .75rem; }
+  .heroMain { align-items: stretch; flex-direction: column; gap: .55rem; }
+  .hero h1 { font-size: $font-md; }
+  .hero p { display: none; }
+  .heroStats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem .5rem; padding: 0; }
+  .heroStats li { display: block; min-width: 0; }
+  .heroStats strong { display: block; font-size: $font-sm; }
+  .heroStats span { display: block; overflow: hidden; font-size: .62rem; text-overflow: ellipsis; white-space: nowrap; }
+  .range { width: 100%; flex-wrap: nowrap; justify-content: center; }
+  .range button { flex: 1; padding: .34rem .2rem; }
   .pulse { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

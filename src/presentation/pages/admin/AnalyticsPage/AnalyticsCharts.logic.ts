@@ -135,9 +135,9 @@ export function cityRows(topCities: CityCount[]): ChartRow[] {
 }
 
 export const DEVICE_LABELS: Record<string, string> = {
-  mobile: "جوال",
-  desktop: "كمبيوتر",
-  tablet: "لوحي"
+  mobile: "هاتف",
+  desktop: "سطح المكتب",
+  tablet: "جهاز لوحي"
 };
 
 export const SOURCE_LABELS: Record<string, string> = {
