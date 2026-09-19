@@ -3,7 +3,6 @@
 import styles from "./PermissionsPanel.module.scss";
 import { usePermissionsPanel } from "./PermissionsPanel.logic";
 import { ADMIN_PERMISSIONS } from "@/core/domain/enums";
-import type { AdminPermission } from "@/core/domain/enums";
 import { PERMISSION_LABELS } from "@/presentation/constants";
 
 interface Props {
@@ -47,13 +46,13 @@ const PermissionsPanel = ({ userId, initialPermissions, onSuccess, onError }: Pr
             <button
               key={permission}
               className={`${styles.permBtn} ${isOn ? styles.permOn : styles.permOff}`}
-              onClick={() => toggle(permission as AdminPermission)}
+              onClick={() => toggle(permission)}
               disabled={isPending}
               type="button"
             >
               <span className={styles.dot} />
               <span className={styles.permName}>
-                {PERMISSION_LABELS[permission as AdminPermission]}
+                {PERMISSION_LABELS[permission]}
               </span>
             </button>
           );

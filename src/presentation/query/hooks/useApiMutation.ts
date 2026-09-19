@@ -46,7 +46,10 @@ export function useApiMutation<TData, TVariables = void, TContext = void>({
 
   return useMutation<TData, Error, TVariables, TContext>({
     mutationFn: (variables) => requestRef.current(variables),
-    onMutate: async (variables) => onMutateRef.current?.(variables),
+    onMutate: async (variables) => {
+      if (!onMutateRef.current) return undefined as TContext;
+      return onMutateRef.current(variables);
+    },
     onSuccess: async (data, variables) => {
       const keys = toQueryKeyList(invalidateRef.current);
       await Promise.all(

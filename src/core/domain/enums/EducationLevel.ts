@@ -1,4 +1,3 @@
-
 export enum EducationLevel {
   KINDERGARTEN = "KINDERGARTEN",
   GRADE_1 = "GRADE_1",
@@ -17,5 +16,11 @@ export enum EducationLevel {
   BACHELOR = "BACHELOR",
   MASTER = "MASTER",
   PHD = "PHD",
-  OTHER = "OTHER",
+  OTHER = "OTHER"
+}
+
+const EDUCATION_LEVEL_VALUES = new Set<string>(Object.values(EducationLevel));
+
+export function isEducationLevel(value: string): value is EducationLevel {
+  return EDUCATION_LEVEL_VALUES.has(value);
 }

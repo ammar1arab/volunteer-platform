@@ -34,4 +34,4 @@ AGENTS.md                Agent entry overview
 
 ## Shared audience targeting
 
-Admin notifications and bulk emails resolve recipients through `AudienceTarget` and `findAudienceUsers`. Do not add a second audience resolver.
+Admin notifications and bulk emails resolve recipients through `AudienceTarget` and `findAudienceUsers`. Targeting is one primary field from the volunteer profile. Do not add a second audience resolver or extra AND filters beside it.

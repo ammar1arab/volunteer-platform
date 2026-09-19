@@ -7,9 +7,15 @@ import Pagination from "@/presentation/components/base/Pagination/Pagination";
 import { UserList } from "@/presentation/components/admin/UserList/UserList";
 import type { UserListMeta } from "@/presentation/components/admin/UserList/UserList";
 import {
+  AUDIENCE_EXPERIENCE_OPTIONS,
   AUDIENCE_TARGET_OPTIONS,
   CITY_OPTIONS,
+  EDUCATION_LEVEL_OPTIONS,
   GENDER_OPTIONS,
+  INTEREST_OPTIONS,
+  LANGUAGE_OPTIONS,
+  SKILL_OPTIONS,
+  VOLUNTEER_TYPE_OPTIONS,
   getCityLabel,
   getGenderLabel
 } from "@/presentation/constants";
@@ -89,6 +95,21 @@ const AudienceTargetFields = ({
         </div>
       )}
 
+      {target === "AGE" && (
+        <div className={styles.field}>
+          <label className={styles.label}>الحد الأدنى للعمر</label>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            className={styles.input}
+            value={targetValue}
+            onChange={(e) => onTargetValueChange(e.target.value)}
+            disabled={disabled}
+          />
+        </div>
+      )}
+
       {target === "HOURS" && (
         <div className={styles.field}>
           <label className={styles.label}>الحد الأدنى من الساعات</label>
@@ -99,6 +120,78 @@ const AudienceTargetFields = ({
             className={styles.input}
             value={targetValue}
             onChange={(e) => onTargetValueChange(e.target.value)}
+            disabled={disabled}
+          />
+        </div>
+      )}
+
+      {target === "EDUCATION" && (
+        <div className={styles.field}>
+          <SelectInput
+            label="المستوى التعليمي"
+            value={targetValue}
+            options={[{ value: "", label: "اختر" }, ...EDUCATION_LEVEL_OPTIONS]}
+            onChange={onTargetValueChange}
+            disabled={disabled}
+          />
+        </div>
+      )}
+
+      {target === "EXPERIENCE" && (
+        <div className={styles.field}>
+          <SelectInput
+            label="الخبرة التطوعية"
+            value={targetValue}
+            options={[{ value: "", label: "اختر" }, ...AUDIENCE_EXPERIENCE_OPTIONS]}
+            onChange={onTargetValueChange}
+            disabled={disabled}
+          />
+        </div>
+      )}
+
+      {target === "INTEREST" && (
+        <div className={styles.field}>
+          <SelectInput
+            label="الاهتمام"
+            value={targetValue}
+            options={[{ value: "", label: "اختر اهتماماً" }, ...INTEREST_OPTIONS]}
+            onChange={onTargetValueChange}
+            disabled={disabled}
+          />
+        </div>
+      )}
+
+      {target === "SKILL" && (
+        <div className={styles.field}>
+          <SelectInput
+            label="المهارة"
+            value={targetValue}
+            options={[{ value: "", label: "اختر مهارة" }, ...SKILL_OPTIONS]}
+            onChange={onTargetValueChange}
+            disabled={disabled}
+          />
+        </div>
+      )}
+
+      {target === "LANGUAGE" && (
+        <div className={styles.field}>
+          <SelectInput
+            label="اللغة"
+            value={targetValue}
+            options={[{ value: "", label: "اختر لغة" }, ...LANGUAGE_OPTIONS]}
+            onChange={onTargetValueChange}
+            disabled={disabled}
+          />
+        </div>
+      )}
+
+      {target === "VOLUNTEER_TYPE" && (
+        <div className={styles.field}>
+          <SelectInput
+            label="نوع التطوع المفضل"
+            value={targetValue}
+            options={[{ value: "", label: "اختر نوعاً" }, ...VOLUNTEER_TYPE_OPTIONS]}
+            onChange={onTargetValueChange}
             disabled={disabled}
           />
         </div>

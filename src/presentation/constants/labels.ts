@@ -35,16 +35,17 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
 };
 
 export const PERMISSION_LABELS: Record<AdminPermission, string> = {
+  MANAGE_REPORTS: "إدارة الإحصائيات",
+  MANAGE_LOGS: "إدارة سجل النظام",
   MANAGE_POSTS: "إدارة المنشورات",
   MANAGE_SPOTLIGHT: "إدارة أبرز المتطوعين",
   MANAGE_MAGAZINE: "إدارة حصاد العطاء",
-  MANAGE_ACTIVITIES: "إدارة الفرص التطوعية",
   MANAGE_REQUESTS: "إدارة طلبات الانضمام",
-  MANAGE_NOTIFICATIONS: "إدارة الإشعارات",
-  MANAGE_EMAILS: "إدارة الإيميلات",
-  MANAGE_USERS: "إدارة المستخدمين",
+  MANAGE_ACTIVITIES: "إدارة الفرص التطوعية",
   MANAGE_MEETINGS: "إدارة الاجتماعات",
-  MANAGE_REPORTS: "الإحصائيات وسجل النظام"
+  MANAGE_EMAILS: "إدارة الإيميلات",
+  MANAGE_NOTIFICATIONS: "إدارة الإشعارات",
+  MANAGE_USERS: "إدارة المستخدمين"
 };
 
 export const GENDER_LABELS: Record<Gender, string> = {
@@ -253,11 +254,45 @@ export const AUDIENCE_TARGET_OPTIONS = [
   { value: "ALL", label: "جميع المتطوعين" },
   { value: "CITY", label: "حسب المدينة" },
   { value: "GENDER", label: "حسب الجنس" },
+  { value: "AGE", label: "حسب العمر" },
   { value: "HOURS", label: "حسب ساعات التطوع" },
+  { value: "EDUCATION", label: "حسب المستوى التعليمي" },
+  { value: "EXPERIENCE", label: "حسب الخبرة التطوعية" },
+  { value: "INTEREST", label: "حسب الاهتمام" },
+  { value: "SKILL", label: "حسب المهارة" },
+  { value: "LANGUAGE", label: "حسب اللغة" },
+  { value: "VOLUNTEER_TYPE", label: "حسب نوع التطوع المفضل" },
   { value: "ACTIVITY_PENDING", label: "أصحاب الطلبات المعلقة لنشاط" },
   { value: "ACTIVITY_APPROVED", label: "المتطوعون المقبولون في نشاط" },
   { value: "USERS", label: "اختيار يدوي" }
 ];
+
+export const AUDIENCE_EXPERIENCE_OPTIONS = [
+  { value: "true", label: "يملك خبرة تطوعية" },
+  { value: "false", label: "لا يملك خبرة تطوعية" }
+];
+
+export function getAudienceTargetSummary(
+  target: string,
+  targetValue?: string,
+  activityTitle?: string
+): string {
+  if (target === "ALL") return "جميع المتطوعين";
+  if (target === "CITY") return targetValue ? getCityLabel(targetValue as JordanianCity) : "حسب المدينة";
+  if (target === "GENDER") return targetValue ? getGenderLabel(targetValue as Gender) : "حسب الجنس";
+  if (target === "AGE") return `من ${targetValue ?? ""} سنة`;
+  if (target === "HOURS") return `أكثر من ${targetValue ?? ""} ساعة`;
+  if (target === "EDUCATION") return targetValue ? getEducationLevelLabel(targetValue) : "حسب المستوى التعليمي";
+  if (target === "EXPERIENCE") {
+    if (targetValue === "true") return "يملك خبرة تطوعية";
+    if (targetValue === "false") return "لا يملك خبرة تطوعية";
+    return "حسب الخبرة التطوعية";
+  }
+  if (target === "ACTIVITY_PENDING") return `طلبات معلقة - ${activityTitle ?? "نشاط"}`;
+  if (target === "ACTIVITY_APPROVED") return `مقبولون في - ${activityTitle ?? "نشاط"}`;
+  if (target === "USERS") return "اختيار يدوي";
+  return targetValue ?? "";
+}
 export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
 export const DAY_OPTIONS = Object.entries(DAY_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -273,6 +308,15 @@ export const VOLUNTEER_TYPE_SUGGESTIONS = [
 ];
 export const SKILL_SUGGESTIONS = ["تنظيم فعاليات", "تصوير", "كتابة محتوى", "تصميم", "قيادة فرق", "ترجمة"];
 export const INTEREST_SUGGESTIONS = ["شباب", "تعليم", "بيئة", "صحة", "ريادة", "ثقافة"];
+
+function suggestionOptions(values: string[]) {
+  return values.map((value) => ({ value, label: value }));
+}
+
+export const LANGUAGE_OPTIONS = suggestionOptions(LANGUAGE_SUGGESTIONS);
+export const VOLUNTEER_TYPE_OPTIONS = suggestionOptions(VOLUNTEER_TYPE_SUGGESTIONS);
+export const SKILL_OPTIONS = suggestionOptions(SKILL_SUGGESTIONS);
+export const INTEREST_OPTIONS = suggestionOptions(INTEREST_SUGGESTIONS);
 
 export const EXPERIENCE_OPTIONS = [
   { value: "true", label: "نعم، لدي خبرة تطوعية" },

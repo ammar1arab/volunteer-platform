@@ -40,7 +40,6 @@
 .card {
   background: $bg;
   border-radius: $radius-md;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: box-shadow 0.2s ease, transform 0.2s ease;

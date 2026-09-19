@@ -209,69 +209,6 @@
   }
 }
 
-.extraFilters {
-  @include flex-col;
-  gap: $sp-md;
-  padding: $sp-md;
-  background: rgba($black, 0.02);
-  border-radius: $radius;
-  border: 1px solid $border;
-  margin-top: $sp-sm;
-}
-
-.extraFiltersLabel {
-  font-size: 13px;
-  font-weight: 700;
-  color: $text;
-}
-
-.filters {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $sp-md;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.expToggle {
-  @include flex(row, center, flex-start, 4px);
-  background: $surface-hover;
-  padding: 4px;
-  border-radius: $radius;
-  border: 1px solid $border;
-}
-
-.expBtn {
-  flex: 1;
-  padding: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: $text-secondary;
-  background: transparent;
-  border: none;
-  border-radius: calc(#{$radius} - 2px);
-  cursor: pointer;
-  transition: $transition;
-
-  &:hover {
-    color: $text;
-  }
-}
-
-.expBtnOn {
-  background: $bg;
-  color: $green;
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.inputHint {
-  font-size: 11px;
-  color: $text-muted;
-}
-
 .footer {
   padding-top: $sp-lg;
   border-top: 1px solid $border;

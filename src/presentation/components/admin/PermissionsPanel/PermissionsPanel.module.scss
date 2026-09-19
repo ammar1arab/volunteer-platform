@@ -103,7 +103,6 @@
 }
 
 .permOff {
-  background: rgba($black, 0.02);
   border-color: $border;
   color: $text-muted;
 
@@ -133,7 +132,5 @@
 
 .permName {
   flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.35;
 }

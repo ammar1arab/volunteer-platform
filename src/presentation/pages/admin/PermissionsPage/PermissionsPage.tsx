@@ -9,7 +9,6 @@ import {
 } from "@/presentation/components";
 import { Plus, Users, Trash2, Edit2 } from "lucide-react";
 import { ADMIN_PERMISSIONS } from "@/core/domain/enums";
-import type { AdminPermission } from "@/core/domain/enums";
 import { PERMISSION_LABELS } from "@/presentation/constants";
 
 const PermissionsPage = () => {
@@ -161,11 +160,11 @@ const PermissionsPage = () => {
                     key={permission}
                     type="button"
                     className={`${styles.permChip} ${isOn ? styles.chipOn : styles.chipOff}`}
-                    onClick={() => toggleCreatePermission(permission as AdminPermission)}
+                    onClick={() => toggleCreatePermission(permission)}
                     disabled={submitting}
                   >
                     <span className={styles.chipDot} />
-                    {PERMISSION_LABELS[permission as AdminPermission]}
+                    {PERMISSION_LABELS[permission]}
                   </button>
                 );
               })}

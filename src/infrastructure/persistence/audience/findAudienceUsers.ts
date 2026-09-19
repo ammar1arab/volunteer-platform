@@ -1,5 +1,5 @@
 import { prisma } from "@/infrastructure/persistence/prisma";
-import { Gender, JordanianCity, UserRole } from "@prisma/client";
+import { EducationLevel, Gender, JordanianCity, UserRole } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 import { isAudienceTarget } from "@/core/domain/enums";
 import type { EmailRecipientDto } from "@/core/application/dtos";
@@ -8,13 +8,6 @@ export interface AudienceQuery {
   target: string;
   targetValue?: string;
   userIds?: string[];
-  genderFilter?: string;
-  cityFilter?: string;
-  minHours?: number;
-  minAge?: number;
-  maxAge?: number;
-  interests?: string[];
-  hasExperience?: boolean;
   requireVerifiedEmail?: boolean;
 }
 
@@ -25,53 +18,60 @@ const PROFILE_SELECT = {
   profilePictureUrl: true
 } as const;
 
+function parseFloor(value?: string): number | null {
+  const n = parseFloat(value ?? "");
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
 export async function findAudienceUsers(query: AudienceQuery): Promise<EmailRecipientDto[]> {
   if (!isAudienceTarget(query.target)) return [];
   const target = query.target;
   if (target === "USERS" && !query.userIds?.length) return [];
-  if (
-    (target === "CITY" ||
-      target === "GENDER" ||
-      target === "ACTIVITY_PENDING" ||
-      target === "ACTIVITY_APPROVED") &&
-    !query.targetValue
-  ) {
-    return [];
-  }
-  if (target === "HOURS") {
-    const n = parseFloat(query.targetValue ?? "");
-    if (!Number.isFinite(n) || n < 0) return [];
-  }
 
   const now = new Date();
   const profileWhere: Prisma.VolunteerProfileWhereInput = { isActive: true };
 
   if (target === "CITY" && query.targetValue) profileWhere.city = query.targetValue as JordanianCity;
   if (target === "GENDER" && query.targetValue) profileWhere.gender = query.targetValue as Gender;
-  if (query.genderFilter) profileWhere.gender = query.genderFilter as Gender;
-  if (query.cityFilter) profileWhere.city = query.cityFilter as JordanianCity;
-
-  const hoursFloors: number[] = [];
-  if (target === "HOURS") hoursFloors.push(parseFloat(query.targetValue ?? "0"));
-  if (query.minHours != null && Number.isFinite(query.minHours)) hoursFloors.push(query.minHours);
-  if (hoursFloors.length) profileWhere.totalVolunteerHours = { gte: Math.max(...hoursFloors) };
-
-  if (query.hasExperience !== undefined) profileWhere.hasVolunteerExperience = query.hasExperience;
-
-  const dobFilter: Prisma.DateTimeFilter = {};
-  if (query.minAge) {
-    dobFilter.lte = new Date(now.getFullYear() - query.minAge, now.getMonth(), now.getDate());
+  if (target === "EDUCATION" && query.targetValue) {
+    profileWhere.educationLevel = query.targetValue as EducationLevel;
   }
-  if (query.maxAge) {
-    dobFilter.gte = new Date(now.getFullYear() - query.maxAge, now.getMonth(), now.getDate());
+  if (target === "EXPERIENCE" && (query.targetValue === "true" || query.targetValue === "false")) {
+    profileWhere.hasVolunteerExperience = query.targetValue === "true";
   }
-  if (Object.keys(dobFilter).length) profileWhere.dateOfBirth = dobFilter;
+  if (target === "HOURS") {
+    const hours = parseFloor(query.targetValue);
+    if (hours == null) return [];
+    profileWhere.totalVolunteerHours = { gte: hours };
+  }
+  if (target === "AGE") {
+    const age = parseFloor(query.targetValue);
+    if (age == null) return [];
+    profileWhere.dateOfBirth = {
+      lte: new Date(now.getFullYear() - age, now.getMonth(), now.getDate())
+    };
+  }
+  if (target === "INTEREST" && query.targetValue) profileWhere.interests = { has: query.targetValue };
+  if (target === "SKILL" && query.targetValue) profileWhere.skills = { has: query.targetValue };
+  if (target === "LANGUAGE" && query.targetValue) profileWhere.languages = { has: query.targetValue };
+  if (target === "VOLUNTEER_TYPE" && query.targetValue) {
+    profileWhere.preferredVolunteerTypes = { has: query.targetValue };
+  }
 
-  if (query.interests?.length) {
-    profileWhere.OR = [
-      { interests: { hasSome: query.interests } },
-      { skills: { hasSome: query.interests } }
-    ];
+  if (
+    (target === "CITY" ||
+      target === "GENDER" ||
+      target === "EDUCATION" ||
+      target === "EXPERIENCE" ||
+      target === "INTEREST" ||
+      target === "SKILL" ||
+      target === "LANGUAGE" ||
+      target === "VOLUNTEER_TYPE" ||
+      target === "ACTIVITY_PENDING" ||
+      target === "ACTIVITY_APPROVED") &&
+    !query.targetValue
+  ) {
+    return [];
   }
 
   const userWhere: Prisma.UserWhereInput = {

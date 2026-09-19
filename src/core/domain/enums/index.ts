@@ -8,7 +8,7 @@ export {
   audienceTargetError
 } from "./AudienceTarget";
 export type { AudienceTarget } from "./AudienceTarget";
-export { EducationLevel } from "./EducationLevel";
+export { EducationLevel, isEducationLevel } from "./EducationLevel";
 export { JordanianCity, isJordanianCity } from "./JordanianCity";
 export { DayOfWeek } from "./DayOfWeek";
 export { DomainFeaturedPostCategory } from "./DomainFeaturedPostCategory";

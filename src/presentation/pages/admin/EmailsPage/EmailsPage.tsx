@@ -11,7 +11,6 @@ import {
   Modal,
   ConfirmDialog,
   EmailPreviewPane,
-  Badge,
   UserList,
   AudienceTargetFields
 } from "@/presentation/components";
@@ -19,22 +18,13 @@ import type { UserListMeta } from "@/presentation/components";
 import {
   useEmailsPageLogic,
   ALIAS_OPTIONS,
-  CITY_OPTIONS,
-  GENDER_OPTIONS,
   VARS,
   EMAIL_TEMPLATES,
-  type EmailForm,
-  type ExperienceFilter
+  type EmailForm
 } from "./EmailsPage.logic";
 import { getCityLabel, getGenderLabel } from "@/presentation/constants";
 import type { EmailRecipientDto } from "@/core/application/dtos";
 import { Gender, JordanianCity } from "@/core/domain/enums";
-
-const EXP_OPTIONS: { value: ExperienceFilter; label: string }[] = [
-  { value: "all", label: "الكل" },
-  { value: "yes", label: "يملك خبرة" },
-  { value: "no", label: "لا يملك خبرة" }
-];
 
 const EmailsPage = () => {
   const {
@@ -214,113 +204,6 @@ const EmailsPage = () => {
                 onTargetValueChange={(val) => setField("targetValue", val)}
                 fields={audience}
               />
-
-              {form.target !== "USERS" && (
-              <div className={styles.extraFilters}>
-                <span className={styles.extraFiltersLabel}>فيلترات إضافية</span>
-
-                <div className={styles.filters}>
-                  {form.target !== "GENDER" && (
-                    <SelectInput
-                      label="الجنس أيضاً"
-                      value={form.genderFilter}
-                      options={[{ value: "", label: "أي جنس" }, ...GENDER_OPTIONS]}
-                      onChange={(val) => setField("genderFilter", val)}
-                      disabled={isSending}
-                    />
-                  )}
-                  {form.target !== "CITY" && (
-                    <SelectInput
-                      label="المدينة أيضاً"
-                      value={form.cityFilter}
-                      options={[{ value: "", label: "أي مدينة" }, ...CITY_OPTIONS]}
-                      onChange={(val) => setField("cityFilter", val)}
-                      disabled={isSending}
-                    />
-                  )}
-                </div>
-
-                <div className={styles.filters}>
-                  <div className={styles.field}>
-                    <label className={styles.fieldLabel}>
-                      العمر من <span className={styles.optional}>اختياري</span>
-                    </label>
-                    <input
-                      className={styles.input}
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={form.minAge}
-                      onChange={(e) => setField("minAge", e.target.value)}
-                      disabled={isSending}
-                    />
-                  </div>
-                  <div className={styles.field}>
-                    <label className={styles.fieldLabel}>
-                      إلى <span className={styles.optional}>اختياري</span>
-                    </label>
-                    <input
-                      className={styles.input}
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={form.maxAge}
-                      onChange={(e) => setField("maxAge", e.target.value)}
-                      disabled={isSending}
-                    />
-                  </div>
-                </div>
-
-                <div className={styles.filters}>
-                  {form.target !== "HOURS" && (
-                  <div className={styles.field}>
-                    <label className={styles.fieldLabel}>
-                      حد أدنى للساعات <span className={styles.optional}>اختياري</span>
-                    </label>
-                    <input
-                      className={styles.input}
-                      type="number"
-                      min={0}
-                      value={form.minHours}
-                      onChange={(e) => setField("minHours", e.target.value)}
-                      disabled={isSending}
-                    />
-                  </div>
-                  )}
-                  <div className={styles.field}>
-                    <label className={styles.fieldLabel}>
-                      الخبرة التطوعية <span className={styles.optional}>اختياري</span>
-                    </label>
-                    <div className={styles.expToggle}>
-                      {EXP_OPTIONS.map((opt) => (
-                        <button
-                          key={opt.value}
-                          className={`${styles.expBtn} ${form.hasExperience === opt.value ? styles.expBtnOn : ""}`}
-                          onClick={() => setField("hasExperience", opt.value as ExperienceFilter)}
-                          disabled={isSending}
-                          type="button"
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.field}>
-                  <label className={styles.fieldLabel}>
-                    الاهتمامات / المهارات <span className={styles.optional}>اختياري - OR</span>
-                  </label>
-                  <input
-                    className={styles.input}
-                    value={form.interests}
-                    onChange={(e) => setField("interests", e.target.value)}
-                    disabled={isSending}
-                  />
-                  <span className={styles.inputHint}>اكتب اهتمامات مفصولة بفاصلة · مثال: صحة,تعليم,بيئة</span>
-                </div>
-              </div>
-              )}
             </div>
           </div>
 
@@ -352,17 +235,6 @@ const EmailsPage = () => {
                 <strong>{selectedIds.size}</strong>
                 <span> / {previewUsers.length} محدد</span>
               </span>
-              {form.minHours && (
-                <Badge variant="info">
-                  <Clock size={10} /> ≥ {form.minHours} ساعة
-                </Badge>
-              )}
-              {form.minAge && <Badge variant="info">من {form.minAge} سنة</Badge>}
-              {form.maxAge && <Badge variant="info">إلى {form.maxAge} سنة</Badge>}
-              {form.interests && <Badge variant="info">{form.interests}</Badge>}
-              {form.hasExperience !== "all" && (
-                <Badge variant="info">{form.hasExperience === "yes" ? "يملك خبرة" : "لا يملك خبرة"}</Badge>
-              )}
             </div>
             <Button variant="ghost" size="sm" onClick={toggleAll}>
               {allSelected ? "إلغاء الكل" : "تحديد الكل"}

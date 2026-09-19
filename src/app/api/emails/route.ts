@@ -16,19 +16,9 @@ const VALID_ALIASES = new Set([
 ]);
 
 function parseFilters(params: URLSearchParams): EmailRecipientFilters {
-  const target = params.get("target") ?? "ALL";
-  const interestStr = params.get("interests");
   return {
-    target: target as EmailTarget,
-    targetValue: params.get("targetValue") ?? undefined,
-    genderFilter: params.get("genderFilter") ?? undefined,
-    cityFilter: params.get("cityFilter") ?? undefined,
-    minHours: params.get("minHours") ? Number(params.get("minHours")) : undefined,
-    minAge: params.get("minAge") ? Number(params.get("minAge")) : undefined,
-    maxAge: params.get("maxAge") ? Number(params.get("maxAge")) : undefined,
-    interests: interestStr ? interestStr.split(",").map((s) => s.trim()).filter(Boolean) : undefined,
-    hasExperience:
-      params.get("hasExperience") !== null ? params.get("hasExperience") === "true" : undefined
+    target: (params.get("target") ?? "ALL") as EmailTarget,
+    targetValue: params.get("targetValue") ?? undefined
   };
 }
 

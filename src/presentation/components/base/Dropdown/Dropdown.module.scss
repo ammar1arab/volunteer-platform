@@ -16,9 +16,7 @@
   flex-shrink: 0;
   width: auto;
   max-width: 180px;
-  height: 36px;
-  min-height: 36px;
-  max-height: 36px;
+  @include control-height;
   overflow: visible;
 }
 
@@ -66,11 +64,8 @@
   }
 
   &.compact {
-    height: 36px;
-    min-height: 36px;
-    max-height: 36px;
-    box-sizing: border-box;
-    padding: 0 $sp-sm;
+    @include control-height;
+    padding-inline: $sp-sm;
     font-size: $font-xs;
     line-height: 1;
     border: 1px solid $border;

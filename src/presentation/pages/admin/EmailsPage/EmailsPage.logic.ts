@@ -5,11 +5,9 @@ import { UserRole, audienceTargetNeedsValue, type AudienceTarget } from "@/core/
 import { useAuth, useToast } from "@/presentation/hooks";
 import type { EmailAlias, EmailRecipientDto, EmailRecipientFilters } from "@/core/application/dtos";
 import { emailApi } from "@/presentation/services";
-import { CITY_OPTIONS, GENDER_OPTIONS } from "@/presentation/constants";
 import { useAudienceTargetFields } from "@/presentation/hooks/useAudienceTargetFields";
 
-export type EmailTarget       = AudienceTarget;
-export type ExperienceFilter  = "all" | "yes" | "no";
+export type EmailTarget = AudienceTarget;
 
 export const ALIAS_OPTIONS = [
   { value: "contact@youthprints.online",      label: "contact@youthprints.online"      },
@@ -79,8 +77,6 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
   },
 ];
 
-export { CITY_OPTIONS, GENDER_OPTIONS };
-
 export interface EmailForm {
   fromAlias:     EmailAlias;
   templateId:    string;
@@ -88,13 +84,6 @@ export interface EmailForm {
   body:          string;
   target:        EmailTarget;
   targetValue:   string;
-  genderFilter:  string;
-  cityFilter:    string;
-  minHours:      string;
-  minAge:        string;
-  maxAge:        string;
-  interests:     string;
-  hasExperience: ExperienceFilter;
   activityLink:  string;
 }
 
@@ -105,13 +94,6 @@ const EMPTY_FORM: EmailForm = {
   body:          "",
   target:        "ALL",
   targetValue:   "",
-  genderFilter:  "",
-  cityFilter:    "",
-  minHours:      "",
-  minAge:        "",
-  maxAge:        "",
-  interests:     "",
-  hasExperience: "all",
   activityLink:  "",
 };
 
@@ -134,7 +116,7 @@ export function useEmailsPageLogic() {
     setFormState((p) => ({
       ...p,
       [key]: value,
-      ...(key === "target" ? { targetValue: "", genderFilter: "", cityFilter: "" } : {}),
+      ...(key === "target" ? { targetValue: "" } : {}),
     }));
     if (key === "target") audience.resetDirectSelection();
   }, [audience.resetDirectSelection]);
@@ -149,28 +131,15 @@ export function useEmailsPageLogic() {
     if (form.target === "USERS") {
       return { target: "USERS", userIds: [...audience.directSelectedIds] };
     }
-    const interestsArr = form.interests.trim()
-      ? form.interests.split(",").map((s) => s.trim()).filter(Boolean)
-      : undefined;
-    const hasExp = form.hasExperience === "yes" ? true
-                 : form.hasExperience === "no"  ? false
-                 : undefined;
     return {
-      target:         form.target,
-      targetValue:    form.targetValue   || undefined,
-      genderFilter:   form.genderFilter  || undefined,
-      cityFilter:     form.cityFilter    || undefined,
-      minHours:       form.target === "HOURS" ? undefined : form.minHours ? Number(form.minHours) : undefined,
-      minAge:         form.minAge        ? Number(form.minAge)   : undefined,
-      maxAge:         form.maxAge        ? Number(form.maxAge)   : undefined,
-      interests:      interestsArr,
-      hasExperience:  hasExp,
+      target: form.target,
+      targetValue: form.targetValue || undefined
     };
   }, [form, audience.directSelectedIds]);
 
   const isTargetValid = useMemo(() => {
     if (audienceTargetNeedsValue(form.target) && !form.targetValue) return false;
-    if (form.target === "HOURS" && Number.isNaN(parseFloat(form.targetValue))) return false;
+    if ((form.target === "HOURS" || form.target === "AGE") && Number.isNaN(parseFloat(form.targetValue))) return false;
     if (form.target === "USERS" && !audience.directSelectedIds.size) return false;
     return true;
   }, [form.target, form.targetValue, audience.directSelectedIds.size]);

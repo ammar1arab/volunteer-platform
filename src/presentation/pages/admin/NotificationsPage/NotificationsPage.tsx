@@ -2,7 +2,7 @@
 import styles from "./NotificationsPage.module.scss";
 import {
   Send, Bell, Users, MapPin, User2, Clock, UserCheck,
-  Eye, Trash2, Hourglass, BadgeCheck,
+  Eye, Trash2, Hourglass, BadgeCheck, GraduationCap, Award, Heart, Sparkles, Languages, Handshake, Calendar,
 } from "lucide-react";
 import {
   LoadingState, EmptyState, ToastContainer,
@@ -11,30 +11,32 @@ import {
 } from "@/presentation/components";
 import { useNotificationsPageLogic } from "./NotificationsPage.logic";
 import { formatDate } from "@/lib/utils/date";
-import { getCityLabel, getGenderLabel } from "@/presentation/constants";
+import { getAudienceTargetSummary } from "@/presentation/constants";
 import type { BroadcastDto } from "@/core/application/dtos";
-import { Gender, JordanianCity } from "@/core/domain/enums";
 
 const TARGET_ICON: Record<string, React.ReactNode> = {
   ALL: <Users size={11} />,
   CITY: <MapPin size={11} />,
   GENDER: <User2 size={11} />,
+  AGE: <Calendar size={11} />,
   HOURS: <Clock size={11} />,
+  EDUCATION: <GraduationCap size={11} />,
+  EXPERIENCE: <Award size={11} />,
+  INTEREST: <Heart size={11} />,
+  SKILL: <Sparkles size={11} />,
+  LANGUAGE: <Languages size={11} />,
+  VOLUNTEER_TYPE: <Handshake size={11} />,
   ACTIVITY_PENDING: <Hourglass size={11} />,
   ACTIVITY_APPROVED: <BadgeCheck size={11} />,
   USERS: <UserCheck size={11} />,
 };
 
-const getTargetLabel = (b: BroadcastDto, activityTitleMap: Map<string, string>) => {
-  if (b.target === "ALL") return "جميع المتطوعين";
-  if (b.target === "CITY") return getCityLabel(b.targetValue as JordanianCity);
-  if (b.target === "GENDER") return getGenderLabel(b.targetValue as Gender);
-  if (b.target === "HOURS") return `أكثر من ${b.targetValue} ساعة`;
-  if (b.target === "ACTIVITY_PENDING") return `طلبات معلقة - ${activityTitleMap.get(b.targetValue ?? "") ?? "نشاط"}`;
-  if (b.target === "ACTIVITY_APPROVED") return `مقبولون في - ${activityTitleMap.get(b.targetValue ?? "") ?? "نشاط"}`;
-  if (b.target === "USERS") return "اختيار يدوي";
-  return b.targetValue ?? "";
-};
+const getTargetLabel = (b: BroadcastDto, activityTitleMap: Map<string, string>) =>
+  getAudienceTargetSummary(
+    b.target,
+    b.targetValue ?? undefined,
+    activityTitleMap.get(b.targetValue ?? "")
+  );
 
 const NotificationsPage = () => {
   const {

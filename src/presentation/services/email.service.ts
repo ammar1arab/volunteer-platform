@@ -8,9 +8,7 @@ import type {
 } from "@/core/application/dtos";
 
 export const emailApi = {
-  previewRecipients: (
-    filters: Omit<EmailRecipientFilters, "interests"> & { interests?: string[] }
-  ): Promise<GetEmailRecipientsResponse> =>
+  previewRecipients: (filters: EmailRecipientFilters): Promise<GetEmailRecipientsResponse> =>
     apiClient.get<GetEmailRecipientsResponse>(API_ENDPOINTS.EMAILS.PREVIEW(filters)),
 
   sendBulk: (body: SendBulkEmailInput): Promise<SendBulkEmailApiResponse> =>

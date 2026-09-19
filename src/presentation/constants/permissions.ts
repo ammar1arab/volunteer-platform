@@ -5,33 +5,31 @@ import { ROUTES } from "./routes";
 export { PERMISSION_LABELS, getPermissionLabel } from "./labels";
 
 export const PERMISSION_ROUTE_MAP = {
-  MANAGE_POSTS:         ROUTES.ADMIN.FEATURED_POSTS,
-  MANAGE_SPOTLIGHT:     ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT,
-  MANAGE_MAGAZINE:      ROUTES.ADMIN.MONTHLY_MAGAZINE,
-  MANAGE_ACTIVITIES:    ROUTES.ADMIN.ACTIVITIES,
-  MANAGE_REQUESTS:      ROUTES.ADMIN.REQUESTS,
+  MANAGE_REPORTS: ROUTES.ADMIN.ANALYTICS,
+  MANAGE_LOGS: ROUTES.ADMIN.LOGS,
+  MANAGE_POSTS: ROUTES.ADMIN.FEATURED_POSTS,
+  MANAGE_SPOTLIGHT: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT,
+  MANAGE_MAGAZINE: ROUTES.ADMIN.MONTHLY_MAGAZINE,
+  MANAGE_REQUESTS: ROUTES.ADMIN.REQUESTS,
+  MANAGE_ACTIVITIES: ROUTES.ADMIN.ACTIVITIES,
+  MANAGE_MEETINGS: ROUTES.ADMIN.GOOGLE_MEET,
+  MANAGE_EMAILS: ROUTES.ADMIN.EMAILS,
   MANAGE_NOTIFICATIONS: ROUTES.ADMIN.NOTIFICATIONS,
-  MANAGE_EMAILS:        ROUTES.ADMIN.EMAILS,
-  MANAGE_USERS:         ROUTES.ADMIN.USERS,
-  MANAGE_MEETINGS:      ROUTES.ADMIN.GOOGLE_MEET,
-  MANAGE_REPORTS:       ROUTES.ADMIN.ANALYTICS,
+  MANAGE_USERS: ROUTES.ADMIN.USERS
 } as const satisfies Record<AdminPermission, string>;
 
-const MANAGE_REPORTS_ROUTES = [
-  ROUTES.ADMIN.ANALYTICS,
-  ROUTES.ADMIN.LOGS,
-  ROUTES.ADMIN.REPORTS,
-] as const;
+const EXTRA_PROTECTED_ROUTES: { route: string; permission: AdminPermission }[] = [
+  { route: ROUTES.ADMIN.REPORTS, permission: "MANAGE_REPORTS" }
+];
 
 export function getRequiredPermission(pathname: string): AdminPermission | undefined {
-  for (const route of MANAGE_REPORTS_ROUTES) {
-    if (pathname === route || pathname.startsWith(`${route}/`)) {
-      return "MANAGE_REPORTS";
+  for (const extra of EXTRA_PROTECTED_ROUTES) {
+    if (pathname === extra.route || pathname.startsWith(`${extra.route}/`)) {
+      return extra.permission;
     }
   }
 
   for (const permission of ADMIN_PERMISSIONS) {
-    if (permission === "MANAGE_REPORTS") continue;
     const route = PERMISSION_ROUTE_MAP[permission];
     if (pathname === route || pathname.startsWith(`${route}/`)) {
       return permission;

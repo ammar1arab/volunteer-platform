@@ -37,7 +37,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: ROUTES.ADMIN.ANALYTICS, label: "الإحصائيات", icon: PieChart, permission: "MANAGE_REPORTS" },
-  { href: ROUTES.ADMIN.LOGS, label: "سجل النظام", icon: ScrollText, permission: "MANAGE_REPORTS" },
+  { href: ROUTES.ADMIN.LOGS, label: "سجل النظام", icon: ScrollText, permission: "MANAGE_LOGS" },
   { href: ROUTES.ADMIN.FEATURED_POSTS, label: "المنشورات", icon: Newspaper, permission: "MANAGE_POSTS" },
   { href: ROUTES.ADMIN.VOLUNTEER_SPOTLIGHT, label: "أبرز المتطوعين", icon: Star, permission: "MANAGE_SPOTLIGHT" },
   { href: ROUTES.ADMIN.MONTHLY_MAGAZINE, label: "حصاد العطاء", icon: BookOpen, permission: "MANAGE_MAGAZINE" },

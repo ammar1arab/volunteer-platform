@@ -13,13 +13,6 @@ export interface EmailRecipientFilters {
   target:          EmailTarget;
   targetValue?:    string;
   userIds?:        string[];
-  genderFilter?:   string;
-  cityFilter?:     string;
-  minHours?:       number;
-  minAge?:         number;
-  maxAge?:         number;
-  interests?:      string[];
-  hasExperience?:  boolean;
 }
 
 export interface EmailRecipientDto {

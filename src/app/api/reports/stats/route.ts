@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/infrastructure/persistence/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/infrastructure/auth/config";
-import type { AdminPermission } from "@/core/domain/enums";
 
 export async function GET(_req: NextRequest) {
   try {
@@ -12,7 +11,11 @@ export async function GET(_req: NextRequest) {
     }
 
     const isAdmin = session.user.role === "ADMIN";
-    const hasPermission = session.user.isSuperAdmin || session.user.permissions?.includes("MANAGE_REPORTS" as AdminPermission);
+    const granted = session.user.permissions ?? [];
+    const hasPermission =
+      session.user.isSuperAdmin ||
+      granted.includes("MANAGE_REPORTS") ||
+      granted.includes("MANAGE_LOGS");
     if (!isAdmin || !hasPermission) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
