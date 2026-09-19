@@ -7,12 +7,14 @@ export default function AnalyticsHero({
   range,
   onRangeChange,
   totals,
+  pendingRequests,
   loading
 }: {
   summary: string;
   range: ReportRange;
   onRangeChange: (value: ReportRange) => void;
   totals: Array<{ label: string; value: string }>;
+  pendingRequests: number;
   loading: boolean;
 }) {
   return (
@@ -43,6 +45,12 @@ export default function AnalyticsHero({
           </li>
         ))}
       </ul>
+      {pendingRequests > 0 ? (
+        <p className={styles.pendingAlert} role="status">
+          <span className={styles.pendingDot} aria-hidden="true" />
+          {pendingRequests} طلباً بانتظار المراجعة
+        </p>
+      ) : null}
     </section>
   );
 }

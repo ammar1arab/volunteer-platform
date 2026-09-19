@@ -21,13 +21,21 @@
 }
 
 .hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
   gap: $sp-sm;
   min-height: 86px;
   padding: .8rem 1rem;
   border: 1px solid rgba($green, .2);
   border-radius: $radius-lg;
-  background: linear-gradient(110deg, #effaf3 0%, $white 52%, #f1f8ff 100%);
+  background: linear-gradient(115deg, #e9fff3 0%, $white 48%, #edf5ff 100%);
+  box-shadow: 0 14px 35px rgba(22, 163, 74, .08);
+
+  &::before, &::after { position: absolute; z-index: -1; width: 11rem; height: 11rem; content: ""; border-radius: 50%; filter: blur(12px); opacity: .42; animation: heroFloat 8s ease-in-out infinite; }
+  &::before { inset: -6rem auto auto -3rem; background: #86efac; }
+  &::after { inset: auto -4rem -7rem auto; background: #bfdbfe; animation-delay: -4s; }
 }
 
 .heroMain {
@@ -72,6 +80,29 @@
 }
 
 .heroStats span { color: $text-secondary; font-size: .68rem; }
+
+.pendingAlert {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: .35rem;
+  margin: -.05rem 0 0;
+  padding: .32rem .55rem;
+  color: #9a5b05;
+  font-size: .69rem;
+  font-weight: 700;
+  border: 1px solid rgba(#f59e0b, .2);
+  border-radius: $radius-full;
+  background: rgba(#fef3c7, .74);
+}
+
+.pendingDot {
+  width: .42rem;
+  height: .42rem;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 0 .2rem rgba(#f59e0b, .12);
+}
 
 .range {
   display: flex;
@@ -120,6 +151,9 @@
   border: 1px solid rgba(15, 23, 42, .05);
   border-radius: $radius-lg;
   background: $white;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .04);
+  transition: transform $transition, box-shadow $transition;
+  &:hover { transform: translateY(-3px); box-shadow: 0 13px 25px rgba(15, 23, 42, .08); }
 }
 
 .pulseTop {
@@ -161,6 +195,8 @@
 .down { color: $red !important; }
 .flat { color: $text-tertiary !important; }
 
+@keyframes heroFloat { 50% { transform: translate3d(1.25rem, .8rem, 0) scale(1.08); } }
+
 .error {
   display: flex;
   align-items: center;
@@ -194,12 +230,24 @@
   .hero { gap: .55rem; padding: .7rem .75rem; }
   .heroMain { align-items: stretch; flex-direction: column; gap: .55rem; }
   .hero h1 { font-size: $font-md; }
-  .hero p { display: none; }
+  .hero p {
+    display: block;
+    margin-top: .1rem;
+    overflow: hidden;
+    font-size: .65rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .heroStats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem .5rem; padding: 0; }
   .heroStats li { display: block; min-width: 0; }
   .heroStats strong { display: block; font-size: $font-sm; }
   .heroStats span { display: block; overflow: hidden; font-size: .62rem; text-overflow: ellipsis; white-space: nowrap; }
+  .pendingAlert { justify-self: center; margin-top: .1rem; font-size: .64rem; }
   .range { width: 100%; flex-wrap: nowrap; justify-content: center; }
   .range button { flex: 1; padding: .34rem .2rem; }
   .pulse { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pulseMetric { place-items: center; padding: $sp-md $sp-sm $sp-sm; text-align: center; }
+  .pulseTop { width: 100%; justify-content: center; }
+  .pulseMetric .up, .pulseMetric .down, .pulseMetric .flat { position: absolute; inset-block-start: $sp-sm; inset-inline-start: $sp-sm; }
+  .spark { width: 100%; }
 }

@@ -82,7 +82,8 @@ export function formatPulseValue(item: PulseItem) {
   return formatCount(item.metric.current);
 }
 
-export function heroSummary(stats?: DashboardStats) {
+export function heroSummary(stats: DashboardStats | undefined, range: ReportRange) {
   if (!stats) return COPY.loadingHint;
-  return `${formatCount(stats.pulse.volunteers.current)} متطوع · ${formatCount(stats.pulse.requests.current)} طلب · ${formatHours(stats.pulse.hours.current)} ساعة`;
+  const period = range === "all" ? "كامل الفترة" : `آخر ${range.replace("d", "")} يوماً`;
+  return `خلال ${period}، انضم ${formatCount(stats.pulse.volunteers.current)} متطوعاً وسُجلت ${formatHours(stats.pulse.hours.current)} ساعة تطوعية.`;
 }

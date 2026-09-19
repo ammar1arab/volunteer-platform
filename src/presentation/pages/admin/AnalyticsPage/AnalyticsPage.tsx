@@ -39,10 +39,11 @@ export default function AnalyticsPage() {
   return (
     <Container flush className={styles.page}>
       <AnalyticsHero
-        summary={heroSummary(stats)}
+        summary={heroSummary(stats, range)}
         range={range}
         onRangeChange={setRange}
         totals={buildTotals(stats)}
+        pendingRequests={stats?.lifetime?.pendingRequests ?? 0}
         loading={false}
       />
 
