@@ -137,6 +137,16 @@ class MonthlyMagazineUseCase {
       return serviceError(MonthlyMagazineUseCase.SCOPE, "getAll", error, "حدث خطأ أثناء جلب المجلات");
     }
   }
+
+  async incrementDownloads(id: string) {
+    try {
+      guard(id, "المعرف مطلوب");
+      await this.magazineRepository.incrementDownloads(id);
+      return ok(null);
+    } catch (error) {
+      return serviceError(MonthlyMagazineUseCase.SCOPE, "incrementDownloads", error, "حدث خطأ أثناء تحديث التحميلات");
+    }
+  }
 }
 
 export default MonthlyMagazineUseCase;

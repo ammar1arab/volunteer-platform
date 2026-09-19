@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/infrastructure/persistence/prisma";
 import { toResponse, apiError } from "@/lib/api-utils";
+import { providers } from "@/lib/providers";
 import { logger } from "@/lib/utils";
-import { ok } from "@/core/application/dtos";
 
 export async function POST(
   _req: NextRequest,
@@ -10,14 +9,9 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-
-    await prisma.monthlyMagazine.update({
-      where: { id },
-      data: { downloads: { increment: 1 } },
-    });
-
+    const result = await providers.monthlyMagazine().incrementDownloads(id);
     logger.info("API", "POST /magazines/[id]/download", `magazineId=${id}`);
-    return toResponse(ok(null));
+    return toResponse(result);
   } catch (error) {
     return apiError("API", "POST /magazines/[id]/download", error);
   }

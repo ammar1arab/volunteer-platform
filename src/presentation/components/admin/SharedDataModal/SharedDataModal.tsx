@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Modal, LoadingState, EmptyState, Pagination, Search, Button } from "@/presentation/components";
 import { Download, ArrowUpDown, ArrowUp, ArrowDown, type LucideIcon } from "lucide-react";
 import { useFetchData } from "@/presentation/hooks";
+import { apiClient } from "@/presentation/services";
 import styles from "./SharedDataModal.module.scss";
 
 export interface Column<T> {
@@ -63,9 +64,7 @@ export function SharedDataModal<T extends { id?: string | number }>({
   const { data, isLoading } = useFetchData<{ items: T[] }>({
     queryKey: ["admin", "sharedModal", fetchUrl],
     request: async () => {
-      const res = await fetch(fetchUrl);
-      if (!res.ok) throw new Error("Failed to fetch data");
-      const json = (await res.json()) as SharedModalSuccess<T>;
+      const json = await apiClient.get<SharedModalSuccess<T>>(fetchUrl);
       const body = json.data;
       const raw = Array.isArray(body) ? body : body?.[dataKey] ?? [];
       return { items: Array.isArray(raw) ? raw : [] };

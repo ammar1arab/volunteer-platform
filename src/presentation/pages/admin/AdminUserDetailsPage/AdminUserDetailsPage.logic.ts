@@ -3,11 +3,12 @@ import { useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUserDetails, useToast, useAuth, usePageReset } from "@/presentation/hooks";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
-import { ParticipationStatus, UserRole, OtpType } from "@/core/domain/enums";
+import { getErrorMessage, unwrapResult, useApiMutation } from "@/presentation/query";
+import { userApi } from "@/presentation/services";
+import { ParticipationStatus, UserRole } from "@/core/domain/enums";
 import { formatDate } from "@/lib/utils/date";
 import { ROUTES } from "@/presentation/constants";
 import type { ExcelExportRow } from "@/presentation/components/admin/ExportUsersButton/ExportUsersButton.logic";
-import type { SupportOtpType } from "@/presentation/components/admin/SupportOtpModal/SupportOtpModal";
 
 interface EditingField {
   field: string;
@@ -48,53 +49,31 @@ export const useAdminUserDetailsPage = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
   const [showSupportOtp, setShowSupportOtp] = useState(false);
-  const [supportOtpType, setSupportOtpType] = useState<SupportOtpType>(OtpType.FORGOT_PASSWORD);
   const [supportOtpCode, setSupportOtpCode] = useState<string[] | null>(null);
-  const [supportOtpLoading, setSupportOtpLoading] = useState(false);
   const [supportOtpError, setSupportOtpError] = useState<string | null>(null);
 
-  const issueSupportOtp = useCallback(async (type: SupportOtpType) => {
-    setSupportOtpLoading(true);
-    setSupportOtpError(null);
-    try {
-      const res = await fetch(`/api/users/${userId}/support-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type }),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        setSupportOtpCode(null);
-        setSupportOtpError(json?.error?.message || "تعذر إصدار الرمز");
-        return;
-      }
-      setSupportOtpCode(String(json.data.code).split(""));
-    } catch {
+  const issueSupportOtpMutation = useApiMutation<{ code: string }, void>({
+    request: async () => unwrapResult(await userApi.issueSupportOtp(userId)),
+    onSuccess: (data) => {
+      setSupportOtpCode(String(data.code).split(""));
+      setSupportOtpError(null);
+    },
+    onError: (error) => {
       setSupportOtpCode(null);
-      setSupportOtpError("تعذر إصدار الرمز");
-    } finally {
-      setSupportOtpLoading(false);
+      setSupportOtpError(getErrorMessage(error, "تعذر إصدار الرمز"));
     }
-  }, [userId]);
+  });
 
   const openSupportOtp = useCallback(() => {
     setShowSupportOtp(true);
-    setSupportOtpType(OtpType.FORGOT_PASSWORD);
-    setSupportOtpCode(null);
-    void issueSupportOtp(OtpType.FORGOT_PASSWORD);
-  }, [issueSupportOtp]);
+    setSupportOtpError(null);
+    issueSupportOtpMutation.mutate();
+  }, [issueSupportOtpMutation]);
 
   const closeSupportOtp = useCallback(() => {
     setShowSupportOtp(false);
-    setSupportOtpCode(null);
     setSupportOtpError(null);
-    setSupportOtpType(OtpType.FORGOT_PASSWORD);
   }, []);
-
-  const changeSupportOtpType = useCallback((type: SupportOtpType) => {
-    setSupportOtpType(type);
-    void issueSupportOtp(type);
-  }, [issueSupportOtp]);
 
   const startEditing = useCallback((field: string, value: string | boolean | null) => setEditingField({ field, value }), []);
   const cancelEditing = useCallback(() => setEditingField(null), []);
@@ -217,11 +196,8 @@ export const useAdminUserDetailsPage = () => {
     showSupportOtp,
     openSupportOtp,
     closeSupportOtp,
-    supportOtpType,
-    changeSupportOtpType,
     supportOtpCode,
-    supportOtpLoading,
+    supportOtpLoading: issueSupportOtpMutation.isPending,
     supportOtpError,
-    reissueSupportOtp: () => void issueSupportOtp(supportOtpType),
   };
 };

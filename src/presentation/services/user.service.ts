@@ -13,6 +13,7 @@ import type {
   CreateAdminRequest,
   CreateAdminResponse,
   ToggleUserActiveResponse,
+  IssueSupportOtpResponse,
   Result
 } from "@/core/application/dtos";
 
@@ -35,5 +36,7 @@ export const userApi = {
   createAdmin: (data: CreateAdminRequest) => apiClient.post<CreateAdminResponse>(API_ENDPOINTS.USERS.BASE, data),
   deleteAdmin: (id: string) => apiClient.delete<Result<{ success: boolean }>>(API_ENDPOINTS.USERS.BY_ID(id)),
   toggleActive: (id: string, isActive: boolean) =>
-    apiClient.patch<ToggleUserActiveResponse>(API_ENDPOINTS.USERS.BY_ID(id), { isActive })
+    apiClient.patch<ToggleUserActiveResponse>(API_ENDPOINTS.USERS.BY_ID(id), { isActive }),
+  issueSupportOtp: (id: string) =>
+    apiClient.post<IssueSupportOtpResponse>(API_ENDPOINTS.USERS.SUPPORT_OTP(id))
 };

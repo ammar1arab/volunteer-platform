@@ -191,6 +191,15 @@ export type {
 
 
 export type {
+  CityCount,
+  GenderCount,
+  DailySignup,
+  DashboardStatsDto,
+  GetReportStatsResponse
+} from "./report.dto";
+
+
+export type {
   MeetingIntegrationStatusDto,
   GetMeetingIntegrationStatusResponse,
   GetGoogleConnectUrlResponse,

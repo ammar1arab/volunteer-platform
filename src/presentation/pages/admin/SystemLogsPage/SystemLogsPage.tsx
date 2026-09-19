@@ -55,7 +55,6 @@ export default function SystemLogsPage() {
 
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2>سجل أحداث النظام</h2>
           <SystemLogsFilters
             filterAction={filterAction}
             filterStatus={filterStatus}

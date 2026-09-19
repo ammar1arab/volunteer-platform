@@ -60,6 +60,13 @@ class FeaturedPostRepository implements IFeaturedPostRepository {
     return this.mapToEntity(updated);
   }
 
+  async incrementViews(id: string): Promise<void> {
+    await prisma.featuredPost.update({
+      where: { id },
+      data: { views: { increment: 1 } }
+    });
+  }
+
   async delete(id: string): Promise<boolean> {
     try {
       await prisma.featuredPost.delete({ where: { id } });

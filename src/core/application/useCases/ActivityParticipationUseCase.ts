@@ -525,6 +525,23 @@ class ActivityParticipationUseCase {
       );
     }
   }
+
+  async getAudienceActivityIds() {
+    try {
+      const grouped = await this.participationRepository.groupPendingApprovedActivityIds();
+      return ok({
+        pending: [...new Set(grouped.pending)],
+        approved: [...new Set(grouped.approved)]
+      });
+    } catch (error) {
+      return serviceError(
+        ActivityParticipationUseCase.SCOPE,
+        "getAudienceActivityIds",
+        error,
+        "حدث خطأ أثناء جلب فلتر الأنشطة"
+      );
+    }
+  }
 }
 
 export default ActivityParticipationUseCase;

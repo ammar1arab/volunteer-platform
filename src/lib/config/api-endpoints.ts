@@ -3,6 +3,7 @@ export const API_ENDPOINTS = {
     BASE: "/api/chat",
     PROMO: "/api/chat/promo"
   },
+  CONTACT: "/api/contact",
   AUTH: {
     REGISTER: "/api/auth/register",
     SEND_OTP: "/api/auth/send-otp",
@@ -15,7 +16,8 @@ export const API_ENDPOINTS = {
     ME: "/api/users/me",
     BASE: "/api/users",
     BY_ID: (id: string) => `/api/users/${id}`,
-    ACTIVITIES: (id: string) => `/api/users/${id}/activities`
+    ACTIVITIES: (id: string) => `/api/users/${id}/activities`,
+    SUPPORT_OTP: (id: string) => `/api/users/${id}/support-otp`
   },
   VOLUNTEER_PROFILE: {
     BASE: "/api/volunteer-profile",
@@ -43,6 +45,10 @@ export const API_ENDPOINTS = {
     CANCEL: (id: string) => `/api/activity-participations/${id}/cancel`,
     MARK_ATTENDANCE: (id: string) => `/api/activity-participations/${id}/mark-attendance`,
     BULK_MARK_ATTENDANCE: "/api/activity-participations/bulk-mark-attendance"
+  },
+  REPORTS: {
+    STATS: "/api/reports/stats",
+    LOGS: "/api/reports/logs"
   },
   CERTIFICATES: {
     BASE: "/api/certificates",

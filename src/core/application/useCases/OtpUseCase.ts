@@ -19,9 +19,10 @@ import {
   VerifyOtpResponse
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
+import { randomInt } from "crypto";
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000;
-const SUPPORT_OTP_EXPIRY_MS = 100 * 365 * 24 * 60 * 60 * 1000;
+const SUPPORT_OTP_EXPIRY_MS = 24 * 60 * 60 * 1000;
 const COOLDOWN_MS = 60 * 1000;
 const MAX_PER_HOUR = 5;
 const HOUR_MS = 60 * 60 * 1000;
@@ -43,7 +44,7 @@ class OtpUseCase {
   ) {}
 
   private generateCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return randomInt(100000, 1000000).toString();
   }
 
   private async rejectWrongCode(email: string, type: OtpType, recordId: string) {
@@ -123,36 +124,34 @@ class OtpUseCase {
     }
   }
 
-  async issueSupport(dto: SendOtpRequest): Promise<IssueSupportOtpResponse> {
+  async issueSupport(emailRaw: string): Promise<IssueSupportOtpResponse> {
     try {
-      const email = InputSanitizer.sanitizeEmail(dto.email);
+      const email = InputSanitizer.sanitizeEmail(emailRaw);
       if (!SecurityValidator.isValidEmail(email)) return fail("VALIDATION_ERROR", "البريد الإلكتروني غير صحيح");
 
-      if (dto.type !== OtpType.EMAIL_VERIFY && dto.type !== OtpType.FORGOT_PASSWORD) {
-        return fail("VALIDATION_ERROR", "نوع رمز التحقق غير صحيح");
+      const existing = await this.otpRepository.findUnusedSupport(email);
+      if (existing) {
+        logger.info(OtpUseCase.SCOPE, "issueSupport", `Reused unused support OTP for ${email}`);
+        return ok({ code: existing.code });
       }
-
-      await this.otpRepository.invalidatePrevious(email, dto.type);
 
       const code = this.generateCode();
       await this.otpRepository.create(
         email,
         code,
-        dto.type,
+        OtpType.FORGOT_PASSWORD,
         new Date(Date.now() + SUPPORT_OTP_EXPIRY_MS),
         true
       );
 
-      if (this.systemLogUseCase) {
-        await this.systemLogUseCase.logAction({
-          action: "OTP_SUPPORT_ISSUED",
-          status: SystemLogStatus.SUCCESS,
-          message: "تم إصدار رمز تحقق دعم لمرة واحدة",
-          metadata: { email, type: dto.type }
-        });
-      }
+      await this.systemLogUseCase.logAction({
+        action: "OTP_SUPPORT_ISSUED",
+        status: SystemLogStatus.SUCCESS,
+        message: "تم إصدار رمز تحقق دعم لمرة واحدة",
+        metadata: { email }
+      });
 
-      logger.info(OtpUseCase.SCOPE, "issueSupport", `Support OTP issued for ${email} type=${dto.type}`);
+      logger.info(OtpUseCase.SCOPE, "issueSupport", `Support OTP issued for ${email}`);
       return ok({ code });
     } catch (error) {
       return serviceError(OtpUseCase.SCOPE, "issueSupport", error, "حدث خطأ أثناء إصدار رمز الدعم");

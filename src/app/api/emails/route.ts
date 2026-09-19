@@ -1,7 +1,5 @@
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/infrastructure/auth/config";
-import { apiError, badRequest, unauthorized } from "@/lib/api-utils";
+import { apiError, badRequest, requireAuth } from "@/lib/api-utils";
 import { providers } from "@/lib/providers";
 import { logger } from "@/lib/utils";
 import { UserRole } from "@/core/domain/enums";
@@ -24,8 +22,9 @@ function parseFilters(params: URLSearchParams): EmailRecipientFilters {
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id || session.user.role !== UserRole.ADMIN) return unauthorized();
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
+    const { session } = auth;
 
     const params = req.nextUrl.searchParams;
     if (params.get("preview") !== "1") return badRequest("الاستعلام غير صحيح");
@@ -43,8 +42,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id || session.user.role !== UserRole.ADMIN) return unauthorized();
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
+    const { session } = auth;
 
     const body = await req.json().catch(() => null);
     const { fromAlias, subject, body: emailBody, filters, recipientIds, activityLink } = body ?? {};

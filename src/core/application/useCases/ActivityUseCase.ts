@@ -586,6 +586,16 @@ class ActivityUseCase {
       return serviceError(ActivityUseCase.SCOPE, "complete", error, "حدث خطأ أثناء إكمال النشاط");
     }
   }
+
+  async incrementViews(id: string) {
+    try {
+      guard(id, "المعرف مطلوب");
+      await this.activityRepository.incrementViews(id);
+      return ok(null);
+    } catch (error) {
+      return serviceError(ActivityUseCase.SCOPE, "incrementViews", error, "حدث خطأ أثناء تحديث المشاهدات");
+    }
+  }
 }
 
 export default ActivityUseCase;

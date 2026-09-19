@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { contactApi } from '@/presentation/services';
+import { getErrorMessage, useApiMutation } from '@/presentation/query';
 
 export interface ContactForm {
   name:    string;
@@ -45,6 +47,22 @@ export function useContactLogic() {
   const [status,    setStatus]    = useState<Status>('idle');
   const [errorMsg,  setErrorMsg]  = useState('');
 
+  const sendMutation = useApiMutation<void, ContactForm>({
+    request: async (payload) => {
+      await contactApi.send(payload);
+    },
+    onSuccess: () => {
+      setStatus('success');
+      setForm(EMPTY);
+      setTouched({});
+      setErrors({});
+    },
+    onError: (error) => {
+      setErrorMsg(getErrorMessage(error, 'تعذّر الاتصال بالخادم'));
+      setStatus('error');
+    }
+  });
+
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const updated = { ...form, [name]: value };
@@ -69,27 +87,8 @@ export function useContactLogic() {
     if (Object.keys(errs).length) return;
 
     setStatus('loading');
-    try {
-      const res  = await fetch('/api/contact', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setErrorMsg(data.error || 'حدث خطأ ما');
-        setStatus('error');
-        return;
-      }
-      setStatus('success');
-      setForm(EMPTY);
-      setTouched({});
-      setErrors({});
-    } catch {
-      setErrorMsg('تعذّر الاتصال بالخادم');
-      setStatus('error');
-    }
-  }, [form]);
+    sendMutation.mutate(form);
+  }, [form, sendMutation]);
 
   const resetStatus = useCallback(() => setStatus('idle'), []);
 

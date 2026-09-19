@@ -1,16 +1,12 @@
 import type { Prisma } from "@prisma/client";
 import type { SystemLogStatus } from "@/core/domain/enums";
 
-export interface DashboardStats {
-  totalUsers: number;
-  totalActivities: number;
-  pendingRequests: number;
-  errorCount: number;
-  activityViews: number;
-  postViews: number;
-  magazineDownloads: number;
-  systemOperations: number;
-}
+export type {
+  CityCount,
+  GenderCount,
+  DailySignup,
+  DashboardStatsDto as DashboardStats
+} from "@/core/application/dtos";
 
 export interface SystemLog {
   id: string;

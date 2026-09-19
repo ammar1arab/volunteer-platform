@@ -169,12 +169,20 @@ export async function requireAuth(req: Request, role?: UserRole): Promise<AuthRe
 }
 
 export async function requirePermission(req: Request, permission: AdminPermission): Promise<AuthResult> {
+  return requireAnyPermission(req, [permission]);
+}
+
+export async function requireAnyPermission(req: Request, permissions: AdminPermission[]): Promise<AuthResult> {
   const authResult = await requireAuth(req, UserRole.ADMIN);
   if ("error" in authResult) return authResult;
   const { session } = authResult;
   if (session.user.isSuperAdmin) return { session } as const;
-  if (session.user.permissions.includes(permission)) return { session } as const;
-  logger.warn("Auth", "requirePermission", `Permission denied: userId=${session.user.id} required=${permission}`);
+  if (permissions.some((permission) => session.user.permissions.includes(permission))) return { session } as const;
+  logger.warn(
+    "Auth",
+    "requireAnyPermission",
+    `Permission denied: userId=${session.user.id} required=${permissions.join("|")}`
+  );
   return { error: forbidden("ليس لديك صلاحية للوصول إلى هذا المورد") } as const;
 }
 

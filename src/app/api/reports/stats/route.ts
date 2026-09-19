@@ -1,63 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/infrastructure/persistence/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/infrastructure/auth/config";
+import { requireAnyPermission, toResponse, apiError } from "@/lib/api-utils";
+import { providers } from "@/lib/providers";
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const isAdmin = session.user.role === "ADMIN";
-    const granted = session.user.permissions ?? [];
-    const hasPermission =
-      session.user.isSuperAdmin ||
-      granted.includes("MANAGE_REPORTS") ||
-      granted.includes("MANAGE_LOGS");
-    if (!isAdmin || !hasPermission) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const [
-      totalUsers,
-      totalActivities,
-      pendingRequests,
-      systemLogsStats,
-      activityViewsAgg,
-      postViewsAgg,
-      magazineDownloadsAgg,
-      systemOperations,
-    ] = await Promise.all([
-      prisma.user.count(),
-      prisma.activity.count({ where: { deletedAt: null } }),
-      prisma.activityParticipation.count({ where: { status: "PENDING" } }),
-      prisma.systemLog.groupBy({ by: ["status"], _count: { status: true } }),
-      prisma.activity.aggregate({ where: { deletedAt: null }, _sum: { views: true } }),
-      prisma.featuredPost.aggregate({ _sum: { views: true } }),
-      prisma.monthlyMagazine.aggregate({ _sum: { downloads: true } }),
-      prisma.systemLog.count(),
-    ]);
-
-    const errorCount = systemLogsStats
-      .filter((s: { status: string; _count: { status: number } }) => s.status === "ERROR" || s.status === "FAILURE")
-      .reduce((acc: number, curr: { status: string; _count: { status: number } }) => acc + curr._count.status, 0);
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        totalUsers,
-        totalActivities,
-        pendingRequests,
-        errorCount,
-        activityViews: activityViewsAgg._sum.views ?? 0,
-        postViews: postViewsAgg._sum.views ?? 0,
-        magazineDownloads: magazineDownloadsAgg._sum.downloads ?? 0,
-        systemOperations,
-      },
-    });
-  } catch {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const auth = await requireAnyPermission(req, ["MANAGE_REPORTS", "MANAGE_LOGS"]);
+    if ("error" in auth) return auth.error;
+    return toResponse(await providers.reports().getDashboardStats());
+  } catch (error) {
+    return apiError("API", "GET /reports/stats", error);
   }
 }

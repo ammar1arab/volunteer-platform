@@ -8,7 +8,8 @@ import type {
   ClearNotificationsResponse,
   SendCustomNotificationResponse,
   DeleteBroadcastResponse,
-  SendCustomNotificationInput
+  SendCustomNotificationInput,
+  Result
 } from "@/core/application/dtos";
 
 export const notificationApi = {
@@ -17,6 +18,8 @@ export const notificationApi = {
   markAllAsRead: () => apiClient.post<MarkAsReadResponse>("/api/notifications/read-all", {}),
   clearHistory: () => apiClient.delete<ClearNotificationsResponse>("/api/notifications"),
   getBroadcasts: () => apiClient.get<GetBroadcastsResponse>("/api/notifications?broadcasts=1"),
+  getActivityFilter: () =>
+    apiClient.get<Result<{ pending: string[]; approved: string[] }>>("/api/notifications?activityFilter=1"),
   clearBroadcasts: () => apiClient.delete<ClearNotificationsResponse>("/api/notifications?clearBroadcasts=1"),
   previewTargets: (target: string, value?: string) =>
     apiClient.get<GetNotificationPreviewResponse>(

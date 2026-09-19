@@ -52,6 +52,13 @@ class MonthlyMagazineRepository implements IMonthlyMagazineRepository {
     return this.mapToEntity(updated);
   }
 
+  async incrementDownloads(id: string): Promise<void> {
+    await prisma.monthlyMagazine.update({
+      where: { id },
+      data: { downloads: { increment: 1 } }
+    });
+  }
+
   async delete(id: string): Promise<boolean> {
     try {
       await prisma.monthlyMagazine.delete({ where: { id } });

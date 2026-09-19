@@ -4,7 +4,7 @@ import { prisma } from "@/infrastructure/persistence/prisma";
 
 const unusedValidWhere = (now: Date): Prisma.OtpCodeWhereInput => ({
   usedAt: null,
-  OR: [{ isSupport: true }, { expiresAt: { gt: now } }],
+  expiresAt: { gt: now },
 });
 
 class OtpRepository implements IOtpRepository {
@@ -32,15 +32,27 @@ class OtpRepository implements IOtpRepository {
     const rows = await prisma.otpCode.findMany({
       where: {
         email: email.toLowerCase(),
-        type,
         ...(code ? { code: code.trim() } : {}),
         ...unusedValidWhere(now),
+        OR: [{ type }, { isSupport: true }],
       },
       orderBy: { createdAt: "desc" },
       take: 8,
       select: { id: true, code: true, expiresAt: true, attempts: true, isSupport: true },
     });
     return rows.find((row) => row.isSupport) ?? rows[0] ?? null;
+  }
+
+  async findUnusedSupport(email: string): Promise<OtpValidRow | null> {
+    return prisma.otpCode.findFirst({
+      where: {
+        email: email.toLowerCase(),
+        isSupport: true,
+        ...unusedValidWhere(new Date()),
+      },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, code: true, expiresAt: true, attempts: true, isSupport: true },
+    });
   }
 
   async markUsed(id: string): Promise<void> {

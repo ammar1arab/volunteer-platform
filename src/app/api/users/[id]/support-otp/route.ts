@@ -1,7 +1,5 @@
 import { providers } from "@/lib/providers";
-import { toResponse, requirePermission, parseJson, apiError, badRequest } from "@/lib/api-utils";
-import { OtpType } from "@/core/domain/enums";
-import type { SendOtpRequest } from "@/core/application/dtos";
+import { toResponse, requirePermission, apiError } from "@/lib/api-utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,31 +10,16 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     if ("error" in auth) return auth.error;
 
     const { id } = await ctx.params;
-    const body = await parseJson<{ type?: string }>(req);
-    const typeRaw = body?.type ?? OtpType.FORGOT_PASSWORD;
-
-    if (typeRaw !== OtpType.EMAIL_VERIFY && typeRaw !== OtpType.FORGOT_PASSWORD) {
-      return badRequest("نوع رمز التحقق غير صحيح");
-    }
-
     const details = await providers.user().getUserDetails(id);
     if (!details.success) return toResponse(details);
 
     const email = details.data.user.email;
-    const result = await providers.otp().issueSupport({
-      email,
-      type: typeRaw as SendOtpRequest["type"],
-    });
-
+    const result = await providers.otp().issueSupport(email);
     if (!result.success) return toResponse(result);
 
     return toResponse({
       success: true,
-      data: {
-        code: result.data.code,
-        email,
-        type: typeRaw,
-      },
+      data: { code: result.data.code, email },
     });
   } catch (error) {
     return apiError("API", "POST /users/[id]/support-otp", error);

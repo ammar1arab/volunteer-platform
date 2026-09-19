@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { Analytics } from '@vercel/analytics/next';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
@@ -127,6 +128,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Providers>{children}</Providers>
         <GoogleAnalytics gaId="G-6RH5Z9GBZ8" />
+        <Analytics />
       </body>
     </html>
   );

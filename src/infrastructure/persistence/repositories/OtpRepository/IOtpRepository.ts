@@ -11,6 +11,7 @@ export interface OtpValidRow {
 interface IOtpRepository {
   create(email: string, code: string, type: OtpType, expiresAt: Date, isSupport?: boolean): Promise<void>;
   findValid(email: string, type: OtpType, code?: string): Promise<OtpValidRow | null>;
+  findUnusedSupport(email: string): Promise<OtpValidRow | null>;
   markUsed(id: string): Promise<void>;
   incrementAttempts(id: string): Promise<number>;
   invalidatePrevious(email: string, type: OtpType, keepSupport?: boolean): Promise<void>;

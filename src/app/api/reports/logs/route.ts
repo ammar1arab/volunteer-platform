@@ -1,20 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requirePermission, toResponse, apiError } from "@/lib/api-utils";
 import { providers } from "@/lib/providers";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/infrastructure/auth/config";
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const isAdmin = session.user.role === "ADMIN";
-    const hasPermission = session.user.isSuperAdmin || session.user.permissions?.includes("MANAGE_LOGS");
-    if (!isAdmin || !hasPermission) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const auth = await requirePermission(req, "MANAGE_LOGS");
+    if ("error" in auth) return auth.error;
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -23,10 +14,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") || undefined;
 
     const result = await providers.systemLog().getLogs(page, limit, { action, status });
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 500 });
-    }
+    if (!result.success) return toResponse(result);
 
     return NextResponse.json({
       success: true,
@@ -34,31 +22,19 @@ export async function GET(req: NextRequest) {
       pagination: result.data.pagination
     });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiError("API", "GET /reports/logs", error);
   }
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const isAdmin = session.user.role === "ADMIN";
-    const hasPermission = session.user.isSuperAdmin || session.user.permissions?.includes("MANAGE_LOGS");
-    if (!isAdmin || !hasPermission) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const auth = await requirePermission(req, "MANAGE_LOGS");
+    if ("error" in auth) return auth.error;
 
     const result = await providers.systemLog().clearAll();
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 500 });
-    }
-
+    if (!result.success) return toResponse(result);
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiError("API", "DELETE /reports/logs", error);
   }
 }

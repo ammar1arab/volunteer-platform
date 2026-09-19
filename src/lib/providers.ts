@@ -15,6 +15,7 @@ import {
   MeetingSyncOperationRepository,
   ActivityPresenterRepository,
   SystemLogRepository,
+  ReportsRepository,
 } from "@/infrastructure/persistence/repositories";
 import {
   AuthUseCase,
@@ -31,6 +32,7 @@ import {
   OtpUseCase,
   MeetingUseCase,
   SystemLogUseCase,
+  ReportsUseCase,
 } from "@/core/application/useCases";
 
 const makeEmailUseCase   = () => new EmailUseCase(new UserRepository());
@@ -100,6 +102,8 @@ export const providers = {
   notification: () => new NotificationUseCase(new NotificationRepository()),
   email:        () => makeEmailUseCase(),
   storage:      () => new R2StorageService(),
+
+  reports: () => new ReportsUseCase(new ReportsRepository()),
 
   meeting: () =>
     new MeetingUseCase(

@@ -1,52 +1,40 @@
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/infrastructure/auth/config";
-import { apiError, badRequest, unauthorized } from "@/lib/api-utils";
+import { apiError, badRequest, requireAuth, toResponse } from "@/lib/api-utils";
 import { providers } from "@/lib/providers";
 import { logger } from "@/lib/utils";
 import { UserRole, audienceTargetError } from "@/core/domain/enums";
-import { prisma } from "@/infrastructure/persistence/prisma";
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) return unauthorized();
-
     const params = req.nextUrl.searchParams;
+    const needsAdmin =
+      params.get("broadcasts") === "1" ||
+      params.get("activityFilter") === "1" ||
+      params.get("preview") === "1";
+    const auth = await requireAuth(req, needsAdmin ? UserRole.ADMIN : undefined);
+    if ("error" in auth) return auth.error;
+    const { session } = auth;
 
     if (params.get("broadcasts") === "1") {
-      if (session.user.role !== UserRole.ADMIN) return unauthorized();
       logger.info("notifications", "GET broadcasts", `adminId=${session.user.id}`);
-      const result = await providers.notification().getRecentBroadcasts();
-      return Response.json(result);
+      return Response.json(await providers.notification().getRecentBroadcasts());
     }
 
     if (params.get("activityFilter") === "1") {
-      if (session.user.role !== UserRole.ADMIN) return unauthorized();
-      const rows = await prisma.activityParticipation.groupBy({
-        by: ["activityId", "status"],
-        where: { status: { in: ["PENDING", "APPROVED"] } },
-        _count: true
-      });
-      const pending = new Set(rows.filter((r) => r.status === "PENDING").map((r) => r.activityId));
-      const approved = new Set(rows.filter((r) => r.status === "APPROVED").map((r) => r.activityId));
-      return Response.json({ success: true, data: { pending: [...pending], approved: [...approved] } });
+      return toResponse(await providers.participation().getAudienceActivityIds());
     }
 
     if (params.get("preview") === "1") {
-      if (session.user.role !== UserRole.ADMIN) return unauthorized();
       const target = params.get("target") ?? "ALL";
       const targetValue = params.get("targetValue") ?? undefined;
       const previewError = audienceTargetError(target, targetValue);
       if (previewError) return badRequest(previewError);
       logger.info("notifications", "GET preview", `adminId=${session.user.id} target=${target}`);
-      const result = await providers.notification().previewTargets(target, targetValue);
-      return Response.json(result);
+      return Response.json(await providers.notification().previewTargets(target, targetValue));
     }
 
     logger.info("notifications", "GET", `userId=${session.user.id}`);
-    const result = await providers.notification().getRecent(session.user.id);
-    return Response.json(result);
+    return Response.json(await providers.notification().getRecent(session.user.id));
   } catch (error) {
     return apiError("notifications", "GET", error);
   }
@@ -54,8 +42,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id || session.user.role !== UserRole.ADMIN) return unauthorized();
+    const auth = await requireAuth(req, UserRole.ADMIN);
+    if ("error" in auth) return auth.error;
+    const { session } = auth;
 
     const body = await req.json().catch(() => null);
     const { title, message, target, targetValue, link, userIds } = body ?? {};
@@ -85,15 +74,16 @@ export async function POST(req: NextRequest) {
       "POST sendCustom",
       `adminId=${session.user.id} target=${target} count=${targetUserIds.length}`
     );
-    const result = await providers.notification().sendCustom({
-      targetUserIds,
-      title: title.trim(),
-      message: message.trim(),
-      link: link?.trim() || undefined,
-      target,
-      targetValue: targetValue ?? undefined
-    });
-    return Response.json(result);
+    return Response.json(
+      await providers.notification().sendCustom({
+        targetUserIds,
+        title: title.trim(),
+        message: message.trim(),
+        link: link?.trim() || undefined,
+        target,
+        targetValue: targetValue ?? undefined
+      })
+    );
   } catch (error) {
     return apiError("notifications", "POST", error);
   }
@@ -101,21 +91,18 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) return unauthorized();
-
     const params = req.nextUrl.searchParams;
+    const auth = await requireAuth(req, params.get("clearBroadcasts") === "1" ? UserRole.ADMIN : undefined);
+    if ("error" in auth) return auth.error;
+    const { session } = auth;
 
     if (params.get("clearBroadcasts") === "1") {
-      if (session.user.role !== UserRole.ADMIN) return unauthorized();
       logger.info("notifications", "DELETE clearBroadcasts", `adminId=${session.user.id}`);
-      const result = await providers.notification().clearBroadcasts();
-      return Response.json(result);
+      return Response.json(await providers.notification().clearBroadcasts());
     }
 
     logger.info("notifications", "DELETE clearHistory", `userId=${session.user.id}`);
-    const result = await providers.notification().clearHistory(session.user.id);
-    return Response.json(result);
+    return Response.json(await providers.notification().clearHistory(session.user.id));
   } catch (error) {
     return apiError("notifications", "DELETE", error);
   }

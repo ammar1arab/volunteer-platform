@@ -13,3 +13,5 @@ export * from "./email.service";
 export * from "./chat.service";
 export * from "./upload.service";
 export * from "./meetings.service";
+export * from "./reports.service";
+export * from "./contact.service";

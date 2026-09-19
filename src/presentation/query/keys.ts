@@ -57,5 +57,11 @@ export const queryKeys = {
   chat: {
     meta: () => ["chat", "meta"] as const,
     promo: (kind: string, id: string) => ["chat", "promo", kind, id] as const
+  },
+  reports: {
+    all: ["reports"] as const,
+    stats: () => ["reports", "stats"] as const,
+    logs: (page: number, action: string, status: string) =>
+      ["reports", "logs", page, action, status] as const
   }
 } as const;

@@ -12,3 +12,4 @@ export { default as MonthlyMagazineUseCase } from "./MonthlyMagazineUseCase";
 export { default as NotificationUseCase } from "./NotificationUseCase";
 export { default as EmailUseCase } from "./EmailUseCase";
 export { default as MeetingUseCase } from "./MeetingUseCase";
+export { default as ReportsUseCase } from "./ReportsUseCase";

@@ -140,6 +140,18 @@ class ActivityParticipationRepository implements IActivityParticipationRepositor
       volunteerHours: r.volunteerHours ?? null
     }));
   }
+
+  async groupPendingApprovedActivityIds() {
+    const rows = await prisma.activityParticipation.groupBy({
+      by: ["activityId", "status"],
+      where: { status: { in: ["PENDING", "APPROVED"] } },
+      _count: true
+    });
+    return {
+      pending: rows.filter((row) => row.status === "PENDING").map((row) => row.activityId),
+      approved: rows.filter((row) => row.status === "APPROVED").map((row) => row.activityId)
+    };
+  }
 }
 
 export default ActivityParticipationRepository;

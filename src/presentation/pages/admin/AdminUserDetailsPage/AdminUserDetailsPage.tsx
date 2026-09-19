@@ -71,8 +71,7 @@ const AdminUserDetailsPage = () => {
     confirmToggleActive, isTogglingActive, showToggleConfirm, setShowToggleConfirm,
     deleteUser, isDeleting, showDeleteConfirm, setShowDeleteConfirm,
     showSupportOtp, openSupportOtp, closeSupportOtp,
-    supportOtpType, changeSupportOtpType, supportOtpCode,
-    supportOtpLoading, supportOtpError, reissueSupportOtp,
+    supportOtpCode, supportOtpLoading, supportOtpError,
   } = useAdminUserDetailsPage();
 
   if (status === "loading" || loadingUser) return <LoadingState />;
@@ -127,12 +126,9 @@ const AdminUserDetailsPage = () => {
         onClose={closeSupportOtp}
         userName={user.fullName}
         userEmail={user.email}
-        type={supportOtpType}
-        onTypeChange={changeSupportOtpType}
         code={supportOtpCode}
         loading={supportOtpLoading}
         error={supportOtpError}
-        onReissue={reissueSupportOtp}
       />
 
       <div className={styles.header}>

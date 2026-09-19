@@ -32,39 +32,6 @@
   direction: ltr;
 }
 
-.typeRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $sp-xs;
-  border: 1px solid $border;
-  border-radius: $radius;
-  padding: 3px;
-  background: $surface-hover;
-}
-
-.typeBtn {
-  border: none;
-  background: transparent;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: $font-xs;
-  font-weight: 600;
-  color: $text-muted;
-  cursor: pointer;
-  transition: $transition;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-.typeActive {
-  background: $bg;
-  color: $green;
-  box-shadow: $shadow;
-}
-
 .error {
   padding: $sp-sm $sp-md;
   border-radius: $radius;

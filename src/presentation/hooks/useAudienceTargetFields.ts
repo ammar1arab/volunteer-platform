@@ -3,16 +3,12 @@
 import { useCallback, useMemo, useState } from "react";
 import { UserRole, type AudienceTarget } from "@/core/domain/enums";
 import type { PreviewUserDto, UserAnalyticsDto } from "@/core/application/dtos";
-import { userApi, activityApi, emailApi } from "@/presentation/services";
+import { userApi, activityApi, emailApi, notificationApi } from "@/presentation/services";
 import { queryKeys, unwrapResult, useFetchData } from "@/presentation/query";
 import { usePageReset } from "@/presentation/hooks/uiHooks/usePageReset";
 import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 
 const VOLUNTEERS_PER_PAGE = 20;
-
-interface ActivityFilterApiResponse {
-  data?: { pending?: string[]; approved?: string[] };
-}
 
 interface ActivityFilterData {
   activities: { id: string; title: string }[];
@@ -66,17 +62,15 @@ export function useAudienceTargetFields(
   const activitiesQuery = useFetchData<ActivityFilterData>({
     queryKey: queryKeys.notifications.activityFilter(),
     request: async () => {
-      const [actRes, filterRes] = await Promise.all([
+      const [actRes, filter] = await Promise.all([
         activityApi.getPublished(),
-        fetch("/api/notifications?activityFilter=1").then(
-          (r) => r.json() as Promise<ActivityFilterApiResponse>
-        )
+        notificationApi.getActivityFilter().then(unwrapResult)
       ]);
       const activities = unwrapResult(actRes).activities.map((a) => ({ id: a.id, title: a.title }));
       return {
         activities,
-        pending: new Set(filterRes?.data?.pending ?? []),
-        approved: new Set(filterRes?.data?.approved ?? [])
+        pending: new Set(filter.pending),
+        approved: new Set(filter.approved)
       };
     },
     options: { enabled: target === "ACTIVITY_PENDING" || target === "ACTIVITY_APPROVED" }

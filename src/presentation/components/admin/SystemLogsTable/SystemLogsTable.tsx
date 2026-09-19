@@ -42,26 +42,26 @@ const SystemLogsTable: React.FC<Props> = ({ logs, isLoading, pagination, onPageC
           <tbody>
             {logs.map((log) => (
               <tr key={log.id}>
-                <td data-label="الحدث">
+                <td className={styles.eventCell} data-label="الحدث">
                   <div className={styles.actionCell}>
                     <span className={styles.actionName}>{log.action}</span>
                     {log.message && <span className={styles.actionMessage}>{log.message}</span>}
                   </div>
                 </td>
-                <td data-label="المستخدم">
+                <td className={styles.metaCell} data-label="المستخدم">
                   {log.user ? (
                     <div className={styles.userCell}>
                       <span className={styles.userName}>{log.user.fullName}</span>
                       <span className={styles.userEmail}>{log.user.email}</span>
                     </div>
                   ) : (
-                    <span className={styles.userEmail}>نظام</span>
+                    <span className={styles.systemUser}>نظام</span>
                   )}
                 </td>
-                <td data-label="الحالة">
+                <td className={styles.statusCell} data-label="الحالة">
                   <SystemLogBadge status={log.status} />
                 </td>
-                <td data-label="التاريخ والوقت" dir="ltr" className={styles.dateCell}>
+                <td className={styles.dateCell} data-label="التاريخ" dir="ltr">
                   {formatFullDateTime(log.createdAt)}
                 </td>
               </tr>

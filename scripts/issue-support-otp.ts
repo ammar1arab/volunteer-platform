@@ -10,19 +10,10 @@ function argValue(flag: string): string | undefined {
 }
 
 async function main() {
-  const { OtpType } = await import("@/core/domain/enums");
   const email = argValue("--email");
-  const typeRaw = argValue("--type") ?? OtpType.EMAIL_VERIFY;
 
   if (!email) {
-    console.error(
-      "Usage: npm run otp -- --email user@example.com [--type EMAIL_VERIFY|FORGOT_PASSWORD]"
-    );
-    process.exit(1);
-  }
-
-  if (typeRaw !== OtpType.EMAIL_VERIFY && typeRaw !== OtpType.FORGOT_PASSWORD) {
-    console.error("Invalid --type. Use EMAIL_VERIFY or FORGOT_PASSWORD.");
+    console.error("Usage: npm run otp -- --email user@example.com");
     process.exit(1);
   }
 
@@ -55,14 +46,14 @@ async function main() {
     new SystemLogUseCase(new SystemLogRepository())
   );
 
-  const result = await otp.issueSupport({ email, type: typeRaw });
+  const result = await otp.issueSupport(email);
 
   if (!result.success) {
     console.error(result.error.message);
     process.exit(1);
   }
 
-  console.log(`Support OTP for ${email.trim().toLowerCase()} (${typeRaw})`);
+  console.log(`Support OTP for ${email.trim().toLowerCase()}`);
   console.log(result.data.code);
 }
 

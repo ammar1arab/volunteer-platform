@@ -17,5 +17,9 @@ export const uploadApi = {
   uploadActivityImage: (file: File) => upload("activities", file),
   uploadProfilePicture: (file: File) => upload("profiles", file),
   uploadVolunteerSpotlightImage: (file: File) => upload("volunteer-spotlight", file),
-  uploadMagazinePdf: (file: File) => upload("magazines", file) 
+  uploadMagazinePdf: (file: File) => upload("magazines", file),
+  presignMagazine: (fileName: string) =>
+    apiClient.get<Result<{ presignedUrl: string; publicUrl: string }>>(
+      `${API_ENDPOINTS.UPLOADS.BY_SCOPE("magazines")}/presign?fileName=${encodeURIComponent(fileName)}`
+    )
 };

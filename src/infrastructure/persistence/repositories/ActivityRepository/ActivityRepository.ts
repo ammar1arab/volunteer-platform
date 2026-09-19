@@ -159,6 +159,13 @@ class ActivityRepository implements IActivityRepository {
     return this.mapToEntity(updated);
   }
 
+  async incrementViews(id: string): Promise<void> {
+    await prisma.activity.update({
+      where: { id },
+      data: { views: { increment: 1 } }
+    });
+  }
+
   async delete(id: string): Promise<boolean> {
     try {
       await prisma.activity.update({

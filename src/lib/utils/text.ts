@@ -1,3 +1,7 @@
+export const formatNumber = (value: number, options?: Intl.NumberFormatOptions): string => {
+  return value.toLocaleString("en-US", options);
+};
+
 export const normalizeWhitespace = (text: string): string => {
   return text
     .replace(/\r\n/g, "\n")

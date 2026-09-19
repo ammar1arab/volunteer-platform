@@ -1,0 +1,212 @@
+@use "@/presentation/styles/variables" as *;
+@use "@/presentation/styles/mixins" as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $sp-md;
+  width: 100%;
+  min-width: 0;
+
+  @media (min-width: 900px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+  padding: $sp-md;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: $surface;
+}
+
+.wide {
+  @media (min-width: 900px) {
+    grid-column: 1 / -1;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: $font-sm;
+  font-weight: 700;
+  color: $black;
+}
+
+.lineChart {
+  width: 100%;
+  min-width: 0;
+  min-height: 240px;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.empty {
+  margin: 0;
+  padding: 3rem 0;
+  text-align: center;
+  color: $text-secondary;
+  font-size: $font-sm;
+}
+
+.skeleton {
+  min-height: 240px;
+  @include skeleton-loading;
+}
+
+.donutWrap {
+  display: flex;
+  align-items: center;
+  gap: $sp-md;
+  min-width: 0;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+.donut {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 200px;
+}
+
+.donutCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+
+  strong {
+    font-size: $font-lg;
+    font-weight: 700;
+    color: $black;
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    font-size: $font-xs;
+    color: $text-secondary;
+  }
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+  flex-shrink: 0;
+  min-width: 7rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $sp-xs;
+    font-size: $font-sm;
+    color: $text-secondary;
+
+    span {
+      width: 8px;
+      height: 8px;
+      border-radius: $radius-full;
+      flex-shrink: 0;
+    }
+
+    strong {
+      margin-inline-start: auto;
+      color: $black;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
+.bars {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-sm;
+}
+
+.bars li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "label count"
+    "track track";
+  align-items: center;
+  gap: 4px $sp-sm;
+}
+
+.barLabel {
+  grid-area: label;
+  font-size: $font-sm;
+  color: $text-secondary;
+  font-weight: 600;
+}
+
+.barTrack {
+  grid-area: track;
+  width: 100%;
+  height: 8px;
+  border-radius: $radius-full;
+  background: rgba($black, 0.06);
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: $radius-full;
+  min-width: 4px;
+  background: $green;
+}
+
+.bars strong {
+  grid-area: count;
+  font-size: $font-sm;
+  color: $black;
+  font-variant-numeric: tabular-nums;
+}
+
+.tooltip {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  padding: 6px 10px;
+  font-size: $font-xs;
+}
+
+.tooltipLabel {
+  margin: 0 0 4px;
+  color: $text-secondary;
+  font-weight: 600;
+}
+
+.tooltipValue {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: $black;
+
+  span {
+    width: 8px;
+    height: 8px;
+    border-radius: $radius-full;
+    flex-shrink: 0;
+  }
+}

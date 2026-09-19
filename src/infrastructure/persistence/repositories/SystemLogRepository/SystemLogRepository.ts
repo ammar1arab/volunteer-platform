@@ -3,13 +3,15 @@ import type { Prisma } from "@prisma/client";
 
 import { SystemLogStatus } from "@/core/domain/enums";
 
+const KEEP = 100;
+
 export default class SystemLogRepository {
   async create(data: Prisma.SystemLogUncheckedCreateInput) {
     const result = await prisma.systemLog.create({
       data
     });
 
-    void prisma.$executeRaw`
+    await prisma.$executeRaw`
       DELETE FROM system_logs
       WHERE id IN (
         SELECT id FROM (
@@ -17,7 +19,7 @@ export default class SystemLogRepository {
             ROW_NUMBER() OVER (ORDER BY "createdAt" DESC) AS rn
           FROM system_logs
         ) ranked
-        WHERE rn > 100
+        WHERE rn > ${KEEP}
       )
     `;
 

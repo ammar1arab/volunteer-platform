@@ -6,7 +6,7 @@ import type {
   CreateMonthlyMagazineRequest,
   UpdateMonthlyMagazineRequest
 } from "@/core/application/dtos";
-import { monthlyMagazineApi } from "@/presentation/services";
+import { monthlyMagazineApi, uploadApi } from "@/presentation/services";
 import {
   EMPTY_ARRAY,
   getErrorMessage,
@@ -17,9 +17,6 @@ import {
   useFetchData
 } from "@/presentation/query";
 
-interface MagazinePresignResponse {
-  data: { presignedUrl: string; publicUrl: string };
-}
 
 export const useMonthlyMagazines = (
   options: { activeOnly?: boolean; enabled?: boolean; autoLoad?: boolean } = {}
@@ -56,16 +53,14 @@ export const useMonthlyMagazines = (
 
   const uploadMutation = useApiMutation<string, File>({
     request: async (file) => {
-      const res = await fetch(`/api/uploads/magazines/presign?fileName=${encodeURIComponent(file.name)}`);
-      if (!res.ok) throw new Error("فشل رفع الملف");
-      const json = (await res.json()) as MagazinePresignResponse;
-      const put = await fetch(json.data.presignedUrl, {
+      const { presignedUrl, publicUrl } = unwrapResult(await uploadApi.presignMagazine(file.name));
+      const put = await fetch(presignedUrl, {
         method: "PUT",
         body: file,
         headers: { "Content-Type": "application/pdf" }
       });
       if (!put.ok) throw new Error("فشل رفع الملف");
-      return json.data.publicUrl;
+      return publicUrl;
     }
   });
 

@@ -139,6 +139,16 @@ class FeaturedPostUseCase {
       return serviceError(FeaturedPostUseCase.SCOPE, "getAll", error, "حدث خطأ أثناء جلب المنشورات المميزة");
     }
   }
+
+  async incrementViews(id: string) {
+    try {
+      guard(id, "المعرف مطلوب");
+      await this.featuredPostRepository.incrementViews(id);
+      return ok(null);
+    } catch (error) {
+      return serviceError(FeaturedPostUseCase.SCOPE, "incrementViews", error, "حدث خطأ أثناء تحديث المشاهدات");
+    }
+  }
 }
 
 export default FeaturedPostUseCase;
