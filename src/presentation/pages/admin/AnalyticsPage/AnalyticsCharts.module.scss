@@ -111,6 +111,34 @@
   }
 }
 
+.cityAgeBreakdown { display: grid; gap: $sp-md; }
+
+.ageTabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: $sp-xs;
+
+  button {
+    min-width: 0;
+    padding: .5rem .35rem;
+    color: $text-secondary;
+    font: inherit;
+    font-size: $font-xs;
+    border: 1px solid rgba(15, 23, 42, .1);
+    border-radius: $radius-md;
+    background: $white;
+    cursor: pointer;
+
+    strong { display: block; margin-top: 2px; color: inherit; font-size: $font-sm; font-variant-numeric: tabular-nums; }
+  }
+}
+
+.ageTabs .activeAgeTab {
+  color: $white;
+  border-color: var(--age-color);
+  background: var(--age-color);
+}
+
 .stackSplit {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 230px);
@@ -480,6 +508,7 @@
   .panel { padding: $sp-sm; }
   .barRow { grid-template-columns: minmax(74px, auto) 1fr auto; gap: $sp-xs; }
   .statGrid { grid-template-columns: minmax(0, 1fr); }
+  .ageTabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .wavePanel {
@@ -568,28 +597,29 @@
 }
 
 .waveFooterSources {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: $sp-xs $sp-sm;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(116px, 1fr));
+  gap: $sp-xs;
   padding-top: $sp-xs;
 }
 
 .waveFooterTitle {
+  grid-column: 1 / -1;
   font-size: $font-xs;
   font-weight: 700;
   color: $text-secondary;
 }
 
 .sourceTag {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  background: rgba(0, 0, 0, 0.03);
+  justify-content: space-between;
+  gap: $sp-xs;
+  padding: .42rem .55rem;
+  background: $white;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 4px;
-  font-size: 11px;
+  border-radius: $radius-sm;
+  font-size: $font-xs;
   color: #475569;
 
   strong {
@@ -597,4 +627,3 @@
     font-weight: 700;
   }
 }
-

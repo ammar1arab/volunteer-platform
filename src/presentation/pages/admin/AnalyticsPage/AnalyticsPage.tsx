@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import type { ReportRange } from "@/presentation/types/reports";
 import { Container, EmptyState } from "@/presentation/components";
+import { useSessionStorageState } from "@/presentation/hooks/useSessionStorageState";
 import { WifiOff } from "lucide-react";
 import { COPY } from "./AnalyticsCopy";
 import { buildPulse, buildTotals, heroSummary, useAnalyticsStats } from "./AnalyticsPage.logic";
@@ -12,7 +12,7 @@ import AnalyticsCharts from "./AnalyticsCharts";
 import styles from "./AnalyticsPage.module.scss";
 
 export default function AnalyticsPage() {
-  const [range, setRange] = useState<ReportRange>("30d");
+  const [range, setRange] = useSessionStorageState<ReportRange>("filters.admin.analytics.range", "30d");
   const { stats, isLoadingStats, statsError, refetchStats } = useAnalyticsStats(range);
 
   if (statsError && !stats) {

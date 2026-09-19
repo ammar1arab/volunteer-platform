@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import {
   Area,
   AreaChart,
@@ -173,20 +173,25 @@ function weekdayLabel(date: string) {
 }
 
 function JourneyCurve({ points, accept, attend }: { points: DailyPulse[]; accept: number; attend: number }) {
-  const rows = points.slice(-7).map((row) => ({
-    label: weekdayLabel(row.date),
-    date: formatShortDate(new Date(`${row.date}T00:00:00+03:00`)),
-    volunteers: row.volunteers,
-    requests: row.requests
-  }));
-  if (!rows.length) return <ChartEmpty />;
+  if (!points.length) return <ChartEmpty />;
+  const weekdays = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"];
+  const totals = new Map(weekdays.map((label) => [label, { volunteers: 0, requests: 0 }]));
+  for (const point of points) {
+    const label = new Date(`${point.date}T00:00:00+03:00`).toLocaleDateString("ar-JO", { weekday: "long" });
+    const total = totals.get(label);
+    if (total) {
+      total.volunteers += point.volunteers;
+      total.requests += point.requests;
+    }
+  }
+  const rows = weekdays.map((label) => ({ label, ...totals.get(label)! }));
   const mid = rows[Math.floor(rows.length / 2)];
   return (
     <div className={styles.curveBox}>
       <div className={styles.curveBadge}>
         <b>قبول {formatNumber(accept)}%</b>
         <span>
-          حضور {formatNumber(attend)}% · {mid.date}
+          حضور {formatNumber(attend)}% · يوم {mid.label}
         </span>
       </div>
       <div className={styles.chart} dir="ltr">
@@ -220,6 +225,55 @@ function JourneyCurve({ points, accept, attend }: { points: DailyPulse[]; accept
           </LineChart>
         </ResponsiveContainer>
       </div>
+    </div>
+  );
+}
+
+function RankedBars({ rows, empty = COPY.emptyChart }: { rows: ChartRow[]; empty?: string }) {
+  if (!rows.length) return <ChartEmpty message={empty} />;
+  const maximum = Math.max(...rows.map((row) => row.value), 1);
+  return (
+    <div className={styles.bars}>
+      {rows.map((row) => (
+        <div key={row.label} className={styles.barRow}>
+          <span className={styles.barLabel}>{row.label}</span>
+          <span className={styles.barTrack}><i className={styles.barFill} style={{ width: `${(row.value / maximum) * 100}%`, background: row.color }} /></span>
+          <strong className={styles.barValue}>{formatNumber(row.value)}</strong>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CompactCityAge({ rows }: { rows: CityAgeCount[] }) {
+  const { data, ageTotals } = cityAgeStacks(rows);
+  const ages = ageTotals.filter((age) => age.count > 0);
+  const [selectedKey, setSelectedKey] = useState(ages[0]?.key ?? "");
+  if (!data.length || !ages.length) return <ChartEmpty />;
+  const selected = ages.find((age) => age.key === selectedKey) ?? ages[0];
+  const cities = data
+    .map((city) => ({ label: city.city, value: city[selected.key], color: selected.color }))
+    .filter((city) => city.value > 0)
+    .sort((a, b) => b.value - a.value);
+
+  return (
+    <div className={styles.cityAgeBreakdown}>
+      <div className={styles.ageTabs} role="tablist" aria-label="الفئة العمرية">
+        {ages.map((age) => (
+          <button
+            key={age.key}
+            type="button"
+            role="tab"
+            aria-selected={selected.key === age.key}
+            className={selected.key === age.key ? styles.activeAgeTab : undefined}
+            style={{ "--age-color": age.color } as CSSProperties}
+            onClick={() => setSelectedKey(age.key)}
+          >
+            {age.label} <strong>{formatNumber(age.count)}</strong>
+          </button>
+        ))}
+      </div>
+      <RankedBars rows={cities} empty="لا توجد بيانات لهذه الفئة العمرية" />
     </div>
   );
 }
@@ -936,8 +990,8 @@ export default function AnalyticsCharts({
         <SlimAgeBars rows={ageRows(ageGroups)} />
       </Panel>
 
-      <Panel title={COPY.panels.cityAge} subtitle={COPY.panels.cityAgeSub} wide>
-        <CityAgeRadial rows={cityAge} />
+      <Panel title={COPY.panels.cityAge} subtitle={COPY.panels.cityAgeSub}>
+        <CompactCityAge rows={cityAge} />
       </Panel>
 
       <Panel title={COPY.panels.education} subtitle={COPY.panels.educationSub}>
@@ -945,7 +999,7 @@ export default function AnalyticsCharts({
           id="educationPie"
           rows={educationRows(educationBands)}
           center={formatNumber(educationBands.reduce((sum, row) => sum + row.count, 0))}
-          hint="ملف"
+          hint="متطوع"
         />
       </Panel>
 
@@ -999,7 +1053,7 @@ export default function AnalyticsCharts({
             { label: "غير مقروءة الآن", value: formatCount(comms.unread) }
           ]}
         />
-        <ColumnChart rows={noticeRows} />
+        <RankedBars rows={noticeRows} empty="لا توجد إشعارات مرسلة في المدة المختارة" />
       </Panel>
 
       <Panel title={COPY.panels.emails} subtitle={COPY.panels.emailsSub}>
@@ -1013,10 +1067,10 @@ export default function AnalyticsCharts({
       <Panel title={COPY.panels.health} subtitle={COPY.panels.healthSub}>
         <StatGrid
           rows={[
-            { label: "قاعدة البيانات", value: "متصلة" },
-            { label: "الموقع", value: "يعمل" },
-            { label: "آخر عملية", value: system.latestAt ? formatDateTime(system.latestAt) : "ما في بعد" },
-            { label: "نسبة الأخطاء", value: `${formatNumber(percent(system.errors, system.operations))}%` }
+            { label: "عمليات مسجلة", value: formatCount(system.operations) },
+            { label: "عمليات بأخطاء", value: formatCount(system.errors) },
+            { label: "آخر عملية مسجلة", value: system.latestAt ? formatDateTime(system.latestAt) : "لا توجد عمليات بعد" },
+            { label: "معدل الأخطاء", value: `${formatNumber(percent(system.errors, system.operations))}%` }
           ]}
         />
       </Panel>
