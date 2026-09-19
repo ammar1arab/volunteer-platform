@@ -101,7 +101,8 @@
 .radial {
   display: block;
   width: 100%;
-  height: 320px;
+  height: auto;
+  min-height: 480px;
   outline: none;
 
   &:focus,
@@ -452,6 +453,20 @@
   b { display: block; height: 100%; min-width: 4px; border-radius: inherit; }
 }
 
+.radialWrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: $sp-xs 0;
+}
+
+.radial {
+  display: block;
+  width: 100%;
+  min-width: 720px;
+  height: auto;
+}
+
 @media (max-width: 800px) {
   .grid { grid-template-columns: minmax(0, 1fr); }
   .wide { grid-column: auto; }
@@ -466,3 +481,120 @@
   .barRow { grid-template-columns: minmax(74px, auto) 1fr auto; gap: $sp-xs; }
   .statGrid { grid-template-columns: minmax(0, 1fr); }
 }
+
+.wavePanel {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+  width: 100%;
+}
+
+.waveStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $sp-sm;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.waveStatCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: $sp-sm $sp-md;
+  background: $white;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: $radius-md;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  min-height: 54px;
+}
+
+.waveStatLabel {
+  font-size: $font-xs;
+  color: $text-secondary;
+}
+
+.waveStatVal {
+  font-size: $font-lg;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.waveStatSub {
+  font-size: $font-xs;
+  font-weight: 600;
+  color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.waveChartBox {
+  width: 100%;
+  height: 220px;
+  position: relative;
+}
+
+.waveFallback {
+  padding: $sp-md;
+  text-align: center;
+}
+
+.wavePillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $sp-sm;
+}
+
+.wavePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  color: #475569;
+
+  strong {
+    color: #0f172a;
+    font-weight: 700;
+  }
+}
+
+.waveFooterSources {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $sp-xs $sp-sm;
+  padding-top: $sp-xs;
+}
+
+.waveFooterTitle {
+  font-size: $font-xs;
+  font-weight: 700;
+  color: $text-secondary;
+}
+
+.sourceTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  font-size: 11px;
+  color: #475569;
+
+  strong {
+    color: #0f172a;
+    font-weight: 700;
+  }
+}
+

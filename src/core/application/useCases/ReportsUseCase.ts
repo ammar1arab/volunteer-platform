@@ -75,6 +75,41 @@ function buildDailyPulse(volunteerDays: { day: string; count: number }[], reques
   }));
 }
 
+function fillTrafficDays(rows: { day: string; guests: number; members: number; total: number }[], days: number) {
+  const counts = new Map(rows.map((row) => [row.day, row]));
+  const series: Array<{ date: string; guests: number; members: number; total: number }> = [];
+  const cursor = startOfAmmanDay(days - 1);
+  for (let i = 0; i < days; i += 1) {
+    const key = ammanDayKey(new Date(cursor.getTime() + i * 24 * 60 * 60 * 1000));
+    const item = counts.get(key);
+    series.push({
+      date: key,
+      guests: item?.guests ?? 0,
+      members: item?.members ?? 0,
+      total: item?.total ?? 0
+    });
+  }
+  return series;
+}
+
+function fillRafiqDays(rows: { day: string; turns: number; members: number; guests: number; tokens: number }[], days: number) {
+  const counts = new Map(rows.map((row) => [row.day, row]));
+  const series: Array<{ date: string; turns: number; members: number; guests: number; tokens: number }> = [];
+  const cursor = startOfAmmanDay(days - 1);
+  for (let i = 0; i < days; i += 1) {
+    const key = ammanDayKey(new Date(cursor.getTime() + i * 24 * 60 * 60 * 1000));
+    const item = counts.get(key);
+    series.push({
+      date: key,
+      turns: item?.turns ?? 0,
+      members: item?.members ?? 0,
+      guests: item?.guests ?? 0,
+      tokens: item?.tokens ?? 0
+    });
+  }
+  return series;
+}
+
 function metric(current: number, previous: number | null): PulseMetric {
   const change = previous === null ? null : previous === 0 ? (current === 0 ? 0 : 100) : ((current - previous) / previous) * 100;
   return { current, previous, change };
@@ -199,14 +234,16 @@ class ReportsUseCase {
             { key: "instagram", count: raw.traffic.instagram },
             { key: "facebook", count: raw.traffic.facebook },
             { key: "other", count: raw.traffic.other }
-          ]
+          ],
+          daily: fillTrafficDays(raw.trafficDays, chartDays)
         },
         rafiq: {
           turns: raw.rafiq.turns,
           members: raw.rafiq.members,
           guests: raw.rafiq.guests,
           tokens: raw.rafiq.tokens,
-          models: Object.entries(raw.rafiq.models).map(([key, count]) => ({ key, count }))
+          models: Object.entries(raw.rafiq.models).map(([key, count]) => ({ key, count })),
+          daily: fillRafiqDays(raw.rafiqDays, chartDays)
         },
         system: {
           operations: raw.systemLogs.reduce((sum, row) => sum + row.count, 0),

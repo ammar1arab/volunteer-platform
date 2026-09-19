@@ -59,7 +59,9 @@ import {
   outcomeRows,
   percent,
   RAFIQ_MODEL_LABELS,
+  rafiqWavePoints,
   SOURCE_LABELS,
+  trafficWavePoints,
   type ChartRow
 } from "./AnalyticsCharts.logic";
 import styles from "./AnalyticsCharts.module.scss";
@@ -301,12 +303,16 @@ function CityAgeRadial({ rows }: { rows: CityAgeCount[] }) {
   const featured = ages.find((row) => row.key === selectedKey) ?? largest;
   const featuredIndex = ages.findIndex((row) => row.key === featured.key);
   const width = 1100;
-  const height = 320;
+  const height = Math.max(420, data.length * 36 + 40);
   const orb = { x: 96, y: height / 2 };
-  const ageX = 300;
-  const cityX = 760;
-  const ageYs = ages.map((_, index) => 44 + (index * (height - 88)) / Math.max(ages.length - 1, 1));
-  const cityYs = data.map((_, index) => 18 + (index * (height - 36)) / Math.max(data.length - 1, 1));
+  const ageX = 290;
+  const cityX = 720;
+  const ageSpacing = 56;
+  const ageStartY = (height - (ages.length - 1) * ageSpacing) / 2;
+  const ageYs = ages.map((_, index) => ageStartY + index * ageSpacing);
+  const cityPadY = 28;
+  const cityYs = data.map((_, index) => cityPadY + (index * (height - cityPadY * 2)) / Math.max(data.length - 1, 1));
+
   return (
     <div className={styles.radialWrap} dir="ltr">
       <svg className={styles.radial} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={COPY.panels.cityAge}>
@@ -324,20 +330,27 @@ function CityAgeRadial({ rows }: { rows: CityAgeCount[] }) {
             x2={ageX - 86}
             y2={ageYs[index]}
             stroke={age.color}
-            strokeOpacity={0.35}
+            strokeWidth={age.key === featured.key ? 2 : 1}
+            strokeOpacity={age.key === featured.key ? 0.65 : 0.25}
           />
         ))}
-        {data.map((city, index) => (
-          <line
-            key={`fan-${city.city}`}
-            x1={ageX + 86}
-            y1={ageYs[featuredIndex]}
-            x2={cityX}
-            y2={cityYs[index]}
-            stroke={featured.color}
-            strokeOpacity={0.18 + Math.min(0.55, city[featured.key] / Math.max(featured.count / 3, 1))}
-          />
-        ))}
+        {data.map((city, index) => {
+          const countInAge = city[featured.key] ?? 0;
+          if (countInAge <= 0) return null;
+          const ratio = countInAge / Math.max(featured.count, 1);
+          return (
+            <line
+              key={`fan-${city.cityKey}`}
+              x1={ageX + 86}
+              y1={ageYs[featuredIndex]}
+              x2={cityX}
+              y2={cityYs[index]}
+              stroke={featured.color}
+              strokeWidth={Math.max(1, Math.min(3.5, 1 + ratio * 3.5))}
+              strokeOpacity={0.22 + Math.min(0.68, ratio * 1.5)}
+            />
+          );
+        })}
         <circle cx={orb.x} cy={orb.y} r={32} fill="url(#cityAgeOrb)" />
         <text x={orb.x} y={orb.y + 5} textAnchor="middle" fill="#fff" fontSize="14" fontWeight="700">
           {formatNumber(grand)}
@@ -370,20 +383,47 @@ function CityAgeRadial({ rows }: { rows: CityAgeCount[] }) {
                 style={{ outline: "none" }}
               />
               <circle cx={ageX - 70} cy={ageYs[index]} r="4" fill={active ? "#fff" : age.color} />
-              <text x={ageX - 58} y={ageYs[index] + 4} fill={active ? "#fff" : "#111827"} fontSize="12">
+              <text x={ageX - 58} y={ageYs[index] + 4} fill={active ? "#fff" : "#111827"} fontSize="12" fontWeight={active ? "600" : "400"}>
                 {`${formatNumber(age.count)} · ${age.label}`}
               </text>
             </g>
           );
         })}
-        {data.map((city, index) => (
-          <g key={city.city}>
-            <circle cx={cityX} cy={cityYs[index]} r="3" fill={featured.color} />
-            <text x={cityX + 12} y={cityYs[index] + 4} fill="#374151" fontSize="13">
-              {city.city}
-            </text>
-          </g>
-        ))}
+        {data.map((city, index) => {
+          const countInAge = city[featured.key] ?? 0;
+          const isConnected = countInAge > 0;
+          return (
+            <g key={city.cityKey}>
+              <circle
+                cx={cityX}
+                cy={cityYs[index]}
+                r={isConnected ? 4.5 : 3}
+                fill={isConnected ? featured.color : "#cbd5e1"}
+              />
+              <text
+                x={cityX + 16}
+                y={cityYs[index] + 4}
+                fill={isConnected ? "#0f172a" : "#64748b"}
+                fontSize="13"
+                fontWeight={isConnected ? "600" : "400"}
+              >
+                {city.city}
+              </text>
+              <text
+                x={width - 24}
+                y={cityYs[index] + 4}
+                textAnchor="end"
+                fill={isConnected ? featured.color : "#94a3b8"}
+                fontSize="12"
+                fontWeight={isConnected ? "700" : "500"}
+              >
+                {isConnected
+                  ? `${formatNumber(countInAge)} من ${formatNumber(city.total)}`
+                  : `${formatNumber(city.total)} متطوع`}
+              </text>
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
@@ -455,6 +495,264 @@ function StatGrid({ rows }: { rows: Array<{ label: string; value: string }> }) {
   );
 }
 
+function TrafficWaveChart({
+  traffic,
+  chartDays
+}: {
+  traffic: {
+    guests: number;
+    members: number;
+    devices: NamedCount[];
+    sources: NamedCount[];
+    daily?: Array<{ date: string; guests: number; members: number; total: number }>;
+  };
+  chartDays: number;
+}) {
+  const points = trafficWavePoints(traffic.daily);
+  const totalVisitors = traffic.guests + traffic.members;
+
+  return (
+    <div className={styles.wavePanel}>
+      <div className={styles.waveStats}>
+        <div className={styles.waveStatCard}>
+          <span className={styles.waveStatLabel}>إجمالي الزوار</span>
+          <span className={styles.waveStatVal} style={{ color: TEAL }}>
+            {formatNumber(totalVisitors)}
+          </span>
+          <span className={styles.waveStatSub}>خلال {formatNumber(chartDays)} يوماً</span>
+        </div>
+        <div className={styles.waveStatCard}>
+          <span className={styles.waveStatLabel}>بدون حساب</span>
+          <span className={styles.waveStatVal} style={{ color: TEAL }}>
+            {formatNumber(traffic.guests)}
+          </span>
+          <span className={styles.waveStatSub}>
+            {percent(traffic.guests, totalVisitors || 1)}% من الإجمالي
+          </span>
+        </div>
+        <div className={styles.waveStatCard}>
+          <span className={styles.waveStatLabel}>أعضاء بحسابات</span>
+          <span className={styles.waveStatVal} style={{ color: PURPLE }}>
+            {formatNumber(traffic.members)}
+          </span>
+          <span className={styles.waveStatSub}>
+            {percent(traffic.members, totalVisitors || 1)}% من الإجمالي
+          </span>
+        </div>
+        <div className={styles.waveStatCard}>
+          <span className={styles.waveStatLabel}>الجهاز الأكثر</span>
+          <span className={styles.waveStatVal} style={{ color: BLUE }}>
+            {traffic.devices[0] ? DEVICE_LABELS[traffic.devices[0].name as keyof typeof DEVICE_LABELS] || traffic.devices[0].name : "—"}
+          </span>
+          <span className={styles.waveStatSub}>
+            {traffic.devices[0] ? `${formatNumber(traffic.devices[0].count)} زيارة` : "بانتظار البيانات"}
+          </span>
+        </div>
+      </div>
+
+      <div className={styles.waveChartBox} dir="ltr">
+        {points.length ? (
+          <ResponsiveContainer width="100%" height={210}>
+            <AreaChart data={points} margin={{ top: 12, right: 10, left: -10, bottom: 0 }} tabIndex={-1}>
+              <defs>
+                <linearGradient id="trafficGuestsGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={TEAL} stopOpacity={0.42} />
+                  <stop offset="100%" stopColor={TEAL} stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="trafficMembersGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={PURPLE} stopOpacity={0.36} />
+                  <stop offset="100%" stopColor={PURPLE} stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(0,0,0,0.05)" strokeDasharray="3 3" vertical={false} />
+              <XAxis
+                dataKey="label"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 10, fill: "#9ca3af" }}
+                minTickGap={20}
+              />
+              <YAxis
+                allowDecimals={false}
+                axisLine={false}
+                tickLine={false}
+                width={36}
+                tick={{ fontSize: 10, fill: "#9ca3af" }}
+              />
+              <Tooltip content={<ChartTooltip />} />
+              <Area
+                type="monotone"
+                dataKey="guests"
+                name="زوار بدون تسجيل"
+                stroke={TEAL}
+                strokeWidth={2.5}
+                fill="url(#trafficGuestsGrad)"
+                activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }}
+                dot={false}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="members"
+                name="أعضاء مسجلين"
+                stroke={PURPLE}
+                strokeWidth={2.5}
+                fill="url(#trafficMembersGrad)"
+                activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }}
+                dot={false}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <ChartEmpty message="لا توجد بيانات زوار كافية للرسم البياني" />
+        )}
+      </div>
+
+      <div className={styles.waveFooterSources}>
+        <span className={styles.waveFooterTitle}>المصادر والأجهزة:</span>
+        {traffic.sources.map((s) => (
+          <span key={s.name} className={styles.sourceTag}>
+            {SOURCE_LABELS[s.name as keyof typeof SOURCE_LABELS] || s.name}: <strong>{formatNumber(s.count)}</strong>
+          </span>
+        ))}
+        {traffic.devices.map((d) => (
+          <span key={d.name} className={styles.wavePill}>
+            {DEVICE_LABELS[d.name as keyof typeof DEVICE_LABELS] || d.name}: <strong>{formatNumber(d.count)}</strong>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RafiqWaveChart({
+  rafiq,
+  chartDays
+}: {
+  rafiq: {
+    turns: number;
+    members: number;
+    guests: number;
+    tokens: number;
+    models: NamedCount[];
+    daily?: Array<{ date: string; turns: number; members: number; guests: number; tokens: number }>;
+  };
+  chartDays: number;
+}) {
+  const points = rafiqWavePoints(rafiq.daily);
+  const totalUsers = rafiq.members + rafiq.guests;
+
+  return (
+    <div className={styles.wavePanel}>
+      <div className={styles.waveStats}>
+        <div className={styles.waveStatCard}>
+          <span className={styles.waveStatLabel}>عدد الأسئلة</span>
+          <span className={styles.waveStatVal} style={{ color: PURPLE }}>
+            {formatNumber(rafiq.turns)}
+          </span>
+          <span className={styles.waveStatSub}>محادثات المساعد</span>
+        </div>
+        <div className={styles.waveStatCard}>
+          <span className={styles.waveStatLabel}>المستخدمون</span>
+          <span className={styles.waveStatVal} style={{ color: TEAL }}>
+            {formatNumber(totalUsers)}
+          </span>
+          <span className={styles.waveStatSub}>
+            حساب {formatNumber(rafiq.members)} · ضيف {formatNumber(rafiq.guests)}
+          </span>
+        </div>
+        <div className={styles.waveStatCard}>
+          <span className={styles.waveStatLabel}>التوكنز المستهلكة</span>
+          <span className={styles.waveStatVal} style={{ color: AMBER }}>
+            {formatNumber(rafiq.tokens)}
+          </span>
+          <span className={styles.waveStatSub}>استهلاك الذكاء الاصطناعي</span>
+        </div>
+        <div className={styles.waveStatCard}>
+          <span className={styles.waveStatLabel}>النماذج المستخدمة</span>
+          <span className={styles.waveStatVal} style={{ color: BLUE }}>
+            {rafiq.models[0]
+              ? RAFIQ_MODEL_LABELS[rafiq.models[0].name as keyof typeof RAFIQ_MODEL_LABELS] || rafiq.models[0].name
+              : "رد جاهز"}
+          </span>
+          <span className={styles.waveStatSub}>
+            {rafiq.models[0] ? `${formatNumber(rafiq.models[0].count)} استجابة` : "جاهز للرد"}
+          </span>
+        </div>
+      </div>
+
+      <div className={styles.waveChartBox} dir="ltr">
+        {points.length ? (
+          <ResponsiveContainer width="100%" height={210}>
+            <AreaChart data={points} margin={{ top: 12, right: 10, left: -10, bottom: 0 }} tabIndex={-1}>
+              <defs>
+                <linearGradient id="rafiqTurnsGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={PURPLE} stopOpacity={0.45} />
+                  <stop offset="100%" stopColor={PURPLE} stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="rafiqUsersGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={TEAL} stopOpacity={0.30} />
+                  <stop offset="100%" stopColor={TEAL} stopOpacity={0.01} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(0,0,0,0.05)" strokeDasharray="3 3" vertical={false} />
+              <XAxis
+                dataKey="label"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 10, fill: "#9ca3af" }}
+                minTickGap={20}
+              />
+              <YAxis
+                allowDecimals={false}
+                axisLine={false}
+                tickLine={false}
+                width={36}
+                tick={{ fontSize: 10, fill: "#9ca3af" }}
+              />
+              <Tooltip content={<ChartTooltip />} />
+              <Area
+                type="monotone"
+                dataKey="turns"
+                name="الأسئلة"
+                stroke={PURPLE}
+                strokeWidth={2.5}
+                fill="url(#rafiqTurnsGrad)"
+                activeDot={{ r: 5, strokeWidth: 2, stroke: "#fff" }}
+                dot={false}
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="users"
+                name="المستخدمون"
+                stroke={TEAL}
+                strokeWidth={2}
+                fill="url(#rafiqUsersGrad)"
+                activeDot={{ r: 4, strokeWidth: 1.5, stroke: "#fff" }}
+                dot={false}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <ChartEmpty message="لا توجد بيانات محادثات كافية للرسم البياني" />
+        )}
+      </div>
+
+      <div className={styles.waveFooterSources}>
+        <span className={styles.waveFooterTitle}>نماذج الرد:</span>
+        {rafiq.models.map((m) => (
+          <span key={m.name} className={styles.sourceTag}>
+            {RAFIQ_MODEL_LABELS[m.name as keyof typeof RAFIQ_MODEL_LABELS] || m.name}: <strong>{formatNumber(m.count)}</strong>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AnalyticsCharts({
   dailyPulse,
   funnel,
@@ -508,6 +806,7 @@ export default function AnalyticsCharts({
     members: number;
     devices: NamedCount[];
     sources: NamedCount[];
+    daily?: Array<{ date: string; guests: number; members: number; total: number }>;
   };
   rafiq: {
     turns: number;
@@ -515,6 +814,7 @@ export default function AnalyticsCharts({
     guests: number;
     tokens: number;
     models: NamedCount[];
+    daily?: Array<{ date: string; turns: number; members: number; guests: number; tokens: number }>;
   };
   system: {
     operations: number;
@@ -679,36 +979,11 @@ export default function AnalyticsCharts({
       </Panel>
 
       <Panel title={COPY.panels.visitors} subtitle={COPY.panels.visitorsSub}>
-        <StatGrid
-          rows={[
-            { label: "الزوار بدون تسجيل", value: formatCount(traffic.guests) },
-            {
-              label: "الجوال / الكمبيوتر / اللوحي",
-              value: joinedCounts(traffic.devices, DEVICE_LABELS) || "ما في بعد"
-            },
-            {
-              label: "Google / إنستغرام / فيسبوك",
-              value: joinedCounts(traffic.sources, SOURCE_LABELS) || "ما في بعد"
-            }
-          ]}
-        />
+        <TrafficWaveChart traffic={traffic} chartDays={chartDays} />
       </Panel>
 
       <Panel title={COPY.panels.rafiq} subtitle={COPY.panels.rafiqSub}>
-        <StatGrid
-          rows={[
-            { label: "الأسئلة", value: formatCount(rafiq.turns) },
-            {
-              label: "من سأل",
-              value: `حساب ${formatCount(rafiq.members)} · ضيف ${formatCount(rafiq.guests)}`
-            },
-            {
-              label: "النماذج",
-              value: joinedCounts(rafiq.models, RAFIQ_MODEL_LABELS) || "ما في بعد"
-            },
-            { label: "التوكنز", value: formatCount(rafiq.tokens) }
-          ]}
-        />
+        <RafiqWaveChart rafiq={rafiq} chartDays={chartDays} />
       </Panel>
 
       {attendeeRows.length ? (

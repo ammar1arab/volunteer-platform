@@ -290,22 +290,39 @@ export function loadDayRows(rows: NamedCount[]): ChartRow[] {
   }));
 }
 
-export type CityAgeRow = { city: string } & Record<(typeof AGE_ORDER)[number], number>;
+export type CityAgeRow = {
+  city: string;
+  cityKey: JordanianCity;
+  total: number;
+} & Record<(typeof AGE_ORDER)[number], number>;
 
 export function cityAgeStacks(rows: CityAgeCount[]) {
   const totals = new Map<JordanianCity, number>();
   for (const row of rows) totals.set(row.city, (totals.get(row.city) ?? 0) + row.count);
-  const top = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([city]) => city);
+  
+  // Sort cities descending by volunteer count. Include ALL cities that have volunteers!
+  const sortedCities = [...totals.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([city]) => city);
+
   const byCity = new Map<JordanianCity, CityAgeRow>();
-  for (const city of top) {
-    byCity.set(city, { city: getCityLabel(city), under18: 0, "18_24": 0, "25_34": 0, "35_plus": 0 });
+  for (const city of sortedCities) {
+    byCity.set(city, {
+      city: getCityLabel(city),
+      cityKey: city,
+      total: totals.get(city) ?? 0,
+      under18: 0,
+      "18_24": 0,
+      "25_34": 0,
+      "35_plus": 0
+    });
   }
   for (const row of rows) {
     const current = byCity.get(row.city);
     if (!current || !AGE_ORDER.includes(row.age as (typeof AGE_ORDER)[number])) continue;
     current[row.age as (typeof AGE_ORDER)[number]] = row.count;
   }
-  const data = top.flatMap((city) => {
+  const data = sortedCities.flatMap((city) => {
     const item = byCity.get(city);
     return item ? [item] : [];
   });
@@ -317,6 +334,40 @@ export function cityAgeStacks(rows: CityAgeCount[]) {
   }));
   const grand = ageTotals.reduce((sum, row) => sum + row.count, 0);
   return { data, ageTotals, grand };
+}
+
+export interface TrafficWavePoint {
+  label: string;
+  guests: number;
+  members: number;
+  total: number;
+}
+
+export interface RafiqWavePoint {
+  label: string;
+  turns: number;
+  users: number;
+  tokens: number;
+}
+
+export function trafficWavePoints(daily?: Array<{ date: string; guests: number; members: number; total: number }>): TrafficWavePoint[] {
+  if (!daily || !daily.length) return [];
+  return daily.map((row) => ({
+    label: formatShortDate(new Date(`${row.date}T00:00:00+03:00`)),
+    guests: row.guests,
+    members: row.members,
+    total: row.total
+  }));
+}
+
+export function rafiqWavePoints(daily?: Array<{ date: string; turns: number; members: number; guests: number; tokens: number }>): RafiqWavePoint[] {
+  if (!daily || !daily.length) return [];
+  return daily.map((row) => ({
+    label: formatShortDate(new Date(`${row.date}T00:00:00+03:00`)),
+    turns: row.turns,
+    users: row.members + row.guests,
+    tokens: row.tokens
+  }));
 }
 
 export function percent(value: number, total: number) {

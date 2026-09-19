@@ -70,8 +70,9 @@ export interface DashboardStatsQuery {
     members: number;
     guests: number;
     tokens: number;
-    models: Record<string, number>;
   };
+  trafficDays: Array<{ day: string; guests: number; members: number; total: number }>;
+  rafiqDays: Array<{ day: string; turns: number; members: number; guests: number; tokens: number }>;
 }
 
 export interface ReportsWindow {
@@ -198,8 +199,7 @@ export default class ReportsRepository {
       prisma.volunteerProfile.groupBy({
         by: ["city"],
         _count: { _all: true },
-        orderBy: { _count: { city: "desc" } },
-        take: 8
+        orderBy: { _count: { city: "desc" } }
       }),
       prisma.volunteerProfile.groupBy({ by: ["gender"], _count: { _all: true } }),
       prisma.$queryRaw<Array<{ key: string; count: number }>>`
@@ -296,6 +296,8 @@ export default class ReportsRepository {
 
     const traffic = emptyTraffic();
     const rafiq = { turns: 0, members: 0, guests: 0, tokens: 0, models: {} as Record<string, number> };
+    const trafficDays: Array<{ day: string; guests: number; members: number; total: number }> = [];
+    const rafiqDays: Array<{ day: string; turns: number; members: number; guests: number; tokens: number }> = [];
     for (const row of analyticsRows) {
       traffic.guests += row.guests;
       traffic.members += row.members;
@@ -313,6 +315,19 @@ export default class ReportsRepository {
       for (const [key, count] of Object.entries(modelCounts(row.models))) {
         rafiq.models[key] = (rafiq.models[key] ?? 0) + count;
       }
+      trafficDays.push({
+        day: row.day,
+        guests: row.guests,
+        members: row.members,
+        total: row.guests + row.members
+      });
+      rafiqDays.push({
+        day: row.day,
+        turns: row.chatTurns,
+        members: row.chatMembers,
+        guests: row.chatGuests,
+        tokens: row.tokens
+      });
     }
 
     return {
@@ -362,7 +377,9 @@ export default class ReportsRepository {
       otpEmails: otpEmails.map((row) => ({ status: row.type, count: row._count._all })),
       latestLogAt: latestLog?.createdAt ?? null,
       traffic,
-      rafiq
+      rafiq,
+      trafficDays,
+      rafiqDays
     };
   }
 

@@ -89,6 +89,7 @@ export interface DashboardStatsDto {
     members: number;
     devices: NamedCount[];
     sources: NamedCount[];
+    daily?: Array<{ date: string; guests: number; members: number; total: number }>;
   };
   rafiq: {
     turns: number;
@@ -96,6 +97,7 @@ export interface DashboardStatsDto {
     guests: number;
     tokens: number;
     models: NamedCount[];
+    daily?: Array<{ date: string; turns: number; members: number; guests: number; tokens: number }>;
   };
   system: {
     operations: number;
