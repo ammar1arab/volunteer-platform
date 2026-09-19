@@ -18,7 +18,7 @@ import {
   XAxis,
   YAxis
 } from "recharts";
-import { ChartColumn } from "lucide-react";
+import { ArrowLeft, ChartColumn } from "lucide-react";
 import { EmptyState } from "@/presentation/components";
 import { formatDateTime, formatShortDate } from "@/lib/utils/date";
 import { formatNumber } from "@/lib/utils/text";
@@ -49,9 +49,7 @@ import {
   DEVICE_LABELS,
   educationRows,
   emailRows,
-  funnelRows,
   genderRows,
-  joinedCounts,
   loadDayRows,
   logRows,
   matchRows,
@@ -241,7 +239,7 @@ function RegistrationJourney({ funnel }: { funnel?: JoinFunnel }) {
       {stages.map((stage, index) => (
         <div key={stage.label} className={styles.journeyStage} style={{ "--stage": stage.color } as CSSProperties}>
           <span>{index + 1}</span><strong>{formatNumber(stage.value)}</strong><small>{stage.label}</small>
-          {index < stages.length - 1 ? <i aria-hidden="true">←</i> : null}
+          {index < stages.length - 1 ? <i aria-hidden="true"><ArrowLeft size={14} /></i> : null}
         </div>
       ))}
     </div>
