@@ -70,6 +70,7 @@ export interface DashboardStatsQuery {
     members: number;
     guests: number;
     tokens: number;
+    models: Record<string, number>;
   };
   trafficDays: Array<{ day: string; guests: number; members: number; total: number }>;
   rafiqDays: Array<{ day: string; turns: number; members: number; guests: number; tokens: number }>;
@@ -104,6 +105,7 @@ function emptyTraffic() {
 }
 
 type AnalyticsRow = {
+  day: string;
   guests: number;
   members: number;
   mobile: number;
@@ -287,7 +289,7 @@ export default class ReportsRepository {
       `,
       prisma.systemLog.findFirst({ orderBy: { createdAt: "desc" }, select: { createdAt: true } }),
       prisma.$queryRaw<AnalyticsRow[]>`
-        SELECT guests, members, mobile, desktop, tablet, google, instagram, facebook, other,
+        SELECT day, guests, members, mobile, desktop, tablet, google, instagram, facebook, other,
                "chatTurns", "chatMembers", "chatGuests", tokens, models
         FROM analytics_daily
         WHERE day >= ${window.start ? ammanDayKey(window.start) : "0000-01-01"}

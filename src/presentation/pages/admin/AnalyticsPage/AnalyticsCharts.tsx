@@ -542,7 +542,7 @@ function TrafficWaveChart({
         <div className={styles.waveStatCard}>
           <span className={styles.waveStatLabel}>الجهاز الأكثر</span>
           <span className={styles.waveStatVal} style={{ color: BLUE }}>
-            {traffic.devices[0] ? DEVICE_LABELS[traffic.devices[0].name as keyof typeof DEVICE_LABELS] || traffic.devices[0].name : "—"}
+            {traffic.devices[0] ? DEVICE_LABELS[traffic.devices[0].key as keyof typeof DEVICE_LABELS] || traffic.devices[0].key : "—"}
           </span>
           <span className={styles.waveStatSub}>
             {traffic.devices[0] ? `${formatNumber(traffic.devices[0].count)} زيارة` : "بانتظار البيانات"}
@@ -612,13 +612,13 @@ function TrafficWaveChart({
       <div className={styles.waveFooterSources}>
         <span className={styles.waveFooterTitle}>المصادر والأجهزة:</span>
         {traffic.sources.map((s) => (
-          <span key={s.name} className={styles.sourceTag}>
-            {SOURCE_LABELS[s.name as keyof typeof SOURCE_LABELS] || s.name}: <strong>{formatNumber(s.count)}</strong>
+          <span key={s.key} className={styles.sourceTag}>
+            {SOURCE_LABELS[s.key as keyof typeof SOURCE_LABELS] || s.key}: <strong>{formatNumber(s.count)}</strong>
           </span>
         ))}
         {traffic.devices.map((d) => (
-          <span key={d.name} className={styles.wavePill}>
-            {DEVICE_LABELS[d.name as keyof typeof DEVICE_LABELS] || d.name}: <strong>{formatNumber(d.count)}</strong>
+          <span key={d.key} className={styles.wavePill}>
+            {DEVICE_LABELS[d.key as keyof typeof DEVICE_LABELS] || d.key}: <strong>{formatNumber(d.count)}</strong>
           </span>
         ))}
       </div>
@@ -673,7 +673,7 @@ function RafiqWaveChart({
           <span className={styles.waveStatLabel}>النماذج المستخدمة</span>
           <span className={styles.waveStatVal} style={{ color: BLUE }}>
             {rafiq.models[0]
-              ? RAFIQ_MODEL_LABELS[rafiq.models[0].name as keyof typeof RAFIQ_MODEL_LABELS] || rafiq.models[0].name
+              ? RAFIQ_MODEL_LABELS[rafiq.models[0].key as keyof typeof RAFIQ_MODEL_LABELS] || rafiq.models[0].key
               : "رد جاهز"}
           </span>
           <span className={styles.waveStatSub}>
@@ -744,8 +744,8 @@ function RafiqWaveChart({
       <div className={styles.waveFooterSources}>
         <span className={styles.waveFooterTitle}>نماذج الرد:</span>
         {rafiq.models.map((m) => (
-          <span key={m.name} className={styles.sourceTag}>
-            {RAFIQ_MODEL_LABELS[m.name as keyof typeof RAFIQ_MODEL_LABELS] || m.name}: <strong>{formatNumber(m.count)}</strong>
+          <span key={m.key} className={styles.sourceTag}>
+            {RAFIQ_MODEL_LABELS[m.key as keyof typeof RAFIQ_MODEL_LABELS] || m.key}: <strong>{formatNumber(m.count)}</strong>
           </span>
         ))}
       </div>
