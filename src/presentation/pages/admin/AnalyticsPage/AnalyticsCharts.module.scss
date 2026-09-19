@@ -14,7 +14,7 @@
   overflow: visible;
   border: 1px solid rgba($green, .14);
   border-radius: $radius-lg;
-  background: linear-gradient(145deg, $white, #f6fbf8);
+  background: linear-gradient(145deg, $white 15%, #effcf6 100%);
   transition: border-color $transition;
 
   &:hover { border-color: rgba($green, .32); }
@@ -35,8 +35,15 @@
   }
 }
 
-.panel:nth-child(3n + 2) { background: linear-gradient(145deg, $white, #f7f6ff); }
-.panel:nth-child(3n + 3) { background: linear-gradient(145deg, $white, #f3fbff); }
+.panel:nth-child(3n + 2) { background: linear-gradient(145deg, $white 15%, #f5f1ff 100%); }
+.panel:nth-child(3n + 3) { background: linear-gradient(145deg, $white 15%, #edfaff 100%); }
+
+.journeyFlow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: $sp-sm; }
+.journeyStage { position: relative; display: grid; min-height: 9rem; align-content: center; gap: .3rem; padding: $sp-md; color: $white; border-radius: $radius-lg; background: linear-gradient(145deg, color-mix(in srgb, var(--stage) 78%, #fff), var(--stage)); box-shadow: 0 12px 24px color-mix(in srgb, var(--stage) 20%, transparent); }
+.journeyStage > span { display: grid; width: 1.6rem; height: 1.6rem; place-items: center; color: var(--stage); font-size: $font-xs; font-weight: 800; border-radius: 50%; background: $white; }
+.journeyStage strong { font-size: clamp(1.5rem, 3vw, 2.2rem); font-variant-numeric: tabular-nums; }
+.journeyStage small { font-size: $font-xs; font-weight: 700; }
+.journeyStage i { position: absolute; inset-inline-start: -.8rem; inset-block-start: calc(50% - .75rem); z-index: 1; display: grid; width: 1.5rem; height: 1.5rem; place-items: center; color: #64748b; font-style: normal; border-radius: 50%; background: $white; box-shadow: 0 3px 8px rgba(15, 23, 42, .12); }
 
 
 .wide { grid-column: 1 / -1; }
@@ -509,6 +516,9 @@
   .barRow { grid-template-columns: minmax(74px, auto) 1fr auto; gap: $sp-xs; }
   .statGrid { grid-template-columns: minmax(0, 1fr); }
   .ageTabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .journeyFlow { grid-template-columns: minmax(0, 1fr); }
+  .journeyStage { min-height: auto; padding: $sp-sm $sp-md; }
+  .journeyStage i { inset-inline-start: calc(50% - .75rem); inset-block-start: auto; inset-block-end: -.8rem; transform: rotate(-90deg); }
 }
 
 .wavePanel {
