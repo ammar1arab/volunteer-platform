@@ -247,8 +247,4 @@
   .range { width: 100%; flex-wrap: nowrap; justify-content: center; }
   .range button { flex: 1; padding: .34rem .2rem; }
   .pulse { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .pulseMetric { place-items: center; padding: $sp-md $sp-sm $sp-sm; text-align: center; }
-  .pulseTop { width: 100%; justify-content: center; }
-  .pulseMetric .up, .pulseMetric .down, .pulseMetric .flat { position: absolute; inset-block-start: $sp-sm; inset-inline-start: $sp-sm; }
-  .spark { width: 100%; }
 }
