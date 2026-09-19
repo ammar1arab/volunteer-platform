@@ -1,0 +1,94 @@
+import type { ReportRange } from "@/presentation/types/reports";
+
+export const RANGE_OPTIONS: Array<{ value: ReportRange; label: string }> = [
+  { value: "7d", label: "7 أيام" },
+  { value: "30d", label: "30 يوماً" },
+import type { ReportRange } from "@/presentation/types/reports";
+
+export const RANGE_OPTIONS: Array<{ value: ReportRange; label: string }> = [
+  { value: "7d", label: "7 أيام" },
+  { value: "30d", label: "30 يوماً" },
+  { value: "90d", label: "90 يوماً" },
+  { value: "all", label: "الكل" }
+];
+
+export const COPY = {
+  title: "نبض بصمات",
+  loadingHint: "جاري جمع مؤشرات المبادرة...",
+  errorTitle: "تعذر تحميل الإحصائيات",
+  errorMessage: "لم نتمكن من قراءة البيانات حالياً. يمكنك إعادة المحاولة دون فقدان مسار الصفحة.",
+  retry: "إعادة المحاولة",
+  staleError: "آخر تحديث فشل. الأرقام الظاهرة هي آخر قراءة ناجحة.",
+  rangeAria: "الفترة الزمنية",
+  fullRange: "الفترة الكاملة",
+  vsPrevious: "عن السابقة",
+  emptyChart: "لا تتوافر بيانات لهذا الرسم بعد",
+  emptyDaily: "لم يُسجل أي متطوعين أو طلبات انضمام خلال هذه الأيام",
+  emptyMeetings: "لا توجد أنشطة مرتبطة باجتماع بعد",
+  emptyMatch: "لا توجد أسماء اجتماعات للمطابقة بعد",
+  emptySystem: "لا توجد عمليات نظام خلال هذه الفترة",
+  pulse: {
+    volunteers: "متطوعون جدد",
+    activities: "أنشطة أضيفت",
+    requests: "طلبات انضمام",
+    hours: "ساعات مسجلة",
+    certificates: "شهادات مكتملة",
+    attendance: "نسبة الحضور"
+  },
+  totals: {
+    volunteers: "المتطوعون",
+    activities: "الأنشطة",
+    pending: "طلبات معلّقة",
+    hours: "إجمالي الساعات",
+    certificates: "شهادات مكتملة",
+    thisMonth: "متطوعو هذا الشهر"
+  },
+  panels: {
+    daily: "الحركة اليومية",
+    dailySub: (days: string) => `متطوعون جدد وطلبات انضمام خلال آخر ${days} أيام`,
+    recentDays: "آخر أيام الفترة",
+    recentDaysSub: "متطوعون مقابل طلبات",
+    conversion: "كفاءة رحلة المتطوع",
+    conversionSub: "القبول والحضور على أيام الفترة",
+    journey: "من الطلب إلى الحضور",
+    journeySub: "مسار الطلب مروراً بالقبول وحتى الحضور خلال نفس الفترة",
+    outcomes: "نتيجة طلبات الانضمام",
+    outcomesSub: "مقبولة، مرفوضة، معلّقة، أو ملغاة خلال الفترة",
+    gender: "صورة المتطوعين",
+    genderSub: "توزيع الجنس في الملفات",
+    ages: "الفئات العمرية",
+    agesSub: "حسب تاريخ الميلاد في الملف",
+    cityAge: "العمر حسب المدينة",
+    cityAgeSub: "كل خط يربط فئة عمرية بالمدينة حسب العدد",
+    education: "المستوى التعليمي",
+    educationSub: "مجمّع من الملف ليظهر تركيبة المبادرة",
+    cities: "المدن الأكثر نشاطاً",
+    citiesSub: "حسب المدينة المسجلة في ملف المتطوع",
+    activityStatus: "حالة الأنشطة",
+    activityStatusSub: "الأنشطة غير المحذوفة الآن",
+    activityType: "نوع النشاط",
+    activityTypeSub: "وجاهي مقابل إلكتروني",
+    attendance: "سجل الحضور والغياب",
+    attendanceSub: "المتطوعون الذين سُجل حضورهم أو غيابهم خلال هذه الفترة",
+    content: "المحتوى",
+    contentSub: "المجموع حتى الآن",
+    match: "مطابقة الحضور",
+    matchSub: "ربط أسماء الاجتماع بالمتطوعين",
+    notifications: "الإشعارات",
+    notificationsSub: "نوع الإشعار داخل الفترة، مع غير المقروء الآن",
+    emails: "الإيميلات",
+    emailsSub: "رسائل التحقق واستعادة كلمة المرور المرسلة في الفترة",
+    load: "حمل المنصة",
+    loadSub: "عمليات النظام على أيام الفترة في عمّان",
+    visitors: "إحصائيات زوار الموقع",
+    visitorsSub: "الزوار غير المسجلين، أنواع الأجهزة، ومصادر الزيارات خلال هذه الفترة",
+    rafiq: "إحصائيات استخدام مساعد بصمات",
+    rafiqSub: "عدد الأسئلة، فئات المستخدمين، ونماذج الرد المستخدمة",
+    health: "حالة النظام",
+    healthSub: "حالة اتصال قاعدة البيانات ونسبة الأخطاء خلال هذه الفترة",
+    comms: "التواصل",
+    commsSub: "إشعارات الفترة وتسجيلات لم تكتمل",
+    system: "سجل النظام",
+    systemSub: "عمليات هذه الفترة"
+  }
+} as const;

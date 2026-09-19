@@ -3,210 +3,434 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: $sp-md;
-  width: 100%;
   min-width: 0;
-
-  @media (min-width: 900px) {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 .panel {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: $sp-sm;
-  padding: $sp-md;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
-  background: $surface;
-}
+  padding: 1.5rem;
+  overflow: visible;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: $white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  transition: box-shadow $transition, border-color $transition;
 
-.wide {
-  @media (min-width: 900px) {
-    grid-column: 1 / -1;
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  }
+
+  header { margin-bottom: 1.5rem; }
+
+  h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: #64748b;
+    font-size: 0.875rem;
   }
 }
 
-.title {
-  margin: 0;
-  font-size: $font-sm;
+
+.wide { grid-column: 1 / -1; }
+
+.curveBox { position: relative; }
+
+.loadBadge {
+  position: absolute;
+  top: 8%;
+  z-index: 1;
+  padding: .28rem .7rem;
+  color: $white;
+  font-size: $font-xs;
   font-weight: 700;
-  color: $black;
+  font-variant-numeric: tabular-nums;
+  border-radius: $radius-full;
+  background: #0b3a4a;
+  margin-inline-start: -1.4rem;
+  pointer-events: none;
 }
 
-.lineChart {
+.curveBadge {
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-start: 22%;
+  z-index: 1;
+  display: grid;
+  gap: 2px;
+  padding: .4rem .7rem;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  background: rgba($white, .96);
+  box-shadow: 0 8px 20px rgba(17, 17, 17, .06);
+
+  b { color: $black; font-size: $font-sm; font-variant-numeric: tabular-nums; }
+  span { color: $text-tertiary; font-size: .68rem; }
+}
+
+.radialWrap {
+  overflow: hidden;
+}
+
+.radial {
+  display: block;
   width: 100%;
-  min-width: 0;
-  min-height: 240px;
-  direction: ltr;
-  unicode-bidi: isolate;
+  height: 320px;
 }
 
-.empty {
+.stackSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 230px);
+  align-items: center;
+  gap: $sp-md;
+}
+
+.stackLegend {
+  display: grid;
+  gap: .7rem;
   margin: 0;
-  padding: 3rem 0;
-  text-align: center;
+  padding: 0;
+  list-style: none;
+}
+
+.stackLegend li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: $sp-sm;
+}
+
+.stackLegend span {
+  display: inline-flex;
+  align-items: center;
+  gap: $sp-xs;
   color: $text-secondary;
   font-size: $font-sm;
 }
 
+.stackLegend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.stackLegend b {
+  color: $black;
+  font-size: $font-sm;
+  font-variant-numeric: tabular-nums;
+}
+
+.stackLegend em {
+  color: $text-tertiary;
+  font-size: $font-xs;
+  font-style: normal;
+}
+
+.chart {
+  width: 100%;
+  height: 230px;
+  overflow: visible;
+  direction: ltr;
+}
+
+.chartTall { height: 270px; }
+
 .skeleton {
-  min-height: 240px;
-  @include skeleton-loading;
+  min-height: 220px;
+  border-radius: $radius-md;
+  background: linear-gradient(90deg, #edf8f1 20%, #d8f4e4 50%, #edf8f1 80%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
 }
 
-.donutWrap {
-  display: flex;
-  align-items: center;
-  gap: $sp-md;
-  min-width: 0;
+.tooltip {
+  display: grid;
+  gap: $sp-xs;
+  padding: $sp-sm;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  background: rgba($white, 0.96);
+  color: $black;
 
-  @media (max-width: 480px) {
-    flex-direction: column;
-  }
-}
-
-.donut {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  height: 200px;
-}
-
-.donutCenter {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-
-  strong {
-    font-size: $font-lg;
-    font-weight: 700;
-    color: $black;
-    font-variant-numeric: tabular-nums;
-  }
+  strong { font-size: $font-sm; }
 
   span {
-    font-size: $font-xs;
-    color: $text-secondary;
-  }
-}
-
-.legend {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: $sp-sm;
-  flex-shrink: 0;
-  min-width: 7rem;
-
-  li {
     display: flex;
     align-items: center;
     gap: $sp-xs;
-    font-size: $font-sm;
     color: $text-secondary;
+    font-size: $font-xs;
+  }
 
-    span {
-      width: 8px;
-      height: 8px;
-      border-radius: $radius-full;
-      flex-shrink: 0;
-    }
+  i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+}
+
+.grid,
+.chart,
+.donutChart {
+  :global(.recharts-wrapper),
+  :global(.recharts-wrapper *),
+  :global(.recharts-surface),
+  :global(.recharts-surface *) {
+    outline: none !important;
+  }
+}
+
+.conversions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $sp-md;
+}
+
+.conversion {
+  display: flex;
+  align-items: center;
+  gap: $sp-md;
+
+  > div {
+    display: grid;
+    width: 4.5rem;
+    height: 4.5rem;
+    flex: 0 0 4.5rem;
+    place-items: center;
+    border-radius: 50%;
+    background: conic-gradient(var(--color) var(--value), rgba(0, 0, 0, 0.06) 0);
 
     strong {
-      margin-inline-start: auto;
+      display: grid;
+      width: 3.25rem;
+      height: 3.25rem;
+      place-items: center;
+      border-radius: 50%;
+      background: $white;
       color: $black;
+      font-size: $font-sm;
       font-variant-numeric: tabular-nums;
     }
+  }
+
+  span {
+    color: $text-secondary;
+    font-size: $font-sm;
+    font-weight: 700;
   }
 }
 
 .bars {
-  list-style: none;
-  margin: 0;
-  padding: 0.25rem 0 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: $sp-sm;
 }
 
-.bars li {
+.barRow {
   display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas:
-    "label count"
-    "track track";
+  grid-template-columns: minmax(70px, 110px) 1fr auto;
   align-items: center;
-  gap: 4px $sp-sm;
+  gap: $sp-sm;
 }
 
 .barLabel {
-  grid-area: label;
-  font-size: $font-sm;
+  overflow: hidden;
   color: $text-secondary;
-  font-weight: 600;
+  font-size: $font-sm;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .barTrack {
-  grid-area: track;
-  width: 100%;
-  height: 8px;
-  border-radius: $radius-full;
-  background: rgba($black, 0.06);
+  display: block;
+  height: 10px;
   overflow: hidden;
+  border-radius: $radius-full;
+  background: rgba($green, 0.09);
 }
 
 .barFill {
   display: block;
   height: 100%;
-  border-radius: $radius-full;
   min-width: 4px;
-  background: $green;
+  border-radius: inherit;
 }
 
-.bars strong {
-  grid-area: count;
-  font-size: $font-sm;
+.barValue {
+  min-width: 32px;
   color: $black;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  text-align: end;
 }
 
-.tooltip {
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: $radius;
-  box-shadow: $shadow;
-  padding: 6px 10px;
-  font-size: $font-xs;
+.donut {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, auto);
+  align-items: center;
+  gap: $sp-sm;
 }
 
-.tooltipLabel {
-  margin: 0 0 4px;
-  color: $text-secondary;
-  font-weight: 600;
+.donutChart {
+  position: relative;
+
+  b {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    color: $black;
+    font-size: $font-lg;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  small {
+    display: block;
+    color: $text-secondary;
+    font-size: $font-xs;
+    font-weight: 600;
+  }
 }
 
-.tooltipValue {
+.legend {
+  display: grid;
+  gap: $sp-sm;
   margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendItem {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  color: $black;
+  justify-content: space-between;
+  gap: $sp-md;
+  color: $text-secondary;
+  font-size: $font-sm;
+}
 
-  span {
-    width: 8px;
-    height: 8px;
-    border-radius: $radius-full;
-    flex-shrink: 0;
+.legendLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: $sp-xs;
+}
+
+.legendDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.legendGlow {
+  box-shadow: 0 0 0 3px rgba($green, 0.12);
+}
+
+.statGrid {
+  width: 100%;
+  min-height: 116px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $sp-sm;
+  margin-bottom: $sp-md;
+
+  &:last-child { margin-bottom: 0; }
+
+  div {
+    display: grid;
+    min-width: 0;
+    align-content: center;
+    min-height: 54px;
+    padding: $sp-sm $sp-md;
+    border: 1px solid rgba($green, .12);
+    border-radius: $radius-md;
+    background: linear-gradient(135deg, rgba($white, .95), rgba($green, .06));
   }
+
+  span, strong { display: block; }
+  span { color: $text-secondary; font-size: $font-xs; }
+  strong { margin-top: 2px; overflow-wrap: anywhere; color: $black; font-size: $font-md; font-variant-numeric: tabular-nums; }
+}
+
+.loadingPanel {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  border: 1px solid rgba($green, .14);
+  border-radius: $radius-lg;
+  background: linear-gradient(135deg, #f6fbf8, $white);
+}
+
+.loadingState {
+  display: inline-flex;
+  align-items: center;
+  gap: $sp-sm;
+  color: $text-secondary;
+  font-size: $font-sm;
+}
+
+.loadingDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $green;
+  animation: loadingPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: .35; transform: scale(.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.empty {
+  display: grid;
+  min-height: 160px;
+  place-items: center;
+  color: $text-secondary;
+  text-align: center;
+}
+
+.radarChart {
+  width: 100%;
+  min-width: 0;
+}
+
+.rangeBars {
+  display: grid;
+  gap: $sp-md;
+  padding: $sp-sm 0;
+}
+
+.rangeRow {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: $sp-sm;
+
+  span { color: $text-secondary; font-size: $font-sm; }
+  strong { color: $black; font-size: $font-sm; text-align: end; }
+  i { display: block; height: 14px; overflow: hidden; border-radius: $radius-full; background: linear-gradient(90deg, rgba($green, .08), rgba(124, 108, 255, .12)); }
+  b { display: block; height: 100%; min-width: 4px; border-radius: inherit; }
+}
+
+@media (max-width: 800px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .wide { grid-column: auto; }
+  .donut { grid-template-columns: minmax(0, 1fr); }
+  .conversions { grid-template-columns: minmax(0, 1fr); }
+  .stackSplit { grid-template-columns: minmax(0, 1fr); }
+  .rangeRow { grid-template-columns: 68px minmax(0, 1fr) 38px; gap: $sp-xs; }
+}
+
+@media (max-width: 520px) {
+  .panel { padding: $sp-sm; }
+  .barRow { grid-template-columns: minmax(74px, auto) 1fr auto; gap: $sp-xs; }
+  .statGrid { grid-template-columns: minmax(0, 1fr); }
 }

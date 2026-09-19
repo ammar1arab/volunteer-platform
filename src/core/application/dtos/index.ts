@@ -193,7 +193,12 @@ export type {
 export type {
   CityCount,
   GenderCount,
-  DailySignup,
+  DailyPulse,
+  PulseMetric,
+  JoinFunnel,
+  NamedCount,
+  CityAgeCount,
+  ReportRange,
   DashboardStatsDto,
   GetReportStatsResponse
 } from "./report.dto";

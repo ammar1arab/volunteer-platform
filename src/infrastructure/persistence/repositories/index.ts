@@ -14,3 +14,4 @@ export { default as MeetingSyncOperationRepository } from "./MeetingSyncOperatio
 export { default as ActivityPresenterRepository } from "./ActivityPresenterRepository/ActivityPresenterRepository";
 export { default as SystemLogRepository } from "./SystemLogRepository/SystemLogRepository";
 export { default as ReportsRepository } from "./ReportsRepository/ReportsRepository";
+export type { TrafficDevice, TrafficSource } from "./ReportsRepository/ReportsRepository";

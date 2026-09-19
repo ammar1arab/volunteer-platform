@@ -50,6 +50,9 @@ export const API_ENDPOINTS = {
     STATS: "/api/reports/stats",
     LOGS: "/api/reports/logs"
   },
+  ANALYTICS: {
+    HIT: "/api/analytics/hit"
+  },
   CERTIFICATES: {
     BASE: "/api/certificates",
     BY_ID: (id: string) => `/api/certificates/${id}`

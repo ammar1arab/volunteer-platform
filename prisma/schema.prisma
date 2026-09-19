@@ -463,3 +463,23 @@ model SystemLog {
   @@index([createdAt])
   @@map("system_logs")
 }
+
+model AnalyticsDaily {
+  day         String @id
+  guests      Int    @default(0)
+  members     Int    @default(0)
+  mobile      Int    @default(0)
+  desktop     Int    @default(0)
+  tablet      Int    @default(0)
+  google      Int    @default(0)
+  instagram   Int    @default(0)
+  facebook    Int    @default(0)
+  other       Int    @default(0)
+  chatTurns   Int    @default(0)
+  chatMembers Int    @default(0)
+  chatGuests  Int    @default(0)
+  tokens      Int    @default(0)
+  models      Json   @default("{}")
+
+  @@map("analytics_daily")
+}

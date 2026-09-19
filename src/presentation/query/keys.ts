@@ -60,7 +60,7 @@ export const queryKeys = {
   },
   reports: {
     all: ["reports"] as const,
-    stats: () => ["reports", "stats"] as const,
+    stats: (range = "30d") => ["reports", "stats", range] as const,
     logs: (page: number, action: string, status: string) =>
       ["reports", "logs", page, action, status] as const
   }

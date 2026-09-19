@@ -4,7 +4,12 @@ import type { SystemLogStatus } from "@/core/domain/enums";
 export type {
   CityCount,
   GenderCount,
-  DailySignup,
+  DailyPulse,
+  PulseMetric,
+  JoinFunnel,
+  NamedCount,
+  CityAgeCount,
+  ReportRange,
   DashboardStatsDto as DashboardStats
 } from "@/core/application/dtos";
 

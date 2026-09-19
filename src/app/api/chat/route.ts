@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { ok } from "@/core/application/dtos";
+import { authOptions } from "@/infrastructure/auth/config";
 import { badRequest, csrfCheck, toResponse } from "@/lib/api-utils";
+import { providers } from "@/lib/providers";
 import { logger, toError } from "@/lib/utils";
 import { CHAT_REQUEST_BODY_MAX, chatRequestSchema } from "@/lib/chat/schemas";
 import {
@@ -18,6 +21,17 @@ export const maxDuration = 60;
 
 const RATE_LIMIT_MESSAGE =
   "وصلت إلى حد الرسائل المتاح حالياً. جرّب لاحقاً، فهذا الحد يساعدنا على إدارة تكلفة الخدمة.";
+
+function estimateTokens(...parts: string[]) {
+  const chars = parts.reduce((sum, part) => sum + part.length, 0);
+  return Math.max(1, Math.ceil(chars / 4));
+}
+
+function recordChatTurn(input: { guest: boolean; tokens: number; model: string }) {
+  void providers.reports().recordChatTurn(input).catch((error) => {
+    logger.error("Chat", "recordTurn", toError(error));
+  });
+}
 
 function quotaHeaders(remaining: number, limit: number) {
   return { "X-Chat-Remaining": String(remaining), "X-Chat-Limit": String(limit) };
@@ -70,6 +84,9 @@ export async function POST(req: Request): Promise<Response> {
 
   const quota = await checkChatRateLimit(req);
   const headers = quotaHeaders(quota.remaining, quota.limit);
+  const session = await getServerSession(authOptions);
+  const guest = !session?.user?.id;
+  const lastUserText = messages.at(-1)?.content ?? "";
 
   if (!quota.allowed) {
     return NextResponse.json(
@@ -78,8 +95,11 @@ export async function POST(req: Request): Promise<Response> {
     );
   }
 
-  const direct = localAnswer(messages.at(-1)?.content ?? "");
-  if (direct) return textResponse(direct, quota.remaining, quota.limit, "platform-faq");
+  const direct = localAnswer(lastUserText);
+  if (direct) {
+    recordChatTurn({ guest, model: "faq", tokens: estimateTokens(lastUserText, direct) });
+    return textResponse(direct, quota.remaining, quota.limit, "platform-faq");
+  }
 
   try {
     const { id, stream } = await openReliableStream(
@@ -91,16 +111,22 @@ export async function POST(req: Request): Promise<Response> {
     const output = new ReadableStream({
       async start(controller) {
         let sent = false;
+        let reply = "";
         try {
           for await (const chunk of stream) {
             if (!chunk) continue;
             sent = true;
+            reply += chunk;
             controller.enqueue(encoder.encode(chunk));
           }
         } catch (error) {
           logger.error("Chat", "streamIteration", toError(error));
         } finally {
-          if (!sent) controller.enqueue(encoder.encode(FALLBACK_HELP));
+          if (!sent) {
+            reply = FALLBACK_HELP;
+            controller.enqueue(encoder.encode(FALLBACK_HELP));
+          }
+          recordChatTurn({ guest, model: id, tokens: estimateTokens(lastUserText, reply) });
           controller.close();
         }
       },

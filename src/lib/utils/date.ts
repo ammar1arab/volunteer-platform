@@ -72,6 +72,28 @@ export const formatShortDate = (date: Date | string): string => {
   }).format(d);
 };
 
+export const AMMAN_TIME_ZONE = "Asia/Amman";
+const AMMAN_OFFSET_MS = 3 * 60 * 60 * 1000;
+
+export function ammanDayKey(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: AMMAN_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(date);
+}
+
+export function startOfAmmanDay(daysAgo = 0): Date {
+  const [year, month, day] = ammanDayKey(new Date()).split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day - daysAgo, 0, 0, 0) - AMMAN_OFFSET_MS);
+}
+
+export function startOfAmmanMonth(): Date {
+  const [year, month] = ammanDayKey(new Date()).split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, 1, 0, 0, 0) - AMMAN_OFFSET_MS);
+}
+
 export const formatDateTime = (date: Date | string): string => {
   const d = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat("en-GB", {

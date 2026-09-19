@@ -33,8 +33,8 @@ export default function SystemLogsPage() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const statItems = [
-    { id: "operations" as const, title: "عمليات النظام", value: stats?.systemOperations, icon: ActivitySquare, variant: "pink" as const },
-    { id: "errors" as const, title: "أخطاء النظام", value: stats?.errorCount, icon: ShieldAlert, variant: "danger" as const },
+    { id: "operations" as const, title: "عمليات النظام", value: stats?.system?.operations, icon: ActivitySquare, variant: "pink" as const },
+    { id: "errors" as const, title: "أخطاء النظام", value: stats?.system?.errors, icon: ShieldAlert, variant: "danger" as const },
   ];
 
   return (

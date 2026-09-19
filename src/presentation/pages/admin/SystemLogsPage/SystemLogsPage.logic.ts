@@ -9,8 +9,8 @@ export const useSystemLogs = () => {
   const [filterStatus, setFilterStatus] = useState("ALL");
 
   const statsQuery = useFetchData<DashboardStats>({
-    queryKey: queryKeys.reports.stats(),
-    request: async () => unwrapResult(await reportsApi.getStats())
+    queryKey: queryKeys.reports.stats("all"),
+    request: async () => unwrapResult(await reportsApi.getStats("all"))
   });
 
   const logsQuery = useFetchData<{ logs: SystemLog[]; pagination: PaginationData }>({
