@@ -51,7 +51,6 @@ import {
   emailRows,
   genderRows,
   loadDayRows,
-  logRows,
   matchRows,
   notificationRows,
   outcomeRows,
@@ -66,20 +65,23 @@ import styles from "./AnalyticsCharts.module.scss";
 
 const Y_AXIS = { width: 52, tick: { fontSize: 11, fill: "#4b5563" } };
 const CHART_MARGIN = { top: 8, right: 8, left: 8, bottom: 4 };
+const COUNTRY_NAMES = new Intl.DisplayNames(["ar"], { type: "region" });
 
 function Panel({
   title,
   subtitle,
   wide,
-  children
+  children,
+  className
 }: {
   title: string;
   subtitle?: string;
   wide?: boolean;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <section className={`${styles.panel} ${wide ? styles.wide : ""}`}>
+    <section className={`${styles.panel} ${wide ? styles.wide : ""} ${className ?? ""}`}>
       <header>
         <h2>{title}</h2>
         {subtitle ? <p>{subtitle}</p> : null}
@@ -575,13 +577,17 @@ function TrafficWaveChart({
     members: number;
     devices: NamedCount[];
     sources: NamedCount[];
+    countries: NamedCount[];
+    cities: NamedCount[];
+    browsers: NamedCount[];
+    operatingSystems: NamedCount[];
     daily?: Array<{ date: string; guests: number; members: number; total: number }>;
   };
   chartDays: number;
 }) {
   const points = trafficWavePoints(traffic.daily);
   const totalVisitors = traffic.guests + traffic.members;
-  const devices = traffic.devices.filter((device) => device.key !== "tablet");
+  const devices = traffic.devices;
 
   return (
     <div className={styles.wavePanel}>
@@ -682,7 +688,7 @@ function TrafficWaveChart({
       </div>
 
       <div className={styles.waveFooterSources}>
-        <span className={styles.waveFooterTitle}>المصادر والأجهزة:</span>
+        <span className={styles.waveFooterTitle}>تفاصيل الزيارات:</span>
         {traffic.sources.map((s) => (
           <span key={s.key} className={styles.sourceTag}>
             {SOURCE_LABELS[s.key as keyof typeof SOURCE_LABELS] || s.key}: <strong>{formatNumber(s.count)}</strong>
@@ -691,6 +697,26 @@ function TrafficWaveChart({
         {devices.map((d) => (
           <span key={d.key} className={styles.wavePill}>
             {DEVICE_LABELS[d.key as keyof typeof DEVICE_LABELS] || d.key}: <strong>{formatNumber(d.count)}</strong>
+          </span>
+        ))}
+        {traffic.countries.map((country) => (
+          <span key={country.key} className={`${styles.sourceTag} ${styles.locationTag}`}>
+            دولة · {COUNTRY_NAMES.of(country.key) ?? country.key}: <strong>{formatNumber(country.count)}</strong>
+          </span>
+        ))}
+        {traffic.cities.map((city) => (
+          <span key={city.key} className={`${styles.sourceTag} ${styles.locationTag}`}>
+            مدينة · {city.key}: <strong>{formatNumber(city.count)}</strong>
+          </span>
+        ))}
+        {traffic.browsers.map((browser) => (
+          <span key={browser.key} className={`${styles.sourceTag} ${styles.browserTag}`}>
+            متصفح · {browser.key}: <strong>{formatNumber(browser.count)}</strong>
+          </span>
+        ))}
+        {traffic.operatingSystems.map((operatingSystem) => (
+          <span key={operatingSystem.key} className={`${styles.sourceTag} ${styles.systemTag}`}>
+            نظام · {operatingSystem.key}: <strong>{formatNumber(operatingSystem.count)}</strong>
           </span>
         ))}
       </div>
@@ -878,6 +904,10 @@ export default function AnalyticsCharts({
     members: number;
     devices: NamedCount[];
     sources: NamedCount[];
+    countries: NamedCount[];
+    cities: NamedCount[];
+    browsers: NamedCount[];
+    operatingSystems: NamedCount[];
     daily?: Array<{ date: string; guests: number; members: number; total: number }>;
   };
   rafiq: {
@@ -925,7 +955,7 @@ export default function AnalyticsCharts({
   const noticeRows = notificationRows(comms.notificationTypes ?? []);
   const mailRows = emailRows(comms.emails ?? []);
   const dayLoad = loadDayRows(system.daily ?? []);
-  const systemStatus = logRows(system.byStatus);
+  const successfulOperations = Math.max(0, system.operations - system.errors);
 
   return (
     <div className={styles.grid}>
@@ -980,6 +1010,18 @@ export default function AnalyticsCharts({
         )}
       </Panel>
 
+      <Panel title={COPY.panels.visitors} subtitle={COPY.panels.visitorsSub} wide>
+        <TrafficWaveChart traffic={traffic} chartDays={chartDays} />
+      </Panel>
+
+      <Panel title={COPY.panels.rafiq} subtitle={COPY.panels.rafiqSub} wide>
+        <RafiqWaveChart rafiq={rafiq} chartDays={chartDays} />
+      </Panel>
+
+      <Panel title={COPY.panels.load} subtitle={COPY.panels.loadSub} wide>
+        <LoadWave rows={dayLoad} total={system.operations} />
+      </Panel>
+
       <Panel title={COPY.panels.recentDays} subtitle={COPY.panels.recentDaysSub}>
         <GroupedWeek points={dailyPulse} />
       </Panel>
@@ -988,24 +1030,16 @@ export default function AnalyticsCharts({
         <JourneyCurve points={dailyPulse} accept={conversions[0]?.value ?? 0} attend={conversions[1]?.value ?? 0} />
       </Panel>
 
-      <Panel title={COPY.panels.journey} subtitle={COPY.panels.journeySub}>
-        <RegistrationJourney funnel={funnel} />
+      <Panel title={COPY.panels.emails} subtitle={COPY.panels.emailsSub}>
+        <ColumnChart rows={mailRows} empty="ما في إيميلات تحقق أو استعادة في هذه الفترة" />
       </Panel>
 
       <Panel title={COPY.panels.outcomes} subtitle={COPY.panels.outcomesSub}>
         <ColumnChart rows={outcomeRows(requestOutcomes)} />
       </Panel>
 
-      <Panel title={COPY.panels.gender} subtitle={COPY.panels.genderSub}>
+      <Panel title={COPY.panels.gender} subtitle={COPY.panels.genderSub} className={styles.genderPanel}>
         <GradientPie id="genderPie" rows={genders} center={formatNumber(genderTotal)} hint="متطوع" />
-      </Panel>
-
-      <Panel title={COPY.panels.ages} subtitle={COPY.panels.agesSub}>
-        <SlimAgeBars rows={ageRows(ageGroups)} />
-      </Panel>
-
-      <Panel title={COPY.panels.cityAge} subtitle={COPY.panels.cityAgeSub}>
-        <CompactCityAge rows={cityAge} />
       </Panel>
 
       <Panel title={COPY.panels.education} subtitle={COPY.panels.educationSub}>
@@ -1015,6 +1049,14 @@ export default function AnalyticsCharts({
           center={formatNumber(educationBands.reduce((sum, row) => sum + row.count, 0))}
           hint="متطوع"
         />
+      </Panel>
+
+      <Panel title={COPY.panels.journey} subtitle={COPY.panels.journeySub} className={styles.journeyPanel}>
+        <RegistrationJourney funnel={funnel} />
+      </Panel>
+
+      <Panel title={COPY.panels.ages} subtitle={COPY.panels.agesSub} className={styles.agesPanel}>
+        <SlimAgeBars rows={ageRows(ageGroups)} />
       </Panel>
 
       <Panel title={COPY.panels.cities} subtitle={COPY.panels.citiesSub}>
@@ -1046,12 +1088,17 @@ export default function AnalyticsCharts({
         />
       </Panel>
 
-      <Panel title={COPY.panels.visitors} subtitle={COPY.panels.visitorsSub}>
-        <TrafficWaveChart traffic={traffic} chartDays={chartDays} />
-      </Panel>
-
-      <Panel title={COPY.panels.rafiq} subtitle={COPY.panels.rafiqSub}>
-        <RafiqWaveChart rafiq={rafiq} chartDays={chartDays} />
+      <Panel title={COPY.panels.system} subtitle={COPY.panels.healthSub}>
+        <StatGrid
+          rows={[
+            { label: "عمليات مسجلة", value: formatCount(system.operations) },
+            { label: "عمليات ناجحة", value: formatCount(successfulOperations) },
+            { label: "عمليات بأخطاء", value: formatCount(system.errors) },
+            { label: "معدل النجاح", value: `${formatNumber(percent(successfulOperations, system.operations))}%` },
+            { label: "معدل الأخطاء", value: `${formatNumber(percent(system.errors, system.operations))}%` },
+            { label: "آخر عملية مسجلة", value: system.latestAt ? formatDateTime(system.latestAt) : "لا توجد عمليات بعد" },
+          ]}
+        />
       </Panel>
 
       {attendeeRows.length ? (
@@ -1070,39 +1117,8 @@ export default function AnalyticsCharts({
         <RankedBars rows={noticeRows} empty="لا توجد إشعارات مرسلة في المدة المختارة" />
       </Panel>
 
-      <Panel title={COPY.panels.emails} subtitle={COPY.panels.emailsSub}>
-        <ColumnChart rows={mailRows} empty="ما في إيميلات تحقق أو استعادة في هذه الفترة" />
-      </Panel>
-
-      <Panel title={COPY.panels.load} subtitle={COPY.panels.loadSub} wide>
-        <LoadWave rows={dayLoad} total={system.operations} />
-      </Panel>
-
-      <Panel title={COPY.panels.health} subtitle={COPY.panels.healthSub}>
-        <StatGrid
-          rows={[
-            { label: "عمليات مسجلة", value: formatCount(system.operations) },
-            { label: "عمليات بأخطاء", value: formatCount(system.errors) },
-            { label: "آخر عملية مسجلة", value: system.latestAt ? formatDateTime(system.latestAt) : "لا توجد عمليات بعد" },
-            { label: "معدل الأخطاء", value: `${formatNumber(percent(system.errors, system.operations))}%` }
-          ]}
-        />
-      </Panel>
-
-      <Panel title={COPY.panels.system} subtitle={COPY.panels.systemSub}>
-        {system.operations ? (
-          <>
-            <StatGrid
-              rows={[
-                { label: "عمليات", value: formatCount(system.operations) },
-                { label: "أخطاء", value: formatCount(system.errors) }
-              ]}
-            />
-            <ColumnChart rows={systemStatus} empty={COPY.emptySystem} />
-          </>
-        ) : (
-          <ChartEmpty message={COPY.emptySystem} />
-        )}
+      <Panel title={COPY.panels.cityAge} subtitle={COPY.panels.cityAgeSub}>
+        <CompactCityAge rows={cityAge} />
       </Panel>
     </div>
   );

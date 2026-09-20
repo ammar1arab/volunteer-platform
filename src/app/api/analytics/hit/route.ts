@@ -28,6 +28,34 @@ function sourceOf(ref: string): TrafficSource {
   return "other";
 }
 
+function browserOf(ua: string) {
+  if (/Edg\//i.test(ua)) return "Edge";
+  if (/OPR\//i.test(ua)) return "Opera";
+  if (/Chrome\//i.test(ua)) return "Chrome";
+  if (/Firefox\//i.test(ua)) return "Firefox";
+  if (/Safari\//i.test(ua)) return "Safari";
+  return "أخرى";
+}
+
+function operatingSystemOf(ua: string) {
+  if (/Android/i.test(ua)) return "Android";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
+  if (/Windows/i.test(ua)) return "Windows";
+  if (/Mac OS X|Macintosh/i.test(ua)) return "macOS";
+  if (/Linux/i.test(ua)) return "Linux";
+  return "أخرى";
+}
+
+function locationHeader(req: Request, name: string, maxLength: number) {
+  const raw = req.headers.get(name);
+  if (!raw) return undefined;
+  try {
+    return decodeURIComponent(raw).trim().slice(0, maxLength) || undefined;
+  } catch {
+    return raw.trim().slice(0, maxLength) || undefined;
+  }
+}
+
 export async function POST(req: Request) {
   const csrf = csrfCheck(req);
   if (csrf) return csrf;
@@ -43,7 +71,11 @@ export async function POST(req: Request) {
     await providers.reports().recordTraffic({
       guest: !session?.user?.id,
       device: deviceOf(ua),
-      source: sourceOf(referrer)
+      source: sourceOf(referrer),
+      browser: browserOf(ua),
+      operatingSystem: operatingSystemOf(ua),
+      country: locationHeader(req, "x-vercel-ip-country", 2)?.toUpperCase(),
+      city: locationHeader(req, "x-vercel-ip-city", 80)
     });
   } catch {
     return toResponse(ok({ recorded: false }));

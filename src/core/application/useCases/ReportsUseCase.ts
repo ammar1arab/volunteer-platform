@@ -235,6 +235,22 @@ class ReportsUseCase {
             { key: "facebook", count: raw.traffic.facebook },
             { key: "other", count: raw.traffic.other }
           ],
+          countries: Object.entries(raw.traffic.countries)
+            .sort(([, left], [, right]) => right - left)
+            .slice(0, 3)
+            .map(([key, count]) => ({ key, count })),
+          cities: Object.entries(raw.traffic.cities)
+            .sort(([, left], [, right]) => right - left)
+            .slice(0, 3)
+            .map(([key, count]) => ({ key, count })),
+          browsers: Object.entries(raw.traffic.browsers)
+            .sort(([, left], [, right]) => right - left)
+            .slice(0, 3)
+            .map(([key, count]) => ({ key, count })),
+          operatingSystems: Object.entries(raw.traffic.operatingSystems)
+            .sort(([, left], [, right]) => right - left)
+            .slice(0, 3)
+            .map(([key, count]) => ({ key, count })),
           daily: fillTrafficDays(raw.trafficDays, chartDays)
         },
         rafiq: {
@@ -267,7 +283,7 @@ class ReportsUseCase {
     }
   }
 
-  async recordTraffic(input: { guest: boolean; device: TrafficDevice; source: TrafficSource }) {
+  async recordTraffic(input: { guest: boolean; device: TrafficDevice; source: TrafficSource; country?: string; city?: string; browser: string; operatingSystem: string }) {
     try {
       await this.reportsRepository.incrementTraffic(input);
     } catch (error) {

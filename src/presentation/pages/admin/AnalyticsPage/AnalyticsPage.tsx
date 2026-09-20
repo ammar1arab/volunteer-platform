@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
         content={stats?.content ?? { posts: 0, postViews: 0, magazines: 0, magazineDownloads: 0, spotlights: 0, activityViews: 0 }}
         meetings={stats?.meetings ?? { withLink: 0, reports: [], attendees: [] }}
         comms={stats?.comms ?? { notifications: 0, unread: 0, pendingSignups: 0, notificationTypes: [], emails: [] }}
-        traffic={stats?.traffic ?? { guests: 0, members: 0, devices: [], sources: [] }}
+        traffic={stats?.traffic ?? { guests: 0, members: 0, devices: [], sources: [], countries: [], cities: [], browsers: [], operatingSystems: [] }}
         rafiq={stats?.rafiq ?? { turns: 0, members: 0, guests: 0, tokens: 0, models: [] }}
         system={stats?.system ?? { operations: 0, errors: 0, byStatus: [], hourly: [], daily: [], latestAt: null }}
         chartDays={stats?.chartDays ?? 30}

@@ -3,7 +3,7 @@ import type { Prisma } from "@prisma/client";
 
 import { SystemLogStatus } from "@/core/domain/enums";
 
-const KEEP = 100;
+const KEEP = 10_000;
 
 export default class SystemLogRepository {
   async create(data: Prisma.SystemLogUncheckedCreateInput) {

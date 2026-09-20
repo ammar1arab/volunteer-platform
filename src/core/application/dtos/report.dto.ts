@@ -89,6 +89,10 @@ export interface DashboardStatsDto {
     members: number;
     devices: NamedCount[];
     sources: NamedCount[];
+    countries: NamedCount[];
+    cities: NamedCount[];
+    browsers: NamedCount[];
+    operatingSystems: NamedCount[];
     daily?: Array<{ date: string; guests: number; members: number; total: number }>;
   };
   rafiq: {

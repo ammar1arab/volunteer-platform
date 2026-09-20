@@ -24,6 +24,20 @@
   overflow-x: clip;
   overflow-y: visible;
 
+  :global([class*="Badge"]),
+  :global([class*="badge"]) {
+    border: 0 !important;
+    box-shadow: none !important;
+    transition: none !important;
+  }
+
+  :global([class*="Badge"]:hover),
+  :global([class*="badge"]:hover) {
+    border: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
   @media (max-width: 768px) {
     padding: $sp-sm $sp-md;
   }

@@ -64,6 +64,10 @@ export interface DashboardStatsQuery {
     instagram: number;
     facebook: number;
     other: number;
+    countries: Record<string, number>;
+    cities: Record<string, number>;
+    browsers: Record<string, number>;
+    operatingSystems: Record<string, number>;
   };
   rafiq: {
     turns: number;
@@ -100,7 +104,11 @@ function emptyTraffic() {
     google: 0,
     instagram: 0,
     facebook: 0,
-    other: 0
+    other: 0,
+    countries: {} as Record<string, number>,
+    cities: {} as Record<string, number>,
+    browsers: {} as Record<string, number>,
+    operatingSystems: {} as Record<string, number>
   };
 }
 
@@ -115,6 +123,10 @@ type AnalyticsRow = {
   instagram: number;
   facebook: number;
   other: number;
+  countries: Prisma.JsonValue;
+  cities: Prisma.JsonValue;
+  browsers: Prisma.JsonValue;
+  operatingSystems: Prisma.JsonValue;
   chatTurns: number;
   chatMembers: number;
   chatGuests: number;
@@ -290,6 +302,7 @@ export default class ReportsRepository {
       prisma.systemLog.findFirst({ orderBy: { createdAt: "desc" }, select: { createdAt: true } }),
       prisma.$queryRaw<AnalyticsRow[]>`
         SELECT day, guests, members, mobile, desktop, tablet, google, instagram, facebook, other,
+               countries, cities, browsers, "operatingSystems",
                "chatTurns", "chatMembers", "chatGuests", tokens, models
         FROM analytics_daily
         WHERE day >= ${window.start ? ammanDayKey(window.start) : "0000-01-01"}
@@ -310,6 +323,18 @@ export default class ReportsRepository {
       traffic.instagram += row.instagram;
       traffic.facebook += row.facebook;
       traffic.other += row.other;
+      for (const [key, count] of Object.entries(modelCounts(row.countries))) {
+        traffic.countries[key] = (traffic.countries[key] ?? 0) + count;
+      }
+      for (const [key, count] of Object.entries(modelCounts(row.cities))) {
+        traffic.cities[key] = (traffic.cities[key] ?? 0) + count;
+      }
+      for (const [key, count] of Object.entries(modelCounts(row.browsers))) {
+        traffic.browsers[key] = (traffic.browsers[key] ?? 0) + count;
+      }
+      for (const [key, count] of Object.entries(modelCounts(row.operatingSystems))) {
+        traffic.operatingSystems[key] = (traffic.operatingSystems[key] ?? 0) + count;
+      }
       rafiq.turns += row.chatTurns;
       rafiq.members += row.chatMembers;
       rafiq.guests += row.chatGuests;
@@ -385,10 +410,19 @@ export default class ReportsRepository {
     };
   }
 
-  async incrementTraffic(input: { guest: boolean; device: TrafficDevice; source: TrafficSource }) {
+  async incrementTraffic(input: { guest: boolean; device: TrafficDevice; source: TrafficSource; country?: string; city?: string; browser: string; operatingSystem: string }) {
     const day = ammanDayKey(new Date());
+    const country = input.country ?? "";
+    const city = input.city ?? "";
+    const countries = JSON.stringify(country ? { [country]: 1 } : {});
+    const cities = JSON.stringify(city ? { [city]: 1 } : {});
+    const browsers = JSON.stringify({ [input.browser]: 1 });
+    const operatingSystems = JSON.stringify({ [input.operatingSystem]: 1 });
     await prisma.$executeRaw`
-      INSERT INTO analytics_daily (day, guests, members, mobile, desktop, tablet, google, instagram, facebook, other)
+      INSERT INTO analytics_daily (
+        day, guests, members, mobile, desktop, tablet, google, instagram, facebook, other,
+        countries, cities, browsers, "operatingSystems"
+      )
       VALUES (
         ${day},
         ${input.guest ? 1 : 0},
@@ -399,7 +433,11 @@ export default class ReportsRepository {
         ${input.source === "google" ? 1 : 0},
         ${input.source === "instagram" ? 1 : 0},
         ${input.source === "facebook" ? 1 : 0},
-        ${input.source === "other" ? 1 : 0}
+        ${input.source === "other" ? 1 : 0},
+        CAST(${countries} AS jsonb),
+        CAST(${cities} AS jsonb),
+        CAST(${browsers} AS jsonb),
+        CAST(${operatingSystems} AS jsonb)
       )
       ON CONFLICT (day) DO UPDATE SET
         guests = analytics_daily.guests + EXCLUDED.guests,
@@ -410,7 +448,37 @@ export default class ReportsRepository {
         google = analytics_daily.google + EXCLUDED.google,
         instagram = analytics_daily.instagram + EXCLUDED.instagram,
         facebook = analytics_daily.facebook + EXCLUDED.facebook,
-        other = analytics_daily.other + EXCLUDED.other
+        other = analytics_daily.other + EXCLUDED.other,
+        countries = CASE
+          WHEN ${country} = '' THEN analytics_daily.countries
+          ELSE jsonb_set(
+            analytics_daily.countries,
+            ARRAY[${country}],
+            to_jsonb(COALESCE((analytics_daily.countries ->> ${country})::int, 0) + 1),
+            true
+          )
+        END,
+        cities = CASE
+          WHEN ${city} = '' THEN analytics_daily.cities
+          ELSE jsonb_set(
+            analytics_daily.cities,
+            ARRAY[${city}],
+            to_jsonb(COALESCE((analytics_daily.cities ->> ${city})::int, 0) + 1),
+            true
+          )
+        END,
+        browsers = jsonb_set(
+          analytics_daily.browsers,
+          ARRAY[${input.browser}],
+          to_jsonb(COALESCE((analytics_daily.browsers ->> ${input.browser})::int, 0) + 1),
+          true
+        ),
+        "operatingSystems" = jsonb_set(
+          analytics_daily."operatingSystems",
+          ARRAY[${input.operatingSystem}],
+          to_jsonb(COALESCE((analytics_daily."operatingSystems" ->> ${input.operatingSystem})::int, 0) + 1),
+          true
+        )
     `;
   }
 
