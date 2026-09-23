@@ -195,7 +195,7 @@ function JourneyCurve({ points, accept, attend }: { points: DailyPulse[]; accept
         </span>
       </div>
       <div className={styles.chart} dir="ltr">
-        <ResponsiveContainer width="100%" height={210}>
+        <ResponsiveContainer width="100%" height="100%">
           <LineChart data={rows} margin={{ top: 28, right: 16, left: 8, bottom: 0 }} tabIndex={-1}>
             <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9ca3af" }} />
             <YAxis hide />
@@ -656,7 +656,7 @@ function TrafficWaveChart({
 
       <div className={styles.waveChartBox} dir="ltr">
         {points.length ? (
-          <ResponsiveContainer width="100%" height={210}>
+          <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={points} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} tabIndex={-1}>
               <defs>
                 <linearGradient id="trafficGuestsGrad" x1="0" y1="0" x2="0" y2="1">
@@ -783,7 +783,7 @@ function RafiqWaveChart({
 
       <div className={styles.waveChartBox} dir="ltr">
         {points.length ? (
-          <ResponsiveContainer width="100%" height={210}>
+          <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={points} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} tabIndex={-1}>
               <defs>
                 <linearGradient id="rafiqTurnsGrad" x1="0" y1="0" x2="0" y2="1">

@@ -78,14 +78,14 @@
   z-index: 1;
   display: grid;
   gap: 2px;
-  padding: .4rem .7rem;
-  border: 1px solid $border;
-  border-radius: $radius-md;
-  background: rgba($white, .96);
-  box-shadow: 0 8px 20px rgba(17, 17, 17, .06);
+  padding: .4rem .75rem;
+  border: 0;
+  border-radius: $radius-full;
+  background: #0f172a;
+  box-shadow: none;
 
-  b { color: $black; font-size: $font-sm; font-variant-numeric: tabular-nums; }
-  span { color: $text-tertiary; font-size: .68rem; }
+  b { color: $white; font-size: $font-sm; font-variant-numeric: tabular-nums; }
+  span { color: rgba($white, .72); font-size: .68rem; }
 }
 
 .radialWrap {
@@ -133,13 +133,14 @@
 
   button {
     min-width: 0;
-    padding: .5rem .35rem;
-    color: $text-secondary;
+    padding: .45rem .4rem;
+    color: color-mix(in srgb, var(--age-color) 78%, #111827);
     font: inherit;
     font-size: $font-xs;
-    border: 1px solid rgba(15, 23, 42, .1);
-    border-radius: $radius-md;
-    background: $white;
+    font-weight: 700;
+    border: 0;
+    border-radius: $radius-full;
+    background: color-mix(in srgb, var(--age-color) 14%, transparent);
     cursor: pointer;
 
     strong { display: block; margin-top: 2px; color: inherit; font-size: $font-sm; font-variant-numeric: tabular-nums; }
@@ -408,9 +409,9 @@
 
 .statGrid {
   width: 100%;
-  min-height: 116px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: $sp-sm;
   margin-bottom: $sp-md;
 
@@ -420,23 +421,36 @@
     display: grid;
     min-width: 0;
     align-content: center;
-    min-height: 54px;
-    padding: $sp-sm $sp-md;
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    gap: 2px;
+    padding: 10px 12px;
+    border: 0;
     border-radius: $radius-md;
-    background: $white;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-    transition: border-color $transition, box-shadow $transition;
-
-    &:hover {
-      border-color: rgba(0, 0, 0, 0.12);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
+    background: rgba(15, 23, 42, .045);
+    box-shadow: none;
   }
 
-  span, strong { display: block; }
-  span { color: $text-secondary; font-size: $font-xs; }
-  strong { margin-top: 2px; overflow-wrap: anywhere; color: $black; font-size: $font-md; font-variant-numeric: tabular-nums; }
+  span, strong { display: block; min-width: 0; }
+  span {
+    color: $text-secondary;
+    font-size: $font-xs;
+    line-height: 1.35;
+  }
+  strong {
+    color: $black;
+    font-size: $font-md;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (max-width: 800px) {
+  .statGrid {
+    gap: $sp-xs;
+    margin-bottom: $sp-sm;
+
+    div { padding: 8px 10px; }
+    strong { font-size: $font-sm; }
+  }
 }
 
 .loadingPanel {
@@ -445,7 +459,7 @@
   place-items: center;
   border: 1px solid rgba($green, .14);
   border-radius: $radius-lg;
-  background: linear-gradient(135deg, #f6fbf8, $white);
+  background: linear-gradient(135deg, rgba($green, .08), rgba(15, 23, 42, .04));
 }
 
 .loadingState {
@@ -526,7 +540,7 @@
 @media (max-width: 520px) {
   .panel { padding: $sp-sm; }
   .barRow { grid-template-columns: minmax(74px, auto) 1fr auto; gap: $sp-xs; }
-  .statGrid { grid-template-columns: minmax(0, 1fr); }
+  .statGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ageTabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .journeyFlow { grid-template-columns: minmax(0, 1fr); }
   .journeyStage { min-height: auto; padding: $sp-sm $sp-md; }
@@ -574,12 +588,18 @@
   flex-direction: column;
   justify-content: center;
   gap: 2px;
+  min-width: 0;
+  min-height: 0;
   padding: $sp-sm $sp-md;
-  background: transparent;
+  background: rgba(15, 23, 42, .045);
   border: 0;
   border-radius: $radius-md;
   box-shadow: none;
-  min-height: 54px;
+
+  &:nth-child(1) { background: rgba(20, 184, 166, .12); }
+  &:nth-child(2) { background: rgba(13, 148, 136, .1); }
+  &:nth-child(3) { background: rgba(139, 92, 246, .12); }
+  &:nth-child(4) { background: rgba(37, 99, 235, .1); }
 }
 
 .waveStatLabel {
@@ -595,15 +615,18 @@
 }
 
 .waveStatSub {
+  overflow: hidden;
   font-size: $font-xs;
   font-weight: 600;
   color: #334155;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .waveChartBox {
   width: 100%;
-  height: 220px;
+  height: 200px;
+  min-width: 0;
   position: relative;
 }
 
@@ -621,34 +644,45 @@
 .wavePill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: rgba(139, 92, 246, .1);
+  gap: 6px;
+  max-width: 100%;
+  padding-block: 3px;
+  padding-inline: 10px 3px;
+  background: rgba(139, 92, 246, .12);
   border: 0;
   border-radius: $radius-full;
   font-size: $font-xs;
+  font-weight: 700;
   color: #6d28d9;
 
   strong {
-    color: #0f172a;
-    font-weight: 700;
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.35rem;
+    padding: 2px 6px;
+    color: #5b21b6;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    border-radius: $radius-full;
+    background: rgba(139, 92, 246, .16);
   }
 }
 
 .waveFooterSources {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: $sp-sm;
   min-width: 0;
 }
 
 .waveSourceGroup {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: $sp-xs;
   min-width: 0;
-  padding: $sp-sm;
-  border-radius: $radius-md;
-  background: rgba($white, .72);
+  padding: 0;
+  background: transparent;
 }
 
 .waveChipRow {
@@ -667,33 +701,49 @@
 .sourceTag {
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: $sp-xs;
+  gap: 6px;
   max-width: 100%;
-  padding: .35rem .6rem;
-  background: rgba(20, 184, 166, .1);
+  padding-block: 3px;
+  padding-inline: 10px 3px;
+  background: rgba(20, 184, 166, .12);
   border: 0;
   border-radius: $radius-full;
   font-size: $font-xs;
+  font-weight: 700;
   color: #0f766e;
-  overflow-wrap: anywhere;
 
   strong {
-    color: #0f172a;
-    font-weight: 700;
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.35rem;
+    padding: 2px 6px;
+    color: #115e59;
+    font-weight: 800;
     font-variant-numeric: tabular-nums;
+    border-radius: $radius-full;
+    background: rgba(20, 184, 166, .18);
   }
 }
 
-.locationTag { background: rgba(245, 158, 11, .11); color: #a16207; }
-.browserTag { background: rgba(59, 130, 246, .1); color: #1d4ed8; }
-.systemTag { background: rgba(236, 72, 153, .09); color: #be185d; }
-
-@media (min-width: 1100px) {
-  .waveFooterSources { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.locationTag {
+  background: rgba(245, 158, 11, .14);
+  color: #a16207;
+  strong { color: #92400e; background: rgba(245, 158, 11, .2); }
+}
+.browserTag {
+  background: rgba(59, 130, 246, .12);
+  color: #1d4ed8;
+  strong { color: #1e3a8a; background: rgba(59, 130, 246, .16); }
+}
+.systemTag {
+  background: rgba(236, 72, 153, .12);
+  color: #be185d;
+  strong { color: #9d174d; background: rgba(236, 72, 153, .16); }
 }
 
 @media (max-width: 640px) {
-  .waveFooterSources,
-  .waveStats { grid-template-columns: minmax(0, 1fr); }
+  .waveChartBox { height: 156px; }
+  .waveStatCard { padding: $sp-xs $sp-sm; }
+  .waveStatVal { font-size: $font-md; }
+  .waveFooterTitle { width: 100%; }
 }
