@@ -555,6 +555,32 @@ function GradientPie({ id, rows, center, hint }: { id: string; rows: ChartRow[];
   );
 }
 
+function SourceChips({
+  title,
+  items,
+  tone = "source"
+}: {
+  title: string;
+  items: Array<{ key: string; label: string; count: number }>;
+  tone?: "source" | "pill" | "location" | "browser" | "system";
+}) {
+  if (!items.length) return null;
+  const toneClass = tone === "pill" ? styles.wavePill : tone === "location" ? `${styles.sourceTag} ${styles.locationTag}` : tone === "browser" ? `${styles.sourceTag} ${styles.browserTag}` : tone === "system" ? `${styles.sourceTag} ${styles.systemTag}` : styles.sourceTag;
+  return (
+    <div className={styles.waveSourceGroup}>
+      <span className={styles.waveFooterTitle}>{title}</span>
+      <div className={styles.waveChipRow}>
+        {items.map((item) => (
+          <span key={item.key} className={toneClass}>
+            {item.label}
+            <strong>{formatNumber(item.count)}</strong>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function StatGrid({ rows }: { rows: Array<{ label: string; value: string }> }) {
   return (
     <div className={styles.statGrid}>
@@ -631,7 +657,7 @@ function TrafficWaveChart({
       <div className={styles.waveChartBox} dir="ltr">
         {points.length ? (
           <ResponsiveContainer width="100%" height={210}>
-            <AreaChart data={points} margin={{ top: 12, right: 10, left: -10, bottom: 0 }} tabIndex={-1}>
+            <AreaChart data={points} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} tabIndex={-1}>
               <defs>
                 <linearGradient id="trafficGuestsGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={TEAL} stopOpacity={0.42} />
@@ -688,37 +714,12 @@ function TrafficWaveChart({
       </div>
 
       <div className={styles.waveFooterSources}>
-        <span className={styles.waveFooterTitle}>تفاصيل الزيارات:</span>
-        {traffic.sources.map((s) => (
-          <span key={s.key} className={styles.sourceTag}>
-            {SOURCE_LABELS[s.key as keyof typeof SOURCE_LABELS] || s.key}: <strong>{formatNumber(s.count)}</strong>
-          </span>
-        ))}
-        {devices.map((d) => (
-          <span key={d.key} className={styles.wavePill}>
-            {DEVICE_LABELS[d.key as keyof typeof DEVICE_LABELS] || d.key}: <strong>{formatNumber(d.count)}</strong>
-          </span>
-        ))}
-        {traffic.countries.map((country) => (
-          <span key={country.key} className={`${styles.sourceTag} ${styles.locationTag}`}>
-            دولة · {COUNTRY_NAMES.of(country.key) ?? country.key}: <strong>{formatNumber(country.count)}</strong>
-          </span>
-        ))}
-        {traffic.cities.map((city) => (
-          <span key={city.key} className={`${styles.sourceTag} ${styles.locationTag}`}>
-            مدينة · {city.key}: <strong>{formatNumber(city.count)}</strong>
-          </span>
-        ))}
-        {traffic.browsers.map((browser) => (
-          <span key={browser.key} className={`${styles.sourceTag} ${styles.browserTag}`}>
-            متصفح · {browser.key}: <strong>{formatNumber(browser.count)}</strong>
-          </span>
-        ))}
-        {traffic.operatingSystems.map((operatingSystem) => (
-          <span key={operatingSystem.key} className={`${styles.sourceTag} ${styles.systemTag}`}>
-            نظام · {operatingSystem.key}: <strong>{formatNumber(operatingSystem.count)}</strong>
-          </span>
-        ))}
+        <SourceChips title="المصدر" items={traffic.sources.map((row) => ({ key: row.key, label: SOURCE_LABELS[row.key as keyof typeof SOURCE_LABELS] || row.key, count: row.count }))} />
+        <SourceChips title="الجهاز" tone="pill" items={devices.map((row) => ({ key: row.key, label: DEVICE_LABELS[row.key as keyof typeof DEVICE_LABELS] || row.key, count: row.count }))} />
+        <SourceChips title="الدولة" tone="location" items={traffic.countries.map((row) => ({ key: row.key, label: COUNTRY_NAMES.of(row.key) ?? row.key, count: row.count }))} />
+        <SourceChips title="المدينة" tone="location" items={traffic.cities.map((row) => ({ key: row.key, label: row.key, count: row.count }))} />
+        <SourceChips title="المتصفح" tone="browser" items={traffic.browsers.map((row) => ({ key: row.key, label: row.key, count: row.count }))} />
+        <SourceChips title="النظام" tone="system" items={traffic.operatingSystems.map((row) => ({ key: row.key, label: row.key, count: row.count }))} />
       </div>
     </div>
   );
@@ -783,7 +784,7 @@ function RafiqWaveChart({
       <div className={styles.waveChartBox} dir="ltr">
         {points.length ? (
           <ResponsiveContainer width="100%" height={210}>
-            <AreaChart data={points} margin={{ top: 12, right: 10, left: -10, bottom: 0 }} tabIndex={-1}>
+            <AreaChart data={points} margin={{ top: 12, right: 8, left: 0, bottom: 0 }} tabIndex={-1}>
               <defs>
                 <linearGradient id="rafiqTurnsGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={PURPLE} stopOpacity={0.45} />
@@ -840,12 +841,14 @@ function RafiqWaveChart({
       </div>
 
       <div className={styles.waveFooterSources}>
-        <span className={styles.waveFooterTitle}>نماذج الرد:</span>
-        {rafiq.models.map((m) => (
-          <span key={m.key} className={styles.sourceTag}>
-            {RAFIQ_MODEL_LABELS[m.key as keyof typeof RAFIQ_MODEL_LABELS] || m.key}: <strong>{formatNumber(m.count)}</strong>
-          </span>
-        ))}
+        <SourceChips
+          title="نماذج الرد"
+          items={rafiq.models.map((row) => ({
+            key: row.key,
+            label: RAFIQ_MODEL_LABELS[row.key as keyof typeof RAFIQ_MODEL_LABELS] || row.key,
+            count: row.count
+          }))}
+        />
       </div>
     </div>
   );
@@ -1107,7 +1110,7 @@ export default function AnalyticsCharts({
         </Panel>
       ) : null}
 
-      <Panel title={COPY.panels.notifications} subtitle={COPY.panels.notificationsSub}>
+      <Panel title={COPY.panels.notifications} subtitle={COPY.panels.notificationsSub} className={styles.equalPanel}>
         <StatGrid
           rows={[
             { label: "إشعارات الفترة", value: formatCount(comms.notifications) },
@@ -1117,7 +1120,7 @@ export default function AnalyticsCharts({
         <RankedBars rows={noticeRows} empty="لا توجد إشعارات مرسلة في المدة المختارة" />
       </Panel>
 
-      <Panel title={COPY.panels.cityAge} subtitle={COPY.panels.cityAgeSub}>
+      <Panel title={COPY.panels.cityAge} subtitle={COPY.panels.cityAgeSub} className={styles.equalPanel}>
         <CompactCityAge rows={cityAge} />
       </Panel>
     </div>

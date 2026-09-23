@@ -38,6 +38,7 @@
 }
 
 .card {
+  min-width: 0;
   background: $bg;
   border-radius: $radius-md;
   display: flex;
@@ -52,9 +53,15 @@
 
 .cardHeader {
   @include flex(row, center, space-between, $sp-sm);
+  min-width: 0;
   padding: $sp-md $sp-lg;
   border-bottom: 1px solid $border;
   gap: $sp-sm;
+  flex-wrap: wrap;
+
+  @include sm {
+    padding: $sp-sm $sp-md;
+  }
 }
 
 .avatar {
@@ -95,6 +102,8 @@
 .cardActions {
   @include flex(row, center, flex-end, 6px);
   flex-shrink: 0;
+
+  @include sm { margin-inline-start: auto; }
 }
 
 .permBadge {
@@ -111,8 +120,11 @@
 .btnDanger { @include action-btn-tinted($red); }
 
 .cardBody {
+  min-width: 0;
   padding: $sp-md $sp-lg;
   flex: 1;
+
+  @include sm { padding: $sp-sm $sp-md; }
 }
 
 .form {
@@ -163,8 +175,10 @@
 
 .permGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: $sp-xs;
+
+  @include sm { grid-template-columns: minmax(0, 1fr); }
 }
 
 .permChip {

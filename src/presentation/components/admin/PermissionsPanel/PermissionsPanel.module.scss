@@ -14,6 +14,8 @@
 
 .panelTop {
   @include flex(row, center, space-between, $sp-sm);
+  flex-wrap: wrap;
+  gap: $sp-sm;
 }
 
 .counter {
@@ -70,12 +72,15 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: $sp-xs;
+
+  @include sm { grid-template-columns: minmax(0, 1fr); }
 }
 
 .permBtn {
   @include flex(row, center, flex-start, $sp-xs);
+  min-width: 0;
   padding: 8px 10px;
   border-radius: $radius;
   border: 1px solid transparent;
@@ -83,6 +88,7 @@
   font-size: $font-xs;
   font-weight: 600;
   text-align: right;
+  white-space: normal;
   transition: all 0.2s ease;
   width: 100%;
 
@@ -132,5 +138,7 @@
 
 .permName {
   flex: 1;
+  min-width: 0;
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
