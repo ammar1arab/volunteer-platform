@@ -117,7 +117,7 @@
 .matchActions {
   @include flex(row, flex-end, flex-end, $sp-xs);
   flex-wrap: wrap;
-  min-width: 220px;
+  min-width: min(220px, 100%);
   flex: 1;
 
   @include sm {

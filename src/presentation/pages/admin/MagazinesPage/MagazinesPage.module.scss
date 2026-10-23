@@ -235,7 +235,7 @@
   padding: 8px 24px;
   font-size: 14px;
   font-weight: 600;
-  min-width: 110px;
+  min-width: min(110px, 100%);
 }
 .row {
   display: grid;

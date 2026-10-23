@@ -22,7 +22,6 @@
   min-width: 0;
 
   @include sm {
-    flex-wrap: nowrap;
     gap: $sp-xs;
   }
 }
@@ -39,7 +38,7 @@
   flex: 1 1 220px;
 
   @include sm {
-    flex: 1 1 0;
+    flex: 1 1 100%;
   }
 }
 
@@ -47,6 +46,8 @@
   flex-shrink: 0;
 
   @include sm {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
     gap: $sp-xs;
   }
 }

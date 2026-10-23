@@ -32,7 +32,7 @@
 
 .search {
   flex: 1;
-  min-width: 180px;
+  min-width: min(180px, 100%);
 
   > * {
     width: 100%;

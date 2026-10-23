@@ -23,6 +23,7 @@
 
 @mixin toolbar-row {
   @include flex(row, center, space-between, $sp-sm);
+  flex-wrap: wrap;
   width: 100%;
   min-width: 0;
 
@@ -32,6 +33,10 @@
 
   @include sm {
     gap: $sp-xs;
+
+    > :first-child {
+      flex: 1 1 100%;
+    }
   }
 }
 

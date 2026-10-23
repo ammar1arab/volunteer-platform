@@ -489,7 +489,7 @@
 .searchWrap {
   position: relative;
   flex: 1;
-  min-width: 120px;
+  min-width: min(120px, 100%);
 }
 
 .searchIcon {

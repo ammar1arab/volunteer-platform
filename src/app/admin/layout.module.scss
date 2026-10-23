@@ -38,7 +38,11 @@
     transform: none !important;
   }
 
-  @media (max-width: 768px) {
-    padding: $sp-sm $sp-md;
+  @media (max-width: 900px) {
+    padding: $sp-md;
+  }
+
+  @media (max-width: 600px) {
+    padding: $sp-sm;
   }
 }
