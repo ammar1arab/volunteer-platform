@@ -140,6 +140,43 @@ export const DEVICE_LABELS: Record<string, string> = {
   tablet: "جهاز لوحي"
 };
 
+export const BROWSER_LABELS: Record<string, string> = {
+  Chrome: "كروم",
+  Safari: "سفاري",
+  Firefox: "فايرفوكس",
+  Edge: "إيدج",
+  Opera: "أوبرا"
+};
+
+export const OS_LABELS: Record<string, string> = {
+  Windows: "ويندوز",
+  macOS: "ماك أو إس",
+  Linux: "لينكس",
+  Android: "أندرويد",
+  iOS: "آي أو إس"
+};
+
+export const CITY_LABELS: Record<string, string> = {
+  Amman: "عمّان", Zarqa: "الزرقاء", Irbid: "إربد", Mafraq: "المفرق", Minya: "المنيا", Cairo: "القاهرة",
+  Alexandria: "الإسكندرية", Giza: "الجيزة", Riyadh: "الرياض", Jeddah: "جدة", Doha: "الدوحة", Baghdad: "بغداد",
+  Damascus: "دمشق", Sanaa: "صنعاء", Hebron: "الخليل", Nablus: "نابلس", Jarash: "جرش", "Ar Ramthā": "الرمثا",
+  "Wādī as Sīr": "وادي السير", "Nā'ur": "ناعور", Meknes: "مكناس", Casablanca: "الدار البيضاء",
+  Istanbul: "إسطنبول", London: "لندن", Paris: "باريس", Madrid: "مدريد", Milan: "ميلانو", Naples: "نابولي",
+  Florence: "فلورنسا", Amsterdam: "أمستردام", Brussels: "بروكسل", Zürich: "زيورخ", Strasbourg: "ستراسبورغ",
+  Bordeaux: "بوردو", "Frankfurt am Main": "فرانكفورت", Nuremberg: "نورمبرغ", Lille: "ليل", Barking: "باركينغ",
+  Erith: "إيريث", Gravelines: "غرافلين", Naaldwijk: "نالدفيك", Lelystad: "ليلستاد", Delfzijl: "دلفزيل",
+  Clonee: "كلوني", "Luleå": "لوليو", Singapore: "سنغافورة", Mumbai: "مومباي", "Kuala Lumpur": "كوالالمبور",
+  Kota: "كوتا", Bursa: "بورصة", "Limburg an der Lahn": "ليمبورغ", Falkenstein: "فالكنشتاين",
+  Hamina: "حمينة", "Kafr Sawm": "كفر سوم", "Al Mansurah": "المنصورة", "Khuraybat as Sūq": "خريبة السوق",
+  Russeifa: "الرصيفة", Suwaylih: "صويلح", "Saḥab": "سحاب", Boston: "بوسطن", Atlanta: "أتلانتا",
+  Toronto: "تورونتو", Montréal: "مونتريال", Newark: "نيوارك", "Los Angeles": "لوس أنجلوس", "San Jose": "سان خوسيه",
+  "Salt Lake City": "سولت ليك سيتي", "Fort Worth": "فورت وورث", Springfield: "سبرينغفيلد", "Council Bluffs": "كونسل بلافس",
+  Charlotte: "شارلوت", Wilmington: "ويلمنغتون", Milford: "ميلفورد", Spokane: "سبوكان", Altoona: "ألتونا",
+  Columbus: "كولومبوس", Ashburn: "آشبرن", "Des Moines": "دي موين", Boydton: "بويدتون", Boardman: "بوردمان",
+  "Forest City": "فورست سيتي", "Dulles Town Center": "دالس تاون سنتر", Prineville: "برينفيل",
+  "Moncks Corner": "مونكس كورنر", Lauterbourg: "لوترباور"
+};
+
 export const SOURCE_LABELS: Record<string, string> = {
   google: "Google",
   instagram: "إنستغرام",

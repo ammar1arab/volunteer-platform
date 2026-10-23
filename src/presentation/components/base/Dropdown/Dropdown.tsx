@@ -44,10 +44,7 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
     const margin = 12;
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
-    const preferredWidth = compact
-      ? Math.max(rect.width, Math.min(280, viewportW - margin * 2))
-      : Math.max(rect.width, Math.min(320, viewportW - margin * 2));
-    const width = Math.min(preferredWidth, viewportW - margin * 2);
+    const width = Math.min(rect.width, viewportW - margin * 2);
 
     let left = rect.left;
     if (left + width > viewportW - margin) left = viewportW - margin - width;
@@ -65,7 +62,7 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
       width: Math.round(width),
       maxHeight: Math.round(maxHeight)
     });
-  }, [compact]);
+  }, []);
 
   const close = () => setIsOpen(false);
 
