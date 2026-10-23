@@ -42,6 +42,27 @@ export interface CityAgeCount {
   count: number;
 }
 
+export interface TrafficBreakdownDto {
+  guests: number;
+  members: number;
+  devices: NamedCount[];
+  sources: NamedCount[];
+  countries: NamedCount[];
+  cities: NamedCount[];
+  browsers: NamedCount[];
+  operatingSystems: NamedCount[];
+  daily: Array<{ date: string; guests: number; members: number; total: number }>;
+}
+
+export interface VisitorTrafficDto extends TrafficBreakdownDto {
+  available: boolean;
+  trackingStartedAt: string | null;
+  newVisitors: number;
+  returningVisitors: number;
+  peakDay: { date: string; count: number } | null;
+  legacy?: TrafficBreakdownDto;
+}
+
 export interface DashboardStatsDto {
   range: ReportRange;
   chartDays: number;
@@ -84,17 +105,7 @@ export interface DashboardStatsDto {
     notificationTypes: NamedCount[];
     emails: NamedCount[];
   };
-  traffic: {
-    guests: number;
-    members: number;
-    devices: NamedCount[];
-    sources: NamedCount[];
-    countries: NamedCount[];
-    cities: NamedCount[];
-    browsers: NamedCount[];
-    operatingSystems: NamedCount[];
-    daily?: Array<{ date: string; guests: number; members: number; total: number }>;
-  };
+  traffic: VisitorTrafficDto;
   rafiq: {
     turns: number;
     members: number;

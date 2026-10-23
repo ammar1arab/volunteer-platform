@@ -1,4 +1,5 @@
-import { ReportsRepository, type TrafficDevice, type TrafficSource } from "@/infrastructure/persistence/repositories";
+import type { RecordVisitorInput } from "@/infrastructure/persistence/repositories/ReportsRepository/VisitorAnalyticsRepository";
+import { ReportsRepository } from "@/infrastructure/persistence/repositories";
 import { serviceError } from "@/core/application/common";
 import { ok, type GetReportStatsResponse, type NamedCount, type PulseMetric, type ReportRange } from "@/core/application/dtos";
 import {
@@ -75,8 +76,8 @@ function buildDailyPulse(volunteerDays: { day: string; count: number }[], reques
   }));
 }
 
-function fillTrafficDays(rows: { day: string; guests: number; members: number; total: number }[], days: number) {
-  const counts = new Map(rows.map((row) => [row.day, row]));
+function fillTrafficDays(rows: { date: string; guests: number; members: number; total: number }[], days: number) {
+  const counts = new Map(rows.map((row) => [row.date, row]));
   const series: Array<{ date: string; guests: number; members: number; total: number }> = [];
   const cursor = startOfAmmanDay(days - 1);
   for (let i = 0; i < days; i += 1) {
@@ -222,36 +223,12 @@ class ReportsUseCase {
           emails: namedFrom(raw.otpEmails, Object.values(OtpType), (row) => row.status ?? "")
         },
         traffic: {
-          guests: raw.traffic.guests,
-          members: raw.traffic.members,
-          devices: [
-            { key: "mobile", count: raw.traffic.mobile },
-            { key: "desktop", count: raw.traffic.desktop },
-            { key: "tablet", count: raw.traffic.tablet }
-          ],
-          sources: [
-            { key: "google", count: raw.traffic.google },
-            { key: "instagram", count: raw.traffic.instagram },
-            { key: "facebook", count: raw.traffic.facebook },
-            { key: "other", count: raw.traffic.other }
-          ],
-          countries: Object.entries(raw.traffic.countries)
-            .sort(([, left], [, right]) => right - left)
-            .slice(0, 3)
-            .map(([key, count]) => ({ key, count })),
-          cities: Object.entries(raw.traffic.cities)
-            .sort(([, left], [, right]) => right - left)
-            .slice(0, 3)
-            .map(([key, count]) => ({ key, count })),
-          browsers: Object.entries(raw.traffic.browsers)
-            .sort(([, left], [, right]) => right - left)
-            .slice(0, 3)
-            .map(([key, count]) => ({ key, count })),
-          operatingSystems: Object.entries(raw.traffic.operatingSystems)
-            .sort(([, left], [, right]) => right - left)
-            .slice(0, 3)
-            .map(([key, count]) => ({ key, count })),
-          daily: fillTrafficDays(raw.trafficDays, chartDays)
+          ...raw.traffic,
+          daily: fillTrafficDays(raw.traffic.daily, chartDays),
+          legacy: raw.traffic.legacy ? {
+            ...raw.traffic.legacy,
+            daily: fillTrafficDays(raw.traffic.legacy.daily, chartDays)
+          } : undefined
         },
         rafiq: {
           turns: raw.rafiq.turns,
@@ -270,7 +247,7 @@ class ReportsUseCase {
           latestAt: raw.latestLogAt ? raw.latestLogAt.toISOString() : null
         },
         lifetime: {
-          users: raw.genderGroups.reduce((sum, row) => sum + row.count, 0),
+          users: raw.totalVolunteers,
           activities: raw.activityStatuses.reduce((sum, row) => sum + row.count, 0),
           pendingRequests: raw.pendingRequests,
           hours: raw.totalHours,
@@ -283,11 +260,11 @@ class ReportsUseCase {
     }
   }
 
-  async recordTraffic(input: { guest: boolean; device: TrafficDevice; source: TrafficSource; country?: string; city?: string; browser: string; operatingSystem: string }) {
+  async recordTraffic(input: RecordVisitorInput) {
     try {
-      await this.reportsRepository.incrementTraffic(input);
+      return ok({ recorded: await this.reportsRepository.incrementTraffic(input) });
     } catch (error) {
-      serviceError(ReportsUseCase.SCOPE, "recordTraffic", error, "Failed to record traffic");
+      return serviceError(ReportsUseCase.SCOPE, "recordTraffic", error, "Failed to record visitor");
     }
   }
 

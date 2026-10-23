@@ -37,18 +37,6 @@
     transform: translateX(-200%) skewX(-22deg);
     animation: sheen 2s ease-in-out infinite;
   }
-
-  @keyframes sheen {
-    0% {
-      transform: translateX(-200%) skewX(-22deg);
-    }
-    40% {
-      transform: translateX(350%) skewX(-22deg);
-    }
-    100% {
-      transform: translateX(350%) skewX(-22deg);
-    }
-  }
 }
 
 @keyframes sheen {
@@ -60,18 +48,6 @@
   }
   100% {
     transform: translateX(300%) skewX(-22deg);
-  }
-}
-
-@keyframes sheen {
-  0% {
-    transform: translateX(-180%) skewX(-22deg);
-  }
-  55% {
-    transform: translateX(260%) skewX(-22deg);
-  }
-  100% {
-    transform: translateX(260%) skewX(-22deg);
   }
 }
 
@@ -113,6 +89,7 @@
   @include control-height;
   padding-inline: $sp-lg;
   font-size: $font-sm;
+  @include control-compact;
 }
 
 .lg {
@@ -130,7 +107,7 @@
 }
 
 .mobileIconOnly {
-  @media (max-width: $bp-sm) {
+  @include sm {
     width: $control-h;
     min-width: $control-h;
     @include control-height;
@@ -139,7 +116,7 @@
 }
 
 .mobileHiddenText {
-  @media (max-width: $bp-sm) {
+  @include sm {
     display: none;
   }
 }

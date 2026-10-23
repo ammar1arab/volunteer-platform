@@ -22,9 +22,8 @@
   min-width: 0;
 
   @include sm {
-    flex-direction: column;
-    align-items: stretch;
     flex-wrap: nowrap;
+    gap: $sp-xs;
   }
 }
 
@@ -40,8 +39,7 @@
   flex: 1 1 220px;
 
   @include sm {
-    width: 100%;
-    flex: 0 0 auto;
+    flex: 1 1 0;
   }
 }
 
@@ -49,7 +47,6 @@
   flex-shrink: 0;
 
   @include sm {
-    width: 100%;
     gap: $sp-xs;
   }
 }
@@ -111,11 +108,6 @@
 .btnConnect,
 .btnDisconnect {
   @include create-btn;
-
-  @include sm {
-    flex-shrink: 0;
-    min-width: 0;
-  }
 }
 
 .btnDisconnect {

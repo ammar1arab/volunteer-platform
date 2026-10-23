@@ -5,7 +5,7 @@
   @include flex-between;
   margin-bottom: $sp-lg;
 
-  @media (max-width: 768px) {
+  @include sm {
     @include flex-col;
     gap: $sp-sm;
   }
@@ -16,17 +16,22 @@
   font-weight: 700;
   color: $text;
 
-  @media (max-width: 640px) {
+  @include sm {
     font-size: $font-lg;
   }
 }
 
-@mixin header-actions {
-  @include flex(row, center, flex-start, $sp-sm);
+@mixin toolbar-row {
+  @include flex(row, center, space-between, $sp-sm);
+  width: 100%;
+  min-width: 0;
 
-  @media (max-width: 768px) {
-    width: 100%;
-    justify-content: space-between;
+  > * {
+    min-width: 0;
+  }
+
+  @include sm {
+    gap: $sp-xs;
   }
 }
 
@@ -36,7 +41,7 @@
   gap: $sp-md;
   margin-bottom: $sp-lg;
 
-  @media (max-width: 640px) {
+  @include sm {
     grid-template-columns: 1fr;
     gap: $sp-sm;
   }
@@ -73,44 +78,31 @@
 @mixin create-btn {
   @include btn-primary;
   @include control-height;
+  @include control-compact;
   gap: $sp-xs;
   white-space: nowrap;
   flex-shrink: 0;
   padding-inline: $sp-md;
-
-  @media (max-width: 640px) {
-    font-size: $font-xs;
-    padding-inline: $sp-sm;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
-  }
 }
 
 @mixin toolbar-end {
   @include flex(row, center, flex-end, $sp-sm);
-  flex-wrap: wrap;
   flex-shrink: 0;
+  min-width: 0;
 
-  @media (max-width: 640px) {
-    width: 100%;
-    justify-content: flex-end;
+  @include sm {
+    gap: $sp-xs;
   }
 }
 
 @mixin mobile-toolbar-pair {
   @include toolbar-end;
 
-  @media (max-width: 640px) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-    gap: $sp-xs;
+  @include sm {
+    width: 100%;
 
     > * {
-      width: 100% !important;
-      min-width: 0;
+      flex: 1 1 0;
     }
   }
 }

@@ -238,6 +238,7 @@
 
 .locationRow {
   @include flex(row, center, space-between, $sp-sm);
+  flex-wrap: wrap;
   padding: 7px $sp-sm;
   border-radius: $radius;
   margin-top: auto;
@@ -271,11 +272,14 @@
   color: #2563eb;
   font-weight: 600;
   text-decoration: none;
+  flex-shrink: 0;
   transition: opacity $transition;
 
   &:hover {
-    opacity: 0.7;
+    text-decoration: underline;
   }
+
+  &:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 }
 
 .mapsBtn {

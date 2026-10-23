@@ -602,6 +602,33 @@
   &:nth-child(4) { background: rgba(37, 99, 235, .1); }
 }
 
+.visitorStats {
+  @media (min-width: 801px) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.visitorPanel .waveStatCard {
+  background: transparent;
+  border-bottom: 1px solid $border;
+  border-radius: 0;
+}
+
+.visitorModes {
+  display: flex;
+  gap: $sp-xs;
+
+  button {
+    padding: $sp-xs $sp-md;
+    border: 1px solid $border;
+    border-radius: $radius;
+    font-size: $font-xs;
+    color: $text-secondary;
+
+    &[aria-pressed="true"] { background: $green; color: $white; border-color: $green; }
+    &:focus-visible { outline: 2px solid $green; outline-offset: 2px; }
+    &:disabled { opacity: .5; cursor: not-allowed; }
+  }
+}
+
 .waveStatLabel {
   font-size: $font-xs;
   color: $text-secondary;

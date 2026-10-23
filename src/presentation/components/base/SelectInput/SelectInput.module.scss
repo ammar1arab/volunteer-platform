@@ -4,7 +4,6 @@
 .wrapper {
   @include flex-col;
   gap: $sp-xs;
-
 }
 
 .label {
@@ -12,9 +11,9 @@
   font-weight: 500;
   color: $text;
   display: flex;
-  gap: 4px;
+  gap: $sp-xs;
   margin-bottom: 2px;
-  transition: color 0.2s ease;
+  transition: color $transition;
   .wrapper:focus-within & { color: $green; }
 }
 
@@ -27,40 +26,32 @@
 }
 
 .trigger {
-  width: 100%;
+  @include flex(row, center, space-between, $sp-sm);
   @include control-height;
-  padding-inline: 14px;
+  width: 100%;
+  padding-inline: $sp-md;
   background: $bg;
   border: 1px solid $border;
-  border-radius: 8px;
+  border-radius: $radius;
   font-family: inherit;
   font-size: $font-sm;
   color: $text;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: $sp-sm;
   text-align: right;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-
-  @media (max-width: $bp-sm) {
-    padding: 0 8px;
-    font-size: 12px;
-    gap: 4px;
-  }
+  cursor: pointer;
+  transition: $transition;
 
   &:hover:not(:disabled) {
-    border-color: rgba($green, 0.3);
-    box-shadow: 0 4px 12px rgba($green, 0.1);
+    border-color: $green;
+    background: rgba($green, 0.03);
   }
-  &:disabled { cursor: not-allowed; background: #f9fafb; }
+  &:disabled { cursor: not-allowed; background: $surface-hover; }
+
+  @include control-compact;
 }
 
 .container.open .trigger {
   border-color: $green;
-  box-shadow: 0 0 0 3px rgba($green, 0.12);
+  background: rgba($green, 0.06);
 }
 
 .container.error .trigger {
@@ -68,26 +59,29 @@
   background: rgba($red, 0.02);
 }
 
-.selected    { color: $text; flex: 1; font-weight: 500; }
-.placeholder { color: #9ca3af; flex: 1; }
+.selected    { color: $text; flex: 1; font-weight: 500; min-width: 0; }
+.placeholder { color: $text-tertiary; flex: 1; min-width: 0; }
 
 .icon {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: $green;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: $text-muted;
   flex-shrink: 0;
 }
-.iconOpen { transform: rotate(180deg); }
 
+.container.open .icon {
+  transform: rotate(180deg);
+  color: $green;
+}
 
 .menu {
   background: $surface;
-  border: 1px solid rgba($green, 0.2);
-  border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  box-shadow: 0 8px 28px rgba($black, 0.14);
   max-height: 280px;
   overflow-y: auto;
   list-style: none;
-  padding: 8px;
+  padding: $sp-xs;
   margin: 0;
   animation: menuSlideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   scrollbar-width: none;
@@ -95,37 +89,37 @@
 }
 
 @keyframes menuSlideIn {
-  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .option {
-  padding: 12px 14px;
+  padding: $sp-sm $sp-md;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background $transition;
   text-align: right;
   font-size: $font-sm;
-  border-radius: 8px;
+  border-radius: $radius;
   color: $text;
   font-weight: 500;
   white-space: nowrap;
 
-  &:hover { background: rgba($green, 0.08); color: #128a39; }
+  &:hover { background: rgba($green, 0.06); }
 }
 
 .optionActive {
-  background: rgba($green, 0.15);
-  color: #128a39;
+  background: rgba($green, 0.1);
+  color: $green;
   font-weight: 600;
 }
 
 .errorText {
-  font-size: 13px;
+  font-size: $font-xs;
   color: $red;
-  margin-top: 6px;
+  margin-top: $sp-xs;
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 4px;
-  &::before { content: "⚠"; font-size: 14px; }
+  gap: $sp-xs;
+  &::before { content: "⚠"; font-size: $font-sm; }
 }

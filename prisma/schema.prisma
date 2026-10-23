@@ -464,6 +464,33 @@ model SystemLog {
   @@map("system_logs")
 }
 
+model AnalyticsVisitor {
+  key          String                @id
+  volunteerKey String?
+  firstSeen    DateTime              @default(now())
+  days         AnalyticsVisitorDay[]
+
+  @@index([volunteerKey])
+  @@map("analytics_visitors")
+}
+
+model AnalyticsVisitorDay {
+  visitorKey      String
+  day             String
+  firstSeen       DateTime         @default(now())
+  device          String
+  source          String
+  country         String?
+  city            String?
+  browser         String
+  operatingSystem String
+  visitor         AnalyticsVisitor @relation(fields: [visitorKey], references: [key], onDelete: Cascade)
+
+  @@id([visitorKey, day])
+  @@index([day])
+  @@map("analytics_visitor_days")
+}
+
 model AnalyticsDaily {
   day              String @id
   guests           Int    @default(0)

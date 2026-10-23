@@ -28,8 +28,10 @@ import type {
   DailyPulse,
   GenderCount,
   JoinFunnel,
-  NamedCount
+  NamedCount,
+  ReportRange
 } from "@/presentation/types/reports";
+import type { VisitorTrafficDto } from "@/core/application/dtos/report.dto";
 import { formatCount } from "./AnalyticsPage.logic";
 import { COPY } from "./AnalyticsCopy";
 import {
@@ -57,15 +59,15 @@ import {
   percent,
   RAFIQ_MODEL_LABELS,
   rafiqWavePoints,
-  SOURCE_LABELS,
   trafficWavePoints,
+  formatVisitorDay,
   type ChartRow
 } from "./AnalyticsCharts.logic";
 import styles from "./AnalyticsCharts.module.scss";
+import VisitorDetails from "./VisitorDetails";
 
 const Y_AXIS = { width: 52, tick: { fontSize: 11, fill: "#4b5563" } };
 const CHART_MARGIN = { top: 8, right: 8, left: 8, bottom: 4 };
-const COUNTRY_NAMES = new Intl.DisplayNames(["ar"], { type: "region" });
 
 function Panel({
   title,
@@ -596,62 +598,73 @@ function StatGrid({ rows }: { rows: Array<{ label: string; value: string }> }) {
 
 function TrafficWaveChart({
   traffic,
-  chartDays
+  chartDays,
+  range
 }: {
-  traffic: {
-    guests: number;
-    members: number;
-    devices: NamedCount[];
-    sources: NamedCount[];
-    countries: NamedCount[];
-    cities: NamedCount[];
-    browsers: NamedCount[];
-    operatingSystems: NamedCount[];
-    daily?: Array<{ date: string; guests: number; members: number; total: number }>;
-  };
+  traffic?: VisitorTrafficDto;
   chartDays: number;
+  range: ReportRange;
 }) {
-  const points = trafficWavePoints(traffic.daily);
-  const totalVisitors = traffic.guests + traffic.members;
-  const devices = traffic.devices;
+  const [showVisitors, setShowVisitors] = useState(false);
+  const data = showVisitors ? traffic : traffic?.legacy;
+  if (!data) return <ChartEmpty message="لا توجد بيانات في الفترة المختارة" />;
+  const points = trafficWavePoints(data.daily);
+  const totalVisitors = data.guests + data.members;
+  const devices = data.devices;
 
   return (
-    <div className={styles.wavePanel}>
-      <div className={styles.waveStats}>
+    <div className={`${styles.wavePanel} ${styles.visitorPanel}`}>
+      <div className={styles.visitorModes} role="group" aria-label="عرض الإحصائيات">
+        <button type="button" aria-pressed={!showVisitors} onClick={() => setShowVisitors(false)}>سجل الزيارات</button>
+        <button type="button" aria-pressed={showVisitors} disabled={!traffic?.trackingStartedAt} onClick={() => setShowVisitors(true)}>الزوار</button>
+      </div>
+      <div className={`${styles.waveStats} ${showVisitors ? styles.visitorStats : ""}`}>
         <div className={styles.waveStatCard}>
-          <span className={styles.waveStatLabel}>إجمالي الزوار</span>
+          <span className={styles.waveStatLabel}>{showVisitors ? "إجمالي الزوار" : "إجمالي الزيارات"}</span>
           <span className={styles.waveStatVal} style={{ color: TEAL }}>
             {formatNumber(totalVisitors)}
           </span>
-          <span className={styles.waveStatSub}>خلال {formatNumber(chartDays)} يوماً</span>
+          <span className={styles.waveStatSub}>{range === "all" ? COPY.fullRange : `خلال ${formatNumber(chartDays)} يوماً`}</span>
         </div>
         <div className={styles.waveStatCard}>
-          <span className={styles.waveStatLabel}>زوار</span>
+          <span className={styles.waveStatLabel}>{showVisitors ? "الزوار غير المسجّلين" : "زيارات دون تسجيل دخول"}</span>
           <span className={styles.waveStatVal} style={{ color: TEAL }}>
-            {formatNumber(traffic.guests)}
+            {formatNumber(data.guests)}
           </span>
           <span className={styles.waveStatSub}>
-            {percent(traffic.guests, totalVisitors || 1)}% من الإجمالي
+            {percent(data.guests, totalVisitors || 1)}% من الإجمالي
           </span>
         </div>
         <div className={styles.waveStatCard}>
-          <span className={styles.waveStatLabel}>متطوعون</span>
+          <span className={styles.waveStatLabel}>{showVisitors ? "المتطوعون" : "زيارات بعد تسجيل الدخول"}</span>
           <span className={styles.waveStatVal} style={{ color: PURPLE }}>
-            {formatNumber(traffic.members)}
+            {formatNumber(data.members)}
           </span>
           <span className={styles.waveStatSub}>
-            {percent(traffic.members, totalVisitors || 1)}% من الإجمالي
+            {percent(data.members, totalVisitors || 1)}% من الإجمالي
           </span>
         </div>
-        <div className={styles.waveStatCard}>
+        {showVisitors && traffic ? <>
+          <div className={styles.waveStatCard}>
+            <span className={styles.waveStatLabel}>زوار جدد</span>
+            <span className={styles.waveStatVal} style={{ color: BLUE }}>{formatNumber(traffic.newVisitors)}</span>
+          </div>
+          <div className={styles.waveStatCard}>
+            <span className={styles.waveStatLabel}>زوار عائدون</span>
+            <span className={styles.waveStatVal} style={{ color: PURPLE }}>{formatNumber(traffic.returningVisitors)}</span>
+          </div>
+          <div className={styles.waveStatCard}>
+            <span className={styles.waveStatLabel}>أعلى يوم استقبالاً للزوار</span>
+            <span className={styles.waveStatVal} style={{ color: TEAL }}>{traffic.peakDay ? formatNumber(traffic.peakDay.count) : "-"}</span>
+            <span className={styles.waveStatSub} title={traffic.peakDay ? formatVisitorDay(traffic.peakDay.date) : undefined}>
+              {traffic.peakDay ? formatVisitorDay(traffic.peakDay.date) : "-"}
+            </span>
+          </div>
+        </> : <div className={styles.waveStatCard}>
           <span className={styles.waveStatLabel}>الجهاز الأكثر</span>
-          <span className={styles.waveStatVal} style={{ color: BLUE }}>
-            {devices[0] ? DEVICE_LABELS[devices[0].key as keyof typeof DEVICE_LABELS] || devices[0].key : "—"}
-          </span>
-          <span className={styles.waveStatSub}>
-            {devices[0] ? `${formatNumber(devices[0].count)} زيارة` : "بانتظار البيانات"}
-          </span>
-        </div>
+          <span className={styles.waveStatVal} style={{ color: BLUE }}>{devices[0] ? DEVICE_LABELS[devices[0].key] || devices[0].key : "-"}</span>
+          <span className={styles.waveStatSub}>{devices[0] ? `${formatNumber(devices[0].count)} زيارة` : "-"}</span>
+        </div>}
       </div>
 
       <div className={styles.waveChartBox} dir="ltr">
@@ -687,7 +700,7 @@ function TrafficWaveChart({
               <Area
                 type="monotone"
                 dataKey="guests"
-                name="زوار"
+                name={showVisitors ? "الزوار غير المسجّلين" : "دون تسجيل دخول"}
                 stroke={TEAL}
                 strokeWidth={2.5}
                 fill="url(#trafficGuestsGrad)"
@@ -698,7 +711,7 @@ function TrafficWaveChart({
               <Area
                 type="monotone"
                 dataKey="members"
-                name="متطوعون"
+                name={showVisitors ? "المتطوعون" : "بعد تسجيل الدخول"}
                 stroke={PURPLE}
                 strokeWidth={2.5}
                 fill="url(#trafficMembersGrad)"
@@ -709,18 +722,11 @@ function TrafficWaveChart({
             </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <ChartEmpty message="لا توجد بيانات زوار كافية للرسم البياني" />
+          <ChartEmpty message="لا يوجد زوار في الفترة المختارة" />
         )}
       </div>
 
-      <div className={styles.waveFooterSources}>
-        <SourceChips title="المصدر" items={traffic.sources.map((row) => ({ key: row.key, label: SOURCE_LABELS[row.key as keyof typeof SOURCE_LABELS] || row.key, count: row.count }))} />
-        <SourceChips title="الجهاز" tone="pill" items={devices.map((row) => ({ key: row.key, label: DEVICE_LABELS[row.key as keyof typeof DEVICE_LABELS] || row.key, count: row.count }))} />
-        <SourceChips title="الدولة" tone="location" items={traffic.countries.map((row) => ({ key: row.key, label: COUNTRY_NAMES.of(row.key) ?? row.key, count: row.count }))} />
-        <SourceChips title="المدينة" tone="location" items={traffic.cities.map((row) => ({ key: row.key, label: row.key, count: row.count }))} />
-        <SourceChips title="المتصفح" tone="browser" items={traffic.browsers.map((row) => ({ key: row.key, label: row.key, count: row.count }))} />
-        <SourceChips title="النظام" tone="system" items={traffic.operatingSystems.map((row) => ({ key: row.key, label: row.key, count: row.count }))} />
-      </div>
+      <VisitorDetails key={showVisitors ? "visitors" : "legacy"} data={data} unique={showVisitors} />
     </div>
   );
 }
@@ -873,6 +879,7 @@ export default function AnalyticsCharts({
   rafiq,
   system,
   chartDays,
+  range,
   loading
 }: {
   dailyPulse: DailyPulse[];
@@ -902,17 +909,7 @@ export default function AnalyticsCharts({
     notificationTypes: NamedCount[];
     emails: NamedCount[];
   };
-  traffic: {
-    guests: number;
-    members: number;
-    devices: NamedCount[];
-    sources: NamedCount[];
-    countries: NamedCount[];
-    cities: NamedCount[];
-    browsers: NamedCount[];
-    operatingSystems: NamedCount[];
-    daily?: Array<{ date: string; guests: number; members: number; total: number }>;
-  };
+  traffic?: VisitorTrafficDto;
   rafiq: {
     turns: number;
     members: number;
@@ -930,6 +927,7 @@ export default function AnalyticsCharts({
     latestAt: string | null;
   };
   chartDays: number;
+  range: ReportRange;
   loading: boolean;
 }) {
   if (loading) {
@@ -1013,8 +1011,8 @@ export default function AnalyticsCharts({
         )}
       </Panel>
 
-      <Panel title={COPY.panels.visitors} subtitle={COPY.panels.visitorsSub} wide>
-        <TrafficWaveChart traffic={traffic} chartDays={chartDays} />
+      <Panel title={COPY.panels.visitors} wide>
+        <TrafficWaveChart traffic={traffic} chartDays={chartDays} range={range} />
       </Panel>
 
       <Panel title={COPY.panels.rafiq} subtitle={COPY.panels.rafiqSub} wide>

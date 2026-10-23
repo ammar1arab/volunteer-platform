@@ -35,7 +35,7 @@ export const toActivityDto = (
     city: p.city,
     latitude: p.latitude,
     longitude: p.longitude,
-    meetingLink: includePrivateMeetingFields ? p.meetingLink : null,
+    meetingLink: p.meetingLink,
     meetingPlatform: p.meetingPlatform,
     externalMeetingId: includePrivateMeetingFields ? p.externalMeetingId : null,
     meetingLinkSource: p.meetingLinkSource,

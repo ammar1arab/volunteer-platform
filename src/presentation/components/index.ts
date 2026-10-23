@@ -83,6 +83,7 @@ export { default as NotificationDropdown } from "./volunteer/NotificationDropdow
 export { default as CertificateCard } from "./volunteer/CertificateCard/CertificateCard";
 export { default as UserMenuDropdown } from "./volunteer/UserMenuDropdown/UserMenuDropdown.tsx";
 export { default as PushBanner } from "./volunteer/PushBanner/PushBanner";
+export { ActivityMeetingLink } from "./activity/ActivityMeetingLink/ActivityMeetingLink";
 export { default as ProfileTagsSection } from "./volunteer/ProfileTagsSection/ProfileTagsSection";
 export { default as MeetingRoom } from "./volunteer/MeetingRoom/MeetingRoom";
 export { default as LocationModal } from "./base/LocationModal/LocationModal";

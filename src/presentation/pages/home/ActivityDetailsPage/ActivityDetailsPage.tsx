@@ -7,7 +7,7 @@ import remarkBreaks from "remark-breaks";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LoadingState, Button, ActivityPresenterBadge, Badge, Share, LocationModal } from "@/presentation/components";
+import { LoadingState, Button, ActivityPresenterBadge, ActivityMeetingLink, Badge, Share, LocationModal } from "@/presentation/components";
 import { useActivityDetails, useActivityParticipations, useToast } from "@/presentation/hooks";
 import { getMonthLabel, getCityLabel, getActivityTypeLabel, canOpenMeetingLobby, ROUTES, ACTIVITY_PRESENTER_LABEL, MEETING_LABELS } from "@/presentation/constants";
 import { ActivityStatus, ActivityType } from "@/core/domain/enums";
@@ -200,6 +200,7 @@ const ActivityDetailsPage = () => {
               )}
 
 
+              <ActivityMeetingLink activity={activity} className={styles.meetingLinkText} />
               {isInPerson && mapsUrl && (
                 <Button variant="secondary" size="sm" icon={<MapPin size={12} />} onClick={() => setLocationModalOpen(true)}>
                   افتح الخريطة

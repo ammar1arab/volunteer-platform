@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { ActivityDto } from "@/core/application/dtos";
 import { ActivityType } from "@/core/domain/enums";
 import { getMonthLabel, getActivityTypeLabel, getCityLabel, ROUTES } from "@/presentation/constants";
-import { Share, Modal, ActivityPresenterBadge, Button } from "@/presentation/components";
+import { Share, Modal, ActivityPresenterBadge, ActivityMeetingLink, Button } from "@/presentation/components";
 import { MapPin, Clock, Users, Share2, Wifi, MapPinned, Timer, Calendar } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 
@@ -109,6 +109,7 @@ const ActivityCard = ({ activity, actionButton }: Props) => {
             ) : (
               <div className={styles.locationInfo}><Wifi size={11} /><span>نشاط إلكتروني</span></div>
             )}
+            <ActivityMeetingLink activity={activity} className={styles.meetingLink} />
             {isInPerson && mapsUrl && (
               <button type="button" className={styles.mapsBtn}
                 onClick={(e) => { e.stopPropagation(); setLocationModalOpen(true); }}>

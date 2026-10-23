@@ -5,10 +5,7 @@
 .header { margin-bottom: $sp-lg; }
 
 .actions {
-  @include flex(row, center, space-between, $sp-sm);
-  flex-wrap: wrap;
-
-  @include sm { flex-direction: column; align-items: stretch; }
+  @include toolbar-row;
 }
 
 .actionsEnd {

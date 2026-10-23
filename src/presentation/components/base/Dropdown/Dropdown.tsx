@@ -84,7 +84,7 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
               onClick={close}
             />
             <div
-              className={`${styles.menu} ${compact ? styles.compactMenu : ""} no-scrollbar`}
+              className={`${styles.menu} no-scrollbar`}
               style={{
                 position: "fixed",
                 top: coords.top,
@@ -128,7 +128,7 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
       <button
         ref={triggerRef}
         type="button"
-        className={`${styles.trigger} ${isOpen ? styles.open : ""} ${compact ? styles.compact : ""}`}
+        className={`${styles.trigger} ${isOpen ? styles.open : ""}`}
         onClick={() => {
           if (isOpen) {
             close();
@@ -146,7 +146,7 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
             <span className={styles.badge}>{activeItem.count}</span>
           )}
         </span>
-        <ChevronDown size={compact ? 14 : 16} className={styles.icon} />
+        <ChevronDown size={16} className={styles.icon} />
       </button>
       {menu}
     </div>

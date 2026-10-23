@@ -85,7 +85,7 @@
   border-radius: $radius;
   border: 1px solid transparent;
   cursor: pointer;
-  font-size: $font-xs;
+  font-size: $font-sm;
   font-weight: 600;
   text-align: right;
   white-space: normal;
@@ -109,6 +109,7 @@
 }
 
 .permOff {
+  background: $white;
   border-color: $border;
   color: $text-muted;
 

@@ -20,7 +20,7 @@ import {
   Result
 } from "@/core/application/dtos";
 import { logger } from "@/lib/utils";
-import { ParticipationStatus, ADMIN_PERMISSIONS, UserRole, isJordanianCity } from "@/core/domain/enums";
+import { CertificateStatus, ParticipationStatus, ADMIN_PERMISSIONS, UserRole, isJordanianCity } from "@/core/domain/enums";
 import { User } from "@/core/domain/entities";
 
 const USER_WITH_ANALYTICS_INCLUDE = {
@@ -45,6 +45,7 @@ const USER_WITH_ANALYTICS_INCLUDE = {
     include: { activity: { select: { id: true, title: true, date: true } } }
   },
   certificates: {
+    where: { isActive: true, status: CertificateStatus.COMPLETED },
     select: { id: true }
   }
 } as const;

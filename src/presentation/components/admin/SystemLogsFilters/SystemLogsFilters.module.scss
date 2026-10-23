@@ -1,27 +1,31 @@
 @use "@/presentation/styles/variables" as *;
 
+@use "@/presentation/styles/mixins" as *;
+
 .filters {
-  display: flex;
-  gap: 1rem;
+  @include flex(row, center, flex-end, $sp-sm);
+  flex-wrap: wrap;
   min-width: 0;
   max-width: 100%;
 
-  @media (max-width: 768px) {
-    flex-wrap: wrap;
-
-    > *:nth-child(1) {
-      flex: 1 1 100%;
-    }
-
-    > *:nth-child(2),
-    > *:nth-child(3) {
-      flex: 1 1 calc(50% - 0.5rem);
-    }
+  > * {
+    min-width: 0;
   }
 
-  @media (min-width: 769px) {
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+  @include sm {
+    flex-wrap: nowrap;
+    gap: $sp-xs;
+
+    > *:first-child {
+      flex: 1 1 0;
+    }
+
+    > *:nth-child(2) {
+      flex: 0 1 auto;
+    }
+
+    > *:last-child {
+      flex-shrink: 0;
+    }
   }
 }

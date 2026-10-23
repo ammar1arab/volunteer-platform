@@ -1,7 +1,9 @@
 import { prisma } from "@/infrastructure/persistence/prisma";
-import { CertificateStatus, UserRole } from "@/core/domain/enums";
+import { CertificateStatus, ParticipationStatus, UserRole } from "@/core/domain/enums";
 import type { Prisma } from "@prisma/client";
 import { ammanDayKey } from "@/lib/utils/date";
+import type { VisitorTrafficDto } from "@/core/application/dtos/report.dto";
+import VisitorAnalyticsRepository, { summarizeLegacyTraffic, type LegacyTrafficRow, type RecordVisitorInput } from "./VisitorAnalyticsRepository";
 
 export interface StatusCount {
   status: string;
@@ -9,7 +11,7 @@ export interface StatusCount {
 }
 
 export interface DashboardStatsQuery {
-  totalUsers: number;
+  totalVolunteers: number;
   pendingRequests: number;
   activityViews: number;
   postCount: number;
@@ -54,21 +56,7 @@ export interface DashboardStatsQuery {
   notificationTypes: StatusCount[];
   otpEmails: StatusCount[];
   latestLogAt: Date | null;
-  traffic: {
-    guests: number;
-    members: number;
-    mobile: number;
-    desktop: number;
-    tablet: number;
-    google: number;
-    instagram: number;
-    facebook: number;
-    other: number;
-    countries: Record<string, number>;
-    cities: Record<string, number>;
-    browsers: Record<string, number>;
-    operatingSystems: Record<string, number>;
-  };
+  traffic: VisitorTrafficDto;
   rafiq: {
     turns: number;
     members: number;
@@ -76,7 +64,6 @@ export interface DashboardStatsQuery {
     tokens: number;
     models: Record<string, number>;
   };
-  trafficDays: Array<{ day: string; guests: number; members: number; total: number }>;
   rafiqDays: Array<{ day: string; turns: number; members: number; guests: number; tokens: number }>;
 }
 
@@ -94,39 +81,7 @@ const completedCert = { isActive: true, status: CertificateStatus.COMPLETED };
 export type TrafficDevice = "mobile" | "desktop" | "tablet";
 export type TrafficSource = "google" | "instagram" | "facebook" | "other";
 
-function emptyTraffic() {
-  return {
-    guests: 0,
-    members: 0,
-    mobile: 0,
-    desktop: 0,
-    tablet: 0,
-    google: 0,
-    instagram: 0,
-    facebook: 0,
-    other: 0,
-    countries: {} as Record<string, number>,
-    cities: {} as Record<string, number>,
-    browsers: {} as Record<string, number>,
-    operatingSystems: {} as Record<string, number>
-  };
-}
-
-type AnalyticsRow = {
-  day: string;
-  guests: number;
-  members: number;
-  mobile: number;
-  desktop: number;
-  tablet: number;
-  google: number;
-  instagram: number;
-  facebook: number;
-  other: number;
-  countries: Prisma.JsonValue;
-  cities: Prisma.JsonValue;
-  browsers: Prisma.JsonValue;
-  operatingSystems: Prisma.JsonValue;
+type AnalyticsRow = LegacyTrafficRow & {
   chatTurns: number;
   chatMembers: number;
   chatGuests: number;
@@ -148,6 +103,8 @@ function asStatusCounts(rows: Array<{ status: string; _count: { _all: number } }
 }
 
 export default class ReportsRepository {
+  private visitors = new VisitorAnalyticsRepository();
+
   async getDashboardStats(window: ReportsWindow): Promise<DashboardStatsQuery> {
     const currentDate = window.start ? { gte: window.start } : undefined;
     const previousDate = window.previousStart && window.previousEnd
@@ -155,7 +112,7 @@ export default class ReportsRepository {
       : undefined;
     const logDate = currentDate ? { createdAt: currentDate } : undefined;
     const [
-      totalUsers,
+      totalVolunteers,
       pendingRequests,
       systemLogs,
       activityViewsAgg,
@@ -198,9 +155,10 @@ export default class ReportsRepository {
       otpEmails,
       systemDays,
       latestLog,
-      analyticsRows
+      analyticsRows,
+      traffic
     ] = await Promise.all([
-      prisma.user.count(),
+      prisma.user.count({ where: { role: UserRole.VOLUNTEER } }),
       prisma.activityParticipation.count({ where: { status: "PENDING" } }),
       prisma.systemLog.groupBy({ by: ["status"], where: logDate, _count: { _all: true } }),
       prisma.activity.aggregate({ where: liveActivity, _sum: { views: true } }),
@@ -208,7 +166,7 @@ export default class ReportsRepository {
       prisma.monthlyMagazine.aggregate({ _count: { _all: true }, _sum: { downloads: true } }),
       prisma.volunteerSpotlight.count({ where: { isActive: true } }),
       prisma.user.count({ where: { role: UserRole.VOLUNTEER, createdAt: { gte: window.monthStart } } }),
-      prisma.volunteerProfile.aggregate({ _sum: { totalVolunteerHours: true } }),
+      prisma.activityParticipation.aggregate({ where: { status: ParticipationStatus.APPROVED }, _sum: { volunteerHours: true } }),
       prisma.certificate.count({ where: completedCert }),
       prisma.volunteerProfile.groupBy({
         by: ["city"],
@@ -264,8 +222,8 @@ export default class ReportsRepository {
       previousDate ? prisma.activity.count({ where: { ...liveActivity, createdAt: previousDate } }) : Promise.resolve(null),
       prisma.activityParticipation.count({ where: { requestedAt: currentDate } }),
       previousDate ? prisma.activityParticipation.count({ where: { requestedAt: previousDate } }) : Promise.resolve(null),
-      prisma.activityParticipation.aggregate({ where: { markedAt: currentDate }, _sum: { volunteerHours: true } }),
-      previousDate ? prisma.activityParticipation.aggregate({ where: { markedAt: previousDate }, _sum: { volunteerHours: true } }) : Promise.resolve(null),
+      prisma.activityParticipation.aggregate({ where: { status: ParticipationStatus.APPROVED, markedAt: currentDate }, _sum: { volunteerHours: true } }),
+      previousDate ? prisma.activityParticipation.aggregate({ where: { status: ParticipationStatus.APPROVED, markedAt: previousDate }, _sum: { volunteerHours: true } }) : Promise.resolve(null),
       prisma.certificate.count({ where: { ...completedCert, issuedAt: currentDate } }),
       previousDate ? prisma.certificate.count({ where: { ...completedCert, issuedAt: previousDate } }) : Promise.resolve(null),
       prisma.activityParticipation.groupBy({ by: ["attendanceStatus"], where: { markedAt: currentDate }, _count: { _all: true } }),
@@ -306,35 +264,12 @@ export default class ReportsRepository {
                "chatTurns", "chatMembers", "chatGuests", tokens, models
         FROM analytics_daily
         WHERE day >= ${window.start ? ammanDayKey(window.start) : "0000-01-01"}
-      `
+      `,
+      this.visitors.getTraffic(window.start)
     ]);
-
-    const traffic = emptyTraffic();
     const rafiq = { turns: 0, members: 0, guests: 0, tokens: 0, models: {} as Record<string, number> };
-    const trafficDays: Array<{ day: string; guests: number; members: number; total: number }> = [];
     const rafiqDays: Array<{ day: string; turns: number; members: number; guests: number; tokens: number }> = [];
     for (const row of analyticsRows) {
-      traffic.guests += row.guests;
-      traffic.members += row.members;
-      traffic.mobile += row.mobile;
-      traffic.desktop += row.desktop;
-      traffic.tablet += row.tablet;
-      traffic.google += row.google;
-      traffic.instagram += row.instagram;
-      traffic.facebook += row.facebook;
-      traffic.other += row.other;
-      for (const [key, count] of Object.entries(modelCounts(row.countries))) {
-        traffic.countries[key] = (traffic.countries[key] ?? 0) + count;
-      }
-      for (const [key, count] of Object.entries(modelCounts(row.cities))) {
-        traffic.cities[key] = (traffic.cities[key] ?? 0) + count;
-      }
-      for (const [key, count] of Object.entries(modelCounts(row.browsers))) {
-        traffic.browsers[key] = (traffic.browsers[key] ?? 0) + count;
-      }
-      for (const [key, count] of Object.entries(modelCounts(row.operatingSystems))) {
-        traffic.operatingSystems[key] = (traffic.operatingSystems[key] ?? 0) + count;
-      }
       rafiq.turns += row.chatTurns;
       rafiq.members += row.chatMembers;
       rafiq.guests += row.chatGuests;
@@ -342,12 +277,6 @@ export default class ReportsRepository {
       for (const [key, count] of Object.entries(modelCounts(row.models))) {
         rafiq.models[key] = (rafiq.models[key] ?? 0) + count;
       }
-      trafficDays.push({
-        day: row.day,
-        guests: row.guests,
-        members: row.members,
-        total: row.guests + row.members
-      });
       rafiqDays.push({
         day: row.day,
         turns: row.chatTurns,
@@ -358,7 +287,7 @@ export default class ReportsRepository {
     }
 
     return {
-      totalUsers,
+      totalVolunteers,
       pendingRequests,
       activityViews: activityViewsAgg._sum.views ?? 0,
       postCount: postsAgg._count._all,
@@ -367,7 +296,7 @@ export default class ReportsRepository {
       magazineDownloads: magazinesAgg._sum.downloads ?? 0,
       spotlightCount,
       newVolunteersThisMonth,
-      totalHours: hoursAgg._sum.totalVolunteerHours ?? 0,
+      totalHours: hoursAgg._sum.volunteerHours ?? 0,
       certificatesCount,
       cityGroups: cityGroups.map((row) => ({ city: row.city, count: row._count._all })),
       genderGroups: genderGroups.map((row) => ({ gender: row.gender, count: row._count._all })),
@@ -403,83 +332,14 @@ export default class ReportsRepository {
       notificationTypes: notificationTypes.map((row) => ({ status: row.type, count: row._count._all })),
       otpEmails: otpEmails.map((row) => ({ status: row.type, count: row._count._all })),
       latestLogAt: latestLog?.createdAt ?? null,
-      traffic,
+      traffic: { ...traffic, legacy: summarizeLegacyTraffic(analyticsRows) },
       rafiq,
-      trafficDays,
       rafiqDays
     };
   }
 
-  async incrementTraffic(input: { guest: boolean; device: TrafficDevice; source: TrafficSource; country?: string; city?: string; browser: string; operatingSystem: string }) {
-    const day = ammanDayKey(new Date());
-    const country = input.country ?? "";
-    const city = input.city ?? "";
-    const countries = JSON.stringify(country ? { [country]: 1 } : {});
-    const cities = JSON.stringify(city ? { [city]: 1 } : {});
-    const browsers = JSON.stringify({ [input.browser]: 1 });
-    const operatingSystems = JSON.stringify({ [input.operatingSystem]: 1 });
-    await prisma.$executeRaw`
-      INSERT INTO analytics_daily (
-        day, guests, members, mobile, desktop, tablet, google, instagram, facebook, other,
-        countries, cities, browsers, "operatingSystems"
-      )
-      VALUES (
-        ${day},
-        ${input.guest ? 1 : 0},
-        ${input.guest ? 0 : 1},
-        ${input.device === "mobile" ? 1 : 0},
-        ${input.device === "desktop" ? 1 : 0},
-        ${input.device === "tablet" ? 1 : 0},
-        ${input.source === "google" ? 1 : 0},
-        ${input.source === "instagram" ? 1 : 0},
-        ${input.source === "facebook" ? 1 : 0},
-        ${input.source === "other" ? 1 : 0},
-        CAST(${countries} AS jsonb),
-        CAST(${cities} AS jsonb),
-        CAST(${browsers} AS jsonb),
-        CAST(${operatingSystems} AS jsonb)
-      )
-      ON CONFLICT (day) DO UPDATE SET
-        guests = analytics_daily.guests + EXCLUDED.guests,
-        members = analytics_daily.members + EXCLUDED.members,
-        mobile = analytics_daily.mobile + EXCLUDED.mobile,
-        desktop = analytics_daily.desktop + EXCLUDED.desktop,
-        tablet = analytics_daily.tablet + EXCLUDED.tablet,
-        google = analytics_daily.google + EXCLUDED.google,
-        instagram = analytics_daily.instagram + EXCLUDED.instagram,
-        facebook = analytics_daily.facebook + EXCLUDED.facebook,
-        other = analytics_daily.other + EXCLUDED.other,
-        countries = CASE
-          WHEN ${country} = '' THEN analytics_daily.countries
-          ELSE jsonb_set(
-            analytics_daily.countries,
-            ARRAY[${country}],
-            to_jsonb(COALESCE((analytics_daily.countries ->> ${country})::int, 0) + 1),
-            true
-          )
-        END,
-        cities = CASE
-          WHEN ${city} = '' THEN analytics_daily.cities
-          ELSE jsonb_set(
-            analytics_daily.cities,
-            ARRAY[${city}],
-            to_jsonb(COALESCE((analytics_daily.cities ->> ${city})::int, 0) + 1),
-            true
-          )
-        END,
-        browsers = jsonb_set(
-          analytics_daily.browsers,
-          ARRAY[${input.browser}],
-          to_jsonb(COALESCE((analytics_daily.browsers ->> ${input.browser})::int, 0) + 1),
-          true
-        ),
-        "operatingSystems" = jsonb_set(
-          analytics_daily."operatingSystems",
-          ARRAY[${input.operatingSystem}],
-          to_jsonb(COALESCE((analytics_daily."operatingSystems" ->> ${input.operatingSystem})::int, 0) + 1),
-          true
-        )
-    `;
+  async incrementTraffic(input: RecordVisitorInput): Promise<boolean> {
+    return this.visitors.record(input);
   }
 
   async incrementChat(input: { guest: boolean; tokens: number; model: string }) {

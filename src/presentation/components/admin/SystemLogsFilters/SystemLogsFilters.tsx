@@ -44,6 +44,7 @@ const SystemLogsFilters = ({
       variant="danger"
       size="md"
       icon={<Trash2 size={16} />}
+      hideTextOnMobile
       onClick={onClearRequest}
       disabled={isClearing}
       loading={isClearing}
