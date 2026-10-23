@@ -44,7 +44,7 @@ const Dropdown = ({ items, active, onChange, placeholder = "اختر...", compac
     const margin = 12;
     const viewportW = window.innerWidth;
     const viewportH = window.innerHeight;
-    const width = Math.min(rect.width, viewportW - margin * 2);
+    const width = Math.min(Math.max(rect.width, 220), viewportW - margin * 2);
 
     let left = rect.left;
     if (left + width > viewportW - margin) left = viewportW - margin - width;
