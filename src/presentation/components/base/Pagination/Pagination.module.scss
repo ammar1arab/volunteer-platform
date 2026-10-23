@@ -5,9 +5,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: $radius-full;
   gap: $sp-sm;
-  margin-top: $sp-lg;
+  margin-top: $sp-md;
+  padding: $sp-sm $sp-md;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-md;
 
   @media (max-width: 640px) {
     flex-direction: column;
@@ -18,22 +21,19 @@
     flex-direction: column;
     justify-content: center;
     gap: $sp-xs;
-    margin-top: $sp-sm;
-    border-radius: 0;
+    margin-top: $sp-xs;
+    padding: $sp-xs $sp-sm;
   }
 
   &.sticky {
     position: sticky;
     bottom: 0;
     z-index: 20;
-    padding: $sp-sm 0;
-    background: transparent;
-    border-top: none;
-    box-shadow: none;
+    background: $bg;
+    box-shadow: $shadow;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     margin-top: $sp-md;
-    border-radius: 0;
   }
 }
 
@@ -67,7 +67,7 @@
   height: 32px;
   border-radius: $radius;
   border: 1px solid $border;
-  color: $text;
+  color: $text-secondary;
   background-color: $white;
   cursor: pointer;
   transition: $transition;
@@ -91,7 +91,7 @@
   min-width: 32px;
   padding: 0 6px;
   font-size: $font-xs;
-  font-weight: 600;
+  font-weight: 500;
 
   &:hover:not(.active) {
     border-color: $green;
@@ -102,12 +102,13 @@
     background: $green;
     border-color: $green;
     color: $bg;
+    font-weight: 600;
   }
 }
 
 .pageStatus {
   font-size: $font-xs;
-  font-weight: 700;
+  font-weight: 500;
   color: $text;
   padding: 0 $sp-sm;
   white-space: nowrap;
